@@ -3,7 +3,7 @@ import { Send } from 'lucide-react'
 import { Button } from './ui/button'
 import { Avatar } from './ui/avatar'
 
-function ChatInterface() {
+function Chat() {
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -128,5 +128,5 @@ function ChatInterface() {
   )
 }
 
-export default ChatInterface
+export default Chat
 
