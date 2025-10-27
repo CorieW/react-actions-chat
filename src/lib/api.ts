@@ -1,5 +1,16 @@
+interface GitHubNotification {
+  readonly id: string;
+  readonly type: 'pull_request' | 'issue' | 'commit' | 'star';
+  readonly title: string;
+  readonly repository: string;
+  readonly author: string;
+  readonly authorAvatar: string;
+  readonly time: string;
+  readonly url: string;
+}
+
 // Mock data for demonstration
-const mockNotifications = [
+const MOCK_NOTIFICATIONS: readonly GitHubNotification[] = [
   {
     id: '1',
     type: 'pull_request',
@@ -70,17 +81,17 @@ const mockNotifications = [
     time: '6 hours ago',
     url: 'https://github.com/my-org/api-server/commit/def456'
   }
-]
+] as const;
 
 /**
  * Fetches GitHub notifications
  * 
- * @returns {Promise<Array>} Array of notification objects
+ * @returns Array of notification objects
  * @throws {Error} If the fetch fails
  */
-export const fetchGitHubNotifications = async () => {
+export async function fetchGitHubNotifications(): Promise<readonly GitHubNotification[]> {
   // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1000))
+  await new Promise(resolve => setTimeout(resolve, 1000));
   
   // In a real implementation, this would be an API call like:
   // const response = await fetch('https://api.github.com/notifications', {
@@ -96,6 +107,6 @@ export const fetchGitHubNotifications = async () => {
   // 
   // return await response.json()
   
-  return mockNotifications
+  return MOCK_NOTIFICATIONS;
 }
 

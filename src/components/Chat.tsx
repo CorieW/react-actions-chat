@@ -1,52 +1,54 @@
-import { useState, useRef, useEffect } from 'react'
-import { Send } from 'lucide-react'
-import { Button } from './ui/button'
-import { Avatar } from './ui/avatar'
+import { useState, useRef, useEffect } from 'react';
+import type { KeyboardEvent } from 'react';
+import { Send } from 'lucide-react';
+import type { Message, ChatProps } from '../js/types';
+import { Button } from './ui/button';
+import { Avatar } from './ui/avatar';
 
-function Chat({ initialMessages = [] }) {
-  const [messages, setMessages] = useState(initialMessages)
-  const [inputValue, setInputValue] = useState('')
-  const messagesEndRef = useRef(null)
+export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
+  const [messages, setMessages] = useState<readonly Message[]>(initialMessages);
+  const [inputValue, setInputValue] = useState<string>('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  const scrollToBottom = (): void => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    scrollToBottom();
+  }, [messages]);
 
-  const handleSend = () => {
-    if (inputValue.trim() === '') return
+  const handleSend = (): void => {
+    if (inputValue.trim() === '') return;
 
-    const newMessage = {
+    const newMessage: Message = {
       id: messages.length + 1,
       type: 'user',
       content: inputValue,
       timestamp: new Date()
-    }
+    };
 
-    setMessages([...messages, newMessage])
-    setInputValue('')
+    setMessages([...messages, newMessage]);
+    setInputValue('');
 
     // Simulate agent response
     setTimeout(() => {
-      const agentResponse = {
+      const agentResponse: Message = {
         id: messages.length + 2,
         type: 'agent',
         content: 'Thanks for your message! An agent will respond to you shortly.',
         timestamp: new Date()
-      }
-      setMessages(prev => [...prev, agentResponse])
-    }, 1000)
-  }
+      };
+      setMessages(prev => [...prev, agentResponse]);
+    }, 1000);
+  };
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
+      e.preventDefault();
+      handleSend();
     }
-  }
+  };
 
   return (
     <div className="flex flex-col h-screen">
@@ -118,8 +120,6 @@ function Chat({ initialMessages = [] }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
-export default Chat
 
