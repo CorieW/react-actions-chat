@@ -3,15 +3,8 @@ import { Send } from 'lucide-react'
 import { Button } from './ui/button'
 import { Avatar } from './ui/avatar'
 
-function Chat() {
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      type: 'agent',
-      content: 'Hello! How can I help you today?',
-      timestamp: new Date()
-    }
-  ])
+function Chat({ initialMessages = [] }) {
+  const [messages, setMessages] = useState(initialMessages)
   const [inputValue, setInputValue] = useState('')
   const messagesEndRef = useRef(null)
 
