@@ -7,7 +7,8 @@ export function Chat({
   initialMessages = [],
   theme,
 }: ChatPropsWithFlexibleTheme): React.JSX.Element {
-  const { messages, addMessage, setMessages, getPreviousMessage } = useChatStore();
+  const { messages, addMessage, setMessages, getPreviousMessage } =
+    useChatStore();
 
   // Resolved theme based on string or object or undefined
   const mergedTheme = getResolvedTheme(theme);
@@ -38,8 +39,8 @@ export function Chat({
   };
 
   return (
-    <div 
-      className="flex flex-col h-screen"
+    <div
+      className='flex flex-col h-screen'
       style={{
         ...getThemeStyles(mergedTheme),
         backgroundColor: mergedTheme.backgroundColor,

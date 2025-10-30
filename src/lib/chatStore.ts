@@ -23,7 +23,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     return messages.length > 0 ? messages[messages.length - 1] : undefined;
   },
 
-  addMessage: (messageData) => {
+  addMessage: messageData => {
     const currentMessages = get().messages;
     const newMessage: Message = {
       id: currentMessages.length + 1,
@@ -31,18 +31,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
       ...messageData,
     };
 
-    set((state) => ({
+    set(state => ({
       messages: [...state.messages, newMessage],
     }));
   },
 
   addMessages: (messages: readonly Message[]) => {
-    set((state) => ({
+    set(state => ({
       messages: [...state.messages, ...messages],
     }));
   },
 
-  setMessages: (newMessages) => {
+  setMessages: newMessages => {
     set({ messages: newMessages });
   },
 

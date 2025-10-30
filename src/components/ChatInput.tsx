@@ -10,10 +10,13 @@ interface ChatInputProps {
   readonly theme: ChatTheme;
 }
 
-export function ChatInput({ onSend, theme }: ChatInputProps): React.JSX.Element {
+export function ChatInput({
+  onSend,
+  theme,
+}: ChatInputProps): React.JSX.Element {
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
-  
+
   const {
     setInputFieldElement,
     setInputFieldSubmitFunc,
@@ -25,9 +28,9 @@ export function ChatInput({ onSend, theme }: ChatInputProps): React.JSX.Element 
     if (inputRef.current) {
       setInputFieldElement(inputRef.current);
     }
-    
+
     setInputFieldSubmitFunc(() => handleSend);
-    
+
     return () => {
       setInputFieldElement(null);
       setInputFieldSubmitFunc(null);
@@ -44,7 +47,7 @@ export function ChatInput({ onSend, theme }: ChatInputProps): React.JSX.Element 
 
   const handleSend = (): void => {
     if (inputValue.trim() === '') return;
-    
+
     onSend(inputValue);
     setInputValue('');
   };
@@ -57,30 +60,30 @@ export function ChatInput({ onSend, theme }: ChatInputProps): React.JSX.Element 
   };
 
   return (
-    <div 
-      className="p-4 border-t"
+    <div
+      className='p-4 border-t'
       style={{
         borderColor: theme.borderColor,
         backgroundColor: theme.secondaryColor,
       }}
     >
       {getInputFieldDescription() && (
-        <div 
-          className="mb-3 text-sm opacity-75"
+        <div
+          className='mb-3 text-sm opacity-75'
           style={{ color: theme.textColor }}
         >
           {getInputFieldDescription()}
         </div>
       )}
-      <div className="flex gap-2">
+      <div className='flex gap-2'>
         <input
           ref={inputRef}
-          type="text"
+          type='text'
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={e => setInputValue(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Type your message..."
-          className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+          placeholder='Type your message...'
+          className='flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring'
           style={{
             backgroundColor: theme.inputBackgroundColor,
             borderColor: theme.borderColor,
@@ -90,13 +93,13 @@ export function ChatInput({ onSend, theme }: ChatInputProps): React.JSX.Element 
         <Button
           onClick={handleSend}
           disabled={inputValue.trim() === ''}
-          className="px-4"
+          className='px-4'
           style={{
             backgroundColor: theme.buttonColor,
             color: theme.buttonTextColor,
           }}
         >
-          <Send className="w-4 h-4" />
+          <Send className='w-4 h-4' />
         </Button>
       </div>
     </div>

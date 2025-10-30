@@ -7,7 +7,10 @@ interface MessagesListProps {
   readonly theme: ChatTheme;
 }
 
-export function MessagesList({ messages, theme }: MessagesListProps): React.JSX.Element {
+export function MessagesList({
+  messages,
+  theme,
+}: MessagesListProps): React.JSX.Element {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = (): void => {
@@ -19,13 +22,9 @@ export function MessagesList({ messages, theme }: MessagesListProps): React.JSX.
   }, [messages]);
 
   return (
-    <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-      {messages.map((message) => (
-        <MessageBubble
-          key={message.id}
-          message={message}
-          theme={theme}
-        />
+    <div className='flex-1 p-4 space-y-4 overflow-y-auto'>
+      {messages.map(message => (
+        <MessageBubble key={message.id} message={message} theme={theme} />
       ))}
       <div ref={messagesEndRef} />
     </div>
