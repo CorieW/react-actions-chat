@@ -1,14 +1,22 @@
 import { useState, useRef, useEffect } from 'react';
 import type { KeyboardEvent } from 'react';
 import { Send } from 'lucide-react';
-import type { Message, ChatProps } from '../js/types';
+import type { ChatProps } from '../js/types';
 import { Button } from './ui/button';
 import { Avatar } from './ui/avatar';
+import { useChatStore } from '../lib/chatStore';
 
 export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
-  const [messages, setMessages] = useState<readonly Message[]>(initialMessages);
+  const { messages, addMessage, setMessages } = useChatStore();
   const [inputValue, setInputValue] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Initialize messages with initialMessages if provided
+  useEffect(() => {
+    if (initialMessages.length > 0) {
+      setMessages(initialMessages);
+    }
+  }, [initialMessages, setMessages]);
 
   const scrollToBottom = (): void => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -21,26 +29,12 @@ export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
   const handleSend = (): void => {
     if (inputValue.trim() === '') return;
 
-    const newMessage: Message = {
-      id: messages.length + 1,
+    addMessage({
       type: 'user',
       content: inputValue,
-      timestamp: new Date()
-    };
+    });
 
-    setMessages([...messages, newMessage]);
     setInputValue('');
-
-    // Simulate agent response
-    setTimeout(() => {
-      const agentResponse: Message = {
-        id: messages.length + 2,
-        type: 'agent',
-        content: 'Thanks for your message! An agent will respond to you shortly.',
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, agentResponse]);
-    }, 1000);
   };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>): void => {
@@ -53,7 +47,7 @@ export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
   return (
     <div className="flex flex-col h-screen">
       {/* Chat Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 p-4 space-y-4 overflow-y-auto">
         {messages.map((message) => (
           <div
             key={message.id}
@@ -63,7 +57,7 @@ export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
           >
             {/* Avatar */}
             <div className="flex-shrink-0">
-              <Avatar className="h-8 w-8">
+              <Avatar className="w-8 h-8">
                 <div className={`h-full w-full flex items-center justify-center text-sm font-medium ${
                   message.type === 'user' 
                     ? 'bg-primary text-primary-foreground' 
@@ -100,7 +94,7 @@ export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-border bg-card p-4">
+      <div className="p-4 border-t border-border bg-card">
         <div className="flex gap-2">
           <input
             type="text"
@@ -108,14 +102,14 @@ export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Type your message..."
-            className="flex-1 bg-background border border-input rounded-lg px-4 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="flex-1 px-4 py-2 border rounded-lg bg-background border-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <Button
             onClick={handleSend}
             disabled={inputValue.trim() === ''}
             className="px-4"
           >
-            <Send className="h-4 w-4" />
+            <Send className="w-4 h-4" />
           </Button>
         </div>
       </div>
