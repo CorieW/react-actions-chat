@@ -2,9 +2,11 @@ import type { Message } from './js/types';
 import { Chat } from './components/Chat';
 import { useChatStore } from './lib/chatStore';
 import { useMemo } from 'react';
+import { useInputFieldStore } from './lib';
 
 function App(): React.JSX.Element {
   const { addMessage } = useChatStore();
+  const { setInputFieldDescription } = useInputFieldStore();
 
   const repeatMsg = (content: string) =>
   {
@@ -24,12 +26,7 @@ function App(): React.JSX.Element {
       content: 'Hello! How can I help you today?',
       timestamp: new Date(),
       userResponseCallback: () => {
-        // Call addMessage without causing a render loop
-        addMessage({
-          type: 'agent',
-          content: 'We\'re busy right now. Please try again later.',
-          userResponseCallback: () => repeatMsg('We\'re busy right now. Please try again later.'),
-        });
+        setInputFieldDescription('We\'re not available at the moment')
       }
     }
   ], [addMessage]);

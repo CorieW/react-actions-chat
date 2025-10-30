@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { KeyboardEvent } from 'react';
 import { Send } from 'lucide-react';
 import type { ChatTheme } from '../js/types';
 import { Button } from './ui/button';
+import { useInputFieldStore } from '../lib/inputFieldStore';
 
 interface ChatInputProps {
   readonly onSend: (message: string) => void;
@@ -11,6 +12,35 @@ interface ChatInputProps {
 
 export function ChatInput({ onSend, theme }: ChatInputProps): React.JSX.Element {
   const [inputValue, setInputValue] = useState<string>('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  
+  const {
+    setInputFieldElement,
+    setInputFieldSubmitFunc,
+    getInputFieldDescription,
+  } = useInputFieldStore();
+
+  // Register the input element and submit function with the store
+  useEffect(() => {
+    if (inputRef.current) {
+      setInputFieldElement(inputRef.current);
+    }
+    
+    setInputFieldSubmitFunc(() => handleSend);
+    
+    return () => {
+      setInputFieldElement(null);
+      setInputFieldSubmitFunc(null);
+    };
+  }, [setInputFieldElement, setInputFieldSubmitFunc]);
+
+  // Update input description when it changes in the store
+  useEffect(() => {
+    const description = getInputFieldDescription();
+    if (inputRef.current && description) {
+      inputRef.current.placeholder = description;
+    }
+  }, [getInputFieldDescription]);
 
   const handleSend = (): void => {
     if (inputValue.trim() === '') return;
@@ -34,8 +64,17 @@ export function ChatInput({ onSend, theme }: ChatInputProps): React.JSX.Element 
         backgroundColor: theme.secondaryColor,
       }}
     >
+      {getInputFieldDescription() && (
+        <div 
+          className="mb-3 text-sm opacity-75"
+          style={{ color: theme.textColor }}
+        >
+          {getInputFieldDescription()}
+        </div>
+      )}
       <div className="flex gap-2">
         <input
+          ref={inputRef}
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
