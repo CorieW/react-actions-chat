@@ -7,7 +7,7 @@ import { Avatar } from './ui/avatar';
 import { useChatStore } from '../lib/chatStore';
 
 export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
-  const { messages, addMessage, setMessages } = useChatStore();
+  const { messages, addMessage, setMessages, getPreviousMessage } = useChatStore();
   const [inputValue, setInputValue] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -29,11 +29,23 @@ export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
   const handleSend = (): void => {
     if (inputValue.trim() === '') return;
 
+    // Get the previous message (before sending the user message)
+    const previousMessage = getPreviousMessage();
+
+    // Add the user message
     addMessage({
       type: 'user',
       content: inputValue,
     });
 
+    // If the previous message is an agent message and has a userResponseCallback, call it
+    const isPreviousMessageAgent = previousMessage?.type === 'agent';
+    const hasUserResponseCallback = previousMessage?.userResponseCallback;
+    if (isPreviousMessageAgent && hasUserResponseCallback) {
+      previousMessage.userResponseCallback();
+    }
+
+    // Clear the input value
     setInputValue('');
   };
 
