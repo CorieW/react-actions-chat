@@ -56,7 +56,7 @@ export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
             }`}
           >
             {/* Avatar */}
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <Avatar className="w-8 h-8">
                 <div className={`h-full w-full flex items-center justify-center text-sm font-medium ${
                   message.type === 'user' 
@@ -76,7 +76,7 @@ export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
                   : 'bg-card text-card-foreground'
               }`}
             >
-              <p className="text-sm break-words">{message.content}</p>
+              <p className="text-sm wrap-break-words">{message.content}</p>
               <span className={`text-xs mt-1 block ${
                 message.type === 'user' 
                   ? 'text-primary-foreground/70' 
