@@ -1,15 +1,59 @@
 import { useState, useRef, useEffect } from 'react';
 import type { KeyboardEvent } from 'react';
 import { Send } from 'lucide-react';
-import type { ChatProps } from '../js/types';
+import type { ChatProps, ChatTheme } from '../js/types';
 import { Button } from './ui/button';
 import { Avatar } from './ui/avatar';
 import { useChatStore } from '../lib/chatStore';
 
-export function Chat({ initialMessages = [], theme }: ChatProps): React.JSX.Element {
+// Preset light and dark themes
+const LIGHT_THEME: ChatTheme = {
+  primaryColor: '#3b82f6',           // Blue for user messages
+  secondaryColor: '#e5e7eb',         // Light gray for agent messages
+  backgroundColor: '#f3f4f6',        // Light background
+  textColor: '#111827',              // Very dark text
+  borderColor: '#e5e7eb',            // Light gray borders
+  inputBackgroundColor: '#fff',      // White input
+  inputTextColor: '#111827',         // Dark text input
+  buttonColor: '#3b82f6',            // Blue button
+  buttonTextColor: '#ffffff',        // White button text
+};
+
+const DARK_THEME: ChatTheme = {
+  primaryColor: '#3b82f6',           // User message background (blue)
+  secondaryColor: '#374151',         // Agent message background (gray-700)
+  backgroundColor: '#111827',        // Chat container background (gray-900)
+  textColor: '#f9fafb',              // Primary text (gray-50)
+  borderColor: '#4b5563',            // Border (gray-600)
+  inputBackgroundColor: '#1f2937',   // Input background (gray-800)
+  inputTextColor: '#f9fafb',         // Input text (gray-50)
+  buttonColor: '#3b82f6',            // Button (blue-600)
+  buttonTextColor: '#ffffff',        // Button text (white)
+};
+
+type ThemeInput = 'light' | 'dark' | ChatTheme | undefined;
+
+function getResolvedTheme(theme: ThemeInput): ChatTheme {
+  if (!theme || theme === 'dark') return { ...DARK_THEME };
+  if (theme === 'light') return { ...LIGHT_THEME };
+  // custom object: merge it over dark as base (to retain all properties)
+  return { ...DARK_THEME, ...theme };
+}
+
+export type ChatPropsWithFlexibleTheme = Omit<ChatProps, 'theme'> & {
+  theme?: ThemeInput;
+};
+
+export function Chat({
+  initialMessages = [],
+  theme,
+}: ChatPropsWithFlexibleTheme): React.JSX.Element {
   const { messages, addMessage, setMessages, getPreviousMessage } = useChatStore();
   const [inputValue, setInputValue] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Resolved theme based on string or object or undefined
+  const mergedTheme = getResolvedTheme(theme);
 
   // Initialize messages with initialMessages if provided
   useEffect(() => {
@@ -18,20 +62,18 @@ export function Chat({ initialMessages = [], theme }: ChatProps): React.JSX.Elem
     }
   }, [initialMessages, setMessages]);
 
-  // Generate CSS custom properties from theme
+  // Generate CSS custom properties from mergedTheme
   const getThemeStyles = (): React.CSSProperties => {
-    if (!theme) return {};
-    
     return {
-      '--chat-primary-color': theme.primaryColor,
-      '--chat-secondary-color': theme.secondaryColor,
-      '--chat-background-color': theme.backgroundColor,
-      '--chat-text-color': theme.textColor,
-      '--chat-border-color': theme.borderColor,
-      '--chat-input-background-color': theme.inputBackgroundColor,
-      '--chat-input-text-color': theme.inputTextColor,
-      '--chat-button-color': theme.buttonColor,
-      '--chat-button-text-color': theme.buttonTextColor,
+      '--chat-primary-color': mergedTheme.primaryColor,
+      '--chat-secondary-color': mergedTheme.secondaryColor,
+      '--chat-background-color': mergedTheme.backgroundColor,
+      '--chat-text-color': mergedTheme.textColor,
+      '--chat-border-color': mergedTheme.borderColor,
+      '--chat-input-background-color': mergedTheme.inputBackgroundColor,
+      '--chat-input-text-color': mergedTheme.inputTextColor,
+      '--chat-button-color': mergedTheme.buttonColor,
+      '--chat-button-text-color': mergedTheme.buttonTextColor,
     } as React.CSSProperties;
   };
 
@@ -78,8 +120,8 @@ export function Chat({ initialMessages = [], theme }: ChatProps): React.JSX.Elem
       className="flex flex-col h-screen"
       style={{
         ...getThemeStyles(),
-        backgroundColor: theme?.backgroundColor || 'var(--background)',
-        color: theme?.textColor || 'var(--foreground)',
+        backgroundColor: mergedTheme.backgroundColor,
+        color: mergedTheme.textColor,
       }}
     >
       {/* Chat Messages Area */}
@@ -95,14 +137,14 @@ export function Chat({ initialMessages = [], theme }: ChatProps): React.JSX.Elem
             <div className="shrink-0">
               <Avatar className="w-8 h-8">
                 <div 
-                  className="h-full w-full flex items-center justify-center text-sm font-medium"
+                  className="flex items-center justify-center w-full h-full text-sm font-medium"
                   style={{
                     backgroundColor: message.type === 'user' 
-                      ? (theme?.primaryColor || 'var(--primary)')
-                      : (theme?.secondaryColor || 'var(--secondary)'),
+                      ? mergedTheme.primaryColor
+                      : mergedTheme.secondaryColor,
                     color: message.type === 'user' 
-                      ? (theme?.buttonTextColor || 'var(--primary-foreground)')
-                      : (theme?.textColor || 'var(--secondary-foreground)'),
+                      ? mergedTheme.buttonTextColor
+                      : mergedTheme.textColor,
                   }}
                 >
                   {message.type === 'user' ? 'U' : 'A'}
@@ -115,20 +157,20 @@ export function Chat({ initialMessages = [], theme }: ChatProps): React.JSX.Elem
               className="max-w-[70%] rounded-lg p-3"
               style={{
                 backgroundColor: message.type === 'user'
-                  ? (theme?.primaryColor || 'var(--primary)')
-                  : (theme?.secondaryColor || 'var(--card)'),
+                  ? mergedTheme.primaryColor
+                  : mergedTheme.secondaryColor,
                 color: message.type === 'user'
-                  ? (theme?.buttonTextColor || 'var(--primary-foreground)')
-                  : (theme?.textColor || 'var(--card-foreground)'),
+                  ? mergedTheme.buttonTextColor
+                  : mergedTheme.textColor,
               }}
             >
               <p className="text-sm wrap-break-words">{message.content}</p>
               <span 
-                className="text-xs mt-1 block"
+                className="block mt-1 text-xs"
                 style={{
                   color: message.type === 'user' 
-                    ? (theme?.buttonTextColor ? `${theme.buttonTextColor}70` : 'var(--primary-foreground)')
-                    : (theme?.textColor ? `${theme.textColor}70` : 'var(--muted-foreground)'),
+                    ? `${mergedTheme.buttonTextColor}70`
+                    : `${mergedTheme.textColor}70`,
                 }}
               >
                 {message.timestamp.toLocaleTimeString([], { 
@@ -146,8 +188,8 @@ export function Chat({ initialMessages = [], theme }: ChatProps): React.JSX.Elem
       <div 
         className="p-4 border-t"
         style={{
-          borderColor: theme?.borderColor || 'var(--border)',
-          backgroundColor: theme?.secondaryColor || 'var(--card)',
+          borderColor: mergedTheme.borderColor,
+          backgroundColor: mergedTheme.secondaryColor,
         }}
       >
         <div className="flex gap-2">
@@ -159,9 +201,9 @@ export function Chat({ initialMessages = [], theme }: ChatProps): React.JSX.Elem
             placeholder="Type your message..."
             className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
             style={{
-              backgroundColor: theme?.inputBackgroundColor || 'var(--background)',
-              borderColor: theme?.borderColor || 'var(--input)',
-              color: theme?.inputTextColor || 'var(--foreground)',
+              backgroundColor: mergedTheme.inputBackgroundColor,
+              borderColor: mergedTheme.borderColor,
+              color: mergedTheme.inputTextColor,
             }}
           />
           <Button
@@ -169,8 +211,8 @@ export function Chat({ initialMessages = [], theme }: ChatProps): React.JSX.Elem
             disabled={inputValue.trim() === ''}
             className="px-4"
             style={{
-              backgroundColor: theme?.buttonColor || undefined,
-              color: theme?.buttonTextColor || undefined,
+              backgroundColor: mergedTheme.buttonColor,
+              color: mergedTheme.buttonTextColor,
             }}
           >
             <Send className="w-4 h-4" />
@@ -180,4 +222,3 @@ export function Chat({ initialMessages = [], theme }: ChatProps): React.JSX.Elem
     </div>
   );
 }
-
