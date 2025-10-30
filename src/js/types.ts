@@ -52,3 +52,11 @@ export interface ChatProps {
   readonly initialMessages?: readonly Message[];
   readonly theme?: ChatTheme;
 }
+
+/**
+ * Props for the Chat component with flexible theme input.
+ * Allows theme to be a string ('light' | 'dark'), a ChatTheme object, or undefined.
+ */
+export type ChatPropsWithFlexibleTheme = Omit<ChatProps, 'theme'> & {
+  readonly theme?: 'light' | 'dark' | ChatTheme | undefined;
+};
