@@ -1,6 +1,31 @@
 export type MessageType = 'user' | 'agent';
 
 /**
+ * Theme configuration for the chat component.
+ *
+ * @property primaryColor Color for user messages and primary elements
+ * @property secondaryColor Color for agent messages and secondary elements
+ * @property backgroundColor Background color of the chat container
+ * @property textColor Primary text color
+ * @property borderColor Color for borders and dividers
+ * @property inputBackgroundColor Background color for the input field
+ * @property inputTextColor Text color for the input field
+ * @property buttonColor Background color for buttons
+ * @property buttonTextColor Text color for buttons
+ */
+export interface ChatTheme {
+  readonly primaryColor?: string;
+  readonly secondaryColor?: string;
+  readonly backgroundColor?: string;
+  readonly textColor?: string;
+  readonly borderColor?: string;
+  readonly inputBackgroundColor?: string;
+  readonly inputTextColor?: string;
+  readonly buttonColor?: string;
+  readonly buttonTextColor?: string;
+}
+
+/**
  * Represents a single chat message.
  *
  * @property id Unique identifier for the message.
@@ -21,7 +46,9 @@ export interface Message {
  * Props for the Chat component.
  *
  * @property initialMessages Optional array of messages to initialize the chat with.
+ * @property theme Optional theme configuration to customize the chat appearance.
  */
 export interface ChatProps {
   readonly initialMessages?: readonly Message[];
+  readonly theme?: ChatTheme;
 }

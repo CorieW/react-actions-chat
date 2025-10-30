@@ -1,4 +1,4 @@
-import type { Message } from './js/types';
+import type { Message, ChatTheme } from './js/types';
 import { Chat } from './components/Chat';
 import { useChatStore } from './lib/chatStore';
 import { useMemo } from 'react';
@@ -34,9 +34,22 @@ function App(): React.JSX.Element {
     }
   ], [addMessage]);
 
+  // Define a custom dark theme for the chat
+  const CHAT_THEME: ChatTheme = {
+    primaryColor: '#3b82f6', // Blue for user messages
+    secondaryColor: '#374151', // Dark gray for agent messages
+    backgroundColor: '#111827', // Very dark background
+    textColor: '#f9fafb', // Light gray text
+    borderColor: '#4b5563', // Dark gray borders
+    inputBackgroundColor: '#1f2937', // Dark input background
+    inputTextColor: '#f9fafb', // Light input text
+    buttonColor: '#3b82f6', // Blue button
+    buttonTextColor: '#ffffff', // White button text
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <Chat initialMessages={INITIAL_MESSAGES} />
+      <Chat initialMessages={INITIAL_MESSAGES} theme={CHAT_THEME} />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { Button } from './ui/button';
 import { Avatar } from './ui/avatar';
 import { useChatStore } from '../lib/chatStore';
 
-export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
+export function Chat({ initialMessages = [], theme }: ChatProps): React.JSX.Element {
   const { messages, addMessage, setMessages, getPreviousMessage } = useChatStore();
   const [inputValue, setInputValue] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -17,6 +17,23 @@ export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
       setMessages(initialMessages);
     }
   }, [initialMessages, setMessages]);
+
+  // Generate CSS custom properties from theme
+  const getThemeStyles = (): React.CSSProperties => {
+    if (!theme) return {};
+    
+    return {
+      '--chat-primary-color': theme.primaryColor,
+      '--chat-secondary-color': theme.secondaryColor,
+      '--chat-background-color': theme.backgroundColor,
+      '--chat-text-color': theme.textColor,
+      '--chat-border-color': theme.borderColor,
+      '--chat-input-background-color': theme.inputBackgroundColor,
+      '--chat-input-text-color': theme.inputTextColor,
+      '--chat-button-color': theme.buttonColor,
+      '--chat-button-text-color': theme.buttonTextColor,
+    } as React.CSSProperties;
+  };
 
   const scrollToBottom = (): void => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -57,7 +74,14 @@ export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div 
+      className="flex flex-col h-screen"
+      style={{
+        ...getThemeStyles(),
+        backgroundColor: theme?.backgroundColor || 'var(--background)',
+        color: theme?.textColor || 'var(--foreground)',
+      }}
+    >
       {/* Chat Messages Area */}
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
         {messages.map((message) => (
@@ -70,11 +94,17 @@ export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
             {/* Avatar */}
             <div className="shrink-0">
               <Avatar className="w-8 h-8">
-                <div className={`h-full w-full flex items-center justify-center text-sm font-medium ${
-                  message.type === 'user' 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-secondary text-secondary-foreground'
-                }`}>
+                <div 
+                  className="h-full w-full flex items-center justify-center text-sm font-medium"
+                  style={{
+                    backgroundColor: message.type === 'user' 
+                      ? (theme?.primaryColor || 'var(--primary)')
+                      : (theme?.secondaryColor || 'var(--secondary)'),
+                    color: message.type === 'user' 
+                      ? (theme?.buttonTextColor || 'var(--primary-foreground)')
+                      : (theme?.textColor || 'var(--secondary-foreground)'),
+                  }}
+                >
                   {message.type === 'user' ? 'U' : 'A'}
                 </div>
               </Avatar>
@@ -82,18 +112,25 @@ export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
 
             {/* Message Bubble */}
             <div
-              className={`max-w-[70%] rounded-lg p-3 ${
-                message.type === 'user'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-card text-card-foreground'
-              }`}
+              className="max-w-[70%] rounded-lg p-3"
+              style={{
+                backgroundColor: message.type === 'user'
+                  ? (theme?.primaryColor || 'var(--primary)')
+                  : (theme?.secondaryColor || 'var(--card)'),
+                color: message.type === 'user'
+                  ? (theme?.buttonTextColor || 'var(--primary-foreground)')
+                  : (theme?.textColor || 'var(--card-foreground)'),
+              }}
             >
               <p className="text-sm wrap-break-words">{message.content}</p>
-              <span className={`text-xs mt-1 block ${
-                message.type === 'user' 
-                  ? 'text-primary-foreground/70' 
-                  : 'text-muted-foreground'
-              }`}>
+              <span 
+                className="text-xs mt-1 block"
+                style={{
+                  color: message.type === 'user' 
+                    ? (theme?.buttonTextColor ? `${theme.buttonTextColor}70` : 'var(--primary-foreground)')
+                    : (theme?.textColor ? `${theme.textColor}70` : 'var(--muted-foreground)'),
+                }}
+              >
                 {message.timestamp.toLocaleTimeString([], { 
                   hour: '2-digit', 
                   minute: '2-digit' 
@@ -106,7 +143,13 @@ export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t border-border bg-card">
+      <div 
+        className="p-4 border-t"
+        style={{
+          borderColor: theme?.borderColor || 'var(--border)',
+          backgroundColor: theme?.secondaryColor || 'var(--card)',
+        }}
+      >
         <div className="flex gap-2">
           <input
             type="text"
@@ -114,12 +157,21 @@ export function Chat({ initialMessages = [] }: ChatProps): React.JSX.Element {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Type your message..."
-            className="flex-1 px-4 py-2 border rounded-lg bg-background border-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+            style={{
+              backgroundColor: theme?.inputBackgroundColor || 'var(--background)',
+              borderColor: theme?.borderColor || 'var(--input)',
+              color: theme?.inputTextColor || 'var(--foreground)',
+            }}
           />
           <Button
             onClick={handleSend}
             disabled={inputValue.trim() === ''}
             className="px-4"
+            style={{
+              backgroundColor: theme?.buttonColor || undefined,
+              color: theme?.buttonTextColor || undefined,
+            }}
           >
             <Send className="w-4 h-4" />
           </Button>
