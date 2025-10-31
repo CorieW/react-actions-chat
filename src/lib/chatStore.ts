@@ -9,6 +9,8 @@ interface ChatState {
   readonly addMessages: (messages: readonly Message[]) => void;
   readonly setMessages: (messages: readonly Message[]) => void;
   readonly clearMessages: () => void;
+  readonly clearButtons: () => void;
+  readonly clearPreviousMessageButtons: () => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -48,5 +50,27 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   clearMessages: () => {
     set({ messages: [] });
+  },
+
+  clearButtons: () => {
+    set(state => ({
+      messages: state.messages.map(message => ({
+        ...message,
+        buttons: [],
+      })),
+    }));
+  },
+
+  clearPreviousMessageButtons: () => {
+    const previousMessage = get().getPreviousMessage();
+    if (previousMessage) {
+      set(state => ({
+        messages: state.messages.map(message =>
+          message.id === previousMessage.id
+            ? { ...message, buttons: [] }
+            : message
+        ),
+      }));
+    }
   },
 }));

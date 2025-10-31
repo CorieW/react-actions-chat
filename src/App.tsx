@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { useInputFieldStore } from './lib';
 
 function App(): React.JSX.Element {
-  const { addMessage } = useChatStore();
+  const { addMessage, clearButtons } = useChatStore();
   const { setInputFieldDescription } = useInputFieldStore();
 
   const repeatMsg = (content: string) => {
@@ -28,6 +28,23 @@ function App(): React.JSX.Element {
         userResponseCallback: () => {
           setInputFieldDescription("We're not available at the moment");
         },
+        buttons: [
+          {
+            label: 'Get help',
+            style: {
+              backgroundColor: 'transparent',
+              border: '2px solid #3b82f6',
+              color: '#3b82f6',
+            },
+            onClick: () => {
+              clearButtons();
+              addMessage({
+                type: 'agent',
+                content: 'I can help you with that!',
+              });
+            },
+          },
+        ],
       },
     ],
     [addMessage]

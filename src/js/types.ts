@@ -26,6 +26,33 @@ export interface ChatTheme {
 }
 
 /**
+ * Variant type for message buttons.
+ */
+export type MessageButtonVariant =
+  | 'default'
+  | 'success'
+  | 'error'
+  | 'warning'
+  | 'info';
+
+/**
+ * Represents a button associated with a message.
+ *
+ * @property label The text displayed on the button.
+ * @property onClick Callback function executed when the button is clicked.
+ * @property variant Optional variant style for the button. Defaults to 'default'.
+ * @property className Optional custom CSS class names to apply to the button.
+ * @property style Optional custom inline styles to apply to the button. These will override variant styles.
+ */
+export interface MessageButton {
+  readonly label: string;
+  readonly onClick: () => void;
+  readonly variant?: MessageButtonVariant;
+  readonly className?: string;
+  readonly style?: React.CSSProperties;
+}
+
+/**
  * Represents a single chat message.
  *
  * @property id Unique identifier for the message.
@@ -33,6 +60,7 @@ export interface ChatTheme {
  * @property content The textual content of the message.
  * @property timestamp The date and time the message was created.
  * @property userResponseCallback Optional callback function invoked when a user response is received right after this message.
+ * @property buttons Optional array of buttons to display below the message.
  */
 export interface Message {
   readonly id: number;
@@ -40,6 +68,7 @@ export interface Message {
   readonly content: string;
   readonly timestamp: Date;
   readonly userResponseCallback?: () => void;
+  readonly buttons?: readonly MessageButton[];
 }
 
 /**
