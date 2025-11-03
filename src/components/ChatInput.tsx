@@ -21,12 +21,19 @@ export function ChatInput({
     setInputFieldElement,
     setInputFieldSubmitFunc,
     getInputFieldDescription,
+    getInputFieldType,
+    getInputFieldPlaceholder,
   } = useInputFieldStore();
+
+  const inputType = getInputFieldType();
+  const inputPlaceholder = getInputFieldPlaceholder();
 
   // Register the input element and submit function with the store
   useEffect(() => {
     if (inputRef.current) {
       setInputFieldElement(inputRef.current);
+      // Sync initial type
+      inputRef.current.type = inputType;
     }
 
     setInputFieldSubmitFunc(() => handleSend);
@@ -35,19 +42,27 @@ export function ChatInput({
       setInputFieldElement(null);
       setInputFieldSubmitFunc(null);
     };
-  }, [setInputFieldElement, setInputFieldSubmitFunc]);
+  }, [setInputFieldElement, setInputFieldSubmitFunc, inputType]);
 
-  // Update input description when it changes in the store
+  // Update input type when it changes in the store
   useEffect(() => {
-    const description = getInputFieldDescription();
-    if (inputRef.current && description) {
-      inputRef.current.placeholder = description;
+    if (inputRef.current) {
+      inputRef.current.type = inputType;
     }
-  }, [getInputFieldDescription]);
+  }, [inputType]);
+
+  // Update input placeholder when it changes in the store
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.placeholder = inputPlaceholder;
+    }
+  }, [inputPlaceholder]);
 
   const handleSend = (): void => {
     if (inputValue.trim() === '') return;
 
+    // Note: Validation is handled in the userResponseCallback of the requesting message
+    // We allow sending here to enable error messages to be displayed when validation fails
     onSend(inputValue);
     setInputValue('');
   };
@@ -78,11 +93,11 @@ export function ChatInput({
       <div className='flex gap-2'>
         <input
           ref={inputRef}
-          type='text'
+          type={inputType}
           value={inputValue}
           onChange={e => setInputValue(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder='Type your message...'
+          placeholder={inputPlaceholder}
           className='flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring'
           style={{
             backgroundColor: theme.inputBackgroundColor,

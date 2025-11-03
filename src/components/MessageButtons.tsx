@@ -42,6 +42,11 @@ function getButtonVariantStyles(
         backgroundColor: '#3b82f6', // blue-500
         color: '#ffffff',
       };
+    case 'dull':
+      return {
+        backgroundColor: '#6b7280', // gray-500
+        color: '#ffffff',
+      };
     case 'default':
     default:
       return {

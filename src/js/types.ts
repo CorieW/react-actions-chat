@@ -33,7 +33,8 @@ export type MessageButtonVariant =
   | 'success'
   | 'error'
   | 'warning'
-  | 'info';
+  | 'info'
+  | 'dull';
 
 /**
  * Represents a button associated with a message.
@@ -46,10 +47,10 @@ export type MessageButtonVariant =
  */
 export interface MessageButton {
   readonly label: string;
-  readonly onClick: () => void;
-  readonly variant?: MessageButtonVariant;
-  readonly className?: string;
-  readonly style?: React.CSSProperties;
+  readonly onClick?: () => void | undefined;
+  readonly variant?: MessageButtonVariant | undefined;
+  readonly className?: string | undefined;
+  readonly style?: React.CSSProperties | undefined;
 }
 
 /**

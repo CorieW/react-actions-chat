@@ -1,5 +1,9 @@
 import type { Message } from './js/types';
-import { Chat } from './components/Chat';
+import {
+  Chat,
+  createRequestConfirmationButton,
+  createRequestInputButton,
+} from './components';
 import { useChatStore } from './lib/chatStore';
 import { useMemo } from 'react';
 import { useInputFieldStore } from './lib';
@@ -44,10 +48,80 @@ function App(): React.JSX.Element {
               });
             },
           },
+          createRequestConfirmationButton({
+            initialLabel: 'Delete Account',
+            confirmationMessage:
+              'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.',
+            variant: 'error',
+            onConfirm: () => {
+              clearButtons();
+              addMessage({
+                type: 'agent',
+                content: 'Your account has been deleted successfully.',
+              });
+            },
+            onReject: () => {
+              clearButtons();
+              addMessage({
+                type: 'agent',
+                content: 'Account deletion cancelled. Your account remains active.',
+              });
+            },
+          }),
+          createRequestInputButton({
+            initialLabel: 'Update Email',
+            inputPromptMessage: 'Please enter your new email address:',
+            inputType: 'email',
+            placeholder: 'your.email@example.com',
+            inputDescription: 'We will send a verification email to this address',
+            validator: value => {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              if (!emailRegex.test(value)) {
+                return 'Please enter a valid email address';
+              }
+              return true;
+            },
+            onInput: email => {
+              clearButtons();
+              addMessage({
+                type: 'agent',
+                content: `Email updated successfully! We sent a verification email to ${email}.`,
+              });
+            },
+          }),
+          createRequestInputButton({
+            initialLabel: 'Change Password',
+            inputPromptMessage: 'Please enter your new password:',
+            inputType: 'password',
+            placeholder: 'Enter password',
+            inputDescription: 'Password must be at least 8 characters long',
+            validator: value => {
+              if (value.length < 8) {
+                return 'Password must be at least 8 characters long';
+              }
+              if (!/[A-Z]/.test(value)) {
+                return 'Password must contain at least one uppercase letter';
+              }
+              if (!/[a-z]/.test(value)) {
+                return 'Password must contain at least one lowercase letter';
+              }
+              if (!/[0-9]/.test(value)) {
+                return 'Password must contain at least one number';
+              }
+              return true;
+            },
+            onInput: () => {
+              clearButtons();
+              addMessage({
+                type: 'agent',
+                content: 'Password changed successfully!',
+              });
+            },
+          }),
         ],
       },
     ],
-    [addMessage]
+    [addMessage, clearButtons]
   );
 
   return (
