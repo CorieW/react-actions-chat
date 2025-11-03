@@ -9,7 +9,7 @@ import { useMemo } from 'react';
 import { useInputFieldStore } from './lib';
 
 function App(): React.JSX.Element {
-  const { addMessage, clearButtons } = useChatStore();
+  const { addMessage } = useChatStore();
   const { setInputFieldDescription } = useInputFieldStore();
 
   const repeatMsg = (content: string) => {
@@ -41,7 +41,6 @@ function App(): React.JSX.Element {
               color: '#3b82f6',
             },
             onClick: () => {
-              clearButtons();
               addMessage({
                 type: 'agent',
                 content: 'I can help you with that!',
@@ -54,14 +53,12 @@ function App(): React.JSX.Element {
               'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.',
             variant: 'error',
             onConfirm: () => {
-              clearButtons();
               addMessage({
                 type: 'agent',
                 content: 'Your account has been deleted successfully.',
               });
             },
             onReject: () => {
-              clearButtons();
               addMessage({
                 type: 'agent',
                 content: 'Account deletion cancelled. Your account remains active.',
@@ -82,7 +79,6 @@ function App(): React.JSX.Element {
               return true;
             },
             onInput: email => {
-              clearButtons();
               addMessage({
                 type: 'agent',
                 content: `Email updated successfully! We sent a verification email to ${email}.`,
@@ -111,7 +107,6 @@ function App(): React.JSX.Element {
               return true;
             },
             onInput: () => {
-              clearButtons();
               addMessage({
                 type: 'agent',
                 content: 'Password changed successfully!',
@@ -121,7 +116,7 @@ function App(): React.JSX.Element {
         ],
       },
     ],
-    [addMessage, clearButtons]
+    [addMessage]
   );
 
   return (
