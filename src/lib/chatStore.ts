@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import type { Message } from '../js/types';
+import { usePersistentButtonStore } from './persistentButtonStore';
+
+const ABORT_BUTTON_ID = 'input-request-abort';
 
 interface ChatState {
   readonly messages: readonly Message[];
@@ -33,6 +36,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
       timestamp: new Date(),
       ...messageData,
     };
+
+    // Clear the abort button from persistent buttons when a new message appears
+    const { removeButton } = usePersistentButtonStore.getState();
+    removeButton(ABORT_BUTTON_ID);
 
     set(state => ({
       // Clear buttons from all previous messages before adding the new one

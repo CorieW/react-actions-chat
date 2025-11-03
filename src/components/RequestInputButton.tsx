@@ -1,5 +1,5 @@
 import type { MessageButton, MessageButtonVariant } from '../js/types';
-import { useChatStore } from '../lib';
+import { useChatStore, usePersistentButtonStore } from '../lib';
 import {
   useInputFieldStore,
   type InputType,
@@ -58,6 +58,22 @@ export interface RequestInputButtonConfig {
    * Optional style for the initial button.
    */
   readonly style?: React.CSSProperties | undefined;
+
+  /**
+   * Custom label for the abort button. Defaults to 'Abort'.
+   */
+  readonly abortLabel?: string | undefined;
+
+  /**
+   * Custom callback function executed when the abort button is clicked.
+   * If not provided, the default abort behavior will be used (resets input field and clears callback).
+   */
+  readonly abortCallback?: () => void | undefined;
+
+  /**
+   * Whether to show the abort button. Defaults to true.
+   */
+  readonly showAbort?: boolean | undefined;
 }
 
 /**
@@ -70,6 +86,8 @@ export interface RequestInputButtonConfig {
  * @param config Configuration options for the input request button
  * @returns A MessageButton configuration that can be used in a Message's buttons array
  */
+const ABORT_BUTTON_ID = 'input-request-abort';
+
 export function createRequestInputButton(
   config: RequestInputButtonConfig
 ): MessageButton {
@@ -84,6 +102,9 @@ export function createRequestInputButton(
     variant,
     className,
     style,
+    abortLabel,
+    abortCallback,
+    showAbort = true,
   } = config;
 
   return {
@@ -92,7 +113,7 @@ export function createRequestInputButton(
     className,
     style,
     onClick: () => {
-      const { addMessage, getPreviousMessage } = useChatStore.getState();
+      const { addMessage, clearPreviousMessageCallback } = useChatStore.getState();
       const {
         setInputFieldType,
         setInputFieldPlaceholder,
@@ -103,6 +124,7 @@ export function createRequestInputButton(
         resetInputFieldDescription,
         resetInputFieldValidator,
       } = useInputFieldStore.getState();
+      const { addButton, removeButton } = usePersistentButtonStore.getState();
 
       // Configure the input field
       setInputFieldType(inputType);
@@ -113,6 +135,31 @@ export function createRequestInputButton(
       if (validator) {
         setInputFieldValidator(validator);
       }
+
+      // Helper function to remove the abort button and reset input field
+      const removeAbortButtonAndReset = (): void => {
+        removeButton(ABORT_BUTTON_ID);
+        resetInputFieldType();
+        resetInputFieldPlaceholder();
+        resetInputFieldDescription();
+        resetInputFieldValidator();
+      };
+
+      // Default abort handler that resets input field configuration and clears the callback
+      const handleDefaultAbort = (): void => {
+        removeAbortButtonAndReset();
+        // Clear the callback from the message so it won't trigger on user input
+        clearPreviousMessageCallback();
+      };
+
+      // Use custom abort callback if provided, otherwise use default
+      const handleAbort = (): void => {
+        if (abortCallback) {
+          abortCallback();
+        } else {
+          handleDefaultAbort();
+        }
+      };
 
       // Create a reusable validation callback that can be attached to error messages
       const createValidationCallback = (): (() => void) => {
@@ -143,22 +190,29 @@ export function createRequestInputButton(
             }
 
             if (isValid) {
-              // Reset input field settings
-              resetInputFieldType();
-              resetInputFieldPlaceholder();
-              resetInputFieldDescription();
-              resetInputFieldValidator();
+              // Remove abort button and reset input field settings
+              removeAbortButtonAndReset();
 
               // Call the onInput callback with the validated input
               onInput(inputValue);
             } else {
               // If validation failed, add an error message with the same callback
-              // so the user can try again
+              // so the user can try again. The abort button will be cleared by addMessage,
+              // so we need to re-add it.
               addMessageCallback({
                 type: 'agent',
                 content: errorMessage ?? 'Invalid input. Please try again.',
                 userResponseCallback: createValidationCallback(),
               });
+              // Re-add abort button after error message since addMessage clears it
+              if (showAbort) {
+                addButton({
+                  id: ABORT_BUTTON_ID,
+                  label: abortLabel ?? 'Abort',
+                  variant: 'error',
+                  onClick: handleAbort,
+                });
+              }
             }
           }
         };
@@ -170,6 +224,17 @@ export function createRequestInputButton(
         content: inputPromptMessage,
         userResponseCallback: createValidationCallback(),
       });
+
+      // Add abort button to persistent buttons after addMessage (since addMessage clears it)
+      // Add it after the message is added so it doesn't get immediately cleared
+      if (showAbort) {
+        addButton({
+          id: ABORT_BUTTON_ID,
+          label: abortLabel ?? 'Abort',
+          variant: 'error',
+          onClick: handleAbort,
+        });
+      }
     },
   };
 }
