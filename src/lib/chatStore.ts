@@ -11,6 +11,7 @@ interface ChatState {
   readonly clearMessages: () => void;
   readonly clearButtons: () => void;
   readonly clearPreviousMessageButtons: () => void;
+  readonly clearPreviousMessageCallback: () => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -34,7 +35,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
     };
 
     set(state => ({
-      messages: [...state.messages, newMessage],
+      // Clear buttons from all previous messages before adding the new one
+      messages: [
+        ...state.messages.map(message => ({ ...message, buttons: [] })),
+        newMessage,
+      ],
     }));
   },
 
@@ -70,6 +75,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
             ? { ...message, buttons: [] }
             : message
         ),
+      }));
+    }
+  },
+
+  clearPreviousMessageCallback: () => {
+    const previousMessage = get().getPreviousMessage();
+    if (previousMessage) {
+      set(state => ({
+        messages: state.messages.map(message => {
+          if (message.id === previousMessage.id) {
+            const { userResponseCallback, ...rest } = message;
+            return rest;
+          }
+          return message;
+        }),
       }));
     }
   },

@@ -1,6 +1,5 @@
 import type { Message, ChatTheme, MessageButtonVariant } from '../js/types';
 import { cn } from '../lib/utils';
-import { useChatStore } from '../lib/chatStore';
 
 interface MessageButtonsProps {
   readonly buttons: Message['buttons'];
@@ -62,14 +61,11 @@ export function MessageButtons({
   messageType,
   theme,
 }: MessageButtonsProps): React.JSX.Element | null {
-  const { clearButtons } = useChatStore();
-
   if (!buttons || buttons.length === 0) {
     return null;
   }
 
   const handleButtonClick = (originalOnClick?: () => void): void => {
-    clearButtons();
     if (originalOnClick) {
       originalOnClick();
     }
