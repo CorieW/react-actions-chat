@@ -5,12 +5,62 @@ import {
   createRequestInputButton,
 } from './components';
 import { useChatStore } from './lib/chatStore';
-import { useMemo } from 'react';
-import { useInputFieldStore } from './lib';
+import { useMemo, useEffect } from 'react';
+import { useInputFieldStore, usePersistentButtonStore } from './lib';
 
 function App(): React.JSX.Element {
   const { addMessage } = useChatStore();
   const { setInputFieldDescription } = useInputFieldStore();
+  const { addButton, removeButton } = usePersistentButtonStore();
+
+  // Example: Add persistent buttons that appear at the bottom of the chat
+  useEffect(() => {
+    // Add a help button that's always available
+    addButton({
+      id: 'help',
+      label: 'Get Help',
+      variant: 'info',
+      onClick: () => {
+        addMessage({
+          type: 'agent',
+          content: 'How can I assist you? You can ask me anything!',
+        });
+      },
+    });
+
+    // Add a settings button
+    addButton({
+      id: 'settings',
+      label: 'Settings',
+      variant: 'dull',
+      onClick: () => {
+        addMessage({
+          type: 'agent',
+          content: 'Settings panel would open here. What would you like to configure?',
+        });
+      },
+    });
+
+    // Add a quick action button
+    addButton({
+      id: 'quick-action',
+      label: 'Quick Action',
+      variant: 'success',
+      onClick: () => {
+        addMessage({
+          type: 'agent',
+          content: 'Quick action triggered! What would you like to do?',
+        });
+      },
+    });
+
+    // Cleanup: remove buttons when component unmounts (optional)
+    return () => {
+      removeButton('help');
+      removeButton('settings');
+      removeButton('quick-action');
+    };
+  }, [addButton, removeButton, addMessage]);
 
   const repeatMsg = (content: string) => {
     addMessage({

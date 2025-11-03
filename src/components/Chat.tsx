@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import type { ChatPropsWithFlexibleTheme } from '../js/types';
 import { useChatStore, getResolvedTheme, getThemeStyles } from '../lib';
-import { MessagesList, ChatInput } from './';
+import { MessagesList, ChatInput, PersistentButtons } from './';
 
 export function Chat({
   initialMessages = [],
@@ -48,6 +48,7 @@ export function Chat({
       }}
     >
       <MessagesList messages={messages} theme={mergedTheme} />
+      <PersistentButtons theme={mergedTheme} />
       <ChatInput onSend={handleSend} theme={mergedTheme} />
     </div>
   );
