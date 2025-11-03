@@ -33,48 +33,52 @@ interface PersistentButtonStoreState {
    * Replaces all persistent buttons with the provided array.
    * @param buttons Array of button configurations with unique ids
    */
-  readonly setButtons: (buttons: readonly (MessageButton & { readonly id: string })[]) => void;
+  readonly setButtons: (
+    buttons: readonly (MessageButton & { readonly id: string })[]
+  ) => void;
   /**
    * Removes all persistent buttons.
    */
   readonly clearButtons: () => void;
 }
 
-export const usePersistentButtonStore = create<PersistentButtonStoreState>((set, get) => ({
-  buttons: [],
+export const usePersistentButtonStore = create<PersistentButtonStoreState>(
+  (set, get) => ({
+    buttons: [],
 
-  getButtons: () => {
-    return get().buttons;
-  },
+    getButtons: () => {
+      return get().buttons;
+    },
 
-  addButton: button => {
-    const currentButtons = get().buttons;
-    // Check if button with same id already exists
-    if (currentButtons.some(b => b.id === button.id)) {
-      // Update existing button
+    addButton: button => {
+      const currentButtons = get().buttons;
+      // Check if button with same id already exists
+      if (currentButtons.some(b => b.id === button.id)) {
+        // Update existing button
+        set({
+          buttons: currentButtons.map(b => (b.id === button.id ? button : b)),
+        });
+      } else {
+        // Add new button
+        set({
+          buttons: [...currentButtons, button],
+        });
+      }
+    },
+
+    removeButton: id => {
+      const currentButtons = get().buttons;
       set({
-        buttons: currentButtons.map(b => (b.id === button.id ? button : b)),
+        buttons: currentButtons.filter(b => b.id !== id),
       });
-    } else {
-      // Add new button
-      set({
-        buttons: [...currentButtons, button],
-      });
-    }
-  },
+    },
 
-  removeButton: id => {
-    const currentButtons = get().buttons;
-    set({
-      buttons: currentButtons.filter(b => b.id !== id),
-    });
-  },
+    setButtons: buttons => {
+      set({ buttons });
+    },
 
-  setButtons: buttons => {
-    set({ buttons });
-  },
-
-  clearButtons: () => {
-    set({ buttons: [] });
-  },
-}));
+    clearButtons: () => {
+      set({ buttons: [] });
+    },
+  })
+);

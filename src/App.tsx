@@ -61,7 +61,8 @@ function App(): React.JSX.Element {
             onReject: () => {
               addMessage({
                 type: 'agent',
-                content: 'Account deletion cancelled. Your account remains active.',
+                content:
+                  'Account deletion cancelled. Your account remains active.',
               });
             },
           }),
@@ -70,7 +71,8 @@ function App(): React.JSX.Element {
             inputPromptMessage: 'Please enter your new email address:',
             inputType: 'email',
             placeholder: 'your.email@example.com',
-            inputDescription: 'We will send a verification email to this address',
+            inputDescription:
+              'We will send a verification email to this address',
             validator: value => {
               const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
               if (!emailRegex.test(value)) {

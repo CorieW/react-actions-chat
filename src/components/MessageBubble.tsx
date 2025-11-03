@@ -44,7 +44,9 @@ export function MessageBubble({
           className='rounded-lg p-3'
           style={{
             backgroundColor:
-              message.type === 'user' ? theme.primaryColor : theme.secondaryColor,
+              message.type === 'user'
+                ? theme.primaryColor
+                : theme.secondaryColor,
             color:
               message.type === 'user' ? theme.buttonTextColor : theme.textColor,
           }}

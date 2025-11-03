@@ -113,7 +113,8 @@ export function createRequestInputButton(
     className,
     style,
     onClick: () => {
-      const { addMessage, clearPreviousMessageCallback } = useChatStore.getState();
+      const { addMessage, clearPreviousMessageCallback } =
+        useChatStore.getState();
       const {
         setInputFieldType,
         setInputFieldPlaceholder,
@@ -164,7 +165,8 @@ export function createRequestInputButton(
       // Create a reusable validation callback that can be attached to error messages
       const createValidationCallback = (): (() => void) => {
         return () => {
-          const { addMessage: addMessageCallback, getMessages } = useChatStore.getState();
+          const { addMessage: addMessageCallback, getMessages } =
+            useChatStore.getState();
           // Get the user's input from the most recent user message
           const messages = getMessages();
           const lastUserMessage = [...messages]
@@ -238,4 +240,3 @@ export function createRequestInputButton(
     },
   };
 }
-
