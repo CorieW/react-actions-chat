@@ -74,7 +74,7 @@ export function MessageButtons({
   return (
     <div
       className={`flex flex-wrap gap-2 mt-2 ${
-        messageType === 'user' ? 'justify-end' : 'justify-start'
+        messageType === 'self' ? 'justify-end' : 'justify-start'
       }`}
     >
       {buttons.map((button, index) => {

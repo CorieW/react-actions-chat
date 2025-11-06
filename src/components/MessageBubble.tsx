@@ -14,7 +14,7 @@ export function MessageBubble({
   return (
     <div
       className={`flex gap-3 ${
-        message.type === 'user' ? 'flex-row-reverse' : 'flex-row'
+        message.type === 'self' ? 'flex-row-reverse' : 'flex-row'
       }`}
     >
       {/* Avatar */}
@@ -24,16 +24,16 @@ export function MessageBubble({
             className='flex items-center justify-center w-full h-full text-sm font-medium'
             style={{
               backgroundColor:
-                message.type === 'user'
+                message.type === 'self'
                   ? theme.primaryColor
                   : theme.secondaryColor,
               color:
-                message.type === 'user'
+                message.type === 'self'
                   ? theme.buttonTextColor
                   : theme.textColor,
             }}
           >
-            {message.type === 'user' ? 'U' : 'A'}
+            {message.type === 'self' ? 'S' : 'O'}
           </div>
         </Avatar>
       </div>
@@ -44,11 +44,11 @@ export function MessageBubble({
           className='rounded-lg p-3'
           style={{
             backgroundColor:
-              message.type === 'user'
+              message.type === 'self'
                 ? theme.primaryColor
                 : theme.secondaryColor,
             color:
-              message.type === 'user' ? theme.buttonTextColor : theme.textColor,
+              message.type === 'self' ? theme.buttonTextColor : theme.textColor,
           }}
         >
           <p className='text-sm wrap-break-words'>{message.content}</p>
@@ -56,7 +56,7 @@ export function MessageBubble({
             className='block mt-1 text-xs'
             style={{
               color:
-                message.type === 'user'
+                message.type === 'self'
                   ? `${theme.buttonTextColor}70`
                   : `${theme.textColor}70`,
             }}

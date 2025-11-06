@@ -1,10 +1,10 @@
-export type MessageType = 'user' | 'agent';
+export type MessageType = 'self' | 'other';
 
 /**
  * Theme configuration for the chat component.
  *
- * @property primaryColor Color for user messages and primary elements
- * @property secondaryColor Color for agent messages and secondary elements
+ * @property primaryColor Color for self messages and primary elements
+ * @property secondaryColor Color for other messages and secondary elements
  * @property backgroundColor Background color of the chat container
  * @property textColor Primary text color
  * @property borderColor Color for borders and dividers
@@ -57,10 +57,10 @@ export interface MessageButton {
  * Represents a single chat message.
  *
  * @property id Unique identifier for the message.
- * @property type Indicates whether the message is from the 'user' or 'agent'.
+ * @property type Indicates whether the message is from 'self' or 'other'.
  * @property content The textual content of the message.
  * @property timestamp The date and time the message was created.
- * @property userResponseCallback Optional callback function invoked when a user response is received right after this message.
+ * @property userResponseCallback Optional callback function invoked when a self response is received right after this message.
  * @property buttons Optional array of buttons to display below the message.
  */
 export interface Message {

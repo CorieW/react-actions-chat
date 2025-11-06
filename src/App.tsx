@@ -14,7 +14,7 @@ function App(): React.JSX.Element {
 
   const repeatMsg = (content: string) => {
     addMessage({
-      type: 'agent',
+      type: 'other',
       content: content,
       userResponseCallback: () => repeatMsg(content),
     });
@@ -26,7 +26,7 @@ function App(): React.JSX.Element {
     () => [
       {
         id: 1,
-        type: 'agent',
+        type: 'other',
         content: 'Hello! How can I help you today?',
         timestamp: new Date(),
         userResponseCallback: () => {
@@ -42,7 +42,7 @@ function App(): React.JSX.Element {
             },
             onClick: () => {
               addMessage({
-                type: 'agent',
+                type: 'other',
                 content: 'I can help you with that!',
               });
             },
@@ -54,13 +54,13 @@ function App(): React.JSX.Element {
             variant: 'error',
             onConfirm: () => {
               addMessage({
-                type: 'agent',
+                type: 'other',
                 content: 'Your account has been deleted successfully.',
               });
             },
             onReject: () => {
               addMessage({
-                type: 'agent',
+                type: 'other',
                 content:
                   'Account deletion cancelled. Your account remains active.',
               });
@@ -82,7 +82,7 @@ function App(): React.JSX.Element {
             },
             onInput: email => {
               addMessage({
-                type: 'agent',
+                type: 'other',
                 content: `Email updated successfully! We sent a verification email to ${email}.`,
               });
             },
@@ -110,7 +110,7 @@ function App(): React.JSX.Element {
             },
             onInput: () => {
               addMessage({
-                type: 'agent',
+                type: 'other',
                 content: 'Password changed successfully!',
               });
             },

@@ -2,8 +2,8 @@ import type { ChatTheme } from '../js/types';
 
 // Preset light and dark themes
 export const LIGHT_THEME: ChatTheme = {
-  primaryColor: '#3b82f6', // Blue for user messages
-  secondaryColor: '#e5e7eb', // Light gray for agent messages
+  primaryColor: '#3b82f6', // Blue for self messages
+  secondaryColor: '#e5e7eb', // Light gray for other messages
   backgroundColor: '#f3f4f6', // Light background
   textColor: '#111827', // Very dark text
   borderColor: '#e5e7eb', // Light gray borders
@@ -14,8 +14,8 @@ export const LIGHT_THEME: ChatTheme = {
 };
 
 export const DARK_THEME: ChatTheme = {
-  primaryColor: '#3b82f6', // User message background (blue)
-  secondaryColor: '#374151', // Agent message background (gray-700)
+  primaryColor: '#3b82f6', // Self message background (blue)
+  secondaryColor: '#374151', // Other message background (gray-700)
   backgroundColor: '#111827', // Chat container background (gray-900)
   textColor: '#f9fafb', // Primary text (gray-50)
   borderColor: '#4b5563', // Border (gray-600)

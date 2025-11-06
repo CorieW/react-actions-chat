@@ -82,7 +82,7 @@ export function createRequestConfirmationButton(
 
       // Add a followup message with the confirmation message and buttons
       addMessage({
-        type: 'agent',
+        type: 'other',
         content: confirmationMessage ?? 'Are you sure you want to do this?',
         buttons: [
           {

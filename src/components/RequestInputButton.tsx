@@ -167,13 +167,13 @@ export function createRequestInputButton(
         return () => {
           const { addMessage: addMessageCallback, getMessages } =
             useChatStore.getState();
-          // Get the user's input from the most recent user message
+          // Get the self's input from the most recent self message
           const messages = getMessages();
-          const lastUserMessage = [...messages]
+          const lastSelfMessage = [...messages]
             .reverse()
-            .find(msg => msg.type === 'user');
-          if (lastUserMessage) {
-            const inputValue = lastUserMessage.content;
+            .find(msg => msg.type === 'self');
+          if (lastSelfMessage) {
+            const inputValue = lastSelfMessage.content;
 
             // Validate the input if a validator is set
             let isValid = true;
@@ -199,10 +199,10 @@ export function createRequestInputButton(
               onInput(inputValue);
             } else {
               // If validation failed, add an error message with the same callback
-              // so the user can try again. The abort button will be cleared by addMessage,
+              // so the self can try again. The abort button will be cleared by addMessage,
               // so we need to re-add it.
               addMessageCallback({
-                type: 'agent',
+                type: 'other',
                 content: errorMessage ?? 'Invalid input. Please try again.',
                 userResponseCallback: createValidationCallback(),
               });
@@ -222,7 +222,7 @@ export function createRequestInputButton(
 
       // Add a message prompting for input with userResponseCallback to capture the input
       addMessage({
-        type: 'agent',
+        type: 'other',
         content: inputPromptMessage,
         userResponseCallback: createValidationCallback(),
       });

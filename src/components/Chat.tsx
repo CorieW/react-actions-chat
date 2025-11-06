@@ -21,19 +21,19 @@ export function Chat({
   }, [initialMessages, setMessages]);
 
   const handleSend = (messageContent: string): void => {
-    // Get the previous message (before sending the user message)
+    // Get the previous message (before sending the self message)
     const previousMessage = getPreviousMessage();
 
-    // Add the user message
+    // Add the self message
     addMessage({
-      type: 'user',
+      type: 'self',
       content: messageContent,
     });
 
-    // If the previous message is an agent message and has a userResponseCallback, call it
-    const isPreviousMessageAgent = previousMessage?.type === 'agent';
+    // If the previous message is an other message and has a userResponseCallback, call it
+    const isPreviousMessageOther = previousMessage?.type === 'other';
     const hasUserResponseCallback = previousMessage?.userResponseCallback;
-    if (isPreviousMessageAgent && hasUserResponseCallback) {
+    if (isPreviousMessageOther && hasUserResponseCallback) {
       previousMessage.userResponseCallback();
     }
   };
