@@ -39,17 +39,19 @@ export function Chat({
   };
 
   return (
-    <div
-      className='flex flex-col h-screen'
-      style={{
-        ...getThemeStyles(mergedTheme),
-        backgroundColor: mergedTheme.backgroundColor,
-        color: mergedTheme.textColor,
-      }}
-    >
-      <MessagesList messages={messages} theme={mergedTheme} />
-      <PersistentButtons theme={mergedTheme} />
-      <ChatInput onSend={handleSend} theme={mergedTheme} />
+    <div className='asc-chat-wrapper'>
+      <div
+        className='flex flex-col h-screen'
+        style={{
+          ...getThemeStyles(mergedTheme),
+          backgroundColor: mergedTheme.backgroundColor,
+          color: mergedTheme.textColor,
+        }}
+      >
+        <MessagesList messages={messages} theme={mergedTheme} />
+        <PersistentButtons theme={mergedTheme} />
+        <ChatInput onSend={handleSend} theme={mergedTheme} />
+      </div>
     </div>
   );
 }
