@@ -58,7 +58,8 @@ export interface MessageButton {
  *
  * @property id Unique identifier for the message.
  * @property type Indicates whether the message is from 'self' or 'other'.
- * @property content The textual content of the message.
+ * @property content The textual content of the message to be displayed to the user.
+ * @property rawContent The raw content of the message, used for processing and validation.
  * @property timestamp The date and time the message was created.
  * @property userResponseCallback Optional callback function invoked when a self response is received right after this message.
  * @property buttons Optional array of buttons to display below the message.
@@ -67,6 +68,7 @@ export interface Message {
   readonly id: number;
   readonly type: MessageType;
   readonly content: string;
+  readonly rawContent: string;
   readonly timestamp: Date;
   readonly userResponseCallback?: () => void;
   readonly buttons?: readonly MessageButton[];
