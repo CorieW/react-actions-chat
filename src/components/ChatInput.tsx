@@ -44,7 +44,12 @@ export function ChatInput({
       setInputFieldElement(null);
       setInputFieldSubmitFunc(null);
     };
-  }, [setInputFieldElement, setInputFieldSubmitFunc, inputType, getInputFieldValue]);
+  }, [
+    setInputFieldElement,
+    setInputFieldSubmitFunc,
+    inputType,
+    getInputFieldValue,
+  ]);
 
   // Update input type when it changes in the store
   useEffect(() => {

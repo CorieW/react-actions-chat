@@ -13,8 +13,16 @@ interface ChatState {
   readonly messages: readonly Message[];
   readonly getMessages: () => readonly Message[];
   readonly getPreviousMessage: () => Message | undefined;
-  readonly addMessage: (message: Omit<Message, 'id' | 'timestamp' | 'rawContent'> & { readonly rawContent?: string }) => void;
-  readonly addMessages: (messages: (Omit<Message, 'id' | 'timestamp' | 'rawContent'> & { readonly rawContent?: string })[]) => void;
+  readonly addMessage: (
+    message: Omit<Message, 'id' | 'timestamp' | 'rawContent'> & {
+      readonly rawContent?: string;
+    }
+  ) => void;
+  readonly addMessages: (
+    messages: (Omit<Message, 'id' | 'timestamp' | 'rawContent'> & {
+      readonly rawContent?: string;
+    })[]
+  ) => void;
   readonly setMessages: (messages: readonly Message[]) => void;
   readonly clearMessages: () => void;
   readonly clearButtons: () => void;
@@ -56,7 +64,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }));
   },
 
-  addMessages: (messages) => {
+  addMessages: messages => {
     set(state => {
       const currentMessages = state.messages;
       let nextId = currentMessages.length + 1;
@@ -71,7 +79,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         return msg;
       });
       return {
-        messages: [...currentMessages, ...newMessages]
+        messages: [...currentMessages, ...newMessages],
       };
     });
   },

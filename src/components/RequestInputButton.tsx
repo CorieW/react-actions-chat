@@ -42,7 +42,9 @@ export interface RequestInputButtonConfig {
    * Callback function executed when the user provides invalid input.
    * @param errorMessage The error message to display to the user
    */
-  readonly onInvalidInput?: undefined | ((inputValue: string, errorMessage: string) => void);
+  readonly onInvalidInput?:
+    | undefined
+    | ((inputValue: string, errorMessage: string) => void);
 
   /**
    * Callback function executed when the user provides valid input.
@@ -217,7 +219,10 @@ export function createRequestInputButton(
               // Call the onInput callback with the validated input
               onValidInput?.(inputValue);
             } else {
-              onInvalidInput?.(inputValue, errorMessage ?? 'Invalid input. Please try again.');
+              onInvalidInput?.(
+                inputValue,
+                errorMessage ?? 'Invalid input. Please try again.'
+              );
 
               if (!suppressValidationFailureMessage) {
                 // If validation failed, add an error message with the same callback

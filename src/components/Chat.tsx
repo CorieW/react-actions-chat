@@ -1,6 +1,11 @@
 import { useEffect } from 'react';
 import type { ChatPropsWithFlexibleTheme } from '../js/types';
-import { useChatStore, getResolvedTheme, getThemeStyles, useInputFieldStore } from '../lib';
+import {
+  useChatStore,
+  getResolvedTheme,
+  getThemeStyles,
+  useInputFieldStore,
+} from '../lib';
 import { MessagesList, ChatInput, PersistentButtons } from './';
 
 export function Chat({
