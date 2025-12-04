@@ -28,30 +28,35 @@ jobs:
 
       - name: Get version from tag or input
         id: get-version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_VERSION: ${{ github.event.inputs.version }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${{ github.event.inputs.version }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            VERSION="$DISPATCH_VERSION"
           else
             VERSION="${GITHUB_REF#refs/tags/v}"
           fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Version: $VERSION"
 
       - name: Validate semantic version format
+        env:
+          RELEASE_VERSION: ${{ steps.get-version.outputs.version }}
         run: |
-          VERSION="${{ steps.get-version.outputs.version }}"
-          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?(\+[a-zA-Z0-9.-]+)?$'; then
-            echo "Error: Invalid semantic version format: $VERSION"
+          if ! echo "$RELEASE_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?(\+[a-zA-Z0-9.-]+)?$'; then
+            echo "Error: Invalid semantic version format: $RELEASE_VERSION"
             echo "Expected format: MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]"
             exit 1
           fi
-          echo "✓ Valid semantic version: $VERSION"
+          echo "✓ Valid semantic version: $RELEASE_VERSION"
 
       - name: Check version in package.json matches
+        env:
+          RELEASE_VERSION: ${{ steps.get-version.outputs.version }}
         run: |
-          VERSION="${{ steps.get-version.outputs.version }}"
           # Remove any prerelease or build metadata for comparison
-          BASE_VERSION=$(echo "$VERSION" | sed 's/[-+].*//')
+          BASE_VERSION=$(echo "$RELEASE_VERSION" | sed 's/[-+].*//')
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
 
           if [ "$PACKAGE_VERSION" != "$BASE_VERSION" ]; then
