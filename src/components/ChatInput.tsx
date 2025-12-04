@@ -59,11 +59,9 @@ export function ChatInput({
       inputRef.current.placeholder = inputPlaceholder;
     }
   }, [inputPlaceholder]);
-  
+
   const handleSend = (): void => {
     if (getInputFieldValue().trim() === '') return;
-
-    console.log('send = ' + getInputFieldValue());
 
     // Note: Validation is handled in the userResponseCallback of the requesting message
     // We allow sending here to enable error messages to be displayed when validation fails
