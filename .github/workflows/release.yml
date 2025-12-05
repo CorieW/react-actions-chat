@@ -38,6 +38,7 @@ jobs:
             VERSION="${GITHUB_REF#refs/tags/v}"
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag_name=v$VERSION" >> "$GITHUB_OUTPUT"
           echo "Version: $VERSION"
 
       - name: Validate semantic version format
@@ -84,12 +85,9 @@ jobs:
         run: npm run build
 
       - name: Create Release
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ steps.get-version.outputs.tag_name }}
           name: Release ${{ steps.get-version.outputs.version }}
           draft: false
           prerelease: ${{ contains(steps.get-version.outputs.version, '-') }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
