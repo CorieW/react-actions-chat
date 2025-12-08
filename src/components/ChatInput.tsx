@@ -3,7 +3,7 @@ import type { KeyboardEvent } from 'react';
 import { Send } from 'lucide-react';
 import type { ChatTheme } from '../js/types';
 import { Button } from './ui/button';
-import { useInputFieldStore } from '../lib/inputFieldStore';
+import { useInputFieldStore } from '../lib';
 
 interface ChatInputProps {
   readonly onSend: (message: string) => void;

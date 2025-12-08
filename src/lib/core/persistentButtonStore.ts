@@ -1,24 +1,23 @@
-import { create } from 'zustand';
-import type { MessageButton } from '../js/types';
+import { createStore } from 'zustand/vanilla';
+import type { MessageButton } from '../../js/types';
 
 /**
  * A persistent button that extends MessageButton with a unique identifier.
  * These buttons are displayed at the bottom of the chat, above the input box.
  */
-interface PersistentButton extends MessageButton {
+export interface PersistentButton extends MessageButton {
   readonly id: string;
 }
 
-interface PersistentButtonStoreState {
+export interface PersistentButtonStoreState {
   readonly buttons: readonly PersistentButton[];
+}
 
-  // Getters
+export interface PersistentButtonStoreActions {
   /**
    * Returns the current array of persistent buttons.
    */
   readonly getButtons: () => readonly PersistentButton[];
-
-  // Setters
   /**
    * Adds a new persistent button or updates an existing one if a button with the same id already exists.
    * @param button The button configuration with a unique id
@@ -42,8 +41,15 @@ interface PersistentButtonStoreState {
   readonly clearButtons: () => void;
 }
 
-export const usePersistentButtonStore = create<PersistentButtonStoreState>(
-  (set, get) => ({
+export type PersistentButtonStore = PersistentButtonStoreState &
+  PersistentButtonStoreActions;
+
+/**
+ * Creates a vanilla Zustand store for managing persistent buttons.
+ * This is framework-agnostic and can be used with any framework or vanilla JS.
+ */
+export const createPersistentButtonStore = () =>
+  createStore<PersistentButtonStore>((set, get) => ({
     buttons: [],
 
     getButtons: () => {
@@ -80,5 +86,10 @@ export const usePersistentButtonStore = create<PersistentButtonStoreState>(
     clearButtons: () => {
       set({ buttons: [] });
     },
-  })
-);
+  }));
+
+/**
+ * Default singleton instance of the persistent button store.
+ * Use this for simple cases where a single store is needed.
+ */
+export const persistentButtonStore = createPersistentButtonStore();

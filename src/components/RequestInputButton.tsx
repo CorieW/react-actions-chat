@@ -1,10 +1,11 @@
 import type { MessageButton, MessageButtonVariant } from '../js/types';
-import { useChatStore, usePersistentButtonStore } from '../lib';
 import {
+  useChatStore,
+  usePersistentButtonStore,
   useInputFieldStore,
   type InputType,
   type InputValidator,
-} from '../lib/inputFieldStore';
+} from '../lib';
 
 export interface RequestInputButtonConfig {
   /**

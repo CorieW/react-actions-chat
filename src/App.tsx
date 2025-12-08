@@ -4,9 +4,8 @@ import {
   createRequestConfirmationButton,
   createRequestInputButton,
 } from './components';
-import { useChatStore } from './lib/chatStore';
+import { useChatStore, useInputFieldStore } from './lib';
 import { useMemo } from 'react';
-import { useInputFieldStore } from './lib';
 
 function App(): React.JSX.Element {
   const { addMessage } = useChatStore();
