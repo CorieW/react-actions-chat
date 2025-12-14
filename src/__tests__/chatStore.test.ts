@@ -345,4 +345,3 @@ describe('Chat Store Unit Tests', () => {
     });
   });
 });
-

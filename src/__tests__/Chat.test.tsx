@@ -16,9 +16,11 @@ describe('Chat Component Integration Tests', () => {
 
   it('should render empty chat', () => {
     render(<Chat />);
-    
+
     // Should have input field
-    expect(screen.getByPlaceholderText('Type your message...')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Type your message...')
+    ).toBeInTheDocument();
   });
 
   it('should render with initial messages', () => {
@@ -60,7 +62,7 @@ describe('Chat Component Integration Tests', () => {
   });
 
   it('should apply light theme', () => {
-    const { container } = render(<Chat theme="light" />);
+    const { container } = render(<Chat theme='light' />);
 
     const chatContainer = container.firstChild as HTMLElement;
     expect(chatContainer).toHaveStyle({
@@ -70,7 +72,7 @@ describe('Chat Component Integration Tests', () => {
   });
 
   it('should apply dark theme', () => {
-    const { container } = render(<Chat theme="dark" />);
+    const { container } = render(<Chat theme='dark' />);
 
     const chatContainer = container.firstChild as HTMLElement;
     expect(chatContainer).toHaveStyle({
@@ -229,4 +231,3 @@ describe('Chat Component Integration Tests', () => {
     expect(messages.length).toBe(0);
   });
 });
-

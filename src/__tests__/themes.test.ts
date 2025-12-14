@@ -262,7 +262,9 @@ describe('Theme System Unit Tests', () => {
 
       // Should default to dark theme
       expect(resolvedTheme).toEqual(DARK_THEME);
-      expect(styles['--chat-background-color']).toBe(DARK_THEME.backgroundColor);
+      expect(styles['--chat-background-color']).toBe(
+        DARK_THEME.backgroundColor
+      );
     });
   });
 
@@ -309,4 +311,3 @@ describe('Theme System Unit Tests', () => {
     });
   });
 });
-
