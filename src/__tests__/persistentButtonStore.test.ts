@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
-import type { MessageButton } from '../js/types';
 
 describe('Persistent Button Store Unit Tests', () => {
   beforeEach(() => {
