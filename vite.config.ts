@@ -8,7 +8,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './src/__tests__/setup.ts',
+    setupFiles: './src/test/setup.ts',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'json-summary', 'html', 'lcov'],
@@ -16,6 +16,7 @@ export default defineConfig({
       exclude: [
         'src/**/*.test.{ts,tsx}',
         'src/**/__tests__/**',
+        'src/test/**',
         'src/main.tsx',
         'src/App.tsx',
         'src/**/*.d.ts',
