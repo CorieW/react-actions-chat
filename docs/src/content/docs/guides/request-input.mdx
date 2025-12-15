@@ -19,7 +19,7 @@ const emailButton = createRequestInputButton({
   inputPromptMessage: 'Please enter your new email address:',
   inputType: 'email',
   placeholder: 'your.email@example.com',
-  onInput: (email) => {
+  onInput: email => {
     addMessage({
       type: 'other',
       content: `Email updated to ${email}!`,
@@ -53,13 +53,7 @@ interface RequestInputButtonConfig {
   readonly showAbort?: boolean;
 }
 
-type InputType =
-  | 'text'
-  | 'email'
-  | 'password'
-  | 'number'
-  | 'tel'
-  | 'url';
+type InputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'url';
 
 type InputValidator = (value: string) => true | string;
 ```
@@ -90,7 +84,7 @@ createRequestInputButton({
   inputPromptMessage: 'What is your name?',
   inputType: 'text',
   placeholder: 'John Doe',
-  onInput: (name) => {
+  onInput: name => {
     addMessage({
       type: 'other',
       content: `Hello, ${name}!`,
@@ -108,7 +102,7 @@ createRequestInputButton({
   inputType: 'email',
   placeholder: 'your.email@example.com',
   inputDescription: 'We will send a verification email',
-  onInput: (email) => {
+  onInput: email => {
     addMessage({
       type: 'other',
       content: `Verification email sent to ${email}`,
@@ -126,7 +120,7 @@ createRequestInputButton({
   inputType: 'password',
   placeholder: 'Enter password',
   inputDescription: 'Password must be at least 8 characters',
-  onInput: (password) => {
+  onInput: password => {
     addMessage({
       type: 'other',
       content: 'Password updated successfully!',
@@ -143,7 +137,7 @@ createRequestInputButton({
   inputPromptMessage: 'How old are you?',
   inputType: 'number',
   placeholder: '25',
-  onInput: (age) => {
+  onInput: age => {
     addMessage({
       type: 'other',
       content: `Age set to ${age}`,
@@ -160,7 +154,7 @@ createRequestInputButton({
   inputPromptMessage: 'Enter your phone number:',
   inputType: 'tel',
   placeholder: '+1 (555) 123-4567',
-  onInput: (phone) => {
+  onInput: phone => {
     addMessage({
       type: 'other',
       content: `Phone number saved: ${phone}`,
@@ -177,7 +171,7 @@ createRequestInputButton({
   inputPromptMessage: 'Enter your website URL:',
   inputType: 'url',
   placeholder: 'https://example.com',
-  onInput: (url) => {
+  onInput: url => {
     addMessage({
       type: 'other',
       content: `Website saved: ${url}`,
@@ -197,14 +191,14 @@ createRequestInputButton({
   initialLabel: 'Update Email',
   inputPromptMessage: 'Enter your email:',
   inputType: 'email',
-  validator: (value) => {
+  validator: value => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value)) {
       return 'Please enter a valid email address';
     }
     return true;
   },
-  onInput: (email) => {
+  onInput: email => {
     addMessage({
       type: 'other',
       content: `Email updated to ${email}`,
@@ -221,7 +215,7 @@ createRequestInputButton({
   inputPromptMessage: 'Enter your new password:',
   inputType: 'password',
   inputDescription: 'Must be 8+ chars with uppercase, lowercase, and number',
-  validator: (value) => {
+  validator: value => {
     if (value.length < 8) {
       return 'Password must be at least 8 characters long';
     }
@@ -236,7 +230,7 @@ createRequestInputButton({
     }
     return true;
   },
-  onInput: (password) => {
+  onInput: password => {
     addMessage({
       type: 'other',
       content: 'Password changed successfully!',
@@ -252,7 +246,7 @@ createRequestInputButton({
   initialLabel: 'Enter Code',
   inputPromptMessage: 'Enter the 6-digit verification code:',
   inputType: 'text',
-  validator: (value) => {
+  validator: value => {
     if (value.length !== 6) {
       return 'Code must be exactly 6 digits';
     }
@@ -261,7 +255,7 @@ createRequestInputButton({
     }
     return true;
   },
-  onInput: (code) => {
+  onInput: code => {
     addMessage({
       type: 'other',
       content: 'Code verified successfully!',
@@ -276,7 +270,7 @@ createRequestInputButton({
 createRequestInputButton({
   initialLabel: 'Check Username',
   inputPromptMessage: 'Enter desired username:',
-  validator: async (value) => {
+  validator: async value => {
     // Note: validator should ideally be synchronous
     // For async validation, do it in onInput instead
     if (value.length < 3) {
@@ -284,7 +278,7 @@ createRequestInputButton({
     }
     return true;
   },
-  onInput: async (username) => {
+  onInput: async username => {
     addMessage({
       type: 'other',
       content: 'Checking availability...',
@@ -331,7 +325,7 @@ createRequestInputButton({
   initialLabel: 'Enter Name',
   inputPromptMessage: 'What is your name?',
   // Abort button automatically added
-  onInput: (name) => {
+  onInput: name => {
     addMessage({ type: 'other', content: `Hello, ${name}!` });
   },
 });
@@ -399,11 +393,11 @@ function AccountSettings() {
             inputType: 'email',
             placeholder: 'your.email@example.com',
             inputDescription: 'We will send a verification email',
-            validator: (value) => {
+            validator: value => {
               const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
               return emailRegex.test(value) || 'Invalid email address';
             },
-            onInput: (email) => {
+            onInput: email => {
               addMessage({
                 type: 'other',
                 content: `Verification email sent to ${email}!`,
@@ -415,8 +409,9 @@ function AccountSettings() {
             inputPromptMessage: 'Enter your new password:',
             inputType: 'password',
             placeholder: 'Enter password',
-            inputDescription: 'Must be 8+ chars with uppercase, lowercase, and number',
-            validator: (value) => {
+            inputDescription:
+              'Must be 8+ chars with uppercase, lowercase, and number',
+            validator: value => {
               if (value.length < 8) {
                 return 'Password must be at least 8 characters';
               }
@@ -444,7 +439,7 @@ function AccountSettings() {
     [addMessage]
   );
 
-  return <Chat initialMessages={initialMessages} theme="dark" />;
+  return <Chat initialMessages={initialMessages} theme='dark' />;
 }
 ```
 
@@ -454,27 +449,27 @@ function AccountSettings() {
 
 ```tsx
 // Good - specific instructions
-inputPromptMessage: 'Please enter your 6-digit verification code:'
+inputPromptMessage: 'Please enter your 6-digit verification code:';
 
 // Bad - vague
-inputPromptMessage: 'Enter code:'
+inputPromptMessage: 'Enter code:';
 ```
 
 ### 2. Use Appropriate Input Types
 
 ```tsx
 // Good - email type for email
-inputType: 'email'
+inputType: 'email';
 
 // Bad - text type for email
-inputType: 'text'
+inputType: 'text';
 ```
 
 ### 3. Add Helpful Descriptions
 
 ```tsx
 // Good - helpful context
-inputDescription: 'Password must be at least 8 characters with uppercase, lowercase, and number'
+inputDescription: 'Password must be at least 8 characters with uppercase, lowercase, and number';
 
 // Missing - no guidance
 // (no inputDescription provided)
@@ -484,35 +479,35 @@ inputDescription: 'Password must be at least 8 characters with uppercase, lowerc
 
 ```tsx
 // Good - specific error
-validator: (value) => {
+validator: value => {
   if (value.length < 8) {
     return 'Password must be at least 8 characters long';
   }
   return true;
-}
+};
 
 // Bad - generic error
-validator: (value) => {
+validator: value => {
   return value.length >= 8 || 'Invalid';
-}
+};
 ```
 
 ### 5. Give Feedback After Input
 
 ```tsx
 // Good - confirmation message
-onInput: (email) => {
+onInput: email => {
   addMessage({
     type: 'other',
     content: `Email updated to ${email}. Please check your inbox for verification.`,
   });
-}
+};
 
 // Bad - no feedback
-onInput: (email) => {
+onInput: email => {
   updateEmail(email);
   // No message to user
-}
+};
 ```
 
 ## Next Steps
@@ -521,4 +516,3 @@ onInput: (email) => {
 - [Request Confirmation](/guides/request-confirmation/) - Add confirmation dialogs
 - [Persistent Buttons](/guides/persistent-buttons/) - Create always-visible buttons
 - [API Reference](/api/types/) - View all type definitions
-

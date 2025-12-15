@@ -65,7 +65,8 @@ function CustomerSupportChat() {
   const handleReportIssue = () => {
     addMessage({
       type: 'other',
-      content: 'I\'m sorry to hear you\'re having an issue. What type of problem are you experiencing?',
+      content:
+        "I'm sorry to hear you're having an issue. What type of problem are you experiencing?",
       buttons: [
         {
           label: 'Payment Issue',
@@ -101,14 +102,15 @@ function CustomerSupportChat() {
           inputPromptMessage: 'Please provide details about your issue:',
           inputType: 'text',
           placeholder: 'Describe your problem...',
-          inputDescription: 'Be as specific as possible to help us assist you better',
-          validator: (value) => {
+          inputDescription:
+            'Be as specific as possible to help us assist you better',
+          validator: value => {
             if (value.length < 10) {
               return 'Please provide more details (at least 10 characters)';
             }
             return true;
           },
-          onInput: (description) => handleSubmitIssue(issueType, description),
+          onInput: description => handleSubmitIssue(issueType, description),
         }),
       ],
     });
@@ -146,20 +148,21 @@ function CustomerSupportChat() {
   const handleCheckOrder = () => {
     addMessage({
       type: 'other',
-      content: 'I can help you check your order status. Please provide your order number:',
+      content:
+        'I can help you check your order status. Please provide your order number:',
       buttons: [
         createRequestInputButton({
           initialLabel: 'Enter Order Number',
           inputPromptMessage: 'Please enter your order number:',
           inputType: 'text',
           placeholder: 'ORD-12345',
-          validator: (value) => {
+          validator: value => {
             if (!/^ORD-\d{5}$/.test(value)) {
               return 'Order number must be in format ORD-12345';
             }
             return true;
           },
-          onInput: async (orderNumber) => {
+          onInput: async orderNumber => {
             addMessage({
               type: 'other',
               content: 'Looking up your order...',
@@ -205,7 +208,8 @@ function CustomerSupportChat() {
           onClick: () => {
             addMessage({
               type: 'other',
-              content: '📦 **Shipping & Delivery**\n\n• Standard shipping: 5-7 business days\n• Express shipping: 2-3 business days\n• Free shipping on orders over $50\n• Track your order anytime using your order number',
+              content:
+                '📦 **Shipping & Delivery**\n\n• Standard shipping: 5-7 business days\n• Express shipping: 2-3 business days\n• Free shipping on orders over $50\n• Track your order anytime using your order number',
               buttons: [
                 {
                   label: 'More FAQs',
@@ -225,7 +229,8 @@ function CustomerSupportChat() {
           onClick: () => {
             addMessage({
               type: 'other',
-              content: '🔄 **Returns & Refunds**\n\n• 30-day return policy\n• Items must be unused and in original packaging\n• Refunds processed within 5-7 business days\n• Return shipping is free for defective items',
+              content:
+                '🔄 **Returns & Refunds**\n\n• 30-day return policy\n• Items must be unused and in original packaging\n• Refunds processed within 5-7 business days\n• Return shipping is free for defective items',
               buttons: [
                 {
                   label: 'Start Return',
@@ -246,7 +251,8 @@ function CustomerSupportChat() {
           onClick: () => {
             addMessage({
               type: 'other',
-              content: '💳 **Payment Methods**\n\n• Credit/Debit Cards (Visa, Mastercard, Amex)\n• PayPal\n• Apple Pay & Google Pay\n• Gift Cards\n\nAll payments are secure and encrypted.',
+              content:
+                '💳 **Payment Methods**\n\n• Credit/Debit Cards (Visa, Mastercard, Amex)\n• PayPal\n• Apple Pay & Google Pay\n• Gift Cards\n\nAll payments are secure and encrypted.',
               buttons: [
                 {
                   label: 'Back to Menu',
@@ -263,20 +269,21 @@ function CustomerSupportChat() {
   const handleContactAgent = () => {
     addMessage({
       type: 'other',
-      content: 'I\'ll connect you with a live agent. Please provide your name and email:',
+      content:
+        "I'll connect you with a live agent. Please provide your name and email:",
       buttons: [
         createRequestInputButton({
           initialLabel: 'Enter Name',
           inputPromptMessage: 'What is your name?',
           inputType: 'text',
           placeholder: 'John Doe',
-          validator: (value) => {
+          validator: value => {
             if (value.trim().length < 2) {
               return 'Please enter a valid name';
             }
             return true;
           },
-          onInput: (name) => {
+          onInput: name => {
             addMessage({
               type: 'other',
               content: `Nice to meet you, ${name}! Now, what is your email address?`,
@@ -286,11 +293,13 @@ function CustomerSupportChat() {
                   inputPromptMessage: 'Please provide your email:',
                   inputType: 'email',
                   placeholder: 'your.email@example.com',
-                  validator: (value) => {
+                  validator: value => {
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    return emailRegex.test(value) || 'Please enter a valid email';
+                    return (
+                      emailRegex.test(value) || 'Please enter a valid email'
+                    );
                   },
-                  onInput: async (email) => {
+                  onInput: async email => {
                     addMessage({
                       type: 'other',
                       content: 'Connecting you to an agent...',
@@ -315,20 +324,21 @@ function CustomerSupportChat() {
   const handleStartReturn = () => {
     addMessage({
       type: 'other',
-      content: 'I can help you start a return. Which order would you like to return?',
+      content:
+        'I can help you start a return. Which order would you like to return?',
       buttons: [
         createRequestInputButton({
           initialLabel: 'Enter Order Number',
           inputPromptMessage: 'Enter the order number you want to return:',
           inputType: 'text',
           placeholder: 'ORD-12345',
-          validator: (value) => {
+          validator: value => {
             if (!/^ORD-\d{5}$/.test(value)) {
               return 'Order number must be in format ORD-12345';
             }
             return true;
           },
-          onInput: (orderNumber) => {
+          onInput: orderNumber => {
             addMessage({
               type: 'other',
               content: `Starting return process for ${orderNumber}. We'll email you a prepaid return label within 24 hours.`,
@@ -389,8 +399,8 @@ function CustomerSupportChat() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Chat initialMessages={initialMessages} theme="dark" />
+    <div className='min-h-screen bg-background'>
+      <Chat initialMessages={initialMessages} theme='dark' />
     </div>
   );
 }
@@ -407,6 +417,7 @@ Provides quick access to all major functions with clearly labeled buttons and ap
 ### 2. Issue Reporting
 
 Multi-step workflow:
+
 - Select issue type
 - Provide detailed description with validation
 - Create support ticket
@@ -503,4 +514,3 @@ const handleSubmitIssue = async (issueType: string, description: string) => {
 - [Account Management Example](/examples/account-management/) - Account settings chat
 - [Request Input Guide](/guides/request-input/) - Input collection details
 - [Message Buttons Guide](/guides/message-buttons/) - Button customization
-

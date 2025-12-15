@@ -6,7 +6,8 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Actionable Support Chat',
-      description: 'A React chat component library with interactive buttons, input requests, and theming support',
+      description:
+        'A React chat component library with interactive buttons, input requests, and theming support',
       social: [
         {
           label: 'GitHub',
@@ -29,9 +30,15 @@ export default defineConfig({
             { label: 'Basic Usage', link: '/guides/basic-usage/' },
             { label: 'Messages', link: '/guides/messages/' },
             { label: 'Message Buttons', link: '/guides/message-buttons/' },
-            { label: 'Request Confirmation', link: '/guides/request-confirmation/' },
+            {
+              label: 'Request Confirmation',
+              link: '/guides/request-confirmation/',
+            },
             { label: 'Request Input', link: '/guides/request-input/' },
-            { label: 'Persistent Buttons', link: '/guides/persistent-buttons/' },
+            {
+              label: 'Persistent Buttons',
+              link: '/guides/persistent-buttons/',
+            },
             { label: 'Theming', link: '/guides/theming/' },
           ],
         },
@@ -47,15 +54,15 @@ export default defineConfig({
           label: 'Examples',
           items: [
             { label: 'Customer Support', link: '/examples/customer-support/' },
-            { label: 'Account Management', link: '/examples/account-management/' },
+            {
+              label: 'Account Management',
+              link: '/examples/account-management/',
+            },
           ],
         },
       ],
-      customCss: [
-        './src/styles/custom.css',
-      ],
+      customCss: ['./src/styles/custom.css'],
     }),
   ],
   outDir: './docs-dist',
 });
-

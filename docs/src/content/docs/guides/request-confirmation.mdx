@@ -95,7 +95,8 @@ function AccountSettings() {
             onReject: () => {
               addMessage({
                 type: 'other',
-                content: 'Account deletion cancelled. Your account remains active.',
+                content:
+                  'Account deletion cancelled. Your account remains active.',
               });
             },
           }),
@@ -105,7 +106,7 @@ function AccountSettings() {
     [addMessage]
   );
 
-  return <Chat initialMessages={initialMessages} theme="dark" />;
+  return <Chat initialMessages={initialMessages} theme='dark' />;
 }
 ```
 
@@ -251,6 +252,7 @@ addMessage({
 ### 1. Use for Destructive Actions
 
 Always use confirmation for actions that:
+
 - Delete data
 - Are irreversible
 - Have significant consequences
@@ -276,10 +278,10 @@ createRequestConfirmationButton({
 
 ```tsx
 // Good - specific and clear
-confirmationMessage: 'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.'
+confirmationMessage: 'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.';
 
 // Bad - vague
-confirmationMessage: 'Are you sure?'
+confirmationMessage: 'Are you sure?';
 ```
 
 ### 3. Provide Appropriate Feedback
@@ -292,7 +294,8 @@ createRequestConfirmationButton({
   onConfirm: () => {
     addMessage({
       type: 'other',
-      content: 'Subscription cancelled. You will have access until the end of your billing period.',
+      content:
+        'Subscription cancelled. You will have access until the end of your billing period.',
     });
   },
   onReject: () => {
@@ -334,4 +337,3 @@ createRequestConfirmationButton({
 - [Request Input](/guides/request-input/) - Collect user input with validation
 - [Message Buttons](/guides/message-buttons/) - Learn about regular buttons
 - [API Reference](/api/types/) - View all type definitions
-

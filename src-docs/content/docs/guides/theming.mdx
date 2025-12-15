@@ -55,36 +55,36 @@ interface ChatTheme {
 
 ```tsx
 const DARK_THEME: ChatTheme = {
-  primaryColor: '#3b82f6',      // Blue
-  secondaryColor: '#374151',     // Gray-700
-  backgroundColor: '#111827',    // Gray-900
-  textColor: '#f9fafb',         // Gray-50
-  borderColor: '#4b5563',       // Gray-600
+  primaryColor: '#3b82f6', // Blue
+  secondaryColor: '#374151', // Gray-700
+  backgroundColor: '#111827', // Gray-900
+  textColor: '#f9fafb', // Gray-50
+  borderColor: '#4b5563', // Gray-600
   inputBackgroundColor: '#1f2937', // Gray-800
-  inputTextColor: '#f9fafb',    // Gray-50
-  buttonColor: '#3b82f6',       // Blue-600
-  buttonTextColor: '#ffffff',   // White
+  inputTextColor: '#f9fafb', // Gray-50
+  buttonColor: '#3b82f6', // Blue-600
+  buttonTextColor: '#ffffff', // White
 };
 
-<Chat theme="dark" />
+<Chat theme='dark' />;
 ```
 
 ### Light Theme
 
 ```tsx
 const LIGHT_THEME: ChatTheme = {
-  primaryColor: '#3b82f6',      // Blue
-  secondaryColor: '#e5e7eb',     // Light gray
-  backgroundColor: '#f3f4f6',    // Gray-100
-  textColor: '#111827',         // Gray-900
-  borderColor: '#e5e7eb',       // Gray-200
-  inputBackgroundColor: '#fff',  // White
-  inputTextColor: '#111827',    // Gray-900
-  buttonColor: '#3b82f6',       // Blue-600
-  buttonTextColor: '#ffffff',   // White
+  primaryColor: '#3b82f6', // Blue
+  secondaryColor: '#e5e7eb', // Light gray
+  backgroundColor: '#f3f4f6', // Gray-100
+  textColor: '#111827', // Gray-900
+  borderColor: '#e5e7eb', // Gray-200
+  inputBackgroundColor: '#fff', // White
+  inputTextColor: '#111827', // Gray-900
+  buttonColor: '#3b82f6', // Blue-600
+  buttonTextColor: '#ffffff', // White
 };
 
-<Chat theme="light" />
+<Chat theme='light' />;
 ```
 
 ## Custom Themes
@@ -95,18 +95,18 @@ Create a fully custom theme by providing all properties:
 
 ```tsx
 const customTheme: ChatTheme = {
-  primaryColor: '#10b981',       // Emerald-500
-  secondaryColor: '#6366f1',     // Indigo-500
-  backgroundColor: '#0f172a',    // Slate-900
-  textColor: '#f1f5f9',         // Slate-100
-  borderColor: '#334155',       // Slate-700
+  primaryColor: '#10b981', // Emerald-500
+  secondaryColor: '#6366f1', // Indigo-500
+  backgroundColor: '#0f172a', // Slate-900
+  textColor: '#f1f5f9', // Slate-100
+  borderColor: '#334155', // Slate-700
   inputBackgroundColor: '#1e293b', // Slate-800
-  inputTextColor: '#f1f5f9',    // Slate-100
-  buttonColor: '#10b981',       // Emerald-500
-  buttonTextColor: '#ffffff',   // White
+  inputTextColor: '#f1f5f9', // Slate-100
+  buttonColor: '#10b981', // Emerald-500
+  buttonTextColor: '#ffffff', // White
 };
 
-<Chat theme={customTheme} />
+<Chat theme={customTheme} />;
 ```
 
 ### Partial Custom Theme
@@ -115,12 +115,12 @@ Provide only the properties you want to customize. Missing properties default to
 
 ```tsx
 const partialTheme: ChatTheme = {
-  primaryColor: '#ec4899',       // Pink-500
-  backgroundColor: '#18181b',    // Zinc-900
-  textColor: '#fafafa',         // Zinc-50
+  primaryColor: '#ec4899', // Pink-500
+  backgroundColor: '#18181b', // Zinc-900
+  textColor: '#fafafa', // Zinc-50
 };
 
-<Chat theme={partialTheme} />
+<Chat theme={partialTheme} />;
 ```
 
 ## Theme Examples
@@ -149,15 +149,15 @@ Colorful and energetic:
 
 ```tsx
 const vibrantTheme: ChatTheme = {
-  primaryColor: '#8b5cf6',       // Purple-500
-  secondaryColor: '#ec4899',     // Pink-500
-  backgroundColor: '#1e1b4b',    // Indigo-950
-  textColor: '#faf5ff',         // Purple-50
-  borderColor: '#6366f1',       // Indigo-500
+  primaryColor: '#8b5cf6', // Purple-500
+  secondaryColor: '#ec4899', // Pink-500
+  backgroundColor: '#1e1b4b', // Indigo-950
+  textColor: '#faf5ff', // Purple-50
+  borderColor: '#6366f1', // Indigo-500
   inputBackgroundColor: '#312e81', // Indigo-900
-  inputTextColor: '#faf5ff',    // Purple-50
-  buttonColor: '#8b5cf6',       // Purple-500
-  buttonTextColor: '#ffffff',   // White
+  inputTextColor: '#faf5ff', // Purple-50
+  buttonColor: '#8b5cf6', // Purple-500
+  buttonTextColor: '#ffffff', // White
 };
 ```
 
@@ -167,15 +167,15 @@ Corporate and professional:
 
 ```tsx
 const professionalTheme: ChatTheme = {
-  primaryColor: '#0369a1',       // Sky-700
-  secondaryColor: '#64748b',     // Slate-500
-  backgroundColor: '#f8fafc',    // Slate-50
-  textColor: '#0f172a',         // Slate-900
-  borderColor: '#cbd5e1',       // Slate-300
+  primaryColor: '#0369a1', // Sky-700
+  secondaryColor: '#64748b', // Slate-500
+  backgroundColor: '#f8fafc', // Slate-50
+  textColor: '#0f172a', // Slate-900
+  borderColor: '#cbd5e1', // Slate-300
   inputBackgroundColor: '#ffffff', // White
-  inputTextColor: '#0f172a',    // Slate-900
-  buttonColor: '#0369a1',       // Sky-700
-  buttonTextColor: '#ffffff',   // White
+  inputTextColor: '#0f172a', // Slate-900
+  buttonColor: '#0369a1', // Sky-700
+  buttonTextColor: '#ffffff', // White
 };
 ```
 
@@ -185,15 +185,15 @@ Earth tones and green:
 
 ```tsx
 const natureTheme: ChatTheme = {
-  primaryColor: '#16a34a',       // Green-600
-  secondaryColor: '#78716c',     // Stone-500
-  backgroundColor: '#f5f5f4',    // Stone-100
-  textColor: '#1c1917',         // Stone-900
-  borderColor: '#d6d3d1',       // Stone-300
+  primaryColor: '#16a34a', // Green-600
+  secondaryColor: '#78716c', // Stone-500
+  backgroundColor: '#f5f5f4', // Stone-100
+  textColor: '#1c1917', // Stone-900
+  borderColor: '#d6d3d1', // Stone-300
   inputBackgroundColor: '#ffffff', // White
-  inputTextColor: '#1c1917',    // Stone-900
-  buttonColor: '#16a34a',       // Green-600
-  buttonTextColor: '#ffffff',   // White
+  inputTextColor: '#1c1917', // Stone-900
+  buttonColor: '#16a34a', // Green-600
+  buttonTextColor: '#ffffff', // White
 };
 ```
 
@@ -247,10 +247,18 @@ import { Chat } from 'actionable-support-chat';
 import type { ChatTheme } from 'actionable-support-chat';
 
 const themes = {
-  dark: { /* dark theme */ },
-  light: { /* light theme */ },
-  vibrant: { /* vibrant theme */ },
-  professional: { /* professional theme */ },
+  dark: {
+    /* dark theme */
+  },
+  light: {
+    /* light theme */
+  },
+  vibrant: {
+    /* vibrant theme */
+  },
+  professional: {
+    /* professional theme */
+  },
 };
 
 function App() {
@@ -258,11 +266,13 @@ function App() {
 
   return (
     <div>
-      <select onChange={(e) => setCurrentTheme(e.target.value as keyof typeof themes)}>
-        <option value="dark">Dark</option>
-        <option value="light">Light</option>
-        <option value="vibrant">Vibrant</option>
-        <option value="professional">Professional</option>
+      <select
+        onChange={e => setCurrentTheme(e.target.value as keyof typeof themes)}
+      >
+        <option value='dark'>Dark</option>
+        <option value='light'>Light</option>
+        <option value='vibrant'>Vibrant</option>
+        <option value='professional'>Professional</option>
       </select>
       <Chat theme={themes[currentTheme]} />
     </div>
@@ -362,7 +372,7 @@ const initialMessages = [
   },
 ];
 
-<Chat initialMessages={initialMessages} theme={customTheme} />
+<Chat initialMessages={initialMessages} theme={customTheme} />;
 ```
 
 ### 3. Consider Button Variants
@@ -372,10 +382,10 @@ Button variants (error, success, warning, etc.) override theme button colors:
 ```tsx
 // These will use their variant colors, not theme buttonColor
 buttons: [
-  { label: 'Error', variant: 'error' },     // Red
+  { label: 'Error', variant: 'error' }, // Red
   { label: 'Success', variant: 'success' }, // Green
   { label: 'Default', variant: 'default' }, // Uses theme buttonColor
-]
+];
 ```
 
 ### 4. Match Your Brand
@@ -444,4 +454,3 @@ const highContrastTheme: ChatTheme = {
 - [Basic Usage](/guides/basic-usage/) - Learn the fundamentals
 - [Message Buttons](/guides/message-buttons/) - Customize button appearance
 - [API Reference](/api/chat/) - Complete Chat component API
-

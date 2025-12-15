@@ -51,9 +51,7 @@ addMessage({
 addMessage({
   type: 'self',
   content: 'I need assistance',
-  buttons: [
-    { label: 'Continue', onClick: handleContinue },
-  ],
+  buttons: [{ label: 'Continue', onClick: handleContinue }],
 });
 ```
 
@@ -131,7 +129,7 @@ console.log(`Total messages: ${currentMessages.length}`);
 Get the last message in the chat.
 
 ```typescript
-getPreviousMessage: () => Message | undefined
+getPreviousMessage: () => Message | undefined;
 ```
 
 Returns `undefined` if there are no messages.
@@ -517,7 +515,7 @@ setInputFieldValidator: (validator: InputValidator) => void
 ```tsx
 const { setInputFieldValidator } = useInputFieldStore();
 
-setInputFieldValidator((value) => {
+setInputFieldValidator(value => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(value) || 'Invalid email address';
 });
@@ -570,7 +568,7 @@ function ConfigureEmailInput() {
     setInputFieldType('email');
     setInputFieldPlaceholder('your.email@example.com');
     setInputFieldDescription('We will send a verification email');
-    setInputFieldValidator((value) => {
+    setInputFieldValidator(value => {
       const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return regex.test(value) || 'Please enter a valid email';
     });
@@ -609,12 +607,15 @@ function InputManager() {
 All stores can be accessed outside React components using `.getState()`:
 
 ```tsx
-import { useChatStore, usePersistentButtonStore } from 'actionable-support-chat';
+import {
+  useChatStore,
+  usePersistentButtonStore,
+} from 'actionable-support-chat';
 
 // In a utility function
 export function sendWelcomeMessage() {
   const { addMessage } = useChatStore.getState();
-  
+
   addMessage({
     type: 'other',
     content: 'Welcome to our chat!',
@@ -624,7 +625,7 @@ export function sendWelcomeMessage() {
 // In an event handler
 window.addEventListener('error', () => {
   const { addButton } = usePersistentButtonStore.getState();
-  
+
   addButton({
     id: 'error-help',
     label: 'Get Help',
@@ -643,7 +644,7 @@ import { useChatStore } from 'actionable-support-chat';
 
 function MessageCount() {
   // Only re-renders when message count changes
-  const messageCount = useChatStore((state) => state.messages.length);
+  const messageCount = useChatStore(state => state.messages.length);
 
   return <div>Messages: {messageCount}</div>;
 }
@@ -651,7 +652,7 @@ function MessageCount() {
 function LastMessage() {
   // Only re-renders when last message changes
   const lastMessage = useChatStore(
-    (state) => state.messages[state.messages.length - 1]
+    state => state.messages[state.messages.length - 1]
   );
 
   return <div>{lastMessage?.content}</div>;
@@ -664,4 +665,3 @@ function LastMessage() {
 - [Types API](/api/types/) - Type definitions
 - [Basic Usage](/guides/basic-usage/) - Store usage examples
 - [Messages Guide](/guides/messages/) - Working with messages
-

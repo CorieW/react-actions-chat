@@ -9,6 +9,7 @@ Persistent buttons are always visible at the bottom of the chat interface, above
 ## When to Use
 
 Persistent buttons are ideal for:
+
 - Actions that should always be available (e.g., "Get Help", "Main Menu")
 - Abort/Cancel buttons for ongoing operations
 - Quick access to common functions
@@ -65,6 +66,7 @@ interface PersistentButton extends MessageButton {
 ```
 
 All properties from `MessageButton` are supported:
+
 - `label`: Button text
 - `onClick`: Click handler
 - `variant`: Style variant
@@ -416,13 +418,13 @@ addButton({ id: 'cancel', label: 'Click Here', onClick: cancel });
 
 ## Differences from Message Buttons
 
-| Feature | Message Buttons | Persistent Buttons |
-|---------|----------------|-------------------|
-| **Location** | Below specific messages | Bottom of chat (above input) |
+| Feature         | Message Buttons                | Persistent Buttons              |
+| --------------- | ------------------------------ | ------------------------------- |
+| **Location**    | Below specific messages        | Bottom of chat (above input)    |
 | **Persistence** | Cleared when new message added | Remain until explicitly removed |
-| **ID Required** | No | Yes (for add/remove/update) |
-| **Use Case** | Message-specific actions | Global/ongoing actions |
-| **Cleanup** | Automatic | Manual |
+| **ID Required** | No                             | Yes (for add/remove/update)     |
+| **Use Case**    | Message-specific actions       | Global/ongoing actions          |
+| **Cleanup**     | Automatic                      | Manual                          |
 
 ## Next Steps
 
@@ -430,4 +432,3 @@ addButton({ id: 'cancel', label: 'Click Here', onClick: cancel });
 - [Request Confirmation](/guides/request-confirmation/) - Add confirmation dialogs
 - [Request Input](/guides/request-input/) - Uses persistent buttons for abort
 - [API Reference](/api/stores/) - Complete store API documentation
-

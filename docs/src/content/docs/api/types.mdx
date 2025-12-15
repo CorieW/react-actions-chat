@@ -43,9 +43,7 @@ const message: Message = {
   userResponseCallback: () => {
     console.log('User responded');
   },
-  buttons: [
-    { label: 'Get Help', onClick: handleHelp },
-  ],
+  buttons: [{ label: 'Get Help', onClick: handleHelp }],
 };
 ```
 
@@ -260,11 +258,11 @@ const config: RequestInputButtonConfig = {
   inputPromptMessage: 'Enter your new email:',
   inputType: 'email',
   placeholder: 'your.email@example.com',
-  validator: (value) => {
+  validator: value => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(value) || 'Invalid email';
   },
-  onInput: (email) => updateEmail(email),
+  onInput: email => updateEmail(email),
 };
 ```
 
@@ -273,13 +271,7 @@ const config: RequestInputButtonConfig = {
 Supported HTML input types for input requests.
 
 ```typescript
-type InputType =
-  | 'text'
-  | 'email'
-  | 'password'
-  | 'number'
-  | 'tel'
-  | 'url';
+type InputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'url';
 ```
 
 ### `InputValidator`
@@ -291,13 +283,14 @@ type InputValidator = (value: string) => true | string;
 ```
 
 Returns:
+
 - `true`: Input is valid
 - `string`: Error message if invalid
 
 **Example:**
 
 ```tsx
-const validator: InputValidator = (value) => {
+const validator: InputValidator = value => {
   if (value.length < 8) {
     return 'Must be at least 8 characters';
   }
@@ -405,11 +398,7 @@ function isMessage(obj: unknown): obj is Message {
 }
 
 function isMessageButton(obj: unknown): obj is MessageButton {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'label' in obj
-  );
+  return typeof obj === 'object' && obj !== null && 'label' in obj;
 }
 ```
 
@@ -438,7 +427,10 @@ const createWelcomeMessage = (id: number): Message => ({
 ### Type-safe Button Configuration
 
 ```tsx
-import type { MessageButton, MessageButtonVariant } from 'actionable-support-chat';
+import type {
+  MessageButton,
+  MessageButtonVariant,
+} from 'actionable-support-chat';
 
 const createButton = (
   label: string,
@@ -478,4 +470,3 @@ const createTheme = (overrides: Partial<ChatTheme>): ChatTheme => ({
 - [Stores API](/api/stores/) - State management reference
 - [Theming Guide](/guides/theming/) - Theme customization
 - [Messages Guide](/guides/messages/) - Working with messages
-

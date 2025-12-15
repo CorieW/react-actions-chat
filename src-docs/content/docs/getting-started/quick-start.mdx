@@ -16,8 +16,8 @@ import { Chat } from 'actionable-support-chat';
 
 function App() {
   return (
-    <div className="min-h-screen bg-background">
-      <Chat theme="dark" />
+    <div className='min-h-screen bg-background'>
+      <Chat theme='dark' />
     </div>
   );
 }
@@ -46,8 +46,8 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Chat initialMessages={initialMessages} theme="dark" />
+    <div className='min-h-screen bg-background'>
+      <Chat initialMessages={initialMessages} theme='dark' />
     </div>
   );
 }
@@ -91,7 +91,7 @@ function App() {
             onClick: () => {
               addMessage({
                 type: 'other',
-                content: 'I\'ll connect you with our support team.',
+                content: "I'll connect you with our support team.",
               });
             },
           },
@@ -102,8 +102,8 @@ function App() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <Chat initialMessages={initialMessages} theme="dark" />
+    <div className='min-h-screen bg-background'>
+      <Chat initialMessages={initialMessages} theme='dark' />
     </div>
   );
 }
@@ -126,7 +126,11 @@ Great! You now have a basic interactive chat component. Here's what to explore n
 Here's a complete example with multiple features:
 
 ```tsx
-import { Chat, createRequestConfirmationButton, createRequestInputButton } from 'actionable-support-chat';
+import {
+  Chat,
+  createRequestConfirmationButton,
+  createRequestInputButton,
+} from 'actionable-support-chat';
 import { useChatStore } from 'actionable-support-chat';
 import type { Message } from 'actionable-support-chat';
 import { useMemo } from 'react';
@@ -154,8 +158,7 @@ function App() {
           },
           createRequestConfirmationButton({
             initialLabel: 'Delete Account',
-            confirmationMessage:
-              'Are you sure? This action cannot be undone.',
+            confirmationMessage: 'Are you sure? This action cannot be undone.',
             variant: 'error',
             onConfirm: () => {
               addMessage({
@@ -175,11 +178,11 @@ function App() {
             inputPromptMessage: 'Please enter your new email:',
             inputType: 'email',
             placeholder: 'your.email@example.com',
-            validator: (value) => {
+            validator: value => {
               const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
               return emailRegex.test(value) || 'Invalid email address';
             },
-            onInput: (email) => {
+            onInput: email => {
               addMessage({
                 type: 'other',
                 content: `Email updated to ${email}!`,
@@ -193,8 +196,8 @@ function App() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <Chat initialMessages={initialMessages} theme="dark" />
+    <div className='min-h-screen bg-background'>
+      <Chat initialMessages={initialMessages} theme='dark' />
     </div>
   );
 }
@@ -203,8 +206,8 @@ export default App;
 ```
 
 This example demonstrates:
+
 - Regular action buttons
 - Confirmation dialogs for dangerous actions
 - Input collection with validation
 - Different button variants
-

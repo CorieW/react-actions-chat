@@ -74,7 +74,7 @@ function AccountManagementChat() {
           inputType: 'text',
           placeholder: 'John Doe',
           inputDescription: 'This is how your name appears to others',
-          validator: (value) => {
+          validator: value => {
             if (value.trim().length < 2) {
               return 'Name must be at least 2 characters';
             }
@@ -83,7 +83,7 @@ function AccountManagementChat() {
             }
             return true;
           },
-          onInput: async (name) => {
+          onInput: async name => {
             addMessage({
               type: 'other',
               content: 'Updating your name...',
@@ -113,11 +113,13 @@ function AccountManagementChat() {
           inputType: 'email',
           placeholder: 'your.email@example.com',
           inputDescription: 'We will send a verification email',
-          validator: (value) => {
+          validator: value => {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(value) || 'Please enter a valid email address';
+            return (
+              emailRegex.test(value) || 'Please enter a valid email address'
+            );
           },
-          onInput: async (email) => {
+          onInput: async email => {
             addMessage({
               type: 'other',
               content: 'Sending verification email...',
@@ -158,7 +160,7 @@ function AccountManagementChat() {
           inputType: 'tel',
           placeholder: '+1 (555) 123-4567',
           inputDescription: 'Used for two-factor authentication',
-          validator: (value) => {
+          validator: value => {
             const phoneRegex = /^\+?[\d\s\-\(\)]+$/;
             if (!phoneRegex.test(value)) {
               return 'Please enter a valid phone number';
@@ -168,7 +170,7 @@ function AccountManagementChat() {
             }
             return true;
           },
-          onInput: async (phone) => {
+          onInput: async phone => {
             addMessage({
               type: 'other',
               content: 'Updating phone number...',
@@ -207,8 +209,9 @@ function AccountManagementChat() {
           inputPromptMessage: 'Enter your new password:',
           inputType: 'password',
           placeholder: 'Enter new password',
-          inputDescription: 'Must be 8+ chars with uppercase, lowercase, and number',
-          validator: (value) => {
+          inputDescription:
+            'Must be 8+ chars with uppercase, lowercase, and number',
+          validator: value => {
             if (value.length < 8) {
               return 'Password must be at least 8 characters long';
             }
@@ -226,7 +229,7 @@ function AccountManagementChat() {
             }
             return true;
           },
-          onInput: async (password) => {
+          onInput: async password => {
             addMessage({
               type: 'other',
               content: 'Updating your password...',
@@ -236,7 +239,8 @@ function AccountManagementChat() {
 
             addMessage({
               type: 'other',
-              content: '✅ Password changed successfully!\n\nFor security, you\'ve been logged out of all other devices.',
+              content:
+                "✅ Password changed successfully!\n\nFor security, you've been logged out of all other devices.",
               buttons: [
                 {
                   label: 'Main Menu',
@@ -258,7 +262,8 @@ function AccountManagementChat() {
         },
         createRequestConfirmationButton({
           initialLabel: 'Revoke All Sessions',
-          confirmationMessage: 'This will log you out of all devices except this one. Continue?',
+          confirmationMessage:
+            'This will log you out of all devices except this one. Continue?',
           variant: 'warning',
           onConfirm: async () => {
             addMessage({
@@ -270,7 +275,8 @@ function AccountManagementChat() {
 
             addMessage({
               type: 'other',
-              content: '✅ All sessions revoked! You\'re now logged out of all other devices.',
+              content:
+                "✅ All sessions revoked! You're now logged out of all other devices.",
               buttons: [
                 {
                   label: 'Main Menu',
@@ -298,7 +304,8 @@ function AccountManagementChat() {
   const handle2FA = () => {
     addMessage({
       type: 'other',
-      content: '🔐 **Two-Factor Authentication**\n\n2FA adds an extra layer of security to your account. Enable it now?',
+      content:
+        '🔐 **Two-Factor Authentication**\n\n2FA adds an extra layer of security to your account. Enable it now?',
       buttons: [
         {
           label: 'Enable 2FA',
@@ -313,15 +320,17 @@ function AccountManagementChat() {
 
             addMessage({
               type: 'other',
-              content: '✅ 2FA enabled!\n\nScan this QR code with your authenticator app:\n\n[QR Code would be displayed here]\n\n**Backup codes:**\n- 1234-5678\n- 8765-4321\n- 9012-3456\n\nSave these codes in a safe place!',
+              content:
+                '✅ 2FA enabled!\n\nScan this QR code with your authenticator app:\n\n[QR Code would be displayed here]\n\n**Backup codes:**\n- 1234-5678\n- 8765-4321\n- 9012-3456\n\nSave these codes in a safe place!',
               buttons: [
                 {
-                  label: 'I\'ve Saved the Codes',
+                  label: "I've Saved the Codes",
                   variant: 'success',
                   onClick: () => {
                     addMessage({
                       type: 'other',
-                      content: '✅ 2FA setup complete! Your account is now more secure.',
+                      content:
+                        '✅ 2FA setup complete! Your account is now more secure.',
                     });
                   },
                 },
@@ -346,7 +355,8 @@ function AccountManagementChat() {
   const handleLoginHistory = () => {
     addMessage({
       type: 'other',
-      content: '📊 **Login History**\n\n**Recent logins:**\n\n1. **Current session**\n   • Chrome on Windows\n   • Just now\n   • Location: New York, US\n\n2. Chrome on Windows\n   • 2 hours ago\n   • Location: New York, US\n\n3. Safari on iPhone\n   • Yesterday at 3:45 PM\n   • Location: New York, US',
+      content:
+        '📊 **Login History**\n\n**Recent logins:**\n\n1. **Current session**\n   • Chrome on Windows\n   • Just now\n   • Location: New York, US\n\n2. Chrome on Windows\n   • 2 hours ago\n   • Location: New York, US\n\n3. Safari on iPhone\n   • Yesterday at 3:45 PM\n   • Location: New York, US',
       buttons: [
         {
           label: 'Back to Security',
@@ -403,7 +413,8 @@ function AccountManagementChat() {
           onClick: () => {
             addMessage({
               type: 'other',
-              content: '📈 **Activity Settings**\n\nConfigure what data we collect:',
+              content:
+                '📈 **Activity Settings**\n\nConfigure what data we collect:',
               buttons: [
                 {
                   label: 'Allow Analytics',
@@ -411,7 +422,8 @@ function AccountManagementChat() {
                   onClick: () => {
                     addMessage({
                       type: 'other',
-                      content: '✅ Analytics enabled. This helps us improve our service.',
+                      content:
+                        '✅ Analytics enabled. This helps us improve our service.',
                     });
                   },
                 },
@@ -454,11 +466,13 @@ function AccountManagementChat() {
   const handleDataDownload = () => {
     addMessage({
       type: 'other',
-      content: '📥 **Download Your Data**\n\nWe\'ll prepare a copy of all your data. This may take a few minutes.',
+      content:
+        "📥 **Download Your Data**\n\nWe'll prepare a copy of all your data. This may take a few minutes.",
       buttons: [
         createRequestConfirmationButton({
           initialLabel: 'Request Download',
-          confirmationMessage: 'We\'ll email you a download link when your data is ready (usually within 24 hours). Continue?',
+          confirmationMessage:
+            "We'll email you a download link when your data is ready (usually within 24 hours). Continue?",
           variant: 'info',
           onConfirm: async () => {
             addMessage({
@@ -470,7 +484,8 @@ function AccountManagementChat() {
 
             addMessage({
               type: 'other',
-              content: '✅ Data export requested!\n\nYou\'ll receive an email at your registered email address with a download link within 24 hours.',
+              content:
+                "✅ Data export requested!\n\nYou'll receive an email at your registered email address with a download link within 24 hours.",
               buttons: [
                 {
                   label: 'Main Menu',
@@ -498,11 +513,13 @@ function AccountManagementChat() {
   const handleDeleteAccount = () => {
     addMessage({
       type: 'other',
-      content: '⚠️ **Delete Account**\n\nWe\'re sorry to see you go. Before you delete your account, please note:\n\n• This action cannot be undone\n• All your data will be permanently deleted\n• You\'ll lose access to all services\n• Active subscriptions will be cancelled\n\nAre you sure you want to continue?',
+      content:
+        "⚠️ **Delete Account**\n\nWe're sorry to see you go. Before you delete your account, please note:\n\n• This action cannot be undone\n• All your data will be permanently deleted\n• You'll lose access to all services\n• Active subscriptions will be cancelled\n\nAre you sure you want to continue?",
       buttons: [
         createRequestConfirmationButton({
           initialLabel: 'Yes, Delete My Account',
-          confirmationMessage: 'This is your last chance. Are you absolutely sure you want to permanently delete your account and all associated data?',
+          confirmationMessage:
+            'This is your last chance. Are you absolutely sure you want to permanently delete your account and all associated data?',
           variant: 'error',
           onConfirm: () => {
             addMessage({
@@ -520,20 +537,22 @@ function AccountManagementChat() {
                 } else {
                   addMessage({
                     type: 'other',
-                    content: '❌ Confirmation failed. Please type "DELETE" exactly as shown.',
+                    content:
+                      '❌ Confirmation failed. Please type "DELETE" exactly as shown.',
                     userResponseCallback: () => {
                       // Recurse to check again
                       const messages2 = useChatStore.getState().getMessages();
                       const lastSelfMessage2 = [...messages2]
                         .reverse()
                         .find(msg => msg.type === 'self');
-                      
+
                       if (lastSelfMessage2?.content === 'DELETE') {
                         handleFinalDelete();
                       } else {
                         addMessage({
                           type: 'other',
-                          content: '❌ Account deletion cancelled due to incorrect confirmation.',
+                          content:
+                            '❌ Account deletion cancelled due to incorrect confirmation.',
                         });
                       }
                     },
@@ -573,7 +592,8 @@ function AccountManagementChat() {
 
     addMessage({
       type: 'other',
-      content: '👋 Your account has been permanently deleted.\n\nThank you for using our service. We hope to see you again in the future!',
+      content:
+        '👋 Your account has been permanently deleted.\n\nThank you for using our service. We hope to see you again in the future!',
     });
   };
 
@@ -607,8 +627,8 @@ function AccountManagementChat() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Chat initialMessages={initialMessages} theme="dark" />
+    <div className='min-h-screen bg-background'>
+      <Chat initialMessages={initialMessages} theme='dark' />
     </div>
   );
 }
@@ -641,6 +661,7 @@ export default AccountManagementChat;
 ### 4. Account Deletion
 
 Multi-level confirmation:
+
 - Warning about consequences
 - Confirmation dialog
 - Typed confirmation ("DELETE")
@@ -651,4 +672,3 @@ Multi-level confirmation:
 - [Customer Support Example](/examples/customer-support/) - Support chat interface
 - [Request Confirmation Guide](/guides/request-confirmation/) - Confirmation dialogs
 - [Request Input Guide](/guides/request-input/) - Input collection with validation
-

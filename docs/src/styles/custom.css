@@ -43,7 +43,8 @@ pre {
 }
 
 /* Style inline code */
-code, pre > code {
+code,
+pre > code {
   color: var(--code-text-color);
   background-color: var(--code-background-color) !important;
 }
@@ -98,7 +99,8 @@ h3 {
 }
 
 /* Improve list styling */
-ul, ol {
+ul,
+ol {
   margin: 1rem 0;
   padding-left: 1.5rem;
 }

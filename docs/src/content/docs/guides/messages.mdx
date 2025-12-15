@@ -56,7 +56,7 @@ const initialMessages: Message[] = [
   },
 ];
 
-<Chat initialMessages={initialMessages} theme="dark" />
+<Chat initialMessages={initialMessages} theme='dark' />;
 ```
 
 ## Message Types
@@ -79,7 +79,7 @@ Messages from the system/bot/support appear on the left side:
 ```tsx
 addMessage({
   type: 'other',
-  content: 'I\'m here to help!',
+  content: "I'm here to help!",
 });
 ```
 
@@ -95,7 +95,7 @@ addMessage({
     // This runs after the user sends their next message
     addMessage({
       type: 'other',
-      content: 'Thank you! I\'ll send you a confirmation email.',
+      content: "Thank you! I'll send you a confirmation email.",
     });
   },
 });
@@ -111,12 +111,12 @@ const { addMessage } = useChatStore();
 // Step 1
 addMessage({
   type: 'other',
-  content: 'Let\'s set up your account. What\'s your name?',
+  content: "Let's set up your account. What's your name?",
   userResponseCallback: () => {
     // Step 2
     addMessage({
       type: 'other',
-      content: 'Great! Now, what\'s your email?',
+      content: "Great! Now, what's your email?",
       userResponseCallback: () => {
         // Step 3
         addMessage({
@@ -154,7 +154,7 @@ addMessage({
       onClick: () => {
         addMessage({
           type: 'other',
-          content: 'Great! Let\'s continue.',
+          content: "Great! Let's continue.",
         });
       },
     },
@@ -266,7 +266,8 @@ addMessage({
 // Too verbose
 addMessage({
   type: 'other',
-  content: 'I am pleased to inform you that the process of updating your password has been completed successfully and you can now use your new password to log into your account.',
+  content:
+    'I am pleased to inform you that the process of updating your password has been completed successfully and you can now use your new password to log into your account.',
 });
 ```
 
@@ -277,7 +278,8 @@ The library supports markdown in message content:
 ```tsx
 addMessage({
   type: 'other',
-  content: '**Important:** Please verify your email address.\n\nCheck your inbox for a verification link.',
+  content:
+    '**Important:** Please verify your email address.\n\nCheck your inbox for a verification link.',
 });
 ```
 
@@ -290,13 +292,13 @@ When adding buttons, make the action clear:
 buttons: [
   { label: 'Update Email', onClick: handleUpdate },
   { label: 'Cancel', onClick: handleCancel },
-]
+];
 
 // Unclear
 buttons: [
   { label: 'OK', onClick: handleUpdate },
   { label: 'No', onClick: handleCancel },
-]
+];
 ```
 
 ## Next Steps
@@ -304,4 +306,3 @@ buttons: [
 - [Message Buttons](/guides/message-buttons/) - Add interactive buttons
 - [Request Confirmation](/guides/request-confirmation/) - Add confirmation dialogs
 - [Request Input](/guides/request-input/) - Collect user input
-

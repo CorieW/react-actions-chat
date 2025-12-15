@@ -47,7 +47,7 @@ const initialMessages: Message[] = [
   },
 ];
 
-<Chat initialMessages={initialMessages} theme="dark" />
+<Chat initialMessages={initialMessages} theme='dark' />;
 ```
 
 ### `theme`
@@ -57,6 +57,7 @@ const initialMessages: Message[] = [
 - **Optional:** Yes
 
 The theme to apply to the chat interface. Can be:
+
 - String: `'light'` or `'dark'` for built-in themes
 - Object: Custom `ChatTheme` object
 - `undefined`: Defaults to dark theme
@@ -91,8 +92,8 @@ import { Chat } from 'actionable-support-chat';
 
 function App() {
   return (
-    <div className="min-h-screen">
-      <Chat theme="dark" />
+    <div className='min-h-screen'>
+      <Chat theme='dark' />
     </div>
   );
 }
@@ -121,8 +122,8 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen">
-      <Chat initialMessages={initialMessages} theme="light" />
+    <div className='min-h-screen'>
+      <Chat initialMessages={initialMessages} theme='light' />
     </div>
   );
 }
@@ -156,7 +157,7 @@ function App() {
     [addMessage]
   );
 
-  return <Chat initialMessages={initialMessages} theme="dark" />;
+  return <Chat initialMessages={initialMessages} theme='dark' />;
 }
 ```
 
@@ -209,16 +210,14 @@ The Chat component internally renders:
 The component applies a full-screen layout by default:
 
 ```tsx
-<div className="flex flex-col h-screen">
-  {/* Chat content */}
-</div>
+<div className='flex flex-col h-screen'>{/* Chat content */}</div>
 ```
 
 If you want custom sizing, wrap it in a container:
 
 ```tsx
-<div className="h-[600px] w-[400px] rounded-lg overflow-hidden shadow-xl">
-  <Chat theme="dark" />
+<div className='h-[600px] w-[400px] rounded-lg overflow-hidden shadow-xl'>
+  <Chat theme='dark' />
 </div>
 ```
 
@@ -227,6 +226,7 @@ If you want custom sizing, wrap it in a container:
 ### Auto-scrolling
 
 Messages list automatically scrolls to the bottom when:
+
 - New messages are added
 - Initial messages are loaded
 - Component mounts
@@ -234,6 +234,7 @@ Messages list automatically scrolls to the bottom when:
 ### Message Cleanup
 
 When a new message is added:
+
 - Buttons from all previous messages are automatically removed
 - Only the newest message retains its buttons
 - Persistent buttons remain visible
@@ -241,6 +242,7 @@ When a new message is added:
 ### User Response Callbacks
 
 When a user sends a message:
+
 1. The message is added to the chat
 2. If the previous message has a `userResponseCallback`, it's executed
 3. The callback can add new messages or perform other actions
@@ -306,4 +308,3 @@ const initialMessages = useMemo(
 - [Theming Guide](/guides/theming/) - Customize appearance
 - [ChatTheme API](/api/types/#chattheme) - Theme interface details
 - [useChatStore API](/api/stores/#usechatstore) - State management
-
