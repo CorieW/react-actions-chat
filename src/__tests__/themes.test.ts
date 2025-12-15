@@ -145,7 +145,7 @@ describe('Theme System Unit Tests', () => {
     });
 
     it('should map theme properties to correct CSS variables', () => {
-      const styles = getThemeStyles(LIGHT_THEME);
+      const styles = getThemeStyles(LIGHT_THEME) as Record<string, unknown>;
 
       expect(styles['--chat-primary-color']).toBe(LIGHT_THEME.primaryColor);
       expect(styles['--chat-secondary-color']).toBe(LIGHT_THEME.secondaryColor);
@@ -179,7 +179,7 @@ describe('Theme System Unit Tests', () => {
         buttonTextColor: '#custom9',
       };
 
-      const styles = getThemeStyles(customTheme);
+      const styles = getThemeStyles(customTheme) as Record<string, unknown>;
 
       expect(styles['--chat-primary-color']).toBe('#custom1');
       expect(styles['--chat-secondary-color']).toBe('#custom2');
@@ -199,7 +199,7 @@ describe('Theme System Unit Tests', () => {
 
       // First resolve the theme to get defaults
       const resolvedTheme = getResolvedTheme(partialTheme);
-      const styles = getThemeStyles(resolvedTheme);
+      const styles = getThemeStyles(resolvedTheme) as Record<string, unknown>;
 
       expect(styles['--chat-primary-color']).toBe('#partial');
       expect(styles['--chat-text-color']).toBe(DARK_THEME.textColor);
@@ -217,7 +217,7 @@ describe('Theme System Unit Tests', () => {
   describe('theme integration', () => {
     it('should resolve and style light theme correctly', () => {
       const resolvedTheme = getResolvedTheme('light');
-      const styles = getThemeStyles(resolvedTheme);
+      const styles = getThemeStyles(resolvedTheme) as Record<string, unknown>;
 
       expect(styles['--chat-background-color']).toBe('#f3f4f6');
       expect(styles['--chat-text-color']).toBe('#111827');
@@ -225,7 +225,7 @@ describe('Theme System Unit Tests', () => {
 
     it('should resolve and style dark theme correctly', () => {
       const resolvedTheme = getResolvedTheme('dark');
-      const styles = getThemeStyles(resolvedTheme);
+      const styles = getThemeStyles(resolvedTheme) as Record<string, unknown>;
 
       expect(styles['--chat-background-color']).toBe('#111827');
       expect(styles['--chat-text-color']).toBe('#f9fafb');
@@ -245,7 +245,7 @@ describe('Theme System Unit Tests', () => {
       };
 
       const resolvedTheme = getResolvedTheme(customTheme);
-      const styles = getThemeStyles(resolvedTheme);
+      const styles = getThemeStyles(resolvedTheme) as Record<string, unknown>;
 
       // Verify resolution
       expect(resolvedTheme.primaryColor).toBe('#e74c3c');
@@ -258,7 +258,7 @@ describe('Theme System Unit Tests', () => {
 
     it('should handle undefined theme with full workflow', () => {
       const resolvedTheme = getResolvedTheme(undefined);
-      const styles = getThemeStyles(resolvedTheme);
+      const styles = getThemeStyles(resolvedTheme) as Record<string, unknown>;
 
       // Should default to dark theme
       expect(resolvedTheme).toEqual(DARK_THEME);
@@ -277,17 +277,15 @@ describe('Theme System Unit Tests', () => {
       expect(resolvedTheme).toEqual(DARK_THEME);
     });
 
-    it('should handle theme with undefined values', () => {
-      const themeWithUndefined: ChatTheme = {
-        primaryColor: undefined,
+    it('should handle theme with omitted properties', () => {
+      const themeWithOmittedProps: ChatTheme = {
         backgroundColor: '#custom',
       };
 
-      const resolvedTheme = getResolvedTheme(themeWithUndefined);
+      const resolvedTheme = getResolvedTheme(themeWithOmittedProps);
 
-      // When merging, undefined values are preserved by spread operator
-      // This is expected behavior - users should omit properties rather than set to undefined
-      expect(resolvedTheme.primaryColor).toBeUndefined();
+      // Omitted properties should come from DARK_THEME
+      expect(resolvedTheme.primaryColor).toBe(DARK_THEME.primaryColor);
       expect(resolvedTheme.backgroundColor).toBe('#custom');
     });
 
@@ -301,7 +299,7 @@ describe('Theme System Unit Tests', () => {
       };
 
       const resolvedTheme = getResolvedTheme(theme);
-      const styles = getThemeStyles(resolvedTheme);
+      const styles = getThemeStyles(resolvedTheme) as Record<string, unknown>;
 
       expect(styles['--chat-primary-color']).toBe('#fff');
       expect(styles['--chat-secondary-color']).toBe('#ffffff');
