@@ -1,0 +1,481 @@
+---
+title: Types API Reference
+description: TypeScript type definitions and interfaces
+head: []
+---
+
+Complete TypeScript type definitions for the Actionable Support Chat library.
+
+## Message Types
+
+### `Message`
+
+Represents a single chat message.
+
+```typescript
+interface Message {
+  readonly id: number;
+  readonly type: MessageType;
+  readonly content: string;
+  readonly timestamp: Date;
+  readonly userResponseCallback?: () => void;
+  readonly buttons?: readonly MessageButton[];
+}
+```
+
+**Properties:**
+
+- **`id`**: Unique identifier for the message
+- **`type`**: Whether message is from 'self' or 'other'
+- **`content`**: The text content of the message
+- **`timestamp`**: When the message was created
+- **`userResponseCallback`**: Optional callback executed when user responds
+- **`buttons`**: Optional array of action buttons
+
+**Example:**
+
+```tsx
+const message: Message = {
+  id: 1,
+  type: 'other',
+  content: 'Hello! How can I help you?',
+  timestamp: new Date(),
+  userResponseCallback: () => {
+    console.log('User responded');
+  },
+  buttons: [
+    { label: 'Get Help', onClick: handleHelp },
+  ],
+};
+```
+
+### `MessageType`
+
+The type of message sender.
+
+```typescript
+type MessageType = 'self' | 'other';
+```
+
+- **`'self'`**: Message from the user
+- **`'other'`**: Message from bot/support/system
+
+## Button Types
+
+### `MessageButton`
+
+Configuration for an action button attached to a message.
+
+```typescript
+interface MessageButton {
+  readonly label: string;
+  readonly onClick?: () => void | undefined;
+  readonly variant?: MessageButtonVariant | undefined;
+  readonly className?: string | undefined;
+  readonly style?: React.CSSProperties | undefined;
+}
+```
+
+**Properties:**
+
+- **`label`**: Text displayed on the button
+- **`onClick`**: Click handler function
+- **`variant`**: Style variant (default, success, error, etc.)
+- **`className`**: Custom CSS classes
+- **`style`**: Custom inline styles (overrides variant)
+
+**Example:**
+
+```tsx
+const button: MessageButton = {
+  label: 'Delete Account',
+  variant: 'error',
+  onClick: () => {
+    deleteAccount();
+  },
+};
+```
+
+### `MessageButtonVariant`
+
+Pre-defined button style variants.
+
+```typescript
+type MessageButtonVariant =
+  | 'default'
+  | 'success'
+  | 'error'
+  | 'warning'
+  | 'info'
+  | 'dull';
+```
+
+**Variants:**
+
+- **`default`**: Blue (primary action)
+- **`success`**: Green (successful/positive action)
+- **`error`**: Red (destructive/dangerous action)
+- **`warning`**: Yellow (potentially problematic action)
+- **`info`**: Light blue (informational action)
+- **`dull`**: Gray (disabled/inactive)
+
+## Theme Types
+
+### `ChatTheme`
+
+Theme configuration for customizing chat appearance.
+
+```typescript
+interface ChatTheme {
+  readonly primaryColor?: string;
+  readonly secondaryColor?: string;
+  readonly backgroundColor?: string;
+  readonly textColor?: string;
+  readonly borderColor?: string;
+  readonly inputBackgroundColor?: string;
+  readonly inputTextColor?: string;
+  readonly buttonColor?: string;
+  readonly buttonTextColor?: string;
+}
+```
+
+**Properties:**
+
+- **`primaryColor`**: Self message background color
+- **`secondaryColor`**: Other message background color
+- **`backgroundColor`**: Chat container background
+- **`textColor`**: Primary text color
+- **`borderColor`**: Border and divider color
+- **`inputBackgroundColor`**: Input field background
+- **`inputTextColor`**: Input field text color
+- **`buttonColor`**: Default button background
+- **`buttonTextColor`**: Button text color
+
+All properties are optional. Missing properties default to dark theme values.
+
+**Example:**
+
+```tsx
+const theme: ChatTheme = {
+  primaryColor: '#10b981',
+  secondaryColor: '#6366f1',
+  backgroundColor: '#0f172a',
+  textColor: '#f1f5f9',
+};
+```
+
+### `ThemeInput`
+
+Flexible theme input type accepted by the Chat component.
+
+```typescript
+type ThemeInput = 'light' | 'dark' | ChatTheme | undefined;
+```
+
+- **`'light'`**: Built-in light theme
+- **`'dark'`**: Built-in dark theme
+- **`ChatTheme`**: Custom theme object
+- **`undefined`**: Defaults to dark theme
+
+## Component Props Types
+
+### `ChatProps`
+
+Props for the Chat component.
+
+```typescript
+interface ChatProps {
+  readonly initialMessages?: readonly Message[];
+  readonly theme?: ChatTheme;
+}
+```
+
+### `ChatPropsWithFlexibleTheme`
+
+Extended Chat props with flexible theme input.
+
+```typescript
+type ChatPropsWithFlexibleTheme = Omit<ChatProps, 'theme'> & {
+  readonly theme?: 'light' | 'dark' | ChatTheme | undefined;
+};
+```
+
+## Button Creator Types
+
+### `RequestConfirmationButtonConfig`
+
+Configuration for creating a confirmation request button.
+
+```typescript
+interface RequestConfirmationButtonConfig {
+  readonly initialLabel: string;
+  readonly confirmationMessage: string;
+  readonly onConfirm: () => void;
+  readonly onReject?: () => void;
+  readonly variant?: MessageButtonVariant;
+  readonly className?: string;
+  readonly style?: React.CSSProperties;
+}
+```
+
+**Example:**
+
+```tsx
+const config: RequestConfirmationButtonConfig = {
+  initialLabel: 'Delete Account',
+  confirmationMessage: 'Are you sure? This cannot be undone.',
+  variant: 'error',
+  onConfirm: () => deleteAccount(),
+  onReject: () => console.log('Cancelled'),
+};
+```
+
+### `RequestInputButtonConfig`
+
+Configuration for creating an input request button.
+
+```typescript
+interface RequestInputButtonConfig {
+  readonly initialLabel: string;
+  readonly inputPromptMessage: string;
+  readonly placeholder?: string | undefined;
+  readonly inputDescription?: string | undefined;
+  readonly inputType?: InputType | undefined;
+  readonly validator?: InputValidator | undefined;
+  readonly onInput: (inputValue: string) => void;
+  readonly variant?: MessageButtonVariant | undefined;
+  readonly className?: string | undefined;
+  readonly style?: React.CSSProperties | undefined;
+  readonly abortLabel?: string | undefined;
+  readonly abortCallback?: () => void | undefined;
+  readonly showAbort?: boolean | undefined;
+}
+```
+
+**Example:**
+
+```tsx
+const config: RequestInputButtonConfig = {
+  initialLabel: 'Update Email',
+  inputPromptMessage: 'Enter your new email:',
+  inputType: 'email',
+  placeholder: 'your.email@example.com',
+  validator: (value) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(value) || 'Invalid email';
+  },
+  onInput: (email) => updateEmail(email),
+};
+```
+
+### `InputType`
+
+Supported HTML input types for input requests.
+
+```typescript
+type InputType =
+  | 'text'
+  | 'email'
+  | 'password'
+  | 'number'
+  | 'tel'
+  | 'url';
+```
+
+### `InputValidator`
+
+Function type for validating input.
+
+```typescript
+type InputValidator = (value: string) => true | string;
+```
+
+Returns:
+- `true`: Input is valid
+- `string`: Error message if invalid
+
+**Example:**
+
+```tsx
+const validator: InputValidator = (value) => {
+  if (value.length < 8) {
+    return 'Must be at least 8 characters';
+  }
+  if (!/[A-Z]/.test(value)) {
+    return 'Must contain uppercase letter';
+  }
+  return true;
+};
+```
+
+## Store Types
+
+### `ChatState`
+
+State interface for the chat store.
+
+```typescript
+interface ChatState {
+  readonly messages: readonly Message[];
+  readonly getMessages: () => readonly Message[];
+  readonly getPreviousMessage: () => Message | undefined;
+  readonly addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => void;
+  readonly addMessages: (messages: readonly Message[]) => void;
+  readonly setMessages: (messages: readonly Message[]) => void;
+  readonly clearMessages: () => void;
+  readonly clearButtons: () => void;
+  readonly clearPreviousMessageButtons: () => void;
+  readonly clearPreviousMessageCallback: () => void;
+}
+```
+
+### `PersistentButton`
+
+Button that persists at the bottom of the chat.
+
+```typescript
+interface PersistentButton extends MessageButton {
+  readonly id: string;
+}
+```
+
+**Example:**
+
+```tsx
+const button: PersistentButton = {
+  id: 'help-button',
+  label: 'Get Help',
+  variant: 'info',
+  onClick: () => showHelp(),
+};
+```
+
+### `PersistentButtonStoreState`
+
+State interface for the persistent button store.
+
+```typescript
+interface PersistentButtonStoreState {
+  readonly buttons: readonly PersistentButton[];
+  readonly getButtons: () => readonly PersistentButton[];
+  readonly addButton: (button: MessageButton & { readonly id: string }) => void;
+  readonly removeButton: (id: string) => void;
+  readonly setButtons: (
+    buttons: readonly (MessageButton & { readonly id: string })[]
+  ) => void;
+  readonly clearButtons: () => void;
+}
+```
+
+### `InputFieldStoreState`
+
+State interface for the input field configuration store.
+
+```typescript
+interface InputFieldStoreState {
+  readonly inputFieldType: InputType;
+  readonly inputFieldPlaceholder: string;
+  readonly inputFieldDescription: string;
+  readonly inputFieldValidator: InputValidator | undefined;
+  readonly setInputFieldType: (type: InputType) => void;
+  readonly setInputFieldPlaceholder: (placeholder: string) => void;
+  readonly setInputFieldDescription: (description: string) => void;
+  readonly setInputFieldValidator: (validator: InputValidator) => void;
+  readonly resetInputFieldType: () => void;
+  readonly resetInputFieldPlaceholder: () => void;
+  readonly resetInputFieldDescription: () => void;
+  readonly resetInputFieldValidator: () => void;
+}
+```
+
+## Type Guards
+
+You can create type guards for runtime type checking:
+
+```tsx
+function isMessage(obj: unknown): obj is Message {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    'type' in obj &&
+    'content' in obj &&
+    'timestamp' in obj
+  );
+}
+
+function isMessageButton(obj: unknown): obj is MessageButton {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'label' in obj
+  );
+}
+```
+
+## Usage Examples
+
+### Type-safe Message Creation
+
+```tsx
+import type { Message } from 'actionable-support-chat';
+
+const createWelcomeMessage = (id: number): Message => ({
+  id,
+  type: 'other',
+  content: 'Welcome to our chat!',
+  timestamp: new Date(),
+  buttons: [
+    {
+      label: 'Get Started',
+      variant: 'default',
+      onClick: () => console.log('Started'),
+    },
+  ],
+});
+```
+
+### Type-safe Button Configuration
+
+```tsx
+import type { MessageButton, MessageButtonVariant } from 'actionable-support-chat';
+
+const createButton = (
+  label: string,
+  variant: MessageButtonVariant,
+  handler: () => void
+): MessageButton => ({
+  label,
+  variant,
+  onClick: handler,
+});
+
+const deleteButton = createButton('Delete', 'error', handleDelete);
+```
+
+### Type-safe Theme Creation
+
+```tsx
+import type { ChatTheme } from 'actionable-support-chat';
+
+const createTheme = (overrides: Partial<ChatTheme>): ChatTheme => ({
+  primaryColor: '#3b82f6',
+  secondaryColor: '#374151',
+  backgroundColor: '#111827',
+  textColor: '#f9fafb',
+  borderColor: '#4b5563',
+  inputBackgroundColor: '#1f2937',
+  inputTextColor: '#f9fafb',
+  buttonColor: '#3b82f6',
+  buttonTextColor: '#ffffff',
+  ...overrides,
+});
+```
+
+## Related
+
+- [Chat Component API](/api/chat/) - Chat component reference
+- [Stores API](/api/stores/) - State management reference
+- [Theming Guide](/guides/theming/) - Theme customization
+- [Messages Guide](/guides/messages/) - Working with messages
+

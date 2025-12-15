@@ -1,0 +1,188 @@
+---
+title: Basic Usage
+description: Learn the fundamentals of using the Chat component
+head: []
+---
+
+This guide covers the fundamental concepts of using the Actionable Support Chat library.
+
+## The Chat Component
+
+The `Chat` component is the main component of the library. It renders a complete chat interface with:
+
+- Message list with auto-scrolling
+- Input field for user messages
+- Support for persistent buttons
+- Built-in state management
+
+### Basic Setup
+
+```tsx
+import { Chat } from 'actionable-support-chat';
+
+function App() {
+  return <Chat theme="dark" />;
+}
+```
+
+## Using the Chat Store
+
+The library uses Zustand for state management. You can interact with the chat state using the `useChatStore` hook:
+
+```tsx
+import { useChatStore } from 'actionable-support-chat';
+
+function MyComponent() {
+  const { addMessage, messages, clearMessages } = useChatStore();
+
+  const handleClick = () => {
+    addMessage({
+      type: 'other',
+      content: 'This is a new message!',
+    });
+  };
+
+  return (
+    <div>
+      <button onClick={handleClick}>Add Message</button>
+      <button onClick={clearMessages}>Clear All</button>
+      <p>Total messages: {messages.length}</p>
+    </div>
+  );
+}
+```
+
+## Chat Store API
+
+### Methods
+
+- **`addMessage(message)`** - Add a single message to the chat
+- **`addMessages(messages)`** - Add multiple messages at once
+- **`setMessages(messages)`** - Replace all messages
+- **`clearMessages()`** - Remove all messages
+- **`getMessages()`** - Get current messages array
+- **`getPreviousMessage()`** - Get the last message in the chat
+- **`clearButtons()`** - Remove buttons from all messages
+- **`clearPreviousMessageButtons()`** - Remove buttons from the last message
+- **`clearPreviousMessageCallback()`** - Remove callback from the last message
+
+## Message Types
+
+There are two types of messages:
+
+### Self Messages
+
+Messages sent by the user:
+
+```tsx
+addMessage({
+  type: 'self',
+  content: 'This is my message',
+});
+```
+
+### Other Messages
+
+Messages from the system/bot/support:
+
+```tsx
+addMessage({
+  type: 'other',
+  content: 'This is a response',
+});
+```
+
+## User Response Callbacks
+
+You can execute code when a user responds to a message:
+
+```tsx
+const initialMessages = [
+  {
+    id: 1,
+    type: 'other',
+    content: 'Please tell me your name',
+    timestamp: new Date(),
+    userResponseCallback: () => {
+      // This runs when the user sends their next message
+      addMessage({
+        type: 'other',
+        content: 'Thank you for providing your name!',
+      });
+    },
+  },
+];
+```
+
+The `userResponseCallback` is automatically called after the user sends their next message.
+
+## Best Practices
+
+### 1. Memoize Initial Messages
+
+When using callbacks that reference store methods, memoize your initial messages:
+
+```tsx
+import { useMemo } from 'react';
+
+const initialMessages = useMemo(
+  () => [
+    {
+      id: 1,
+      type: 'other',
+      content: 'Hello!',
+      timestamp: new Date(),
+      userResponseCallback: () => {
+        addMessage({ type: 'other', content: 'Thanks for responding!' });
+      },
+    },
+  ],
+  [addMessage]
+);
+```
+
+### 2. Clean Up Buttons
+
+Buttons are automatically cleaned up from previous messages when new messages are added. You can also manually clean them:
+
+```tsx
+const { clearButtons, clearPreviousMessageButtons } = useChatStore();
+
+// Clear all buttons
+clearButtons();
+
+// Clear only buttons from the last message
+clearPreviousMessageButtons();
+```
+
+### 3. Handle Errors Gracefully
+
+Always handle errors in button callbacks:
+
+```tsx
+{
+  label: 'Submit',
+  onClick: async () => {
+    try {
+      await submitData();
+      addMessage({
+        type: 'other',
+        content: 'Success!',
+      });
+    } catch (error) {
+      addMessage({
+        type: 'other',
+        content: 'An error occurred. Please try again.',
+      });
+    }
+  },
+}
+```
+
+## Next Steps
+
+- [Learn about Messages in detail](/guides/messages/)
+- [Explore Message Buttons](/guides/message-buttons/)
+- [Add Confirmation Dialogs](/guides/request-confirmation/)
+- [Collect User Input](/guides/request-input/)
+

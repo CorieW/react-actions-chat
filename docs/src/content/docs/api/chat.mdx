@@ -1,0 +1,309 @@
+---
+title: Chat Component API
+description: Complete API reference for the Chat component
+head: []
+---
+
+The `Chat` component is the main component that renders the complete chat interface.
+
+## Import
+
+```tsx
+import { Chat } from 'actionable-support-chat';
+```
+
+## Props
+
+```typescript
+interface ChatPropsWithFlexibleTheme {
+  readonly initialMessages?: readonly Message[];
+  readonly theme?: 'light' | 'dark' | ChatTheme | undefined;
+}
+```
+
+### `initialMessages`
+
+- **Type:** `readonly Message[]`
+- **Default:** `[]`
+- **Optional:** Yes
+
+An array of messages to initialize the chat with. Useful for pre-populating the chat or restoring previous conversation history.
+
+**Example:**
+
+```tsx
+const initialMessages: Message[] = [
+  {
+    id: 1,
+    type: 'other',
+    content: 'Welcome! How can I help you?',
+    timestamp: new Date(),
+  },
+  {
+    id: 2,
+    type: 'self',
+    content: 'I need help with my account',
+    timestamp: new Date(),
+  },
+];
+
+<Chat initialMessages={initialMessages} theme="dark" />
+```
+
+### `theme`
+
+- **Type:** `'light' | 'dark' | ChatTheme | undefined`
+- **Default:** `'dark'`
+- **Optional:** Yes
+
+The theme to apply to the chat interface. Can be:
+- String: `'light'` or `'dark'` for built-in themes
+- Object: Custom `ChatTheme` object
+- `undefined`: Defaults to dark theme
+
+**Examples:**
+
+```tsx
+// Built-in dark theme
+<Chat theme="dark" />
+
+// Built-in light theme
+<Chat theme="light" />
+
+// Custom theme
+const customTheme: ChatTheme = {
+  primaryColor: '#ec4899',
+  backgroundColor: '#18181b',
+  textColor: '#fafafa',
+};
+<Chat theme={customTheme} />
+
+// Default (dark theme)
+<Chat />
+```
+
+## Usage
+
+### Basic Chat
+
+```tsx
+import { Chat } from 'actionable-support-chat';
+
+function App() {
+  return (
+    <div className="min-h-screen">
+      <Chat theme="dark" />
+    </div>
+  );
+}
+```
+
+### With Initial Messages
+
+```tsx
+import { Chat } from 'actionable-support-chat';
+import type { Message } from 'actionable-support-chat';
+
+function App() {
+  const initialMessages: Message[] = [
+    {
+      id: 1,
+      type: 'other',
+      content: 'Hello! How can I assist you today?',
+      timestamp: new Date(),
+      buttons: [
+        {
+          label: 'Get Help',
+          onClick: () => console.log('Help requested'),
+        },
+      ],
+    },
+  ];
+
+  return (
+    <div className="min-h-screen">
+      <Chat initialMessages={initialMessages} theme="light" />
+    </div>
+  );
+}
+```
+
+### With State Management
+
+```tsx
+import { Chat } from 'actionable-support-chat';
+import { useChatStore } from 'actionable-support-chat';
+import { useMemo } from 'react';
+
+function App() {
+  const { addMessage } = useChatStore();
+
+  const initialMessages = useMemo(
+    () => [
+      {
+        id: 1,
+        type: 'other',
+        content: 'Welcome!',
+        timestamp: new Date(),
+        userResponseCallback: () => {
+          addMessage({
+            type: 'other',
+            content: 'Thanks for responding!',
+          });
+        },
+      },
+    ],
+    [addMessage]
+  );
+
+  return <Chat initialMessages={initialMessages} theme="dark" />;
+}
+```
+
+### Dynamic Theme
+
+```tsx
+import { Chat } from 'actionable-support-chat';
+import { useState } from 'react';
+
+function App() {
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+
+  return (
+    <div>
+      <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+        Toggle Theme
+      </button>
+      <Chat theme={theme} />
+    </div>
+  );
+}
+```
+
+## Component Structure
+
+The Chat component internally renders:
+
+1. **MessagesList**: Displays all messages with auto-scrolling
+2. **PersistentButtons**: Shows persistent buttons above the input
+3. **ChatInput**: Input field for user messages
+
+```
+┌─────────────────────────────┐
+│      MessagesList           │
+│  ┌───────────────────────┐  │
+│  │ Other: Hello!         │  │
+│  │ Self: Hi there!       │  │
+│  └───────────────────────┘  │
+├─────────────────────────────┤
+│    PersistentButtons        │
+│  [Help] [Menu]              │
+├─────────────────────────────┤
+│       ChatInput             │
+│  [Type message...    Send]  │
+└─────────────────────────────┘
+```
+
+## Styling
+
+The component applies a full-screen layout by default:
+
+```tsx
+<div className="flex flex-col h-screen">
+  {/* Chat content */}
+</div>
+```
+
+If you want custom sizing, wrap it in a container:
+
+```tsx
+<div className="h-[600px] w-[400px] rounded-lg overflow-hidden shadow-xl">
+  <Chat theme="dark" />
+</div>
+```
+
+## Behavior
+
+### Auto-scrolling
+
+Messages list automatically scrolls to the bottom when:
+- New messages are added
+- Initial messages are loaded
+- Component mounts
+
+### Message Cleanup
+
+When a new message is added:
+- Buttons from all previous messages are automatically removed
+- Only the newest message retains its buttons
+- Persistent buttons remain visible
+
+### User Response Callbacks
+
+When a user sends a message:
+1. The message is added to the chat
+2. If the previous message has a `userResponseCallback`, it's executed
+3. The callback can add new messages or perform other actions
+
+## Best Practices
+
+### 1. Memoize Initial Messages with Callbacks
+
+```tsx
+const initialMessages = useMemo(
+  () => [
+    {
+      id: 1,
+      type: 'other',
+      content: 'Hello',
+      timestamp: new Date(),
+      userResponseCallback: () => {
+        addMessage({ type: 'other', content: 'Thanks!' });
+      },
+    },
+  ],
+  [addMessage]
+);
+```
+
+### 2. Provide Container Sizing
+
+```tsx
+// Good - explicit container size
+<div className="h-screen">
+  <Chat theme="dark" />
+</div>
+
+// Bad - no height constraint
+<div>
+  <Chat theme="dark" />
+</div>
+```
+
+### 3. Initialize Empty State
+
+```tsx
+const initialMessages = useMemo(
+  () => [
+    {
+      id: 1,
+      type: 'other',
+      content: 'How can I help you today?',
+      timestamp: new Date(),
+      buttons: [
+        { label: 'Get Started', onClick: handleStart },
+        { label: 'Learn More', onClick: handleLearn },
+      ],
+    },
+  ],
+  []
+);
+```
+
+## Related
+
+- [Messages Guide](/guides/messages/) - Learn about message structure
+- [Theming Guide](/guides/theming/) - Customize appearance
+- [ChatTheme API](/api/types/#chattheme) - Theme interface details
+- [useChatStore API](/api/stores/#usechatstore) - State management
+

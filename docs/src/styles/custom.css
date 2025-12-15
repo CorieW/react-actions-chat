@@ -1,0 +1,117 @@
+/* Custom styles for Starlight documentation */
+
+:root {
+  --primary-color: white;
+  --sl-color-accent-low: black;
+  --sl-color-accent: black;
+  --sl-color-accent-high: black;
+  --sl-color-white: black;
+  --sl-color-gray-1: black;
+  --sl-color-gray-2: black;
+  --sl-color-gray-3: black;
+  --sl-color-gray-4: black;
+  --sl-color-gray-5: black;
+  --sl-color-gray-6: #ffffff;
+  --sl-color-black: #ffffff;
+  --border-color: white;
+}
+
+:root[data-theme='dark'] {
+  --primary-color: black;
+  --sl-color-accent-low: white;
+  --sl-color-accent: black;
+  --sl-color-accent-high: white;
+  --sl-color-white: white;
+  --sl-color-gray-1: white;
+  --sl-color-gray-2: white;
+  --sl-color-gray-3: white;
+  --sl-color-gray-4: white;
+  --sl-color-gray-5: white;
+  --sl-color-gray-6: black;
+  --sl-color-black: black;
+  --border-color: white;
+}
+
+/* Make code blocks more readable */
+pre {
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+/* Style inline code */
+:not(pre) > code {
+  background-color: var(--sl-color-gray-2);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+/* Improve table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+th {
+  background-color: var(--sl-color-gray-2);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75rem 1rem;
+}
+
+td {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Style blockquotes */
+blockquote {
+  border-left: 4px solid var(--sl-color-accent);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: var(--sl-color-gray-6);
+}
+
+/* Improve heading spacing */
+h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Style the sidebar links */
+.sidebar a[aria-current='page'] {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* Improve list styling */
+ul, ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin: 0.5rem 0;
+}
+
+/* Style definition lists */
+dt {
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+dd {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+code {
+  color: var(--primary-color);
+}

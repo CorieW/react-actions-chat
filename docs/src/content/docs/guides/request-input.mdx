@@ -1,0 +1,524 @@
+---
+title: Request Input
+description: Collect user input with validation directly in the chat
+head: []
+---
+
+The `createRequestInputButton` function creates buttons that collect user input directly within the chat interface. It supports various input types, validation, and custom error handling.
+
+## Basic Usage
+
+```tsx
+import { createRequestInputButton } from 'actionable-support-chat';
+import { useChatStore } from 'actionable-support-chat';
+
+const { addMessage } = useChatStore();
+
+const emailButton = createRequestInputButton({
+  initialLabel: 'Update Email',
+  inputPromptMessage: 'Please enter your new email address:',
+  inputType: 'email',
+  placeholder: 'your.email@example.com',
+  onInput: (email) => {
+    addMessage({
+      type: 'other',
+      content: `Email updated to ${email}!`,
+    });
+  },
+});
+
+addMessage({
+  type: 'other',
+  content: 'What would you like to do?',
+  buttons: [emailButton],
+});
+```
+
+## Configuration Options
+
+```typescript
+interface RequestInputButtonConfig {
+  readonly initialLabel: string;
+  readonly inputPromptMessage: string;
+  readonly placeholder?: string;
+  readonly inputDescription?: string;
+  readonly inputType?: InputType;
+  readonly validator?: InputValidator;
+  readonly onInput: (inputValue: string) => void;
+  readonly variant?: MessageButtonVariant;
+  readonly className?: string;
+  readonly style?: React.CSSProperties;
+  readonly abortLabel?: string;
+  readonly abortCallback?: () => void;
+  readonly showAbort?: boolean;
+}
+
+type InputType =
+  | 'text'
+  | 'email'
+  | 'password'
+  | 'number'
+  | 'tel'
+  | 'url';
+
+type InputValidator = (value: string) => true | string;
+```
+
+### Parameters
+
+- **`initialLabel`** (required): Text shown on the button
+- **`inputPromptMessage`** (required): Message asking for input
+- **`onInput`** (required): Callback with the validated input value
+- **`placeholder`** (optional): Input field placeholder (default: "Type your message...")
+- **`inputDescription`** (optional): Helper text above the input field
+- **`inputType`** (optional): Type of input field (default: 'text')
+- **`validator`** (optional): Function to validate input
+- **`variant`** (optional): Button style variant
+- **`className`** (optional): Custom CSS classes
+- **`style`** (optional): Custom inline styles
+- **`abortLabel`** (optional): Custom label for abort button (default: "Abort")
+- **`abortCallback`** (optional): Custom abort handler
+- **`showAbort`** (optional): Show/hide abort button (default: true)
+
+## Input Types
+
+### Text Input
+
+```tsx
+createRequestInputButton({
+  initialLabel: 'Enter Name',
+  inputPromptMessage: 'What is your name?',
+  inputType: 'text',
+  placeholder: 'John Doe',
+  onInput: (name) => {
+    addMessage({
+      type: 'other',
+      content: `Hello, ${name}!`,
+    });
+  },
+});
+```
+
+### Email Input
+
+```tsx
+createRequestInputButton({
+  initialLabel: 'Update Email',
+  inputPromptMessage: 'Enter your email address:',
+  inputType: 'email',
+  placeholder: 'your.email@example.com',
+  inputDescription: 'We will send a verification email',
+  onInput: (email) => {
+    addMessage({
+      type: 'other',
+      content: `Verification email sent to ${email}`,
+    });
+  },
+});
+```
+
+### Password Input
+
+```tsx
+createRequestInputButton({
+  initialLabel: 'Change Password',
+  inputPromptMessage: 'Enter your new password:',
+  inputType: 'password',
+  placeholder: 'Enter password',
+  inputDescription: 'Password must be at least 8 characters',
+  onInput: (password) => {
+    addMessage({
+      type: 'other',
+      content: 'Password updated successfully!',
+    });
+  },
+});
+```
+
+### Number Input
+
+```tsx
+createRequestInputButton({
+  initialLabel: 'Set Age',
+  inputPromptMessage: 'How old are you?',
+  inputType: 'number',
+  placeholder: '25',
+  onInput: (age) => {
+    addMessage({
+      type: 'other',
+      content: `Age set to ${age}`,
+    });
+  },
+});
+```
+
+### Phone Number Input
+
+```tsx
+createRequestInputButton({
+  initialLabel: 'Add Phone',
+  inputPromptMessage: 'Enter your phone number:',
+  inputType: 'tel',
+  placeholder: '+1 (555) 123-4567',
+  onInput: (phone) => {
+    addMessage({
+      type: 'other',
+      content: `Phone number saved: ${phone}`,
+    });
+  },
+});
+```
+
+### URL Input
+
+```tsx
+createRequestInputButton({
+  initialLabel: 'Add Website',
+  inputPromptMessage: 'Enter your website URL:',
+  inputType: 'url',
+  placeholder: 'https://example.com',
+  onInput: (url) => {
+    addMessage({
+      type: 'other',
+      content: `Website saved: ${url}`,
+    });
+  },
+});
+```
+
+## Input Validation
+
+### Basic Validation
+
+Validators return `true` if valid, or an error message string if invalid:
+
+```tsx
+createRequestInputButton({
+  initialLabel: 'Update Email',
+  inputPromptMessage: 'Enter your email:',
+  inputType: 'email',
+  validator: (value) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      return 'Please enter a valid email address';
+    }
+    return true;
+  },
+  onInput: (email) => {
+    addMessage({
+      type: 'other',
+      content: `Email updated to ${email}`,
+    });
+  },
+});
+```
+
+### Complex Password Validation
+
+```tsx
+createRequestInputButton({
+  initialLabel: 'Change Password',
+  inputPromptMessage: 'Enter your new password:',
+  inputType: 'password',
+  inputDescription: 'Must be 8+ chars with uppercase, lowercase, and number',
+  validator: (value) => {
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    if (!/[A-Z]/.test(value)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!/[a-z]/.test(value)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!/[0-9]/.test(value)) {
+      return 'Password must contain at least one number';
+    }
+    return true;
+  },
+  onInput: (password) => {
+    addMessage({
+      type: 'other',
+      content: 'Password changed successfully!',
+    });
+  },
+});
+```
+
+### Length Validation
+
+```tsx
+createRequestInputButton({
+  initialLabel: 'Enter Code',
+  inputPromptMessage: 'Enter the 6-digit verification code:',
+  inputType: 'text',
+  validator: (value) => {
+    if (value.length !== 6) {
+      return 'Code must be exactly 6 digits';
+    }
+    if (!/^\d+$/.test(value)) {
+      return 'Code must contain only numbers';
+    }
+    return true;
+  },
+  onInput: (code) => {
+    addMessage({
+      type: 'other',
+      content: 'Code verified successfully!',
+    });
+  },
+});
+```
+
+### Async Validation
+
+```tsx
+createRequestInputButton({
+  initialLabel: 'Check Username',
+  inputPromptMessage: 'Enter desired username:',
+  validator: async (value) => {
+    // Note: validator should ideally be synchronous
+    // For async validation, do it in onInput instead
+    if (value.length < 3) {
+      return 'Username must be at least 3 characters';
+    }
+    return true;
+  },
+  onInput: async (username) => {
+    addMessage({
+      type: 'other',
+      content: 'Checking availability...',
+    });
+
+    const isAvailable = await checkUsernameAvailability(username);
+
+    if (isAvailable) {
+      addMessage({
+        type: 'other',
+        content: `Username "${username}" is available!`,
+      });
+    } else {
+      addMessage({
+        type: 'other',
+        content: 'Username is already taken. Please try another.',
+      });
+    }
+  },
+});
+```
+
+## How It Works
+
+1. User clicks the button with `initialLabel`
+2. A message appears with `inputPromptMessage`
+3. The input field changes to the specified `inputType` with the `placeholder`
+4. If provided, `inputDescription` appears above the input
+5. An "Abort" button appears (unless `showAbort` is false)
+6. User types their response and presses Enter
+7. Input is validated using the `validator` function
+8. If valid, `onInput` is called with the value
+9. If invalid, an error message appears and user can try again
+10. Abort button clears the input request flow
+
+## Abort Functionality
+
+### Default Abort Behavior
+
+By default, an "Abort" button appears that cancels the input request:
+
+```tsx
+createRequestInputButton({
+  initialLabel: 'Enter Name',
+  inputPromptMessage: 'What is your name?',
+  // Abort button automatically added
+  onInput: (name) => {
+    addMessage({ type: 'other', content: `Hello, ${name}!` });
+  },
+});
+```
+
+### Custom Abort Label
+
+```tsx
+createRequestInputButton({
+  initialLabel: 'Enter Code',
+  inputPromptMessage: 'Enter verification code:',
+  abortLabel: 'Cancel',
+  onInput: handleCode,
+});
+```
+
+### Custom Abort Callback
+
+```tsx
+createRequestInputButton({
+  initialLabel: 'Enter Amount',
+  inputPromptMessage: 'How much would you like to transfer?',
+  abortCallback: () => {
+    addMessage({
+      type: 'other',
+      content: 'Transfer cancelled.',
+    });
+  },
+  onInput: handleTransfer,
+});
+```
+
+### Hide Abort Button
+
+```tsx
+createRequestInputButton({
+  initialLabel: 'Required Field',
+  inputPromptMessage: 'This field is required:',
+  showAbort: false, // No abort button
+  onInput: handleInput,
+});
+```
+
+## Complete Example
+
+```tsx
+import { useMemo } from 'react';
+import { Chat, createRequestInputButton } from 'actionable-support-chat';
+import { useChatStore } from 'actionable-support-chat';
+
+function AccountSettings() {
+  const { addMessage } = useChatStore();
+
+  const initialMessages = useMemo(
+    () => [
+      {
+        id: 1,
+        type: 'other',
+        content: 'Update your account information:',
+        timestamp: new Date(),
+        buttons: [
+          createRequestInputButton({
+            initialLabel: 'Update Email',
+            inputPromptMessage: 'Enter your new email address:',
+            inputType: 'email',
+            placeholder: 'your.email@example.com',
+            inputDescription: 'We will send a verification email',
+            validator: (value) => {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              return emailRegex.test(value) || 'Invalid email address';
+            },
+            onInput: (email) => {
+              addMessage({
+                type: 'other',
+                content: `Verification email sent to ${email}!`,
+              });
+            },
+          }),
+          createRequestInputButton({
+            initialLabel: 'Change Password',
+            inputPromptMessage: 'Enter your new password:',
+            inputType: 'password',
+            placeholder: 'Enter password',
+            inputDescription: 'Must be 8+ chars with uppercase, lowercase, and number',
+            validator: (value) => {
+              if (value.length < 8) {
+                return 'Password must be at least 8 characters';
+              }
+              if (!/[A-Z]/.test(value)) {
+                return 'Must contain uppercase letter';
+              }
+              if (!/[a-z]/.test(value)) {
+                return 'Must contain lowercase letter';
+              }
+              if (!/[0-9]/.test(value)) {
+                return 'Must contain a number';
+              }
+              return true;
+            },
+            onInput: () => {
+              addMessage({
+                type: 'other',
+                content: 'Password changed successfully!',
+              });
+            },
+          }),
+        ],
+      },
+    ],
+    [addMessage]
+  );
+
+  return <Chat initialMessages={initialMessages} theme="dark" />;
+}
+```
+
+## Best Practices
+
+### 1. Provide Clear Instructions
+
+```tsx
+// Good - specific instructions
+inputPromptMessage: 'Please enter your 6-digit verification code:'
+
+// Bad - vague
+inputPromptMessage: 'Enter code:'
+```
+
+### 2. Use Appropriate Input Types
+
+```tsx
+// Good - email type for email
+inputType: 'email'
+
+// Bad - text type for email
+inputType: 'text'
+```
+
+### 3. Add Helpful Descriptions
+
+```tsx
+// Good - helpful context
+inputDescription: 'Password must be at least 8 characters with uppercase, lowercase, and number'
+
+// Missing - no guidance
+// (no inputDescription provided)
+```
+
+### 4. Provide Specific Error Messages
+
+```tsx
+// Good - specific error
+validator: (value) => {
+  if (value.length < 8) {
+    return 'Password must be at least 8 characters long';
+  }
+  return true;
+}
+
+// Bad - generic error
+validator: (value) => {
+  return value.length >= 8 || 'Invalid';
+}
+```
+
+### 5. Give Feedback After Input
+
+```tsx
+// Good - confirmation message
+onInput: (email) => {
+  addMessage({
+    type: 'other',
+    content: `Email updated to ${email}. Please check your inbox for verification.`,
+  });
+}
+
+// Bad - no feedback
+onInput: (email) => {
+  updateEmail(email);
+  // No message to user
+}
+```
+
+## Next Steps
+
+- [Message Buttons](/guides/message-buttons/) - Learn about regular buttons
+- [Request Confirmation](/guides/request-confirmation/) - Add confirmation dialogs
+- [Persistent Buttons](/guides/persistent-buttons/) - Create always-visible buttons
+- [API Reference](/api/types/) - View all type definitions
+

@@ -1,0 +1,308 @@
+---
+title: Messages
+description: Learn about message types and properties
+---
+
+# Messages
+
+Messages are the core of the chat interface. This guide covers everything you need to know about creating and managing messages.
+
+## Message Interface
+
+```typescript
+interface Message {
+  readonly id: number;
+  readonly type: MessageType; // 'self' | 'other'
+  readonly content: string;
+  readonly timestamp: Date;
+  readonly userResponseCallback?: () => void;
+  readonly buttons?: readonly MessageButton[];
+}
+```
+
+## Creating Messages
+
+### Using addMessage
+
+The `addMessage` method automatically generates the `id` and `timestamp`:
+
+```tsx
+import { useChatStore } from 'actionable-support-chat';
+
+const { addMessage } = useChatStore();
+
+addMessage({
+  type: 'other',
+  content: 'Hello! How can I help you?',
+});
+```
+
+### With Initial Messages
+
+When providing initial messages, you need to specify all properties:
+
+```tsx
+const initialMessages: Message[] = [
+  {
+    id: 1,
+    type: 'other',
+    content: 'Welcome to our support chat!',
+    timestamp: new Date(),
+  },
+  {
+    id: 2,
+    type: 'self',
+    content: 'I need help with my account',
+    timestamp: new Date(),
+  },
+];
+
+<Chat initialMessages={initialMessages} theme="dark" />
+```
+
+## Message Types
+
+### Self Messages
+
+Messages from the user appear on the right side with the primary color:
+
+```tsx
+addMessage({
+  type: 'self',
+  content: 'I need help',
+});
+```
+
+### Other Messages
+
+Messages from the system/bot/support appear on the left side:
+
+```tsx
+addMessage({
+  type: 'other',
+  content: 'I\'m here to help!',
+});
+```
+
+## User Response Callbacks
+
+Execute code when a user responds to a message:
+
+```tsx
+addMessage({
+  type: 'other',
+  content: 'What is your email address?',
+  userResponseCallback: () => {
+    // This runs after the user sends their next message
+    addMessage({
+      type: 'other',
+      content: 'Thank you! I\'ll send you a confirmation email.',
+    });
+  },
+});
+```
+
+### Multiple-Step Flows
+
+Create multi-step conversations using chained callbacks:
+
+```tsx
+const { addMessage } = useChatStore();
+
+// Step 1
+addMessage({
+  type: 'other',
+  content: 'Let\'s set up your account. What\'s your name?',
+  userResponseCallback: () => {
+    // Step 2
+    addMessage({
+      type: 'other',
+      content: 'Great! Now, what\'s your email?',
+      userResponseCallback: () => {
+        // Step 3
+        addMessage({
+          type: 'other',
+          content: 'Perfect! Your account is ready.',
+        });
+      },
+    });
+  },
+});
+```
+
+### Clearing Callbacks
+
+You can remove callbacks from messages:
+
+```tsx
+const { clearPreviousMessageCallback } = useChatStore();
+
+// Remove callback from the last message
+clearPreviousMessageCallback();
+```
+
+## Adding Buttons to Messages
+
+Messages can have interactive buttons:
+
+```tsx
+addMessage({
+  type: 'other',
+  content: 'How would you like to proceed?',
+  buttons: [
+    {
+      label: 'Continue',
+      onClick: () => {
+        addMessage({
+          type: 'other',
+          content: 'Great! Let\'s continue.',
+        });
+      },
+    },
+    {
+      label: 'Cancel',
+      variant: 'error',
+      onClick: () => {
+        addMessage({
+          type: 'other',
+          content: 'Operation cancelled.',
+        });
+      },
+    },
+  ],
+});
+```
+
+Learn more about buttons in the [Message Buttons guide](/guides/message-buttons/).
+
+## Managing Messages
+
+### Getting Messages
+
+```tsx
+const { messages, getMessages } = useChatStore();
+
+// Using the state directly
+console.log(messages);
+
+// Using the getter method
+const currentMessages = getMessages();
+```
+
+### Getting the Last Message
+
+```tsx
+const { getPreviousMessage } = useChatStore();
+
+const lastMessage = getPreviousMessage();
+if (lastMessage) {
+  console.log(lastMessage.content);
+}
+```
+
+### Adding Multiple Messages
+
+```tsx
+const { addMessages } = useChatStore();
+
+addMessages([
+  {
+    id: 1,
+    type: 'other',
+    content: 'First message',
+    timestamp: new Date(),
+  },
+  {
+    id: 2,
+    type: 'other',
+    content: 'Second message',
+    timestamp: new Date(),
+  },
+]);
+```
+
+### Replacing All Messages
+
+```tsx
+const { setMessages } = useChatStore();
+
+setMessages([
+  {
+    id: 1,
+    type: 'other',
+    content: 'Starting fresh!',
+    timestamp: new Date(),
+  },
+]);
+```
+
+### Clearing All Messages
+
+```tsx
+const { clearMessages } = useChatStore();
+
+clearMessages();
+```
+
+## Message Styling
+
+Messages are automatically styled based on their type and the current theme:
+
+- **Self messages**: Use the primary color from the theme
+- **Other messages**: Use the secondary color from the theme
+- **Timestamps**: Displayed below each message
+- **Avatar**: Optional avatar for 'other' messages
+
+## Best Practices
+
+### 1. Keep Content Concise
+
+```tsx
+// Good
+addMessage({
+  type: 'other',
+  content: 'Your password has been updated successfully.',
+});
+
+// Too verbose
+addMessage({
+  type: 'other',
+  content: 'I am pleased to inform you that the process of updating your password has been completed successfully and you can now use your new password to log into your account.',
+});
+```
+
+### 2. Use Markdown for Formatting
+
+The library supports markdown in message content:
+
+```tsx
+addMessage({
+  type: 'other',
+  content: '**Important:** Please verify your email address.\n\nCheck your inbox for a verification link.',
+});
+```
+
+### 3. Provide Clear Actions
+
+When adding buttons, make the action clear:
+
+```tsx
+// Good
+buttons: [
+  { label: 'Update Email', onClick: handleUpdate },
+  { label: 'Cancel', onClick: handleCancel },
+]
+
+// Unclear
+buttons: [
+  { label: 'OK', onClick: handleUpdate },
+  { label: 'No', onClick: handleCancel },
+]
+```
+
+## Next Steps
+
+- [Message Buttons](/guides/message-buttons/) - Add interactive buttons
+- [Request Confirmation](/guides/request-confirmation/) - Add confirmation dialogs
+- [Request Input](/guides/request-input/) - Collect user input
+

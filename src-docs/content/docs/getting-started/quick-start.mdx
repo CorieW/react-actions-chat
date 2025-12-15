@@ -1,0 +1,210 @@
+---
+title: Quick Start
+description: Create your first chat component in minutes
+---
+
+# Quick Start
+
+Let's create your first interactive chat component in just a few minutes!
+
+## Basic Chat Component
+
+Here's a minimal example to get you started:
+
+```tsx
+import { Chat } from 'actionable-support-chat';
+
+function App() {
+  return (
+    <div className="min-h-screen bg-background">
+      <Chat theme="dark" />
+    </div>
+  );
+}
+
+export default App;
+```
+
+This creates an empty chat interface with a dark theme.
+
+## Adding Initial Messages
+
+Let's add some initial messages to make it more interesting:
+
+```tsx
+import { Chat } from 'actionable-support-chat';
+import type { Message } from 'actionable-support-chat';
+
+function App() {
+  const initialMessages: Message[] = [
+    {
+      id: 1,
+      type: 'other',
+      content: 'Hello! How can I help you today?',
+      timestamp: new Date(),
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Chat initialMessages={initialMessages} theme="dark" />
+    </div>
+  );
+}
+
+export default App;
+```
+
+## Adding Interactive Buttons
+
+Now let's add some action buttons to the message:
+
+```tsx
+import { Chat } from 'actionable-support-chat';
+import { useChatStore } from 'actionable-support-chat';
+import type { Message } from 'actionable-support-chat';
+import { useMemo } from 'react';
+
+function App() {
+  const { addMessage } = useChatStore();
+
+  const initialMessages: Message[] = useMemo(
+    () => [
+      {
+        id: 1,
+        type: 'other',
+        content: 'Hello! How can I help you today?',
+        timestamp: new Date(),
+        buttons: [
+          {
+            label: 'Get Help',
+            onClick: () => {
+              addMessage({
+                type: 'other',
+                content: 'Sure, I can help you with that!',
+              });
+            },
+          },
+          {
+            label: 'Contact Support',
+            variant: 'info',
+            onClick: () => {
+              addMessage({
+                type: 'other',
+                content: 'I\'ll connect you with our support team.',
+              });
+            },
+          },
+        ],
+      },
+    ],
+    [addMessage]
+  );
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Chat initialMessages={initialMessages} theme="dark" />
+    </div>
+  );
+}
+
+export default App;
+```
+
+## What's Next?
+
+Great! You now have a basic interactive chat component. Here's what to explore next:
+
+- [Learn about Messages](/guides/messages/) - Understand message types and properties
+- [Message Buttons](/guides/message-buttons/) - Create custom action buttons
+- [Request Confirmation](/guides/request-confirmation/) - Add confirmation dialogs
+- [Request Input](/guides/request-input/) - Collect user input
+- [Theming](/guides/theming/) - Customize the appearance
+
+## Complete Example
+
+Here's a complete example with multiple features:
+
+```tsx
+import { Chat, createRequestConfirmationButton, createRequestInputButton } from 'actionable-support-chat';
+import { useChatStore } from 'actionable-support-chat';
+import type { Message } from 'actionable-support-chat';
+import { useMemo } from 'react';
+
+function App() {
+  const { addMessage } = useChatStore();
+
+  const initialMessages: Message[] = useMemo(
+    () => [
+      {
+        id: 1,
+        type: 'other',
+        content: 'Welcome! What would you like to do today?',
+        timestamp: new Date(),
+        buttons: [
+          {
+            label: 'Get Help',
+            variant: 'info',
+            onClick: () => {
+              addMessage({
+                type: 'other',
+                content: 'I can help you with your account settings.',
+              });
+            },
+          },
+          createRequestConfirmationButton({
+            initialLabel: 'Delete Account',
+            confirmationMessage:
+              'Are you sure? This action cannot be undone.',
+            variant: 'error',
+            onConfirm: () => {
+              addMessage({
+                type: 'other',
+                content: 'Your account has been deleted.',
+              });
+            },
+            onReject: () => {
+              addMessage({
+                type: 'other',
+                content: 'Account deletion cancelled.',
+              });
+            },
+          }),
+          createRequestInputButton({
+            initialLabel: 'Update Email',
+            inputPromptMessage: 'Please enter your new email:',
+            inputType: 'email',
+            placeholder: 'your.email@example.com',
+            validator: (value) => {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              return emailRegex.test(value) || 'Invalid email address';
+            },
+            onInput: (email) => {
+              addMessage({
+                type: 'other',
+                content: `Email updated to ${email}!`,
+              });
+            },
+          }),
+        ],
+      },
+    ],
+    [addMessage]
+  );
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Chat initialMessages={initialMessages} theme="dark" />
+    </div>
+  );
+}
+
+export default App;
+```
+
+This example demonstrates:
+- Regular action buttons
+- Confirmation dialogs for dangerous actions
+- Input collection with validation
+- Different button variants
+

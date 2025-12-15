@@ -1,0 +1,506 @@
+---
+title: Customer Support Example
+description: Build a complete customer support chat interface
+---
+
+# Customer Support Example
+
+This example demonstrates how to build a complete customer support chat interface with multiple features:
+
+- Welcome message with quick actions
+- FAQ buttons
+- Issue reporting workflow
+- Ticket creation
+- Status checking
+
+## Complete Example
+
+```tsx
+import { useMemo } from 'react';
+import {
+  Chat,
+  createRequestInputButton,
+  createRequestConfirmationButton,
+} from 'actionable-support-chat';
+import { useChatStore } from 'actionable-support-chat';
+import type { Message } from 'actionable-support-chat';
+
+function CustomerSupportChat() {
+  const { addMessage } = useChatStore();
+
+  const initialMessages: readonly Message[] = useMemo(
+    () => [
+      {
+        id: 1,
+        type: 'other',
+        content: 'Welcome to Customer Support! How can we help you today?',
+        timestamp: new Date(),
+        buttons: [
+          {
+            label: 'Report an Issue',
+            variant: 'error',
+            onClick: () => handleReportIssue(),
+          },
+          {
+            label: 'Check Order Status',
+            variant: 'info',
+            onClick: () => handleCheckOrder(),
+          },
+          {
+            label: 'FAQ',
+            variant: 'default',
+            onClick: () => handleFAQ(),
+          },
+          {
+            label: 'Contact Agent',
+            variant: 'success',
+            onClick: () => handleContactAgent(),
+          },
+        ],
+      },
+    ],
+    []
+  );
+
+  const handleReportIssue = () => {
+    addMessage({
+      type: 'other',
+      content: 'I\'m sorry to hear you\'re having an issue. What type of problem are you experiencing?',
+      buttons: [
+        {
+          label: 'Payment Issue',
+          variant: 'error',
+          onClick: () => handleIssueType('payment'),
+        },
+        {
+          label: 'Account Access',
+          variant: 'warning',
+          onClick: () => handleIssueType('account'),
+        },
+        {
+          label: 'Technical Problem',
+          variant: 'error',
+          onClick: () => handleIssueType('technical'),
+        },
+        {
+          label: 'Other',
+          variant: 'dull',
+          onClick: () => handleIssueType('other'),
+        },
+      ],
+    });
+  };
+
+  const handleIssueType = (issueType: string) => {
+    addMessage({
+      type: 'other',
+      content: `I understand you're having a ${issueType} issue. Please describe the problem in detail:`,
+      buttons: [
+        createRequestInputButton({
+          initialLabel: 'Describe Issue',
+          inputPromptMessage: 'Please provide details about your issue:',
+          inputType: 'text',
+          placeholder: 'Describe your problem...',
+          inputDescription: 'Be as specific as possible to help us assist you better',
+          validator: (value) => {
+            if (value.length < 10) {
+              return 'Please provide more details (at least 10 characters)';
+            }
+            return true;
+          },
+          onInput: (description) => handleSubmitIssue(issueType, description),
+        }),
+      ],
+    });
+  };
+
+  const handleSubmitIssue = async (issueType: string, description: string) => {
+    addMessage({
+      type: 'other',
+      content: 'Creating your support ticket...',
+    });
+
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    const ticketId = `TKT-${Math.floor(Math.random() * 10000)}`;
+
+    addMessage({
+      type: 'other',
+      content: `✅ Support ticket created successfully!\n\n**Ticket ID:** ${ticketId}\n**Issue Type:** ${issueType}\n**Description:** ${description}\n\nOur team will review your ticket and respond within 24 hours. You'll receive an email notification when we update your ticket.`,
+      buttons: [
+        {
+          label: 'Track Ticket',
+          variant: 'info',
+          onClick: () => handleTrackTicket(ticketId),
+        },
+        {
+          label: 'Back to Menu',
+          variant: 'default',
+          onClick: () => handleBackToMenu(),
+        },
+      ],
+    });
+  };
+
+  const handleCheckOrder = () => {
+    addMessage({
+      type: 'other',
+      content: 'I can help you check your order status. Please provide your order number:',
+      buttons: [
+        createRequestInputButton({
+          initialLabel: 'Enter Order Number',
+          inputPromptMessage: 'Please enter your order number:',
+          inputType: 'text',
+          placeholder: 'ORD-12345',
+          validator: (value) => {
+            if (!/^ORD-\d{5}$/.test(value)) {
+              return 'Order number must be in format ORD-12345';
+            }
+            return true;
+          },
+          onInput: async (orderNumber) => {
+            addMessage({
+              type: 'other',
+              content: 'Looking up your order...',
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            addMessage({
+              type: 'other',
+              content: `📦 **Order ${orderNumber}**\n\n**Status:** In Transit\n**Expected Delivery:** Tomorrow, Dec 16\n**Location:** Local Distribution Center\n\nYour package is on its way! You'll receive it by end of day tomorrow.`,
+              buttons: [
+                {
+                  label: 'Track Package',
+                  variant: 'info',
+                  onClick: () => {
+                    addMessage({
+                      type: 'other',
+                      content: 'Opening tracking details...',
+                    });
+                  },
+                },
+                {
+                  label: 'Back to Menu',
+                  variant: 'default',
+                  onClick: () => handleBackToMenu(),
+                },
+              ],
+            });
+          },
+        }),
+      ],
+    });
+  };
+
+  const handleFAQ = () => {
+    addMessage({
+      type: 'other',
+      content: 'Here are our most frequently asked questions. Select a topic:',
+      buttons: [
+        {
+          label: 'Shipping & Delivery',
+          variant: 'info',
+          onClick: () => {
+            addMessage({
+              type: 'other',
+              content: '📦 **Shipping & Delivery**\n\n• Standard shipping: 5-7 business days\n• Express shipping: 2-3 business days\n• Free shipping on orders over $50\n• Track your order anytime using your order number',
+              buttons: [
+                {
+                  label: 'More FAQs',
+                  onClick: () => handleFAQ(),
+                },
+                {
+                  label: 'Back to Menu',
+                  onClick: () => handleBackToMenu(),
+                },
+              ],
+            });
+          },
+        },
+        {
+          label: 'Returns & Refunds',
+          variant: 'warning',
+          onClick: () => {
+            addMessage({
+              type: 'other',
+              content: '🔄 **Returns & Refunds**\n\n• 30-day return policy\n• Items must be unused and in original packaging\n• Refunds processed within 5-7 business days\n• Return shipping is free for defective items',
+              buttons: [
+                {
+                  label: 'Start Return',
+                  variant: 'warning',
+                  onClick: () => handleStartReturn(),
+                },
+                {
+                  label: 'Back to Menu',
+                  onClick: () => handleBackToMenu(),
+                },
+              ],
+            });
+          },
+        },
+        {
+          label: 'Payment Methods',
+          variant: 'default',
+          onClick: () => {
+            addMessage({
+              type: 'other',
+              content: '💳 **Payment Methods**\n\n• Credit/Debit Cards (Visa, Mastercard, Amex)\n• PayPal\n• Apple Pay & Google Pay\n• Gift Cards\n\nAll payments are secure and encrypted.',
+              buttons: [
+                {
+                  label: 'Back to Menu',
+                  onClick: () => handleBackToMenu(),
+                },
+              ],
+            });
+          },
+        },
+      ],
+    });
+  };
+
+  const handleContactAgent = () => {
+    addMessage({
+      type: 'other',
+      content: 'I\'ll connect you with a live agent. Please provide your name and email:',
+      buttons: [
+        createRequestInputButton({
+          initialLabel: 'Enter Name',
+          inputPromptMessage: 'What is your name?',
+          inputType: 'text',
+          placeholder: 'John Doe',
+          validator: (value) => {
+            if (value.trim().length < 2) {
+              return 'Please enter a valid name';
+            }
+            return true;
+          },
+          onInput: (name) => {
+            addMessage({
+              type: 'other',
+              content: `Nice to meet you, ${name}! Now, what is your email address?`,
+              buttons: [
+                createRequestInputButton({
+                  initialLabel: 'Enter Email',
+                  inputPromptMessage: 'Please provide your email:',
+                  inputType: 'email',
+                  placeholder: 'your.email@example.com',
+                  validator: (value) => {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    return emailRegex.test(value) || 'Please enter a valid email';
+                  },
+                  onInput: async (email) => {
+                    addMessage({
+                      type: 'other',
+                      content: 'Connecting you to an agent...',
+                    });
+
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+
+                    addMessage({
+                      type: 'other',
+                      content: `✅ You're in the queue!\n\n**Name:** ${name}\n**Email:** ${email}\n**Position:** 3\n**Estimated wait:** 2-3 minutes\n\nAn agent will be with you shortly. You'll receive a notification when connected.`,
+                    });
+                  },
+                }),
+              ],
+            });
+          },
+        }),
+      ],
+    });
+  };
+
+  const handleStartReturn = () => {
+    addMessage({
+      type: 'other',
+      content: 'I can help you start a return. Which order would you like to return?',
+      buttons: [
+        createRequestInputButton({
+          initialLabel: 'Enter Order Number',
+          inputPromptMessage: 'Enter the order number you want to return:',
+          inputType: 'text',
+          placeholder: 'ORD-12345',
+          validator: (value) => {
+            if (!/^ORD-\d{5}$/.test(value)) {
+              return 'Order number must be in format ORD-12345';
+            }
+            return true;
+          },
+          onInput: (orderNumber) => {
+            addMessage({
+              type: 'other',
+              content: `Starting return process for ${orderNumber}. We'll email you a prepaid return label within 24 hours.`,
+              buttons: [
+                {
+                  label: 'Back to Menu',
+                  onClick: () => handleBackToMenu(),
+                },
+              ],
+            });
+          },
+        }),
+      ],
+    });
+  };
+
+  const handleTrackTicket = (ticketId: string) => {
+    addMessage({
+      type: 'other',
+      content: `📋 **Ticket ${ticketId}**\n\n**Status:** Open\n**Created:** Just now\n**Priority:** Normal\n**Assigned to:** Support Team\n\nWe're reviewing your ticket and will respond soon.`,
+      buttons: [
+        {
+          label: 'Back to Menu',
+          variant: 'default',
+          onClick: () => handleBackToMenu(),
+        },
+      ],
+    });
+  };
+
+  const handleBackToMenu = () => {
+    addMessage({
+      type: 'other',
+      content: 'How else can I help you today?',
+      buttons: [
+        {
+          label: 'Report an Issue',
+          variant: 'error',
+          onClick: () => handleReportIssue(),
+        },
+        {
+          label: 'Check Order Status',
+          variant: 'info',
+          onClick: () => handleCheckOrder(),
+        },
+        {
+          label: 'FAQ',
+          variant: 'default',
+          onClick: () => handleFAQ(),
+        },
+        {
+          label: 'Contact Agent',
+          variant: 'success',
+          onClick: () => handleContactAgent(),
+        },
+      ],
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Chat initialMessages={initialMessages} theme="dark" />
+    </div>
+  );
+}
+
+export default CustomerSupportChat;
+```
+
+## Key Features
+
+### 1. Welcome Menu
+
+Provides quick access to all major functions with clearly labeled buttons and appropriate variants.
+
+### 2. Issue Reporting
+
+Multi-step workflow:
+- Select issue type
+- Provide detailed description with validation
+- Create support ticket
+- Get ticket ID for tracking
+
+### 3. Order Tracking
+
+Input validation for order numbers with specific format requirements and simulated order lookup.
+
+### 4. FAQ System
+
+Hierarchical navigation through common questions with the ability to drill down into specific topics.
+
+### 5. Live Agent Connection
+
+Collects necessary information (name and email) before connecting to an agent.
+
+### 6. Error Handling
+
+Input validation ensures users provide valid data before processing requests.
+
+## Customization Ideas
+
+### Add More Issue Types
+
+```tsx
+{
+  label: 'Shipping Delay',
+  variant: 'warning',
+  onClick: () => handleIssueType('shipping'),
+},
+{
+  label: 'Damaged Item',
+  variant: 'error',
+  onClick: () => handleIssueType('damaged'),
+},
+```
+
+### Integrate with Backend
+
+```tsx
+const handleSubmitIssue = async (issueType: string, description: string) => {
+  addMessage({
+    type: 'other',
+    content: 'Creating your support ticket...',
+  });
+
+  try {
+    const response = await fetch('/api/tickets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ issueType, description }),
+    });
+
+    const data = await response.json();
+
+    addMessage({
+      type: 'other',
+      content: `✅ Ticket ${data.ticketId} created successfully!`,
+    });
+  } catch (error) {
+    addMessage({
+      type: 'other',
+      content: '❌ Failed to create ticket. Please try again.',
+    });
+  }
+};
+```
+
+### Add File Upload
+
+```tsx
+{
+  label: 'Upload Screenshot',
+  variant: 'info',
+  onClick: () => {
+    // Trigger file input
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        handleFileUpload(file);
+      }
+    };
+    input.click();
+  },
+}
+```
+
+## Related
+
+- [Account Management Example](/examples/account-management/) - Account settings chat
+- [Request Input Guide](/guides/request-input/) - Input collection details
+- [Message Buttons Guide](/guides/message-buttons/) - Button customization
+

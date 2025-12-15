@@ -1,0 +1,354 @@
+---
+title: Message Buttons
+description: Add interactive buttons to chat messages
+---
+
+# Message Buttons
+
+Message buttons allow users to perform actions directly within the chat interface. They provide a more intuitive and interactive experience compared to typed commands.
+
+## Button Interface
+
+```typescript
+interface MessageButton {
+  readonly label: string;
+  readonly onClick?: () => void | undefined;
+  readonly variant?: MessageButtonVariant | undefined;
+  readonly className?: string | undefined;
+  readonly style?: React.CSSProperties | undefined;
+}
+
+type MessageButtonVariant =
+  | 'default'
+  | 'success'
+  | 'error'
+  | 'warning'
+  | 'info'
+  | 'dull';
+```
+
+## Basic Buttons
+
+Create simple action buttons:
+
+```tsx
+import { useChatStore } from 'actionable-support-chat';
+
+const { addMessage } = useChatStore();
+
+addMessage({
+  type: 'other',
+  content: 'How can I help you?',
+  buttons: [
+    {
+      label: 'Get Help',
+      onClick: () => {
+        addMessage({
+          type: 'other',
+          content: 'I\'m here to help!',
+        });
+      },
+    },
+  ],
+});
+```
+
+## Button Variants
+
+Use different variants to indicate the nature of the action:
+
+```tsx
+buttons: [
+  {
+    label: 'Continue',
+    variant: 'default', // Blue (default)
+    onClick: handleContinue,
+  },
+  {
+    label: 'Success',
+    variant: 'success', // Green
+    onClick: handleSuccess,
+  },
+  {
+    label: 'Delete',
+    variant: 'error', // Red
+    onClick: handleDelete,
+  },
+  {
+    label: 'Warning',
+    variant: 'warning', // Yellow
+    onClick: handleWarning,
+  },
+  {
+    label: 'Info',
+    variant: 'info', // Light blue
+    onClick: handleInfo,
+  },
+  {
+    label: 'Disabled',
+    variant: 'dull', // Gray
+    onClick: handleDisabled,
+  },
+]
+```
+
+## Custom Styling
+
+### Using Custom Styles
+
+Override the variant styles with custom inline styles:
+
+```tsx
+{
+  label: 'Custom Button',
+  style: {
+    backgroundColor: '#ff6b6b',
+    color: 'white',
+    border: 'none',
+    padding: '10px 20px',
+    borderRadius: '8px',
+  },
+  onClick: handleClick,
+}
+```
+
+### Using Custom Classes
+
+Add custom Tailwind classes or CSS classes:
+
+```tsx
+{
+  label: 'Styled Button',
+  className: 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600',
+  onClick: handleClick,
+}
+```
+
+### Combining Styles
+
+You can combine variants, classes, and inline styles:
+
+```tsx
+{
+  label: 'Combined',
+  variant: 'info',
+  className: 'font-bold shadow-lg',
+  style: {
+    border: '2px solid #3b82f6',
+  },
+  onClick: handleClick,
+}
+```
+
+**Note:** Inline styles take precedence over variant styles.
+
+## Multiple Buttons
+
+Add multiple buttons to create a menu of options:
+
+```tsx
+addMessage({
+  type: 'other',
+  content: 'What would you like to do?',
+  buttons: [
+    {
+      label: 'View Profile',
+      variant: 'info',
+      onClick: () => {
+        addMessage({
+          type: 'other',
+          content: 'Here is your profile information...',
+        });
+      },
+    },
+    {
+      label: 'Update Settings',
+      onClick: () => {
+        addMessage({
+          type: 'other',
+          content: 'Opening settings...',
+        });
+      },
+    },
+    {
+      label: 'Log Out',
+      variant: 'error',
+      onClick: () => {
+        addMessage({
+          type: 'other',
+          content: 'You have been logged out.',
+        });
+      },
+    },
+  ],
+});
+```
+
+## Async Operations
+
+Handle asynchronous operations in button clicks:
+
+```tsx
+{
+  label: 'Load Data',
+  onClick: async () => {
+    addMessage({
+      type: 'other',
+      content: 'Loading data...',
+    });
+
+    try {
+      const data = await fetchData();
+      addMessage({
+        type: 'other',
+        content: `Data loaded: ${data}`,
+      });
+    } catch (error) {
+      addMessage({
+        type: 'other',
+        content: 'Failed to load data. Please try again.',
+      });
+    }
+  },
+}
+```
+
+## Button Lifecycle
+
+### Automatic Cleanup
+
+Buttons are automatically removed from previous messages when a new message is added:
+
+```tsx
+// First message with buttons
+addMessage({
+  type: 'other',
+  content: 'Choose an option:',
+  buttons: [{ label: 'Option 1', onClick: handleOption1 }],
+});
+
+// When a new message is added, buttons from previous messages are cleared
+addMessage({
+  type: 'other',
+  content: 'You selected Option 1',
+});
+// The "Option 1" button is now gone
+```
+
+### Manual Cleanup
+
+You can also manually clear buttons:
+
+```tsx
+const { clearButtons, clearPreviousMessageButtons } = useChatStore();
+
+// Clear buttons from all messages
+clearButtons();
+
+// Clear buttons only from the last message
+clearPreviousMessageButtons();
+```
+
+## Disabled Buttons
+
+Create disabled buttons using the 'dull' variant:
+
+```tsx
+{
+  label: 'Coming Soon',
+  variant: 'dull',
+  onClick: () => {
+    addMessage({
+      type: 'other',
+      content: 'This feature is not yet available.',
+    });
+  },
+}
+```
+
+Or completely disable the button by not providing an onClick:
+
+```tsx
+{
+  label: 'Disabled',
+  variant: 'dull',
+  // No onClick - button won't do anything
+}
+```
+
+## Best Practices
+
+### 1. Use Clear Labels
+
+```tsx
+// Good
+{ label: 'Delete Account', onClick: handleDelete }
+
+// Bad
+{ label: 'Click Here', onClick: handleDelete }
+```
+
+### 2. Choose Appropriate Variants
+
+```tsx
+// Good - variant matches action
+{ label: 'Delete Account', variant: 'error', onClick: handleDelete }
+{ label: 'Save Changes', variant: 'success', onClick: handleSave }
+
+// Bad - misleading variant
+{ label: 'Delete Account', variant: 'success', onClick: handleDelete }
+```
+
+### 3. Limit Button Count
+
+Don't overwhelm users with too many options:
+
+```tsx
+// Good - 2-4 buttons
+buttons: [
+  { label: 'Yes', onClick: handleYes },
+  { label: 'No', onClick: handleNo },
+]
+
+// Bad - too many options
+buttons: [
+  { label: 'Option 1', onClick: handle1 },
+  { label: 'Option 2', onClick: handle2 },
+  { label: 'Option 3', onClick: handle3 },
+  { label: 'Option 4', onClick: handle4 },
+  { label: 'Option 5', onClick: handle5 },
+  { label: 'Option 6', onClick: handle6 },
+]
+```
+
+### 4. Provide Feedback
+
+Always give feedback after button clicks:
+
+```tsx
+{
+  label: 'Submit',
+  onClick: async () => {
+    // Show loading state
+    addMessage({
+      type: 'other',
+      content: 'Processing...',
+    });
+
+    await processData();
+
+    // Show result
+    addMessage({
+      type: 'other',
+      content: 'Successfully submitted!',
+    });
+  },
+}
+```
+
+## Next Steps
+
+- [Request Confirmation](/guides/request-confirmation/) - Add confirmation dialogs
+- [Request Input](/guides/request-input/) - Collect user input with validation
+- [Persistent Buttons](/guides/persistent-buttons/) - Create always-visible buttons
+

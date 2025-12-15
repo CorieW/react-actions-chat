@@ -1,0 +1,338 @@
+---
+title: Request Confirmation
+description: Add confirmation dialogs for critical actions
+---
+
+# Request Confirmation
+
+The `createRequestConfirmationButton` function creates buttons that require user confirmation before executing critical actions. This is essential for destructive operations like account deletion, data removal, or irreversible changes.
+
+## Basic Usage
+
+```tsx
+import { createRequestConfirmationButton } from 'actionable-support-chat';
+import { useChatStore } from 'actionable-support-chat';
+
+const { addMessage } = useChatStore();
+
+const deleteButton = createRequestConfirmationButton({
+  initialLabel: 'Delete Account',
+  confirmationMessage: 'Are you sure you want to delete your account?',
+  onConfirm: () => {
+    addMessage({
+      type: 'other',
+      content: 'Your account has been deleted.',
+    });
+  },
+});
+
+addMessage({
+  type: 'other',
+  content: 'What would you like to do?',
+  buttons: [deleteButton],
+});
+```
+
+## Configuration Options
+
+```typescript
+interface RequestConfirmationButtonConfig {
+  readonly initialLabel: string;
+  readonly confirmationMessage: string;
+  readonly onConfirm: () => void;
+  readonly onReject?: () => void;
+  readonly variant?: MessageButtonVariant;
+  readonly className?: string;
+  readonly style?: React.CSSProperties;
+}
+```
+
+### Parameters
+
+- **`initialLabel`** (required): The text shown on the button
+- **`confirmationMessage`** (required): The message shown to confirm the action
+- **`onConfirm`** (required): Callback executed when user confirms
+- **`onReject`** (optional): Callback executed when user rejects
+- **`variant`** (optional): Button style variant (default: 'default')
+- **`className`** (optional): Custom CSS classes
+- **`style`** (optional): Custom inline styles
+
+## Complete Example
+
+```tsx
+import { useMemo } from 'react';
+import { createRequestConfirmationButton } from 'actionable-support-chat';
+import { useChatStore } from 'actionable-support-chat';
+
+function AccountSettings() {
+  const { addMessage } = useChatStore();
+
+  const initialMessages = useMemo(
+    () => [
+      {
+        id: 1,
+        type: 'other',
+        content: 'Account Settings',
+        timestamp: new Date(),
+        buttons: [
+          createRequestConfirmationButton({
+            initialLabel: 'Delete Account',
+            confirmationMessage:
+              'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.',
+            variant: 'error',
+            onConfirm: async () => {
+              addMessage({
+                type: 'other',
+                content: 'Deleting account...',
+              });
+
+              await deleteAccountAPI();
+
+              addMessage({
+                type: 'other',
+                content: 'Your account has been deleted successfully.',
+              });
+            },
+            onReject: () => {
+              addMessage({
+                type: 'other',
+                content: 'Account deletion cancelled. Your account remains active.',
+              });
+            },
+          }),
+        ],
+      },
+    ],
+    [addMessage]
+  );
+
+  return <Chat initialMessages={initialMessages} theme="dark" />;
+}
+```
+
+## How It Works
+
+1. User clicks the button with `initialLabel`
+2. A new message appears with the `confirmationMessage`
+3. Two new buttons appear: "Confirm" and "Cancel"
+4. If user clicks "Confirm", `onConfirm` is executed
+5. If user clicks "Cancel", `onReject` is executed (if provided)
+
+## Variants
+
+Use appropriate variants to indicate the severity of the action:
+
+### Error (Destructive Actions)
+
+```tsx
+createRequestConfirmationButton({
+  initialLabel: 'Delete Account',
+  confirmationMessage: 'This will permanently delete your account.',
+  variant: 'error',
+  onConfirm: handleDelete,
+});
+```
+
+### Warning (Potentially Problematic)
+
+```tsx
+createRequestConfirmationButton({
+  initialLabel: 'Reset Settings',
+  confirmationMessage: 'This will reset all your settings to default.',
+  variant: 'warning',
+  onConfirm: handleReset,
+});
+```
+
+### Default (Standard Confirmation)
+
+```tsx
+createRequestConfirmationButton({
+  initialLabel: 'Submit Order',
+  confirmationMessage: 'Please confirm your order.',
+  variant: 'default',
+  onConfirm: handleSubmit,
+});
+```
+
+## Handling Rejection
+
+Provide feedback when users cancel:
+
+```tsx
+createRequestConfirmationButton({
+  initialLabel: 'Delete Data',
+  confirmationMessage: 'Are you sure you want to delete all data?',
+  variant: 'error',
+  onConfirm: () => {
+    addMessage({
+      type: 'other',
+      content: 'Data deleted successfully.',
+    });
+  },
+  onReject: () => {
+    addMessage({
+      type: 'other',
+      content: 'Deletion cancelled. Your data is safe.',
+    });
+  },
+});
+```
+
+## Async Operations
+
+Handle asynchronous operations properly:
+
+```tsx
+createRequestConfirmationButton({
+  initialLabel: 'Delete Files',
+  confirmationMessage: 'This will delete 127 files. Continue?',
+  variant: 'error',
+  onConfirm: async () => {
+    addMessage({
+      type: 'other',
+      content: 'Deleting files...',
+    });
+
+    try {
+      await deleteFiles();
+      addMessage({
+        type: 'other',
+        content: 'Files deleted successfully.',
+      });
+    } catch (error) {
+      addMessage({
+        type: 'other',
+        content: 'Failed to delete files. Please try again.',
+      });
+    }
+  },
+  onReject: () => {
+    addMessage({
+      type: 'other',
+      content: 'File deletion cancelled.',
+    });
+  },
+});
+```
+
+## Multiple Confirmations
+
+You can have multiple confirmation buttons in a single message:
+
+```tsx
+addMessage({
+  type: 'other',
+  content: 'Manage your data:',
+  buttons: [
+    createRequestConfirmationButton({
+      initialLabel: 'Delete Account',
+      confirmationMessage: 'Delete your account?',
+      variant: 'error',
+      onConfirm: handleDeleteAccount,
+    }),
+    createRequestConfirmationButton({
+      initialLabel: 'Export Data',
+      confirmationMessage: 'Export all your data?',
+      variant: 'info',
+      onConfirm: handleExportData,
+    }),
+    createRequestConfirmationButton({
+      initialLabel: 'Reset Password',
+      confirmationMessage: 'Send password reset email?',
+      variant: 'warning',
+      onConfirm: handleResetPassword,
+    }),
+  ],
+});
+```
+
+## Best Practices
+
+### 1. Use for Destructive Actions
+
+Always use confirmation for actions that:
+- Delete data
+- Are irreversible
+- Have significant consequences
+- Could result in data loss
+
+```tsx
+// Good - confirmation for destructive action
+createRequestConfirmationButton({
+  initialLabel: 'Delete All Messages',
+  confirmationMessage: 'This will permanently delete all messages. Continue?',
+  variant: 'error',
+  onConfirm: handleDelete,
+});
+
+// Bad - no confirmation needed
+{
+  label: 'View Profile',
+  onClick: viewProfile,
+}
+```
+
+### 2. Write Clear Confirmation Messages
+
+```tsx
+// Good - specific and clear
+confirmationMessage: 'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.'
+
+// Bad - vague
+confirmationMessage: 'Are you sure?'
+```
+
+### 3. Provide Appropriate Feedback
+
+```tsx
+// Good - feedback for both confirm and reject
+createRequestConfirmationButton({
+  initialLabel: 'Cancel Subscription',
+  confirmationMessage: 'Cancel your subscription?',
+  onConfirm: () => {
+    addMessage({
+      type: 'other',
+      content: 'Subscription cancelled. You will have access until the end of your billing period.',
+    });
+  },
+  onReject: () => {
+    addMessage({
+      type: 'other',
+      content: 'Subscription remains active.',
+    });
+  },
+});
+```
+
+### 4. Match Variant to Action Severity
+
+```tsx
+// Good - error variant for destructive action
+createRequestConfirmationButton({
+  initialLabel: 'Delete Account',
+  variant: 'error',
+  // ...
+});
+
+// Good - warning variant for potentially problematic action
+createRequestConfirmationButton({
+  initialLabel: 'Reset Settings',
+  variant: 'warning',
+  // ...
+});
+
+// Good - default/info variant for standard confirmation
+createRequestConfirmationButton({
+  initialLabel: 'Submit Form',
+  variant: 'default',
+  // ...
+});
+```
+
+## Next Steps
+
+- [Request Input](/guides/request-input/) - Collect user input with validation
+- [Message Buttons](/guides/message-buttons/) - Learn about regular buttons
+- [API Reference](/api/types/) - View all type definitions
+

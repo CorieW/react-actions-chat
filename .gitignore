@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Docs build output
+docs-dist
+docs/.astro
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

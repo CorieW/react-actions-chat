@@ -1,0 +1,433 @@
+---
+title: Persistent Buttons
+description: Create always-visible buttons at the bottom of the chat
+head: []
+---
+
+Persistent buttons are always visible at the bottom of the chat interface, above the input field. Unlike message buttons that disappear when new messages are added, persistent buttons remain until explicitly removed.
+
+## When to Use
+
+Persistent buttons are ideal for:
+- Actions that should always be available (e.g., "Get Help", "Main Menu")
+- Abort/Cancel buttons for ongoing operations
+- Quick access to common functions
+- Navigation controls
+
+## Basic Usage
+
+```tsx
+import { usePersistentButtonStore } from 'actionable-support-chat';
+
+function MyComponent() {
+  const { addButton, removeButton } = usePersistentButtonStore();
+
+  const handleAddButton = () => {
+    addButton({
+      id: 'help-button',
+      label: 'Get Help',
+      variant: 'info',
+      onClick: () => {
+        console.log('Help requested');
+      },
+    });
+  };
+
+  const handleRemoveButton = () => {
+    removeButton('help-button');
+  };
+
+  return (
+    <div>
+      <button onClick={handleAddButton}>Add Help Button</button>
+      <button onClick={handleRemoveButton}>Remove Help Button</button>
+    </div>
+  );
+}
+```
+
+## Persistent Button Store API
+
+### Methods
+
+- **`addButton(button)`** - Add a button or update existing one with same id
+- **`removeButton(id)`** - Remove a button by its id
+- **`setButtons(buttons)`** - Replace all buttons
+- **`clearButtons()`** - Remove all buttons
+- **`getButtons()`** - Get current buttons array
+
+### Button Interface
+
+```typescript
+interface PersistentButton extends MessageButton {
+  readonly id: string; // Unique identifier (required)
+}
+```
+
+All properties from `MessageButton` are supported:
+- `label`: Button text
+- `onClick`: Click handler
+- `variant`: Style variant
+- `className`: Custom CSS classes
+- `style`: Custom inline styles
+
+## Adding Persistent Buttons
+
+### Single Button
+
+```tsx
+import { usePersistentButtonStore } from 'actionable-support-chat';
+import { useChatStore } from 'actionable-support-chat';
+
+const { addButton } = usePersistentButtonStore();
+const { addMessage } = useChatStore();
+
+addButton({
+  id: 'main-menu',
+  label: 'Main Menu',
+  variant: 'info',
+  onClick: () => {
+    addMessage({
+      type: 'other',
+      content: 'Returning to main menu...',
+    });
+  },
+});
+```
+
+### Multiple Buttons
+
+```tsx
+const { setButtons } = usePersistentButtonStore();
+
+setButtons([
+  {
+    id: 'help',
+    label: 'Help',
+    variant: 'info',
+    onClick: handleHelp,
+  },
+  {
+    id: 'cancel',
+    label: 'Cancel',
+    variant: 'error',
+    onClick: handleCancel,
+  },
+  {
+    id: 'settings',
+    label: 'Settings',
+    variant: 'default',
+    onClick: handleSettings,
+  },
+]);
+```
+
+### Update Existing Button
+
+If you add a button with an id that already exists, it will be updated:
+
+```tsx
+// Add initial button
+addButton({
+  id: 'status',
+  label: 'Idle',
+  variant: 'dull',
+  onClick: () => {},
+});
+
+// Update the button (same id)
+addButton({
+  id: 'status',
+  label: 'Processing...',
+  variant: 'warning',
+  onClick: () => {},
+});
+```
+
+## Removing Persistent Buttons
+
+### Remove Single Button
+
+```tsx
+const { removeButton } = usePersistentButtonStore();
+
+removeButton('help-button');
+```
+
+### Remove All Buttons
+
+```tsx
+const { clearButtons } = usePersistentButtonStore();
+
+clearButtons();
+```
+
+## Common Patterns
+
+### Abort Button Pattern
+
+Used by `createRequestInputButton` to allow canceling input requests:
+
+```tsx
+import { usePersistentButtonStore } from 'actionable-support-chat';
+import { useChatStore } from 'actionable-support-chat';
+
+const { addButton, removeButton } = usePersistentButtonStore();
+const { addMessage, clearPreviousMessageCallback } = useChatStore();
+
+// Start a process
+addMessage({
+  type: 'other',
+  content: 'Please enter your information...',
+  userResponseCallback: handleInput,
+});
+
+// Add abort button
+addButton({
+  id: 'abort',
+  label: 'Abort',
+  variant: 'error',
+  onClick: () => {
+    clearPreviousMessageCallback();
+    removeButton('abort');
+    addMessage({
+      type: 'other',
+      content: 'Process cancelled.',
+    });
+  },
+});
+```
+
+### Main Menu Pattern
+
+Always-available navigation:
+
+```tsx
+const { addButton } = usePersistentButtonStore();
+const { addMessage } = useChatStore();
+
+// Add on mount
+useEffect(() => {
+  addButton({
+    id: 'main-menu',
+    label: 'Main Menu',
+    variant: 'info',
+    onClick: () => {
+      addMessage({
+        type: 'other',
+        content: 'What would you like to do?',
+        buttons: [
+          { label: 'View Profile', onClick: viewProfile },
+          { label: 'Settings', onClick: openSettings },
+          { label: 'Help', onClick: getHelp },
+        ],
+      });
+    },
+  });
+
+  return () => {
+    removeButton('main-menu');
+  };
+}, []);
+```
+
+### Status Indicator Pattern
+
+Show ongoing process status:
+
+```tsx
+const { addButton, removeButton } = usePersistentButtonStore();
+
+// Start process
+const startProcess = async () => {
+  addButton({
+    id: 'status',
+    label: 'Processing...',
+    variant: 'warning',
+    // No onClick - not clickable
+  });
+
+  await processData();
+
+  removeButton('status');
+};
+```
+
+### Quick Actions Pattern
+
+Provide shortcuts for common actions:
+
+```tsx
+const { setButtons } = usePersistentButtonStore();
+const { addMessage } = useChatStore();
+
+setButtons([
+  {
+    id: 'quick-help',
+    label: '❓ Help',
+    variant: 'info',
+    onClick: () => {
+      addMessage({
+        type: 'other',
+        content: 'How can I assist you?',
+      });
+    },
+  },
+  {
+    id: 'quick-reset',
+    label: '🔄 Reset',
+    variant: 'warning',
+    onClick: () => {
+      clearMessages();
+      addMessage({
+        type: 'other',
+        content: 'Chat reset. How can I help you?',
+      });
+    },
+  },
+]);
+```
+
+## Button Styling
+
+### Using Variants
+
+```tsx
+addButton({
+  id: 'save',
+  label: 'Save',
+  variant: 'success',
+  onClick: handleSave,
+});
+```
+
+### Custom Styles
+
+```tsx
+addButton({
+  id: 'custom',
+  label: 'Custom Button',
+  style: {
+    backgroundColor: '#ff6b6b',
+    color: 'white',
+    border: 'none',
+    padding: '12px 24px',
+    fontWeight: 'bold',
+  },
+  onClick: handleCustom,
+});
+```
+
+### Custom Classes
+
+```tsx
+addButton({
+  id: 'gradient',
+  label: 'Gradient Button',
+  className: 'bg-gradient-to-r from-purple-500 to-pink-500 font-bold',
+  onClick: handleGradient,
+});
+```
+
+## Accessing Button State
+
+```tsx
+const { getButtons, buttons } = usePersistentButtonStore();
+
+// Using state directly (reactive)
+console.log(buttons);
+
+// Using getter method
+const currentButtons = getButtons();
+console.log(currentButtons.length);
+```
+
+## Best Practices
+
+### 1. Use Unique IDs
+
+```tsx
+// Good - descriptive unique id
+addButton({ id: 'cancel-upload', label: 'Cancel', onClick: cancelUpload });
+
+// Bad - generic id that might conflict
+addButton({ id: 'button1', label: 'Cancel', onClick: cancelUpload });
+```
+
+### 2. Limit Number of Buttons
+
+Don't clutter the interface with too many persistent buttons:
+
+```tsx
+// Good - 1-3 persistent buttons
+setButtons([
+  { id: 'help', label: 'Help', onClick: showHelp },
+  { id: 'menu', label: 'Menu', onClick: showMenu },
+]);
+
+// Bad - too many persistent buttons
+setButtons([
+  { id: 'btn1', label: 'Action 1', onClick: action1 },
+  { id: 'btn2', label: 'Action 2', onClick: action2 },
+  { id: 'btn3', label: 'Action 3', onClick: action3 },
+  { id: 'btn4', label: 'Action 4', onClick: action4 },
+  { id: 'btn5', label: 'Action 5', onClick: action5 },
+]);
+```
+
+### 3. Clean Up on Unmount
+
+Remove persistent buttons when components unmount:
+
+```tsx
+useEffect(() => {
+  addButton({
+    id: 'my-button',
+    label: 'My Button',
+    onClick: handleClick,
+  });
+
+  return () => {
+    removeButton('my-button');
+  };
+}, []);
+```
+
+### 4. Use Appropriate Variants
+
+```tsx
+// Good - variant matches purpose
+addButton({ id: 'abort', label: 'Abort', variant: 'error', onClick: abort });
+addButton({ id: 'help', label: 'Help', variant: 'info', onClick: help });
+
+// Bad - misleading variant
+addButton({ id: 'abort', label: 'Abort', variant: 'success', onClick: abort });
+```
+
+### 5. Provide Clear Labels
+
+```tsx
+// Good - clear action
+addButton({ id: 'cancel', label: 'Cancel Process', onClick: cancel });
+
+// Bad - unclear
+addButton({ id: 'cancel', label: 'Click Here', onClick: cancel });
+```
+
+## Differences from Message Buttons
+
+| Feature | Message Buttons | Persistent Buttons |
+|---------|----------------|-------------------|
+| **Location** | Below specific messages | Bottom of chat (above input) |
+| **Persistence** | Cleared when new message added | Remain until explicitly removed |
+| **ID Required** | No | Yes (for add/remove/update) |
+| **Use Case** | Message-specific actions | Global/ongoing actions |
+| **Cleanup** | Automatic | Manual |
+
+## Next Steps
+
+- [Message Buttons](/guides/message-buttons/) - Learn about message-specific buttons
+- [Request Confirmation](/guides/request-confirmation/) - Add confirmation dialogs
+- [Request Input](/guides/request-input/) - Uses persistent buttons for abort
+- [API Reference](/api/stores/) - Complete store API documentation
+

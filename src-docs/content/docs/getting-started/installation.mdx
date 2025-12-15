@@ -1,0 +1,86 @@
+---
+title: Installation
+description: Install Actionable Support Chat in your React project
+---
+
+# Installation
+
+Get started with Actionable Support Chat by installing it in your React project.
+
+## Prerequisites
+
+Before installing, make sure you have:
+
+- **Node.js** 18.x or later
+- **React** 19.x or later
+- **npm** or **pnpm** package manager
+
+## Install the Package
+
+```bash
+npm install actionable-support-chat
+```
+
+Or with pnpm:
+
+```bash
+pnpm add actionable-support-chat
+```
+
+## Peer Dependencies
+
+The library requires the following peer dependencies:
+
+```json
+{
+  "react": "^19.0.0",
+  "react-dom": "^19.0.0"
+}
+```
+
+These should already be installed in your React project.
+
+## CSS Setup
+
+### Tailwind CSS
+
+If your project uses Tailwind CSS (recommended), add the library to your Tailwind configuration:
+
+```javascript
+// tailwind.config.js
+export default {
+  content: [
+    './src/**/*.{js,jsx,ts,tsx}',
+    './node_modules/actionable-support-chat/**/*.{js,jsx,ts,tsx}',
+  ],
+  // ... rest of your config
+};
+```
+
+### Without Tailwind CSS
+
+If you're not using Tailwind CSS, the library includes pre-built styles. Import them in your main file:
+
+```typescript
+import 'actionable-support-chat/styles.css';
+```
+
+## TypeScript Configuration
+
+If you're using TypeScript (recommended), ensure your `tsconfig.json` includes:
+
+```json
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "moduleResolution": "bundler",
+    "strict": true
+  }
+}
+```
+
+## Next Steps
+
+Now that you have the library installed, head over to the [Quick Start Guide](/getting-started/quick-start/) to create your first chat component!
+

@@ -1,0 +1,666 @@
+---
+title: Stores API Reference
+description: State management stores API reference
+head: []
+---
+
+The library uses Zustand for state management. Three stores are available for managing chat state, persistent buttons, and input field configuration.
+
+## useChatStore
+
+The main store for managing chat messages and their state.
+
+### Import
+
+```tsx
+import { useChatStore } from 'actionable-support-chat';
+```
+
+### State
+
+```typescript
+interface ChatState {
+  readonly messages: readonly Message[];
+  // ... methods
+}
+```
+
+### Methods
+
+#### `addMessage(message)`
+
+Add a single message to the chat.
+
+```typescript
+addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => void
+```
+
+The `id` and `timestamp` are automatically generated.
+
+**Example:**
+
+```tsx
+const { addMessage } = useChatStore();
+
+addMessage({
+  type: 'other',
+  content: 'Hello! How can I help?',
+});
+
+addMessage({
+  type: 'self',
+  content: 'I need assistance',
+  buttons: [
+    { label: 'Continue', onClick: handleContinue },
+  ],
+});
+```
+
+#### `addMessages(messages)`
+
+Add multiple messages at once.
+
+```typescript
+addMessages: (messages: readonly Message[]) => void
+```
+
+**Example:**
+
+```tsx
+const { addMessages } = useChatStore();
+
+addMessages([
+  {
+    id: 1,
+    type: 'other',
+    content: 'Message 1',
+    timestamp: new Date(),
+  },
+  {
+    id: 2,
+    type: 'other',
+    content: 'Message 2',
+    timestamp: new Date(),
+  },
+]);
+```
+
+#### `setMessages(messages)`
+
+Replace all messages with a new array.
+
+```typescript
+setMessages: (messages: readonly Message[]) => void
+```
+
+**Example:**
+
+```tsx
+const { setMessages } = useChatStore();
+
+setMessages([
+  {
+    id: 1,
+    type: 'other',
+    content: 'Starting fresh',
+    timestamp: new Date(),
+  },
+]);
+```
+
+#### `getMessages()`
+
+Get the current array of messages.
+
+```typescript
+getMessages: () => readonly Message[]
+```
+
+**Example:**
+
+```tsx
+const { getMessages } = useChatStore();
+
+const currentMessages = getMessages();
+console.log(`Total messages: ${currentMessages.length}`);
+```
+
+#### `getPreviousMessage()`
+
+Get the last message in the chat.
+
+```typescript
+getPreviousMessage: () => Message | undefined
+```
+
+Returns `undefined` if there are no messages.
+
+**Example:**
+
+```tsx
+const { getPreviousMessage } = useChatStore();
+
+const lastMessage = getPreviousMessage();
+if (lastMessage) {
+  console.log(`Last message: ${lastMessage.content}`);
+}
+```
+
+#### `clearMessages()`
+
+Remove all messages from the chat.
+
+```typescript
+clearMessages: () => void
+```
+
+**Example:**
+
+```tsx
+const { clearMessages } = useChatStore();
+
+clearMessages();
+```
+
+#### `clearButtons()`
+
+Remove buttons from all messages.
+
+```typescript
+clearButtons: () => void
+```
+
+**Example:**
+
+```tsx
+const { clearButtons } = useChatStore();
+
+clearButtons();
+```
+
+#### `clearPreviousMessageButtons()`
+
+Remove buttons only from the last message.
+
+```typescript
+clearPreviousMessageButtons: () => void
+```
+
+**Example:**
+
+```tsx
+const { clearPreviousMessageButtons } = useChatStore();
+
+clearPreviousMessageButtons();
+```
+
+#### `clearPreviousMessageCallback()`
+
+Remove the `userResponseCallback` from the last message.
+
+```typescript
+clearPreviousMessageCallback: () => void
+```
+
+**Example:**
+
+```tsx
+const { clearPreviousMessageCallback } = useChatStore();
+
+// User changed their mind, don't trigger callback
+clearPreviousMessageCallback();
+```
+
+### Usage Examples
+
+#### Basic Message Management
+
+```tsx
+import { useChatStore } from 'actionable-support-chat';
+
+function ChatManager() {
+  const { addMessage, clearMessages, messages } = useChatStore();
+
+  const handleReset = () => {
+    clearMessages();
+    addMessage({
+      type: 'other',
+      content: 'Chat reset. How can I help?',
+    });
+  };
+
+  return (
+    <div>
+      <p>Messages: {messages.length}</p>
+      <button onClick={handleReset}>Reset Chat</button>
+    </div>
+  );
+}
+```
+
+#### Message with Callback
+
+```tsx
+const { addMessage } = useChatStore();
+
+addMessage({
+  type: 'other',
+  content: 'What is your name?',
+  userResponseCallback: () => {
+    addMessage({
+      type: 'other',
+      content: 'Nice to meet you!',
+    });
+  },
+});
+```
+
+## usePersistentButtonStore
+
+Store for managing persistent buttons displayed at the bottom of the chat.
+
+### Import
+
+```tsx
+import { usePersistentButtonStore } from 'actionable-support-chat';
+```
+
+### State
+
+```typescript
+interface PersistentButtonStoreState {
+  readonly buttons: readonly PersistentButton[];
+  // ... methods
+}
+```
+
+### Methods
+
+#### `addButton(button)`
+
+Add a button or update an existing one with the same id.
+
+```typescript
+addButton: (button: MessageButton & { readonly id: string }) => void
+```
+
+**Example:**
+
+```tsx
+const { addButton } = usePersistentButtonStore();
+
+addButton({
+  id: 'help',
+  label: 'Get Help',
+  variant: 'info',
+  onClick: () => console.log('Help requested'),
+});
+
+// Update the same button
+addButton({
+  id: 'help',
+  label: 'Help Available',
+  variant: 'success',
+  onClick: () => console.log('Help clicked'),
+});
+```
+
+#### `removeButton(id)`
+
+Remove a button by its id.
+
+```typescript
+removeButton: (id: string) => void
+```
+
+**Example:**
+
+```tsx
+const { removeButton } = usePersistentButtonStore();
+
+removeButton('help');
+```
+
+#### `setButtons(buttons)`
+
+Replace all buttons with a new array.
+
+```typescript
+setButtons: (buttons: readonly (MessageButton & { readonly id: string })[]) => void
+```
+
+**Example:**
+
+```tsx
+const { setButtons } = usePersistentButtonStore();
+
+setButtons([
+  { id: 'help', label: 'Help', onClick: handleHelp },
+  { id: 'menu', label: 'Menu', onClick: handleMenu },
+]);
+```
+
+#### `getButtons()`
+
+Get the current array of buttons.
+
+```typescript
+getButtons: () => readonly PersistentButton[]
+```
+
+**Example:**
+
+```tsx
+const { getButtons } = usePersistentButtonStore();
+
+const currentButtons = getButtons();
+console.log(`Total buttons: ${currentButtons.length}`);
+```
+
+#### `clearButtons()`
+
+Remove all buttons.
+
+```typescript
+clearButtons: () => void
+```
+
+**Example:**
+
+```tsx
+const { clearButtons } = usePersistentButtonStore();
+
+clearButtons();
+```
+
+### Usage Examples
+
+#### Dynamic Button Management
+
+```tsx
+import { usePersistentButtonStore } from 'actionable-support-chat';
+
+function ButtonManager() {
+  const { addButton, removeButton, buttons } = usePersistentButtonStore();
+
+  const showHelp = () => {
+    addButton({
+      id: 'help',
+      label: 'Get Help',
+      variant: 'info',
+      onClick: () => console.log('Help'),
+    });
+  };
+
+  const hideHelp = () => {
+    removeButton('help');
+  };
+
+  return (
+    <div>
+      <p>Buttons: {buttons.length}</p>
+      <button onClick={showHelp}>Show Help</button>
+      <button onClick={hideHelp}>Hide Help</button>
+    </div>
+  );
+}
+```
+
+#### Cleanup on Unmount
+
+```tsx
+import { useEffect } from 'react';
+import { usePersistentButtonStore } from 'actionable-support-chat';
+
+function ComponentWithButton() {
+  const { addButton, removeButton } = usePersistentButtonStore();
+
+  useEffect(() => {
+    addButton({
+      id: 'my-button',
+      label: 'My Button',
+      onClick: handleClick,
+    });
+
+    return () => {
+      removeButton('my-button');
+    };
+  }, []);
+
+  return <div>Component content</div>;
+}
+```
+
+## useInputFieldStore
+
+Store for managing input field configuration (type, placeholder, validation, etc.).
+
+### Import
+
+```tsx
+import { useInputFieldStore } from 'actionable-support-chat';
+```
+
+### State
+
+```typescript
+interface InputFieldStoreState {
+  readonly inputFieldType: InputType;
+  readonly inputFieldPlaceholder: string;
+  readonly inputFieldDescription: string;
+  readonly inputFieldValidator: InputValidator | undefined;
+  // ... methods
+}
+```
+
+### Methods
+
+#### `setInputFieldType(type)`
+
+Set the input field type.
+
+```typescript
+setInputFieldType: (type: InputType) => void
+```
+
+**Example:**
+
+```tsx
+const { setInputFieldType } = useInputFieldStore();
+
+setInputFieldType('email');
+```
+
+#### `setInputFieldPlaceholder(placeholder)`
+
+Set the input field placeholder text.
+
+```typescript
+setInputFieldPlaceholder: (placeholder: string) => void
+```
+
+**Example:**
+
+```tsx
+const { setInputFieldPlaceholder } = useInputFieldStore();
+
+setInputFieldPlaceholder('Enter your email...');
+```
+
+#### `setInputFieldDescription(description)`
+
+Set helper text above the input field.
+
+```typescript
+setInputFieldDescription: (description: string) => void
+```
+
+**Example:**
+
+```tsx
+const { setInputFieldDescription } = useInputFieldStore();
+
+setInputFieldDescription('We will send you a verification email');
+```
+
+#### `setInputFieldValidator(validator)`
+
+Set a validation function for the input.
+
+```typescript
+setInputFieldValidator: (validator: InputValidator) => void
+```
+
+**Example:**
+
+```tsx
+const { setInputFieldValidator } = useInputFieldStore();
+
+setInputFieldValidator((value) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(value) || 'Invalid email address';
+});
+```
+
+#### Reset Methods
+
+Reset individual configuration options to defaults:
+
+```typescript
+resetInputFieldType: () => void
+resetInputFieldPlaceholder: () => void
+resetInputFieldDescription: () => void
+resetInputFieldValidator: () => void
+```
+
+**Example:**
+
+```tsx
+const {
+  resetInputFieldType,
+  resetInputFieldPlaceholder,
+  resetInputFieldDescription,
+  resetInputFieldValidator,
+} = useInputFieldStore();
+
+// Reset everything to defaults
+resetInputFieldType();
+resetInputFieldPlaceholder();
+resetInputFieldDescription();
+resetInputFieldValidator();
+```
+
+### Usage Examples
+
+#### Custom Input Configuration
+
+```tsx
+import { useInputFieldStore } from 'actionable-support-chat';
+
+function ConfigureEmailInput() {
+  const {
+    setInputFieldType,
+    setInputFieldPlaceholder,
+    setInputFieldDescription,
+    setInputFieldValidator,
+  } = useInputFieldStore();
+
+  const configureEmailInput = () => {
+    setInputFieldType('email');
+    setInputFieldPlaceholder('your.email@example.com');
+    setInputFieldDescription('We will send a verification email');
+    setInputFieldValidator((value) => {
+      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return regex.test(value) || 'Please enter a valid email';
+    });
+  };
+
+  return <button onClick={configureEmailInput}>Configure Email Input</button>;
+}
+```
+
+#### Reset After Input
+
+```tsx
+import { useInputFieldStore } from 'actionable-support-chat';
+
+function InputManager() {
+  const {
+    resetInputFieldType,
+    resetInputFieldPlaceholder,
+    resetInputFieldDescription,
+    resetInputFieldValidator,
+  } = useInputFieldStore();
+
+  const resetInputField = () => {
+    resetInputFieldType();
+    resetInputFieldPlaceholder();
+    resetInputFieldDescription();
+    resetInputFieldValidator();
+  };
+
+  return <button onClick={resetInputField}>Reset Input Field</button>;
+}
+```
+
+## Using Stores Outside Components
+
+All stores can be accessed outside React components using `.getState()`:
+
+```tsx
+import { useChatStore, usePersistentButtonStore } from 'actionable-support-chat';
+
+// In a utility function
+export function sendWelcomeMessage() {
+  const { addMessage } = useChatStore.getState();
+  
+  addMessage({
+    type: 'other',
+    content: 'Welcome to our chat!',
+  });
+}
+
+// In an event handler
+window.addEventListener('error', () => {
+  const { addButton } = usePersistentButtonStore.getState();
+  
+  addButton({
+    id: 'error-help',
+    label: 'Get Help',
+    variant: 'error',
+    onClick: () => console.log('Error help'),
+  });
+});
+```
+
+## Store Selectors
+
+Use selectors for optimal re-render performance:
+
+```tsx
+import { useChatStore } from 'actionable-support-chat';
+
+function MessageCount() {
+  // Only re-renders when message count changes
+  const messageCount = useChatStore((state) => state.messages.length);
+
+  return <div>Messages: {messageCount}</div>;
+}
+
+function LastMessage() {
+  // Only re-renders when last message changes
+  const lastMessage = useChatStore(
+    (state) => state.messages[state.messages.length - 1]
+  );
+
+  return <div>{lastMessage?.content}</div>;
+}
+```
+
+## Related
+
+- [Chat Component API](/api/chat/) - Chat component reference
+- [Types API](/api/types/) - Type definitions
+- [Basic Usage](/guides/basic-usage/) - Store usage examples
+- [Messages Guide](/guides/messages/) - Working with messages
+

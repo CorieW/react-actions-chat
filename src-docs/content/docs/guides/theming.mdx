@@ -1,0 +1,447 @@
+---
+title: Theming
+description: Customize the appearance of your chat interface
+---
+
+# Theming
+
+Actionable Support Chat provides a flexible theming system that allows you to customize the appearance of your chat interface. You can use built-in themes or create completely custom themes.
+
+## Quick Start
+
+### Using Built-in Themes
+
+```tsx
+import { Chat } from 'actionable-support-chat';
+
+// Dark theme (default)
+<Chat theme="dark" />
+
+// Light theme
+<Chat theme="light" />
+```
+
+## ChatTheme Interface
+
+```typescript
+interface ChatTheme {
+  readonly primaryColor?: string;
+  readonly secondaryColor?: string;
+  readonly backgroundColor?: string;
+  readonly textColor?: string;
+  readonly borderColor?: string;
+  readonly inputBackgroundColor?: string;
+  readonly inputTextColor?: string;
+  readonly buttonColor?: string;
+  readonly buttonTextColor?: string;
+}
+```
+
+### Theme Properties
+
+- **`primaryColor`**: Background color for self (user) messages
+- **`secondaryColor`**: Background color for other (bot/support) messages
+- **`backgroundColor`**: Background color of the entire chat container
+- **`textColor`**: Primary text color for all text
+- **`borderColor`**: Color for borders and dividers
+- **`inputBackgroundColor`**: Background color of the input field
+- **`inputTextColor`**: Text color in the input field
+- **`buttonColor`**: Background color for buttons
+- **`buttonTextColor`**: Text color on buttons
+
+## Built-in Themes
+
+### Dark Theme (Default)
+
+```tsx
+const DARK_THEME: ChatTheme = {
+  primaryColor: '#3b82f6',      // Blue
+  secondaryColor: '#374151',     // Gray-700
+  backgroundColor: '#111827',    // Gray-900
+  textColor: '#f9fafb',         // Gray-50
+  borderColor: '#4b5563',       // Gray-600
+  inputBackgroundColor: '#1f2937', // Gray-800
+  inputTextColor: '#f9fafb',    // Gray-50
+  buttonColor: '#3b82f6',       // Blue-600
+  buttonTextColor: '#ffffff',   // White
+};
+
+<Chat theme="dark" />
+```
+
+### Light Theme
+
+```tsx
+const LIGHT_THEME: ChatTheme = {
+  primaryColor: '#3b82f6',      // Blue
+  secondaryColor: '#e5e7eb',     // Light gray
+  backgroundColor: '#f3f4f6',    // Gray-100
+  textColor: '#111827',         // Gray-900
+  borderColor: '#e5e7eb',       // Gray-200
+  inputBackgroundColor: '#fff',  // White
+  inputTextColor: '#111827',    // Gray-900
+  buttonColor: '#3b82f6',       // Blue-600
+  buttonTextColor: '#ffffff',   // White
+};
+
+<Chat theme="light" />
+```
+
+## Custom Themes
+
+### Complete Custom Theme
+
+Create a fully custom theme by providing all properties:
+
+```tsx
+const customTheme: ChatTheme = {
+  primaryColor: '#10b981',       // Emerald-500
+  secondaryColor: '#6366f1',     // Indigo-500
+  backgroundColor: '#0f172a',    // Slate-900
+  textColor: '#f1f5f9',         // Slate-100
+  borderColor: '#334155',       // Slate-700
+  inputBackgroundColor: '#1e293b', // Slate-800
+  inputTextColor: '#f1f5f9',    // Slate-100
+  buttonColor: '#10b981',       // Emerald-500
+  buttonTextColor: '#ffffff',   // White
+};
+
+<Chat theme={customTheme} />
+```
+
+### Partial Custom Theme
+
+Provide only the properties you want to customize. Missing properties default to dark theme:
+
+```tsx
+const partialTheme: ChatTheme = {
+  primaryColor: '#ec4899',       // Pink-500
+  backgroundColor: '#18181b',    // Zinc-900
+  textColor: '#fafafa',         // Zinc-50
+};
+
+<Chat theme={partialTheme} />
+```
+
+## Theme Examples
+
+### Minimal Theme
+
+Simple, clean design:
+
+```tsx
+const minimalTheme: ChatTheme = {
+  primaryColor: '#000000',
+  secondaryColor: '#ffffff',
+  backgroundColor: '#f5f5f5',
+  textColor: '#333333',
+  borderColor: '#e0e0e0',
+  inputBackgroundColor: '#ffffff',
+  inputTextColor: '#333333',
+  buttonColor: '#000000',
+  buttonTextColor: '#ffffff',
+};
+```
+
+### Vibrant Theme
+
+Colorful and energetic:
+
+```tsx
+const vibrantTheme: ChatTheme = {
+  primaryColor: '#8b5cf6',       // Purple-500
+  secondaryColor: '#ec4899',     // Pink-500
+  backgroundColor: '#1e1b4b',    // Indigo-950
+  textColor: '#faf5ff',         // Purple-50
+  borderColor: '#6366f1',       // Indigo-500
+  inputBackgroundColor: '#312e81', // Indigo-900
+  inputTextColor: '#faf5ff',    // Purple-50
+  buttonColor: '#8b5cf6',       // Purple-500
+  buttonTextColor: '#ffffff',   // White
+};
+```
+
+### Professional Theme
+
+Corporate and professional:
+
+```tsx
+const professionalTheme: ChatTheme = {
+  primaryColor: '#0369a1',       // Sky-700
+  secondaryColor: '#64748b',     // Slate-500
+  backgroundColor: '#f8fafc',    // Slate-50
+  textColor: '#0f172a',         // Slate-900
+  borderColor: '#cbd5e1',       // Slate-300
+  inputBackgroundColor: '#ffffff', // White
+  inputTextColor: '#0f172a',    // Slate-900
+  buttonColor: '#0369a1',       // Sky-700
+  buttonTextColor: '#ffffff',   // White
+};
+```
+
+### Nature Theme
+
+Earth tones and green:
+
+```tsx
+const natureTheme: ChatTheme = {
+  primaryColor: '#16a34a',       // Green-600
+  secondaryColor: '#78716c',     // Stone-500
+  backgroundColor: '#f5f5f4',    // Stone-100
+  textColor: '#1c1917',         // Stone-900
+  borderColor: '#d6d3d1',       // Stone-300
+  inputBackgroundColor: '#ffffff', // White
+  inputTextColor: '#1c1917',    // Stone-900
+  buttonColor: '#16a34a',       // Green-600
+  buttonTextColor: '#ffffff',   // White
+};
+```
+
+### High Contrast Theme
+
+Accessibility-focused:
+
+```tsx
+const highContrastTheme: ChatTheme = {
+  primaryColor: '#000000',
+  secondaryColor: '#ffffff',
+  backgroundColor: '#000000',
+  textColor: '#ffffff',
+  borderColor: '#ffffff',
+  inputBackgroundColor: '#1a1a1a',
+  inputTextColor: '#ffffff',
+  buttonColor: '#ffffff',
+  buttonTextColor: '#000000',
+};
+```
+
+## Dynamic Theming
+
+### Theme Switching
+
+Allow users to switch themes:
+
+```tsx
+import { useState } from 'react';
+import { Chat } from 'actionable-support-chat';
+import type { ChatTheme } from 'actionable-support-chat';
+
+function App() {
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+
+  return (
+    <div>
+      <button onClick={() => setTheme('light')}>Light</button>
+      <button onClick={() => setTheme('dark')}>Dark</button>
+      <Chat theme={theme} />
+    </div>
+  );
+}
+```
+
+### Custom Theme Selector
+
+```tsx
+import { useState } from 'react';
+import { Chat } from 'actionable-support-chat';
+import type { ChatTheme } from 'actionable-support-chat';
+
+const themes = {
+  dark: { /* dark theme */ },
+  light: { /* light theme */ },
+  vibrant: { /* vibrant theme */ },
+  professional: { /* professional theme */ },
+};
+
+function App() {
+  const [currentTheme, setCurrentTheme] = useState<keyof typeof themes>('dark');
+
+  return (
+    <div>
+      <select onChange={(e) => setCurrentTheme(e.target.value as keyof typeof themes)}>
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+        <option value="vibrant">Vibrant</option>
+        <option value="professional">Professional</option>
+      </select>
+      <Chat theme={themes[currentTheme]} />
+    </div>
+  );
+}
+```
+
+### System Preference Detection
+
+Detect and use system color scheme preference:
+
+```tsx
+import { useState, useEffect } from 'react';
+import { Chat } from 'actionable-support-chat';
+
+function App() {
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setTheme(mediaQuery.matches ? 'dark' : 'light');
+
+    const handler = (e: MediaQueryListEvent) => {
+      setTheme(e.matches ? 'dark' : 'light');
+    };
+
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  return <Chat theme={theme} />;
+}
+```
+
+## CSS Variables
+
+The theme is applied using CSS custom properties (variables):
+
+```css
+--chat-primary-color
+--chat-secondary-color
+--chat-background-color
+--chat-text-color
+--chat-border-color
+--chat-input-background-color
+--chat-input-text-color
+--chat-button-color
+--chat-button-text-color
+```
+
+You can access these variables in your custom CSS if needed:
+
+```css
+.my-custom-element {
+  background-color: var(--chat-primary-color);
+  color: var(--chat-text-color);
+}
+```
+
+## Best Practices
+
+### 1. Ensure Sufficient Contrast
+
+Make sure text is readable against backgrounds:
+
+```tsx
+// Good - high contrast
+{
+  backgroundColor: '#000000',
+  textColor: '#ffffff',
+}
+
+// Bad - low contrast
+{
+  backgroundColor: '#333333',
+  textColor: '#444444',
+}
+```
+
+### 2. Test Both Message Types
+
+Preview both self and other messages:
+
+```tsx
+const initialMessages = [
+  {
+    id: 1,
+    type: 'other',
+    content: 'This uses secondaryColor',
+    timestamp: new Date(),
+  },
+  {
+    id: 2,
+    type: 'self',
+    content: 'This uses primaryColor',
+    timestamp: new Date(),
+  },
+];
+
+<Chat initialMessages={initialMessages} theme={customTheme} />
+```
+
+### 3. Consider Button Variants
+
+Button variants (error, success, warning, etc.) override theme button colors:
+
+```tsx
+// These will use their variant colors, not theme buttonColor
+buttons: [
+  { label: 'Error', variant: 'error' },     // Red
+  { label: 'Success', variant: 'success' }, // Green
+  { label: 'Default', variant: 'default' }, // Uses theme buttonColor
+]
+```
+
+### 4. Match Your Brand
+
+Use your brand colors for a cohesive experience:
+
+```tsx
+const brandTheme: ChatTheme = {
+  primaryColor: '#your-brand-primary',
+  secondaryColor: '#your-brand-secondary',
+  backgroundColor: '#your-brand-background',
+  // ... other properties
+};
+```
+
+### 5. Provide Theme Toggle
+
+Let users choose their preferred theme:
+
+```tsx
+function App() {
+  const [isDark, setIsDark] = useState(true);
+
+  return (
+    <div>
+      <button onClick={() => setIsDark(!isDark)}>
+        Toggle {isDark ? 'Light' : 'Dark'} Mode
+      </button>
+      <Chat theme={isDark ? 'dark' : 'light'} />
+    </div>
+  );
+}
+```
+
+## Accessibility
+
+### Color Contrast
+
+Ensure WCAG compliance for text contrast:
+
+- **AA Standard**: Minimum contrast ratio of 4.5:1 for normal text
+- **AAA Standard**: Minimum contrast ratio of 7:1 for normal text
+
+Use tools like [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/) to verify.
+
+### High Contrast Mode
+
+Provide a high-contrast theme option:
+
+```tsx
+const highContrastTheme: ChatTheme = {
+  primaryColor: '#000000',
+  secondaryColor: '#ffffff',
+  backgroundColor: '#000000',
+  textColor: '#ffffff',
+  borderColor: '#ffffff',
+  inputBackgroundColor: '#000000',
+  inputTextColor: '#ffffff',
+  buttonColor: '#ffffff',
+  buttonTextColor: '#000000',
+};
+```
+
+## Next Steps
+
+- [Basic Usage](/guides/basic-usage/) - Learn the fundamentals
+- [Message Buttons](/guides/message-buttons/) - Customize button appearance
+- [API Reference](/api/chat/) - Complete Chat component API
+
