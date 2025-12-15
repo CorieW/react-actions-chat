@@ -4,10 +4,9 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'weekly'
-    open-pull-requests-limit: 10
+      interval: 'monthly'
     reviewers:
-      - 'coriewatson'
+      - 'CorieW'
     labels:
       - 'dependencies'
       - 'automated'
