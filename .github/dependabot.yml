@@ -6,7 +6,7 @@ updates:
     schedule:
       interval: 'monthly'
     reviewers:
-      - 'coriewatson'
+      - 'CorieW'
     labels:
       - 'dependencies'
       - 'automated'
