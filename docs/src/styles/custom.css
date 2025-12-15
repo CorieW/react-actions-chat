@@ -14,6 +14,8 @@
   --sl-color-gray-6: #ffffff;
   --sl-color-black: #ffffff;
   --border-color: white;
+  --code-background-color: whitesmoke;
+  --code-text-color: black;
 }
 
 :root[data-theme='dark'] {
@@ -30,6 +32,8 @@
   --sl-color-gray-6: black;
   --sl-color-black: black;
   --border-color: white;
+  --code-background-color: rgb(25, 25, 25);
+  --code-text-color: white;
 }
 
 /* Make code blocks more readable */
@@ -39,11 +43,13 @@ pre {
 }
 
 /* Style inline code */
-:not(pre) > code {
-  background-color: var(--sl-color-gray-2);
-  padding: 0.2em 0.4em;
-  border-radius: 4px;
-  font-size: 0.9em;
+code, pre > code {
+  color: var(--code-text-color);
+  background-color: var(--code-background-color) !important;
+}
+
+pre {
+  border: none;
 }
 
 /* Improve table styling */
@@ -110,8 +116,4 @@ dt {
 dd {
   margin-left: 1.5rem;
   margin-bottom: 1rem;
-}
-
-code {
-  color: var(--primary-color);
 }
