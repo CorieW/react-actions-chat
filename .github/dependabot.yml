@@ -1,10 +1,9 @@
 version: 2
 updates:
-  # Enable version updates for npm
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'monthly'
+      interval: 'weekly'
     reviewers:
       - 'CorieW'
     labels:
@@ -13,3 +12,10 @@ updates:
     commit-message:
       prefix: 'chore'
       include: 'scope'
+    groups:
+      minor-and-patch:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
