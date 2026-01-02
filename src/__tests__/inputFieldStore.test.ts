@@ -147,10 +147,13 @@ describe('Input Field Store Unit Tests', () => {
       const submitFunc = vi.fn();
 
       useInputFieldStore.getState().setInputFieldSubmitFunc(submitFunc);
-      
+
       // Access the internal state directly
       const state = useInputFieldStore.getState();
-      expect((state as unknown as { inputFieldSubmitFunc: (() => void) | null }).inputFieldSubmitFunc).toBe(submitFunc);
+      expect(
+        (state as unknown as { inputFieldSubmitFunc: (() => void) | null })
+          .inputFieldSubmitFunc
+      ).toBe(submitFunc);
     });
 
     it('should accept null', () => {
@@ -160,7 +163,10 @@ describe('Input Field Store Unit Tests', () => {
       useInputFieldStore.getState().setInputFieldSubmitFunc(null);
 
       const state = useInputFieldStore.getState();
-      expect((state as unknown as { inputFieldSubmitFunc: (() => void) | null }).inputFieldSubmitFunc).toBeNull();
+      expect(
+        (state as unknown as { inputFieldSubmitFunc: (() => void) | null })
+          .inputFieldSubmitFunc
+      ).toBeNull();
     });
   });
 
@@ -290,8 +296,10 @@ describe('Input Field Store Unit Tests', () => {
       expect(store.getInputFieldPlaceholder()).toBe('Type your message...');
       expect(store.getInputFieldDescription()).toBe('');
       expect(store.getInputFieldValidator()).toBeNull();
-      expect((store as unknown as { inputFieldSubmitFunc: (() => void) | null }).inputFieldSubmitFunc).toBeNull();
+      expect(
+        (store as unknown as { inputFieldSubmitFunc: (() => void) | null })
+          .inputFieldSubmitFunc
+      ).toBeNull();
     });
   });
 });
-

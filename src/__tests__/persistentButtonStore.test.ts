@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
-import type { MessageButton } from '../js/types';
 
 describe('Persistent Button Store Unit Tests', () => {
   beforeEach(() => {
@@ -276,7 +275,11 @@ describe('Persistent Button Store Unit Tests', () => {
       expect(store.getButtons()).toHaveLength(3);
 
       // Update save button
-      store.addButton({ id: 'save', label: 'Save Changes', variant: 'success' });
+      store.addButton({
+        id: 'save',
+        label: 'Save Changes',
+        variant: 'success',
+      });
 
       expect(store.getButtons()).toHaveLength(3);
       expect(store.getButtons()[0]?.label).toBe('Save Changes');
@@ -324,4 +327,3 @@ describe('Persistent Button Store Unit Tests', () => {
     });
   });
 });
-
