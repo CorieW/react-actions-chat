@@ -1,5 +1,7 @@
 # React + Vite
 
+[![codecov](https://codecov.io/gh/YOUR_GITHUB_USERNAME/actionable-support-chat/branch/master/graph/badge.svg?token=068a0d5d-0c9a-445c-a84d-f36bb3fb5f2d)](https://codecov.io/gh/YOUR_GITHUB_USERNAME/actionable-support-chat)
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
