@@ -1,16 +1,21 @@
 version: 2
 updates:
-  # Enable version updates for npm
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
       interval: 'weekly'
-    open-pull-requests-limit: 10
     reviewers:
-      - 'coriewatson'
+      - 'CorieW'
     labels:
       - 'dependencies'
       - 'automated'
     commit-message:
       prefix: 'chore'
       include: 'scope'
+    groups:
+      minor-and-patch:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
