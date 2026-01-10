@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import type { Message, ChatTheme } from '../js/types';
+import type { ChatTheme, Message } from '../js/types';
 import { MessageBubble } from './';
 
 interface MessagesListProps {

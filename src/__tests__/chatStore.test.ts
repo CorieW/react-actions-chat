@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useChatStore } from '../lib/chatStore';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
-import type { Message } from '../js/types';
+import type { InputMessage } from '../js/types';
 
 describe('Chat Store Unit Tests', () => {
   beforeEach(() => {
@@ -89,7 +89,7 @@ describe('Chat Store Unit Tests', () => {
     it('should add multiple messages at once', () => {
       const store = useChatStore.getState();
 
-      const messages: Message[] = [
+      const messages: InputMessage[] = [
         {
           id: 1,
           type: 'other',
@@ -116,7 +116,7 @@ describe('Chat Store Unit Tests', () => {
 
       store.addMessage({ type: 'self', content: 'Existing' });
 
-      const newMessages: Message[] = [
+      const newMessages: InputMessage[] = [
         {
           id: 2,
           type: 'other',
@@ -140,7 +140,7 @@ describe('Chat Store Unit Tests', () => {
 
       expect(store.getMessages()).toHaveLength(2);
 
-      const newMessages: Message[] = [
+      const newMessages: InputMessage[] = [
         {
           id: 10,
           type: 'other',

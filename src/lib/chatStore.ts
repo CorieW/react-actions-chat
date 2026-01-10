@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand';
-import type { Message } from '../js/types';
+import type { InputMessage, Message } from '../js/types';
 import { usePersistentButtonStore } from './persistentButtonStore';
 
 const ABORT_BUTTON_ID = 'input-request-abort';
@@ -13,16 +13,8 @@ interface ChatState {
   readonly messages: readonly Message[];
   readonly getMessages: () => readonly Message[];
   readonly getPreviousMessage: () => Message | undefined;
-  readonly addMessage: (
-    message: Omit<Message, 'id' | 'timestamp' | 'rawContent'> & {
-      readonly rawContent?: string;
-    }
-  ) => void;
-  readonly addMessages: (
-    messages: (Omit<Message, 'id' | 'timestamp' | 'rawContent'> & {
-      readonly rawContent?: string;
-    })[]
-  ) => void;
+  readonly addMessage: (message: InputMessage) => void;
+  readonly addMessages: (messages: readonly InputMessage[]) => void;
   readonly setMessages: (messages: readonly Message[]) => void;
   readonly clearMessages: () => void;
   readonly clearButtons: () => void;

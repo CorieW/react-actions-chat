@@ -1,9 +1,13 @@
-import type { Message, ChatTheme, MessageButtonVariant } from '../js/types';
+import type {
+  InputMessage,
+  ChatTheme,
+  MessageButtonVariant,
+} from '../js/types';
 import { cn } from '../lib/utils';
 
 interface MessageButtonsProps {
-  readonly buttons: Message['buttons'];
-  readonly messageType: Message['type'];
+  readonly buttons: InputMessage['buttons'];
+  readonly messageType: InputMessage['type'];
   readonly theme: ChatTheme;
 }
 

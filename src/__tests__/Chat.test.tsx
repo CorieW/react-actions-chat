@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Chat } from '../components/Chat';
 import { useChatStore } from '../lib/chatStore';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
-import type { Message } from '../js/types';
+import type { InputMessage } from '../js/types';
 import { LIGHT_THEME, DARK_THEME } from '../lib/themes';
 
 describe('Chat Component Integration Tests', () => {
@@ -24,7 +24,7 @@ describe('Chat Component Integration Tests', () => {
   });
 
   it('should render with initial messages', () => {
-    const initialMessages: Message[] = [
+    const initialMessages: InputMessage[] = [
       {
         id: 1,
         type: 'other',
@@ -101,7 +101,7 @@ describe('Chat Component Integration Tests', () => {
     const user = userEvent.setup();
     const callback = vi.fn();
 
-    const initialMessages: Message[] = [
+    const initialMessages: InputMessage[] = [
       {
         id: 1,
         type: 'other',
@@ -126,7 +126,7 @@ describe('Chat Component Integration Tests', () => {
     const user = userEvent.setup();
     const callback = vi.fn();
 
-    const initialMessages: Message[] = [
+    const initialMessages: InputMessage[] = [
       {
         id: 1,
         type: 'self',
@@ -151,7 +151,7 @@ describe('Chat Component Integration Tests', () => {
   });
 
   it('should display message buttons', () => {
-    const initialMessages: Message[] = [
+    const initialMessages: InputMessage[] = [
       {
         id: 1,
         type: 'other',
@@ -174,7 +174,7 @@ describe('Chat Component Integration Tests', () => {
     const user = userEvent.setup();
     const onClick = vi.fn();
 
-    const initialMessages: Message[] = [
+    const initialMessages: InputMessage[] = [
       {
         id: 1,
         type: 'other',
@@ -195,7 +195,7 @@ describe('Chat Component Integration Tests', () => {
   it('should clear previous message buttons when new message is sent', async () => {
     const user = userEvent.setup();
 
-    const initialMessages: Message[] = [
+    const initialMessages: InputMessage[] = [
       {
         id: 1,
         type: 'other',
