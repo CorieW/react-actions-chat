@@ -12,7 +12,7 @@ export function Chat({
   initialMessages = [],
   theme,
 }: ChatPropsWithFlexibleTheme): React.JSX.Element {
-  const { messages, addMessage, setMessages, getPreviousMessage } =
+  const { messages, addMessage, addMessages, setMessages, getPreviousMessage } =
     useChatStore();
   const { getInputFieldType } = useInputFieldStore();
 
@@ -22,7 +22,7 @@ export function Chat({
   // Initialize messages with initialMessages if provided
   useEffect(() => {
     if (initialMessages.length > 0) {
-      setMessages(initialMessages);
+      addMessages(initialMessages);
     }
   }, [initialMessages, setMessages]);
 
