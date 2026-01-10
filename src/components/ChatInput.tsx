@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import type { KeyboardEvent } from 'react';
 import { Send } from 'lucide-react';
 import type { ChatTheme } from '../js/types';
