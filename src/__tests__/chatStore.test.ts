@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useChatStore } from '../lib/chatStore';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
-import type { InputMessage } from '../js/types';
+import type { InputMessage, Message } from '../js/types';
 
 describe('Chat Store Unit Tests', () => {
   beforeEach(() => {
@@ -140,9 +140,10 @@ describe('Chat Store Unit Tests', () => {
 
       expect(store.getMessages()).toHaveLength(2);
 
-      const newMessages: InputMessage[] = [
+      const newMessages: Message[] = [
         {
           id: 10,
+          rawContent: 'Replaced',
           type: 'other',
           content: 'Replaced',
           timestamp: new Date(),
@@ -225,6 +226,7 @@ describe('Chat Store Unit Tests', () => {
           id: 1,
           type: 'other',
           content: 'First',
+          rawContent: 'First',
           timestamp: new Date(),
           buttons: [{ label: 'Button 1' }],
         },
@@ -232,6 +234,7 @@ describe('Chat Store Unit Tests', () => {
           id: 2,
           type: 'other',
           content: 'Second',
+          rawContent: 'Second',
           timestamp: new Date(),
           buttons: [{ label: 'Button 2' }],
         },
@@ -263,6 +266,7 @@ describe('Chat Store Unit Tests', () => {
           id: 1,
           type: 'other',
           content: 'First',
+          rawContent: 'First',
           timestamp: new Date(),
           buttons: [{ label: 'Button 1' }],
         },
@@ -270,6 +274,7 @@ describe('Chat Store Unit Tests', () => {
           id: 2,
           type: 'other',
           content: 'Second',
+          rawContent: 'Second',
           timestamp: new Date(),
           buttons: [{ label: 'Button 2' }],
         },
@@ -298,6 +303,7 @@ describe('Chat Store Unit Tests', () => {
           id: 1,
           type: 'other',
           content: 'Message',
+          rawContent: 'Message',
           timestamp: new Date(),
           userResponseCallback: callback,
         },
@@ -320,6 +326,7 @@ describe('Chat Store Unit Tests', () => {
           id: 1,
           type: 'other',
           content: 'First',
+          rawContent: 'First',
           timestamp: new Date(),
           userResponseCallback: callback1,
         },
@@ -327,6 +334,7 @@ describe('Chat Store Unit Tests', () => {
           id: 2,
           type: 'other',
           content: 'Second',
+          rawContent: 'Second',
           timestamp: new Date(),
           userResponseCallback: callback2,
         },
