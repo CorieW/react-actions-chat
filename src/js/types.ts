@@ -88,7 +88,7 @@ export interface Message
  * @property theme Optional theme configuration to customize the chat appearance.
  */
 export interface ChatProps {
-  readonly initialMessages?: readonly Message[];
+  readonly initialMessages?: readonly InputMessage[];
   readonly theme?: ChatTheme;
 }
 
