@@ -46,6 +46,7 @@ interface InputFieldState {
 
   // Resetters
   readonly resetInputField: () => void;
+  readonly resetInputFieldValue: () => void;
   readonly resetInputFieldDescription: () => void;
   readonly resetInputFieldType: () => void;
   readonly resetInputFieldPlaceholder: () => void;
@@ -127,6 +128,10 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
       inputFieldElement: null,
       inputFieldSubmitFunc: null,
     });
+  },
+
+  resetInputFieldValue: () => {
+    set({ inputFieldValue: '' });
   },
 
   resetInputFieldDescription: () => {
