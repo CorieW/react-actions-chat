@@ -12,19 +12,25 @@ export function Chat({
   initialMessages = [],
   theme,
 }: ChatPropsWithFlexibleTheme): React.JSX.Element {
-  const { messages, addMessage, addMessages, setMessages, getPreviousMessage } =
-    useChatStore();
+  const {
+    messages,
+    addMessage,
+    addMessages,
+    getPreviousMessage,
+    clearMessages,
+  } = useChatStore();
   const { getInputFieldType } = useInputFieldStore();
 
   // Resolved theme based on string or object or undefined
   const mergedTheme = getResolvedTheme(theme);
 
-  // Initialize messages with initialMessages if provided
+  // Initialize messages with initialMessages if provided (only once)
   useEffect(() => {
     if (initialMessages.length > 0) {
+      clearMessages();
       addMessages(initialMessages);
     }
-  }, [initialMessages, setMessages]);
+  }, [initialMessages, addMessages, clearMessages]);
 
   const handleSend = (messageContent: string): void => {
     // Get the previous message (before sending the self message)
