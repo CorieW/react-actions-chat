@@ -11,6 +11,7 @@ describe('Input Field Store Unit Tests', () => {
     store.resetInputFieldType();
     store.resetInputFieldPlaceholder();
     store.resetInputFieldValidator();
+    store.resetInputFieldValue();
   });
 
   describe('setInputFieldType and getInputFieldType', () => {
@@ -142,31 +143,140 @@ describe('Input Field Store Unit Tests', () => {
     });
   });
 
-  describe('setInputFieldSubmitFunc', () => {
-    it('should set and store submit function', () => {
+  describe('setInputFieldValue and getInputFieldValue', () => {
+    it('should set and get input field value', () => {
+      const store = useInputFieldStore.getState();
+
+      store.setInputFieldValue('test value');
+      expect(store.getInputFieldValue()).toBe('test value');
+    });
+
+    it('should have empty string as default value', () => {
+      const store = useInputFieldStore.getState();
+      expect(store.getInputFieldValue()).toBe('');
+    });
+
+    it('should update value multiple times', () => {
+      const store = useInputFieldStore.getState();
+
+      store.setInputFieldValue('first');
+      expect(store.getInputFieldValue()).toBe('first');
+
+      store.setInputFieldValue('second');
+      expect(store.getInputFieldValue()).toBe('second');
+
+      store.setInputFieldValue('third');
+      expect(store.getInputFieldValue()).toBe('third');
+    });
+
+    it('should handle empty string value', () => {
+      const store = useInputFieldStore.getState();
+
+      store.setInputFieldValue('something');
+      store.setInputFieldValue('');
+
+      expect(store.getInputFieldValue()).toBe('');
+    });
+
+    it('should handle special characters and whitespace', () => {
+      const store = useInputFieldStore.getState();
+
+      store.setInputFieldValue('  spaces  ');
+      expect(store.getInputFieldValue()).toBe('  spaces  ');
+
+      store.setInputFieldValue('line\nbreak');
+      expect(store.getInputFieldValue()).toBe('line\nbreak');
+
+      store.setInputFieldValue('special!@#$%^&*()');
+      expect(store.getInputFieldValue()).toBe('special!@#$%^&*()');
+    });
+
+    it('should handle long strings', () => {
+      const store = useInputFieldStore.getState();
+      const longString = 'a'.repeat(1000);
+
+      store.setInputFieldValue(longString);
+      expect(store.getInputFieldValue()).toBe(longString);
+      expect(store.getInputFieldValue().length).toBe(1000);
+    });
+
+    it('should handle unicode characters', () => {
+      const store = useInputFieldStore.getState();
+
+      store.setInputFieldValue('Hello 👋 World 🌍');
+      expect(store.getInputFieldValue()).toBe('Hello 👋 World 🌍');
+
+      store.setInputFieldValue('日本語');
+      expect(store.getInputFieldValue()).toBe('日本語');
+    });
+  });
+
+  describe('setInputFieldSubmitFunc and getInputFieldSubmitFunc', () => {
+    it('should set and get submit function', () => {
+      const store = useInputFieldStore.getState();
       const submitFunc = vi.fn();
 
-      useInputFieldStore.getState().setInputFieldSubmitFunc(submitFunc);
+      store.setInputFieldSubmitFunc(submitFunc);
 
-      // Access the internal state directly
-      const state = useInputFieldStore.getState();
-      expect(
-        (state as unknown as { inputFieldSubmitFunc: (() => void) | null })
-          .inputFieldSubmitFunc
-      ).toBe(submitFunc);
+      const retrievedFunc = store.getInputFieldSubmitFunc();
+      expect(retrievedFunc).toBe(submitFunc);
+    });
+
+    it('should execute the retrieved submit function', () => {
+      const store = useInputFieldStore.getState();
+      const submitFunc = vi.fn();
+
+      store.setInputFieldSubmitFunc(submitFunc);
+
+      const retrievedFunc = store.getInputFieldSubmitFunc();
+      retrievedFunc?.();
+
+      expect(submitFunc).toHaveBeenCalledTimes(1);
+    });
+
+    it('should be null by default', () => {
+      const store = useInputFieldStore.getState();
+      expect(store.getInputFieldSubmitFunc()).toBeNull();
     });
 
     it('should accept null', () => {
+      const store = useInputFieldStore.getState();
       const submitFunc = vi.fn();
 
-      useInputFieldStore.getState().setInputFieldSubmitFunc(submitFunc);
-      useInputFieldStore.getState().setInputFieldSubmitFunc(null);
+      store.setInputFieldSubmitFunc(submitFunc);
+      expect(store.getInputFieldSubmitFunc()).toBe(submitFunc);
 
-      const state = useInputFieldStore.getState();
-      expect(
-        (state as unknown as { inputFieldSubmitFunc: (() => void) | null })
-          .inputFieldSubmitFunc
-      ).toBeNull();
+      store.setInputFieldSubmitFunc(null);
+      expect(store.getInputFieldSubmitFunc()).toBeNull();
+    });
+
+    it('should replace previous submit function', () => {
+      const store = useInputFieldStore.getState();
+      const firstFunc = vi.fn();
+      const secondFunc = vi.fn();
+
+      store.setInputFieldSubmitFunc(firstFunc);
+      expect(store.getInputFieldSubmitFunc()).toBe(firstFunc);
+
+      store.setInputFieldSubmitFunc(secondFunc);
+      expect(store.getInputFieldSubmitFunc()).toBe(secondFunc);
+      expect(store.getInputFieldSubmitFunc()).not.toBe(firstFunc);
+    });
+
+    it('should preserve function context and arguments', () => {
+      const store = useInputFieldStore.getState();
+      const result: string[] = [];
+      const submitFunc = () => {
+        result.push('submitted');
+      };
+
+      store.setInputFieldSubmitFunc(submitFunc);
+
+      const retrievedFunc = store.getInputFieldSubmitFunc();
+      retrievedFunc?.();
+      retrievedFunc?.();
+
+      expect(result).toEqual(['submitted', 'submitted']);
     });
   });
 
@@ -261,6 +371,7 @@ describe('Input Field Store Unit Tests', () => {
       store.setInputFieldDescription('We need your email for notifications');
       store.setInputFieldValidator(validator);
       store.setInputFieldSubmitFunc(submitFunc);
+      store.setInputFieldValue('user@example.com');
 
       expect(store.getInputFieldType()).toBe('email');
       expect(store.getInputFieldPlaceholder()).toBe('Enter email');
@@ -269,6 +380,8 @@ describe('Input Field Store Unit Tests', () => {
       );
       expect(store.getInputFieldValidator()).toBe(validator);
       expect(store.getInputFieldElement()).toBe(mockElement);
+      expect(store.getInputFieldValue()).toBe('user@example.com');
+      expect(store.getInputFieldSubmitFunc()).toBe(submitFunc);
       expect(mockElement.type).toBe('email');
     });
 
@@ -283,6 +396,9 @@ describe('Input Field Store Unit Tests', () => {
       store.setInputFieldDescription('Min 8 characters');
       store.setInputFieldValidator(validator);
       store.setInputFieldSubmitFunc(() => {});
+      store.setInputFieldValue('secretpassword');
+
+      expect(store.getInputFieldValue()).toBe('secretpassword');
 
       // Reset everything
       store.resetInputField();
@@ -296,10 +412,131 @@ describe('Input Field Store Unit Tests', () => {
       expect(store.getInputFieldPlaceholder()).toBe('Type your message...');
       expect(store.getInputFieldDescription()).toBe('');
       expect(store.getInputFieldValidator()).toBeNull();
-      expect(
-        (store as unknown as { inputFieldSubmitFunc: (() => void) | null })
-          .inputFieldSubmitFunc
-      ).toBeNull();
+      expect(store.getInputFieldSubmitFunc()).toBeNull();
+      // Note: resetInputField does not reset inputFieldValue
+      expect(store.getInputFieldValue()).toBe('secretpassword');
+    });
+
+    it('should validate input value with validator', () => {
+      const store = useInputFieldStore.getState();
+      const emailValidator: InputValidator = (value: string) =>
+        value.includes('@') && value.includes('.')
+          ? true
+          : 'Must be a valid email';
+
+      store.setInputFieldValidator(emailValidator);
+      store.setInputFieldValue('invalid');
+
+      const validator = store.getInputFieldValidator();
+      const validationResult = validator?.(store.getInputFieldValue());
+
+      expect(validationResult).toBe('Must be a valid email');
+
+      store.setInputFieldValue('valid@example.com');
+      const validationResult2 = validator?.(store.getInputFieldValue());
+      expect(validationResult2).toBe(true);
+    });
+
+    it('should handle submit workflow with value', () => {
+      const store = useInputFieldStore.getState();
+      const submittedValues: string[] = [];
+
+      const submitFunc = () => {
+        const value = store.getInputFieldValue();
+        submittedValues.push(value);
+        store.setInputFieldValue(''); // Clear after submit
+      };
+
+      store.setInputFieldSubmitFunc(submitFunc);
+
+      // First submission
+      store.setInputFieldValue('first message');
+      const func1 = store.getInputFieldSubmitFunc();
+      func1?.();
+
+      expect(submittedValues).toEqual(['first message']);
+      expect(store.getInputFieldValue()).toBe('');
+
+      // Second submission
+      store.setInputFieldValue('second message');
+      const func2 = store.getInputFieldSubmitFunc();
+      func2?.();
+
+      expect(submittedValues).toEqual(['first message', 'second message']);
+      expect(store.getInputFieldValue()).toBe('');
+    });
+
+    it('should handle input type changes with value preserved', () => {
+      const store = useInputFieldStore.getState();
+      const mockElement = document.createElement('input');
+
+      store.setInputFieldElement(mockElement);
+      store.setInputFieldValue('mypassword');
+      store.setInputFieldType('password');
+
+      expect(mockElement.type).toBe('password');
+      expect(store.getInputFieldValue()).toBe('mypassword');
+
+      // Change to text type
+      store.setInputFieldType('text');
+
+      expect(mockElement.type).toBe('text');
+      expect(store.getInputFieldValue()).toBe('mypassword'); // Value preserved
+    });
+
+    it('should handle complex validation with different input types', () => {
+      const store = useInputFieldStore.getState();
+
+      // Email validation
+      const emailValidator: InputValidator = (value: string) =>
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || 'Invalid email format';
+
+      store.setInputFieldType('email');
+      store.setInputFieldValidator(emailValidator);
+      store.setInputFieldValue('test@example.com');
+
+      const emailResult = store.getInputFieldValidator()?.(
+        store.getInputFieldValue()
+      );
+      expect(emailResult).toBe(true);
+
+      // Number validation
+      const numberValidator: InputValidator = (value: string) =>
+        !isNaN(Number(value)) && Number(value) > 0 ? true : 'Must be positive';
+
+      store.setInputFieldType('number');
+      store.setInputFieldValidator(numberValidator);
+      store.setInputFieldValue('42');
+
+      const numberResult = store.getInputFieldValidator()?.(
+        store.getInputFieldValue()
+      );
+      expect(numberResult).toBe(true);
+
+      store.setInputFieldValue('-5');
+      const negativeResult = store.getInputFieldValidator()?.(
+        store.getInputFieldValue()
+      );
+      expect(negativeResult).toBe('Must be positive');
+    });
+
+    it('should maintain separate concerns for value and element', () => {
+      const store = useInputFieldStore.getState();
+      const mockElement = document.createElement('input');
+
+      // Set value before element
+      store.setInputFieldValue('pre-set value');
+      expect(store.getInputFieldValue()).toBe('pre-set value');
+      expect(store.getInputFieldElement()).toBeNull();
+
+      // Add element
+      store.setInputFieldElement(mockElement);
+      expect(store.getInputFieldValue()).toBe('pre-set value');
+      expect(store.getInputFieldElement()).toBe(mockElement);
+
+      // Remove element
+      store.setInputFieldElement(null);
+      expect(store.getInputFieldValue()).toBe('pre-set value'); // Value persists
     });
   });
 });

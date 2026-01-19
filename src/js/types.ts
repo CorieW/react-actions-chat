@@ -58,18 +58,27 @@ export interface MessageButton {
  *
  * @property id Unique identifier for the message.
  * @property type Indicates whether the message is from 'self' or 'other'.
- * @property content The textual content of the message.
+ * @property content The textual content of the message to be displayed to the user.
+ * @property rawContent The raw content of the message, used for processing and validation.
  * @property timestamp The date and time the message was created.
  * @property userResponseCallback Optional callback function invoked when a self response is received right after this message.
  * @property buttons Optional array of buttons to display below the message.
  */
-export interface Message {
-  readonly id: number;
+export interface InputMessage {
+  readonly id?: number;
   readonly type: MessageType;
   readonly content: string;
-  readonly timestamp: Date;
+  readonly rawContent?: string;
+  readonly timestamp?: Date;
   readonly userResponseCallback?: () => void;
   readonly buttons?: readonly MessageButton[];
+}
+
+export interface Message
+  extends Omit<InputMessage, 'rawContent' | 'timestamp' | 'id'> {
+  readonly rawContent: string;
+  readonly timestamp: Date;
+  readonly id: number;
 }
 
 /**
@@ -79,7 +88,7 @@ export interface Message {
  * @property theme Optional theme configuration to customize the chat appearance.
  */
 export interface ChatProps {
-  readonly initialMessages?: readonly Message[];
+  readonly initialMessages?: readonly InputMessage[];
   readonly theme?: ChatTheme;
 }
 

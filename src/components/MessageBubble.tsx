@@ -1,4 +1,4 @@
-import type { Message, ChatTheme } from '../js/types';
+import type { ChatTheme, Message } from '../js/types';
 import { Avatar } from './ui/avatar';
 import { MessageButtons } from './MessageButtons';
 
