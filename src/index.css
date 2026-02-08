@@ -4,39 +4,39 @@
   /* Darker deep blue gradient background colors */
   --color-background: rgb(2, 6, 23);
   --color-foreground: rgb(224, 231, 255);
-  
+
   /* Card and surface colors with darker blue tones */
   --color-card: rgb(10, 22, 40);
   --color-card-foreground: rgb(224, 231, 255);
   --color-popover: rgb(10, 22, 40);
   --color-popover-foreground: rgb(224, 231, 255);
-  
+
   /* Darker blue primary */
   --color-primary: rgb(29, 78, 216);
   --color-primary-foreground: rgb(255, 255, 255);
-  
+
   /* Secondary with darker blue tones */
   --color-secondary: rgb(12, 30, 61);
   --color-secondary-foreground: rgb(224, 231, 255);
-  
+
   /* Muted colors for subtle elements */
   --color-muted: rgb(30, 58, 100);
   --color-muted-foreground: rgb(129, 157, 204);
-  
+
   /* Accent with darker blue */
   --color-accent: rgb(30, 64, 175);
   --color-accent-foreground: rgb(255, 255, 255);
-  
+
   /* Destructive with better visibility */
   --color-destructive: rgb(239, 68, 68);
   --color-destructive-foreground: rgb(255, 255, 255);
-  
+
   /* Border and input with darker blue tones */
   --color-border: rgb(12, 30, 61);
   --color-input: rgb(12, 30, 61);
   --color-ring: rgb(29, 78, 216);
   --color-navbar: rgb(2, 6, 23);
-  
+
   /* Modern radius values */
   --radius: 0.75rem;
 }

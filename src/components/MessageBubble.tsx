@@ -24,15 +24,18 @@ export function MessageBubble({
             message.type === 'self' ? 'ml-auto' : 'mr-auto'
           }`}
           style={{
-            background: message.type === 'self'
-              ? `${theme.primaryColor}ee`
-              : `${theme.secondaryColor}f5`,
+            background:
+              message.type === 'self'
+                ? `${theme.primaryColor}ee`
+                : `${theme.secondaryColor}f5`,
             color:
               message.type === 'self' ? theme.buttonTextColor : theme.textColor,
             maxWidth: message.type === 'self' ? 'fit-content' : '100%',
           }}
         >
-          <p className='text-sm leading-relaxed wrap-break-words'>{message.content}</p>
+          <p className='text-sm leading-relaxed wrap-break-words'>
+            {message.content}
+          </p>
           <span
             className='block mt-1.5 text-xs'
             style={{
