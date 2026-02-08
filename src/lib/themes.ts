@@ -14,14 +14,14 @@ export const LIGHT_THEME: ChatTheme = {
 };
 
 export const DARK_THEME: ChatTheme = {
-  primaryColor: '#3b82f6', // Self message background (blue)
-  secondaryColor: '#374151', // Other message background (gray-700)
-  backgroundColor: '#111827', // Chat container background (gray-900)
-  textColor: '#f9fafb', // Primary text (gray-50)
-  borderColor: '#4b5563', // Border (gray-600)
-  inputBackgroundColor: '#1f2937', // Input background (gray-800)
-  inputTextColor: '#f9fafb', // Input text (gray-50)
-  buttonColor: '#3b82f6', // Button (blue-600)
+  primaryColor: '#4a7fc1', // Self message background (medium blue)
+  secondaryColor: '#1a2942', // Other message background (dark blue-gray)
+  backgroundColor: '#0f1729', // Chat container background (very dark navy)
+  textColor: '#d1dae6', // Primary text (light gray-blue)
+  borderColor: '#1a2942', // Border (dark blue-gray)
+  inputBackgroundColor: '#1a2942', // Input background (dark blue-gray)
+  inputTextColor: '#9ca7b8', // Input text (muted gray-blue)
+  buttonColor: '#5b8dd8', // Button (brighter blue)
   buttonTextColor: '#ffffff', // Button text (white)
 };
 
