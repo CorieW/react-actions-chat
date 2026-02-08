@@ -1,5 +1,4 @@
 import type { ChatTheme, Message } from '../js/types';
-import { Avatar } from './ui/avatar';
 import { MessageButtons } from './MessageButtons';
 
 interface MessageBubbleProps {
@@ -17,7 +16,6 @@ export function MessageBubble({
         message.type === 'self' ? 'flex-row-reverse' : 'flex-row'
       }`}
     >
-      {/* Message Bubble - No Avatar */}
       <div className='max-w-[85%]'>
         <div
           className={`rounded-lg px-4 py-3 shadow-sm ${
