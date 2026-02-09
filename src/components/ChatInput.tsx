@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import type { KeyboardEvent } from 'react';
 import { Send } from 'lucide-react';
 import type { ChatTheme } from '../js/types';
@@ -14,12 +14,14 @@ export function ChatInput({
   onSend,
   theme,
 }: ChatInputProps): React.JSX.Element {
-  const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const {
+    setInputFieldValue,
     setInputFieldElement,
     setInputFieldSubmitFunc,
+    getInputFieldValue,
+    getInputFieldSubmitFunc,
     getInputFieldDescription,
     getInputFieldType,
     getInputFieldPlaceholder,
@@ -36,13 +38,18 @@ export function ChatInput({
       inputRef.current.type = inputType;
     }
 
-    setInputFieldSubmitFunc(() => handleSend);
+    setInputFieldSubmitFunc(handleSend);
 
     return () => {
       setInputFieldElement(null);
       setInputFieldSubmitFunc(null);
     };
-  }, [setInputFieldElement, setInputFieldSubmitFunc, inputType]);
+  }, [
+    setInputFieldElement,
+    setInputFieldSubmitFunc,
+    inputType,
+    getInputFieldValue,
+  ]);
 
   // Update input type when it changes in the store
   useEffect(() => {
@@ -59,18 +66,18 @@ export function ChatInput({
   }, [inputPlaceholder]);
 
   const handleSend = (): void => {
-    if (inputValue.trim() === '') return;
+    if (getInputFieldValue().trim() === '') return;
 
     // Note: Validation is handled in the userResponseCallback of the requesting message
     // We allow sending here to enable error messages to be displayed when validation fails
-    onSend(inputValue);
-    setInputValue('');
+    onSend(getInputFieldValue());
+    setInputFieldValue('');
   };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      getInputFieldSubmitFunc?.()?.();
     }
   };
 
@@ -78,43 +85,44 @@ export function ChatInput({
     <div
       className='p-4 border-t'
       style={{
-        borderColor: theme.borderColor,
-        backgroundColor: theme.secondaryColor,
+        borderColor: `${theme.borderColor}40`,
+        backgroundColor: theme.backgroundColor,
       }}
     >
       {getInputFieldDescription() && (
         <div
-          className='mb-3 text-sm opacity-75'
-          style={{ color: theme.textColor }}
+          className='mb-3 text-sm font-medium'
+          style={{ color: `${theme.textColor}cc` }}
         >
           {getInputFieldDescription()}
         </div>
       )}
-      <div className='flex gap-2'>
+      <div className='flex gap-3 items-center'>
         <input
           ref={inputRef}
           type={inputType}
-          value={inputValue}
-          onChange={e => setInputValue(e.target.value)}
+          value={getInputFieldValue()}
+          onChange={e => setInputFieldValue(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder={inputPlaceholder}
-          className='flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring'
+          className='flex-1 px-4 py-3 rounded-lg focus:outline-none focus:ring-1 placeholder:text-opacity-50'
           style={{
-            backgroundColor: theme.inputBackgroundColor,
-            borderColor: theme.borderColor,
+            backgroundColor: `${theme.inputBackgroundColor}80`,
+            borderColor: 'transparent',
+            border: 'none',
             color: theme.inputTextColor,
           }}
         />
         <Button
-          onClick={handleSend}
-          disabled={inputValue.trim() === ''}
-          className='px-4'
+          onClick={getInputFieldSubmitFunc?.() ?? (() => {})}
+          disabled={getInputFieldValue().trim() === ''}
+          className='px-4 py-3 rounded-lg disabled:opacity-40'
           style={{
             backgroundColor: theme.buttonColor,
             color: theme.buttonTextColor,
           }}
         >
-          <Send className='w-4 h-4' />
+          <Send className='w-5 h-5' />
         </Button>
       </div>
     </div>

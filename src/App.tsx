@@ -1,4 +1,4 @@
-import type { Message } from './js/types';
+import type { InputMessage } from './js/types';
 import {
   Chat,
   createRequestConfirmationButton,
@@ -22,7 +22,7 @@ function App(): React.JSX.Element {
 
   // Memoize initial messages so the userResponseCallback is stable and doesn't retrigger on every render,
   // and avoids calling useChatStore inside the callback directly (prevents update depth errors)
-  const INITIAL_MESSAGES: readonly Message[] = useMemo(
+  const INITIAL_MESSAGES: readonly InputMessage[] = useMemo(
     () => [
       {
         id: 1,
@@ -80,7 +80,7 @@ function App(): React.JSX.Element {
               }
               return true;
             },
-            onInput: email => {
+            onValidInput: email => {
               addMessage({
                 type: 'other',
                 content: `Email updated successfully! We sent a verification email to ${email}.`,
@@ -108,7 +108,7 @@ function App(): React.JSX.Element {
               }
               return true;
             },
-            onInput: () => {
+            onValidInput: () => {
               addMessage({
                 type: 'other',
                 content: 'Password changed successfully!',

@@ -39,10 +39,24 @@ export interface RequestInputButtonConfig {
   readonly validator?: InputValidator | undefined;
 
   /**
+   * Callback function executed when the user provides invalid input.
+   * @param errorMessage The error message to display to the user
+   */
+  readonly onInvalidInput?:
+    | undefined
+    | ((inputValue: string, errorMessage: string) => void);
+
+  /**
    * Callback function executed when the user provides valid input.
    * @param inputValue The validated input value provided by the user
    */
-  readonly onInput: (inputValue: string) => void;
+  readonly onValidInput?: undefined | ((inputValue: string) => void);
+
+  /**
+   * If true, suppress the default validation failure message. Defaults to false.
+   * When enabled, only the onInvalidInput callback will be triggered with the validation result.
+   */
+  readonly suppressValidationFailureMessage?: boolean | undefined;
 
   /**
    * Optional variant for the initial button. Defaults to 'default'.
@@ -98,7 +112,9 @@ export function createRequestInputButton(
     inputDescription,
     inputType = 'text',
     validator,
-    onInput,
+    onValidInput,
+    onInvalidInput,
+    suppressValidationFailureMessage = false,
     variant,
     className,
     style,
@@ -116,6 +132,7 @@ export function createRequestInputButton(
       const { addMessage, clearPreviousMessageCallback } =
         useChatStore.getState();
       const {
+        setInputFieldValue,
         setInputFieldType,
         setInputFieldPlaceholder,
         setInputFieldDescription,
@@ -139,7 +156,10 @@ export function createRequestInputButton(
 
       // Helper function to remove the abort button and reset input field
       const removeAbortButtonAndReset = (): void => {
+        // Remove the abort button
         removeButton(ABORT_BUTTON_ID);
+        // Reset input field stuff
+        setInputFieldValue('');
         resetInputFieldType();
         resetInputFieldPlaceholder();
         resetInputFieldDescription();
@@ -148,6 +168,7 @@ export function createRequestInputButton(
 
       // Default abort handler that resets input field configuration and clears the callback
       const handleDefaultAbort = (): void => {
+        // Remove the abort button and reset the input field configuration
         removeAbortButtonAndReset();
         // Clear the callback from the message so it won't trigger on user input
         clearPreviousMessageCallback();
@@ -173,7 +194,7 @@ export function createRequestInputButton(
             .reverse()
             .find(msg => msg.type === 'self');
           if (lastSelfMessage) {
-            const inputValue = lastSelfMessage.content;
+            const inputValue = lastSelfMessage.rawContent;
 
             // Validate the input if a validator is set
             let isValid = true;
@@ -196,24 +217,31 @@ export function createRequestInputButton(
               removeAbortButtonAndReset();
 
               // Call the onInput callback with the validated input
-              onInput(inputValue);
+              onValidInput?.(inputValue);
             } else {
-              // If validation failed, add an error message with the same callback
-              // so the self can try again. The abort button will be cleared by addMessage,
-              // so we need to re-add it.
-              addMessageCallback({
-                type: 'other',
-                content: errorMessage ?? 'Invalid input. Please try again.',
-                userResponseCallback: createValidationCallback(),
-              });
-              // Re-add abort button after error message since addMessage clears it
-              if (showAbort) {
-                addButton({
-                  id: ABORT_BUTTON_ID,
-                  label: abortLabel ?? 'Abort',
-                  variant: 'error',
-                  onClick: handleAbort,
+              onInvalidInput?.(
+                inputValue,
+                errorMessage ?? 'Invalid input. Please try again.'
+              );
+
+              if (!suppressValidationFailureMessage) {
+                // If validation failed, add an error message with the same callback
+                // so the self can try again. The abort button will be cleared by addMessage,
+                // so we need to re-add it.
+                addMessageCallback({
+                  type: 'other',
+                  content: errorMessage ?? 'Invalid input. Please try again.',
+                  userResponseCallback: createValidationCallback(),
                 });
+                // Re-add abort button after error message since addMessage clears it
+                if (showAbort) {
+                  addButton({
+                    id: ABORT_BUTTON_ID,
+                    label: abortLabel ?? 'Abort',
+                    variant: 'error',
+                    onClick: handleAbort,
+                  });
+                }
               }
             }
           }

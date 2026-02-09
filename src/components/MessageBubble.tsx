@@ -1,5 +1,4 @@
-import type { Message, ChatTheme } from '../js/types';
-import { Avatar } from './ui/avatar';
+import type { ChatTheme, Message } from '../js/types';
 import { MessageButtons } from './MessageButtons';
 
 interface MessageBubbleProps {
@@ -13,52 +12,35 @@ export function MessageBubble({
 }: MessageBubbleProps): React.JSX.Element {
   return (
     <div
-      className={`flex gap-3 ${
+      className={`flex gap-3 mb-1 ${
         message.type === 'self' ? 'flex-row-reverse' : 'flex-row'
       }`}
     >
-      {/* Avatar */}
-      <div className='shrink-0'>
-        <Avatar className='w-8 h-8'>
-          <div
-            className='flex items-center justify-center w-full h-full text-sm font-medium'
-            style={{
-              backgroundColor:
-                message.type === 'self'
-                  ? theme.primaryColor
-                  : theme.secondaryColor,
-              color:
-                message.type === 'self'
-                  ? theme.buttonTextColor
-                  : theme.textColor,
-            }}
-          >
-            {message.type === 'self' ? 'S' : 'O'}
-          </div>
-        </Avatar>
-      </div>
-
-      {/* Message Bubble */}
-      <div className='max-w-[70%]'>
+      <div className='max-w-[85%]'>
         <div
-          className='rounded-lg p-3'
+          className={`rounded-lg px-4 py-3 shadow-sm ${
+            message.type === 'self' ? 'ml-auto' : 'mr-auto'
+          }`}
           style={{
-            backgroundColor:
+            background:
               message.type === 'self'
-                ? theme.primaryColor
-                : theme.secondaryColor,
+                ? `${theme.primaryColor}ee`
+                : `${theme.secondaryColor}f5`,
             color:
               message.type === 'self' ? theme.buttonTextColor : theme.textColor,
+            maxWidth: message.type === 'self' ? 'fit-content' : '100%',
           }}
         >
-          <p className='text-sm wrap-break-words'>{message.content}</p>
+          <p className='text-sm leading-relaxed wrap-break-words'>
+            {message.content}
+          </p>
           <span
-            className='block mt-1 text-xs'
+            className='block mt-1.5 text-xs'
             style={{
               color:
                 message.type === 'self'
                   ? `${theme.buttonTextColor}70`
-                  : `${theme.textColor}70`,
+                  : `${theme.textColor}60`,
             }}
           >
             {message.timestamp.toLocaleTimeString([], {

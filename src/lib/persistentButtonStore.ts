@@ -1,3 +1,8 @@
+/**
+ * @fileoverview
+ * This file contains the store, used for interacting and managing the persistent buttons.
+ */
+
 import { create } from 'zustand';
 import type { MessageButton } from '../js/types';
 

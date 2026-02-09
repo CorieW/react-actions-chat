@@ -1,9 +1,13 @@
-import type { Message, ChatTheme, MessageButtonVariant } from '../js/types';
+import type {
+  InputMessage,
+  ChatTheme,
+  MessageButtonVariant,
+} from '../js/types';
 import { cn } from '../lib/utils';
 
 interface MessageButtonsProps {
-  readonly buttons: Message['buttons'];
-  readonly messageType: Message['type'];
+  readonly buttons: InputMessage['buttons'];
+  readonly messageType: InputMessage['type'];
   readonly theme: ChatTheme;
 }
 
@@ -83,7 +87,7 @@ export function MessageButtons({
         // Merge variant styles with custom styles (custom styles override variant)
         const buttonStyles = { ...variantStyles, ...button.style };
         const baseClassName =
-          'px-3 py-1.5 rounded-md text-sm font-medium transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+          'px-3 py-1.5 rounded-lg text-xs font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-1';
         const buttonClassName = cn(baseClassName, button.className);
         return (
           <button

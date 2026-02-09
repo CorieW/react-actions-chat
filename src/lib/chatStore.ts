@@ -1,5 +1,10 @@
+/**
+ * @fileoverview
+ * This file contains the store, used for interacting and managing the chat.
+ */
+
 import { create } from 'zustand';
-import type { Message } from '../js/types';
+import type { InputMessage, Message } from '../js/types';
 import { usePersistentButtonStore } from './persistentButtonStore';
 
 const ABORT_BUTTON_ID = 'input-request-abort';
@@ -8,8 +13,8 @@ interface ChatState {
   readonly messages: readonly Message[];
   readonly getMessages: () => readonly Message[];
   readonly getPreviousMessage: () => Message | undefined;
-  readonly addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => void;
-  readonly addMessages: (messages: readonly Message[]) => void;
+  readonly addMessage: (message: InputMessage) => void;
+  readonly addMessages: (messages: readonly InputMessage[]) => void;
   readonly setMessages: (messages: readonly Message[]) => void;
   readonly clearMessages: () => void;
   readonly clearButtons: () => void;
@@ -34,6 +39,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const newMessage: Message = {
       id: currentMessages.length + 1,
       timestamp: new Date(),
+      rawContent: messageData.rawContent ?? messageData.content,
       ...messageData,
     };
 
@@ -50,10 +56,24 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }));
   },
 
-  addMessages: (messages: readonly Message[]) => {
-    set(state => ({
-      messages: [...state.messages, ...messages],
-    }));
+  addMessages: messages => {
+    set(state => {
+      const currentMessages = state.messages;
+      let nextId = currentMessages.length + 1;
+      const now = new Date();
+      const newMessages: Message[] = messages.map(messageData => {
+        const msg: Message = {
+          id: nextId++,
+          timestamp: now,
+          rawContent: messageData.rawContent ?? messageData.content ?? '',
+          ...messageData,
+        };
+        return msg;
+      });
+      return {
+        messages: [...currentMessages, ...newMessages],
+      };
+    });
   },
 
   setMessages: newMessages => {
