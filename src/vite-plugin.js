@@ -15,19 +15,11 @@
  *   plugins: [react(), actionableSupportChatVitePlugin()],
  * });
  * ```
- *
- * Note: If you encounter TypeScript errors when using this plugin with local
- * file dependencies, you may need to add a type assertion: `actionableSupportChatVitePlugin() as any`
  */
-export function actionableSupportChatVitePlugin(): {
-  name: string;
-  config: (config: { resolve?: { dedupe?: string[] } }) => {
-    resolve: { dedupe: string[] };
-  };
-} {
+export function actionableSupportChatVitePlugin() {
   return {
     name: 'actionable-support-chat-dedupe',
-    config(config: { resolve?: { dedupe?: string[] } }) {
+    config(config) {
       // Ensure React and React-DOM are deduplicated
       const existingResolve = config.resolve ?? {};
       const existingDedupe = existingResolve.dedupe ?? [];
