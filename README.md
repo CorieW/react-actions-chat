@@ -43,6 +43,10 @@ function App() {
 }
 ```
 
+## Usage Examples
+
+See the [examples](examples) folder for examples of how to use the Chat component.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
