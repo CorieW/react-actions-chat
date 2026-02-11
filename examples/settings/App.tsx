@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Message } from 'actionable-support-chat';
+import type { InputMessage } from 'actionable-support-chat';
 import {
   Chat,
   useChatStore,
@@ -46,7 +46,7 @@ export function App(): React.JSX.Element {
     });
   };
 
-  const INITIAL_MESSAGES: readonly Message[] = useMemo(
+  const INITIAL_MESSAGES: readonly InputMessage[] = useMemo(
     () => [
       {
         id: 1,
@@ -68,7 +68,7 @@ export function App(): React.JSX.Element {
               }
               return true;
             },
-            onInput: handleEmailChange,
+            onValidInput: handleEmailChange,
           }),
           createRequestInputButton({
             initialLabel: 'Change Password',
@@ -92,13 +92,13 @@ export function App(): React.JSX.Element {
               }
               return true;
             },
-            onInput: handlePasswordChange,
+            onValidInput: handlePasswordChange,
           }),
           createRequestConfirmationButton({
             initialLabel: 'Logout',
             confirmationMessage:
               'Are you sure you want to logout? You will need to log in again to access your account.',
-            variant: 'warning',
+            variant: 'error',
             confirmLabel: 'Yes, Logout',
             rejectLabel: 'Cancel',
             onConfirm: handleLogout,

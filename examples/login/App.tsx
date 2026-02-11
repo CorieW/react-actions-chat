@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Message } from 'actionable-support-chat';
+import type { InputMessage } from 'actionable-support-chat';
 import {
   Chat,
   useChatStore,
@@ -20,6 +20,10 @@ export function App(): React.JSX.Element {
     setInputFieldPlaceholder,
     setInputFieldDescription,
     setInputFieldValidator,
+    resetInputFieldType,
+    resetInputFieldPlaceholder,
+    resetInputFieldDescription,
+    resetInputFieldValidator,
   } = useInputFieldStore();
 
   // Simulate login validation - in a real app, this would call an API
@@ -32,6 +36,12 @@ export function App(): React.JSX.Element {
       });
       return;
     }
+
+    // Reset input field back to normal
+    resetInputFieldType();
+    resetInputFieldPlaceholder();
+    resetInputFieldDescription();
+    resetInputFieldValidator();
 
     // Simulate successful login
     addMessage({
@@ -69,7 +79,7 @@ export function App(): React.JSX.Element {
     });
   };
 
-  const INITIAL_MESSAGES: readonly Message[] = useMemo(
+  const INITIAL_MESSAGES: readonly InputMessage[] = useMemo(
     () => [
       {
         id: 1,
@@ -90,7 +100,7 @@ export function App(): React.JSX.Element {
               }
               return true;
             },
-            onInput: handleEmailInput,
+            onValidInput: handleEmailInput,
           }),
         ],
       },

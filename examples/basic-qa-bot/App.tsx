@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Message } from 'actionable-support-chat';
+import type { InputMessage } from 'actionable-support-chat';
 import { Chat, useChatStore } from 'actionable-support-chat';
 
 /**
@@ -55,7 +55,7 @@ export function App(): React.JSX.Element {
     }
   };
 
-  const INITIAL_MESSAGES: readonly Message[] = useMemo(
+  const INITIAL_MESSAGES: readonly InputMessage[] = useMemo(
     () => [
       {
         id: 1,
