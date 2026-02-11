@@ -20,7 +20,9 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run build:styles && vite build",
+    "build:styles": "node scripts/build-styles-v4.js",
+    "check:styles": "node scripts/check-styles.js",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

@@ -24,6 +24,7 @@ npm install actionable-support-chat
 
 ```tsx
 import { Chat } from 'actionable-support-chat';
+import 'actionable-support-chat/styles';
 
 function App() {
   const initialMessages = [
@@ -43,9 +44,27 @@ function App() {
 }
 ```
 
+> **Note:** Import `actionable-support-chat/styles` to include the component styles.
+
 ## Usage Examples
 
 See the [examples](examples) folder for examples of how to use the Chat component.
+
+## Development
+
+### Building Styles
+
+This project uses Tailwind CSS for development. The standalone CSS file (`src/styles.css`) is auto-generated:
+
+```bash
+# Generate standalone CSS from Tailwind classes
+npm run build:styles
+
+# Build the package (automatically generates styles first)
+npm run build
+```
+
+**Important:** After adding new Tailwind classes to components, run `npm run build:styles` to update the standalone CSS.
 
 ## Contributing
 
