@@ -55,12 +55,3 @@ The built files will be in the `dist` directory. You can preview the production 
 ```bash
 npm run preview
 ```
-
-## How Examples Work
-
-Each example:
-
-- Has its own `package.json` with all necessary dependencies
-- Imports the Chat component and related utilities from the parent `src` directory
-- Is configured with Vite for fast development and building
-- Uses TypeScript with strict type checking
