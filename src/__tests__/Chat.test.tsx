@@ -63,7 +63,10 @@ describe('Chat Component Integration Tests', () => {
   it('should apply light theme', () => {
     const { container } = render(<Chat theme='light' />);
 
-    const chatContainer = container.firstChild as HTMLElement;
+    // The styles are applied to the inner div, not the wrapper
+    const chatContainer = container.querySelector(
+      '.flex.flex-col'
+    ) as HTMLElement;
     // Check that theme styles are applied (without checking specific values)
     expect(chatContainer).toBeInTheDocument();
     expect(chatContainer.style.backgroundColor).toBeTruthy();
@@ -73,7 +76,10 @@ describe('Chat Component Integration Tests', () => {
   it('should apply dark theme', () => {
     const { container } = render(<Chat theme='dark' />);
 
-    const chatContainer = container.firstChild as HTMLElement;
+    // The styles are applied to the inner div, not the wrapper
+    const chatContainer = container.querySelector(
+      '.flex.flex-col'
+    ) as HTMLElement;
     // Check that theme styles are applied (without checking specific values)
     expect(chatContainer).toBeInTheDocument();
     expect(chatContainer.style.backgroundColor).toBeTruthy();
@@ -89,7 +95,10 @@ describe('Chat Component Integration Tests', () => {
 
     const { container } = render(<Chat theme={customTheme} />);
 
-    const chatContainer = container.firstChild as HTMLElement;
+    // The styles are applied to the inner div, not the wrapper
+    const chatContainer = container.querySelector(
+      '.flex.flex-col'
+    ) as HTMLElement;
     expect(chatContainer).toHaveStyle({
       backgroundColor: customTheme.backgroundColor,
       color: customTheme.textColor,
