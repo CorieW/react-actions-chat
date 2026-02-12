@@ -734,11 +734,6 @@
   border-color: var(--color-border);
 }
 
-button {
-  cursor: pointer;
-  border: none;
-}
-
 body {
   color: var(--color-foreground);
   font-smooth: always;
