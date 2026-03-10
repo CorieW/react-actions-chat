@@ -5,10 +5,11 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://vite.dev/config/
 export default defineConfig({
+  root: resolve(__dirname, '..'),
   plugins: [react(), tailwindcss()],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: resolve(__dirname, '..', 'src/index.ts'),
       name: 'ActionableSupportChat',
       formats: ['es', 'cjs'],
       fileName: format => `index.${format === 'es' ? 'js' : 'cjs'}`,

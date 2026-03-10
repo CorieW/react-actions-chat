@@ -79,7 +79,7 @@ jobs:
         run: npm run lint
 
       - name: Type check
-        run: npx tsc --noEmit
+        run: npx tsc --noEmit --project config/tsconfig.json
 
       - name: Build
         run: npm run build
