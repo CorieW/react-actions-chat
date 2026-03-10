@@ -110,7 +110,7 @@ async function buildStyles() {
 
     console.log('✅ Successfully generated src/styles.css');
     console.log(
-      'ℹ️  Note: styles.css is excluded from Prettier formatting (.prettierignore)'
+      'ℹ️  Note: styles.css is excluded from Prettier formatting (config/.prettierignore)'
     );
   } catch (error) {
     console.error('❌ Error building styles:', error);
