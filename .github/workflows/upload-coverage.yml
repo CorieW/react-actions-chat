@@ -2,15 +2,12 @@ name: Upload Coverage
 
 on:
   push:
-    branches: [master, develop]
-  workflow_dispatch:
+    branches: [master]
 
 jobs:
   upload-coverage:
     name: Upload Coverage
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Checkout code
@@ -29,13 +26,9 @@ jobs:
         run: npm run test:coverage
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
-          disable_search: true
-          slug: CorieW/actionable-support-chat
-          flags: unittests
-          name: unit-tests
           fail_ci_if_error: true
           verbose: true

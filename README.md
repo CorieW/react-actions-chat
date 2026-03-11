@@ -1,6 +1,6 @@
 # Actionable Support Chat
 
-[![codecov](https://codecov.io/gh/CorieW/actionable-support-chat/graph/badge.svg?branch=master&token=pfMTdwuPfK)](https://codecov.io/gh/CorieW/actionable-support-chat)
+[![codecov](https://codecov.io/gh/CorieW/actionable-support-chat/graph/badge.svg?token=pfMTdwuPfK)](https://codecov.io/gh/CorieW/actionable-support-chat)
 
 An interactive React chat component with support for actionable buttons, confirmations, and user input collection. Perfect for building support chat interfaces, customer service bots, or interactive conversations that require user actions.
 
