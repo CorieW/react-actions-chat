@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
-import type { InputMessage } from 'actionable-support-chat';
+import type { ChatFlow } from 'actionable-support-chat';
 import { Chat, useChatStore } from 'actionable-support-chat';
 
 /**
  * Basic Question and Answer Bot Example
  *
- * This example demonstrates a simple Q&A bot that responds to user questions.
- * The bot provides helpful responses and can handle follow-up questions.
+ * This example demonstrates both simple and open-ended flows:
+ * - Quick one-step flows (help overview, time check)
+ * - A conversational Q&A flow driven by user messages
  */
 export function App(): React.JSX.Element {
   const { addMessage } = useChatStore();
@@ -55,14 +56,50 @@ export function App(): React.JSX.Element {
     }
   };
 
-  const INITIAL_MESSAGES: readonly InputMessage[] = useMemo(
+  const QA_FLOWS: readonly ChatFlow[] = useMemo(
     () => [
       {
-        id: 1,
+        id: 'help-overview',
+        buttons: [
+          {
+            label: 'What can you do?',
+            onClick: () => {
+              addMessage({
+                type: 'other',
+                content:
+                  'I can help answer questions, provide information, or assist with various topics. What would you like to know?',
+              });
+            },
+          },
+        ],
+      },
+      {
+        id: 'quick-time-check',
+        buttons: [
+          {
+            label: 'What time is it?',
+            onClick: () => {
+              const currentTime = new Date().toLocaleTimeString();
+              addMessage({
+                type: 'other',
+                content: `The current time is ${currentTime}.`,
+              });
+            },
+          },
+        ],
+      },
+    ],
+    [addMessage]
+  );
+
+  const CHAT_INITIAL_FLOW: ChatFlow = useMemo(
+    () => ({
+      id: 'qa-home',
+      initialMessage: {
         type: 'other',
         content:
-          "Hello! I'm a basic Q&A bot. Ask me anything and I'll do my best to help you!",
-        timestamp: new Date(),
+          "Hello! Choose a quick flow below or ask me anything and I'll do my best to help.",
+        buttons: QA_FLOWS.flatMap(flow => flow.buttons ?? []),
         userResponseCallback: () => {
           const messages = useChatStore.getState().getMessages();
           const lastSelfMessage = [...messages]
@@ -73,9 +110,9 @@ export function App(): React.JSX.Element {
           }
         },
       },
-    ],
-    []
+    }),
+    [QA_FLOWS]
   );
 
-  return <Chat initialMessages={INITIAL_MESSAGES} theme='dark' />;
+  return <Chat initialFlow={CHAT_INITIAL_FLOW} theme='dark' />;
 }

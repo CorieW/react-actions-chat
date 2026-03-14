@@ -9,28 +9,22 @@ import {
 import { MessagesList, ChatInput, PersistentButtons } from './';
 
 export function Chat({
-  initialMessages = [],
+  initialFlow,
   theme,
 }: ChatPropsWithFlexibleTheme): React.JSX.Element {
-  const {
-    messages,
-    addMessage,
-    addMessages,
-    getPreviousMessage,
-    clearMessages,
-  } = useChatStore();
+  const { messages, addMessage, startFlow, getPreviousMessage } =
+    useChatStore();
   const { getInputFieldType } = useInputFieldStore();
 
   // Resolved theme based on string or object or undefined
   const mergedTheme = getResolvedTheme(theme);
 
-  // Initialize messages with initialMessages if provided (only once)
+  // Initialize from flow when available.
   useEffect(() => {
-    if (initialMessages.length > 0) {
-      clearMessages();
-      addMessages(initialMessages);
+    if (initialFlow) {
+      startFlow(initialFlow);
     }
-  }, [initialMessages, addMessages, clearMessages]);
+  }, [initialFlow, startFlow]);
 
   const handleSend = (messageContent: string): void => {
     // Get the previous message (before sending the self message)

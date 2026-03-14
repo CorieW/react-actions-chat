@@ -54,6 +54,42 @@ export interface MessageButton {
 }
 
 /**
+ * Represents a chat flow.
+ * A flow is a group of messages, buttons, and behavior that helps the user
+ * complete an outcome.
+ *
+ * @property id Unique identifier for the flow.
+ * @property title Optional human-readable flow name.
+ * @property metadata Optional extra structured data for the flow.
+ * @property buttons Optional entry-point buttons for the flow.
+ * @property initialMessage Optional single message to seed when this flow is triggered.
+ * @property initialMessages Optional messages to seed when this flow is triggered.
+ * @property onEnter Optional callback executed after the flow becomes active.
+ * @property onExit Optional callback executed before the flow is replaced.
+ */
+export interface ChatFlow {
+  readonly id: string;
+  readonly title?: string;
+  readonly metadata?: Readonly<Record<string, unknown>>;
+  readonly buttons?: readonly MessageButton[];
+  readonly initialMessage?: InputMessage;
+  readonly initialMessages?: readonly InputMessage[];
+  readonly onEnter?: () => void;
+  readonly onExit?: () => void;
+}
+
+/**
+ * Options used when triggering a flow.
+ *
+ * @property clearMessages Whether to clear existing messages before seeding the new flow. Defaults to true.
+ * @property clearPersistentButtons Whether to clear persistent buttons during flow switch. Defaults to true.
+ */
+export interface TriggerFlowOptions {
+  readonly clearMessages?: boolean;
+  readonly clearPersistentButtons?: boolean;
+}
+
+/**
  * Represents a single chat message.
  *
  * @property id Unique identifier for the message.
@@ -84,11 +120,11 @@ export interface Message
 /**
  * Props for the Chat component.
  *
- * @property initialMessages Optional array of messages to initialize the chat with.
+ * @property initialFlow Optional flow to auto-start on chat initialization.
  * @property theme Optional theme configuration to customize the chat appearance.
  */
 export interface ChatProps {
-  readonly initialMessages?: readonly InputMessage[];
+  readonly initialFlow?: ChatFlow;
   readonly theme?: ChatTheme;
 }
 

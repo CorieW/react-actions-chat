@@ -1,12 +1,12 @@
 # Chat Component Examples
 
-This folder contains self-contained, runnable examples demonstrating different use cases of the Chat component.
+This folder contains self-contained, runnable examples demonstrating different flow patterns with the Chat component.
 
 ## Examples
 
-- **basic-qa-bot** - A simple question and answer bot that responds to user queries
-- **login** - A login flow using email and password inputs
-- **settings** - A settings page with change email, change password, and logout functionality
+- **basic-qa-bot** - Simple flows for FAQ-style prompts and quick actions
+- **login** - A multi-step login flow using email and password inputs
+- **settings** - Initial home flow that triggers email, password, and logout flows
 
 ## Running an Example
 

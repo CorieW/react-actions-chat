@@ -2,11 +2,12 @@
 
 [![codecov](https://codecov.io/gh/CorieW/actionable-support-chat/graph/badge.svg?branch=master&token=pfMTdwuPfK)](https://codecov.io/gh/CorieW/actionable-support-chat)
 
-An interactive React chat component with support for actionable buttons, confirmations, and user input collection. Perfect for building support chat interfaces, customer service bots, or interactive conversations that require user actions.
+An interactive React chat component for building goal-oriented chat flows. A flow is a group of messages, buttons, and behavior that helps users complete an outcome, from simple one-click actions to multi-step settings updates.
 
 ## Features
 
 - **Interactive Messages** - Add actionable buttons to messages for quick user responses
+- **Goal-Oriented Flows** - Model messages, buttons, and behavior around a clear outcome
 - **Confirmation Dialogs** - Built-in support for confirmation requests (e.g., account deletion)
 - **Persistent Buttons** - Buttons that remain accessible throughout the conversation
 - **Customizable Themes** - Built-in light/dark themes with full customization options
@@ -23,24 +24,50 @@ npm install actionable-support-chat
 ## Quick Start
 
 ```tsx
-import { Chat } from 'actionable-support-chat';
+import { Chat, type ChatFlow, useChatStore } from 'actionable-support-chat';
 import 'actionable-support-chat/styles';
 
 function App() {
-  const initialMessages = [
-    {
+  const { startFlow } = useChatStore();
+
+  let homeFlow: ChatFlow;
+  let settingsFlow: ChatFlow;
+  let statusFlow: ChatFlow;
+
+  settingsFlow = {
+    id: 'settings',
+    initialMessage: {
       type: 'other',
-      content: 'Hello! How can I help you today?',
+      content: 'Settings flow started.',
+      buttons: [{ label: 'Back', onClick: () => startFlow(homeFlow) }],
+    },
+  };
+
+  statusFlow = {
+    id: 'status',
+    initialMessage: {
+      type: 'other',
+      content: 'All systems operational.',
+      buttons: [{ label: 'Back', onClick: () => startFlow(homeFlow) }],
+    },
+  };
+
+  homeFlow = {
+    id: 'home',
+    initialMessage: {
+      type: 'other',
+      content: 'Choose a flow to continue.',
       buttons: [
+        { label: 'Open Settings Flow', onClick: () => startFlow(settingsFlow) },
         {
-          label: 'Get Support',
-          onClick: () => console.log('Support requested'),
+          label: 'Run Simple Status Flow',
+          onClick: () => startFlow(statusFlow),
         },
       ],
     },
-  ];
+  };
 
-  return <Chat initialMessages={initialMessages} theme='dark' />;
+  return <Chat initialFlow={homeFlow} theme='dark' />;
 }
 ```
 
@@ -49,6 +76,18 @@ function App() {
 ## Usage Examples
 
 See the [examples](examples) folder for examples of how to use the Chat component.
+
+## Flow Model
+
+Use flows to organize your chat interactions around outcomes:
+
+- **Flow = messages + buttons + behavior (+ optional metadata)**
+- Flows can be **multi-step** (for example, updating settings)
+- Flows can be **simple** (for example, a one-click status check)
+- Set the first active flow with `initialFlow`
+- Seed a flow with either `initialMessage` or `initialMessages`
+- Store extra flow context in optional `metadata`
+- Trigger any flow at runtime with `startFlow(flow)`
 
 ## Development
 

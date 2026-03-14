@@ -4,12 +4,20 @@ import userEvent from '@testing-library/user-event';
 import { Chat } from '../components/Chat';
 import { useChatStore } from '../lib/chatStore';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
-import type { InputMessage } from '../js/types';
+import type { ChatFlow, InputMessage } from '../js/types';
+
+function createInitialFlow(initialMessages: InputMessage[]): ChatFlow {
+  return {
+    id: 'initial-flow',
+    initialMessages,
+  };
+}
 
 describe('Chat Component Integration Tests', () => {
   beforeEach(() => {
     // Clear stores before each test
     useChatStore.getState().clearMessages();
+    useChatStore.getState().clearActiveFlow();
     usePersistentButtonStore.getState().clearButtons();
   });
 
@@ -22,7 +30,7 @@ describe('Chat Component Integration Tests', () => {
     ).toBeInTheDocument();
   });
 
-  it('should render with initial messages', () => {
+  it('should render with initial flow messages', () => {
     const initialMessages: InputMessage[] = [
       {
         id: 1,
@@ -38,10 +46,25 @@ describe('Chat Component Integration Tests', () => {
       },
     ];
 
-    render(<Chat initialMessages={initialMessages} />);
+    render(<Chat initialFlow={createInitialFlow(initialMessages)} />);
 
     expect(screen.getByText('Hello!')).toBeInTheDocument();
     expect(screen.getByText('Hi there!')).toBeInTheDocument();
+  });
+
+  it('should initialize using initialFlow when provided', () => {
+    const initialFlow: ChatFlow = {
+      id: 'settings-root',
+      initialMessage: {
+        type: 'other',
+        content: 'Welcome to Settings Flow',
+      },
+    };
+
+    render(<Chat initialFlow={initialFlow} />);
+
+    expect(screen.getByText('Welcome to Settings Flow')).toBeInTheDocument();
+    expect(useChatStore.getState().activeFlow?.id).toBe('settings-root');
   });
 
   it('should send message via ChatInput', async () => {
@@ -119,7 +142,7 @@ describe('Chat Component Integration Tests', () => {
       },
     ];
 
-    render(<Chat initialMessages={initialMessages} />);
+    render(<Chat initialFlow={createInitialFlow(initialMessages)} />);
 
     const input = screen.getByPlaceholderText('Type your message...');
     await user.type(input, 'My response');
@@ -144,7 +167,7 @@ describe('Chat Component Integration Tests', () => {
       },
     ];
 
-    render(<Chat initialMessages={initialMessages} />);
+    render(<Chat initialFlow={createInitialFlow(initialMessages)} />);
 
     const input = screen.getByPlaceholderText('Type your message...');
     await user.type(input, 'Another message');
@@ -172,7 +195,7 @@ describe('Chat Component Integration Tests', () => {
       },
     ];
 
-    render(<Chat initialMessages={initialMessages} />);
+    render(<Chat initialFlow={createInitialFlow(initialMessages)} />);
 
     expect(screen.getByText('Option 1')).toBeInTheDocument();
     expect(screen.getByText('Option 2')).toBeInTheDocument();
@@ -192,7 +215,7 @@ describe('Chat Component Integration Tests', () => {
       },
     ];
 
-    render(<Chat initialMessages={initialMessages} />);
+    render(<Chat initialFlow={createInitialFlow(initialMessages)} />);
 
     const button = screen.getByText('Click Me');
     await user.click(button);
@@ -213,7 +236,7 @@ describe('Chat Component Integration Tests', () => {
       },
     ];
 
-    render(<Chat initialMessages={initialMessages} />);
+    render(<Chat initialFlow={createInitialFlow(initialMessages)} />);
 
     expect(screen.getByText('Button 1')).toBeInTheDocument();
 

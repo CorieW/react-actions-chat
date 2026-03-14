@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { InputMessage } from 'actionable-support-chat';
+import type { ChatFlow } from 'actionable-support-chat';
 import {
   Chat,
   useChatStore,
@@ -10,8 +10,8 @@ import {
 /**
  * Login Example
  *
- * This example demonstrates a login flow using email and password inputs.
- * The bot guides users through entering their credentials step by step.
+ * This example demonstrates a login flow.
+ * The flow guides users through email and password collection step by step.
  */
 export function App(): React.JSX.Element {
   const { addMessage } = useChatStore();
@@ -79,16 +79,15 @@ export function App(): React.JSX.Element {
     });
   };
 
-  const INITIAL_MESSAGES: readonly InputMessage[] = useMemo(
-    () => [
-      {
-        id: 1,
+  const LOGIN_FLOW: ChatFlow = useMemo(
+    () => ({
+      id: 'email-password-login',
+      initialMessage: {
         type: 'other',
-        content: 'Welcome! Please log in to continue.',
-        timestamp: new Date(),
+        content: 'Welcome! Start the login flow to continue.',
         buttons: [
           createRequestInputButton({
-            initialLabel: 'Login with Email',
+            initialLabel: 'Start Login Flow',
             inputPromptMessage: 'Please enter your email address:',
             inputType: 'email',
             placeholder: 'your.email@example.com',
@@ -104,13 +103,13 @@ export function App(): React.JSX.Element {
           }),
         ],
       },
-    ],
+    }),
     []
   );
 
   return (
     <div className='min-h-screen bg-background'>
-      <Chat initialMessages={INITIAL_MESSAGES} theme='dark' />
+      <Chat initialFlow={LOGIN_FLOW} theme='dark' />
     </div>
   );
 }

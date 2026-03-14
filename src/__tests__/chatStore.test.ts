@@ -1,12 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useChatStore } from '../lib/chatStore';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
-import type { InputMessage, Message } from '../js/types';
+import type { ChatFlow, InputMessage, Message } from '../js/types';
 
 describe('Chat Store Unit Tests', () => {
   beforeEach(() => {
     // Clear store before each test
     useChatStore.getState().clearMessages();
+    useChatStore.getState().clearActiveFlow();
     usePersistentButtonStore.getState().clearButtons();
   });
 
@@ -350,6 +351,97 @@ describe('Chat Store Unit Tests', () => {
     it('should do nothing when no messages', () => {
       const store = useChatStore.getState();
       expect(() => store.clearPreviousMessageCallback()).not.toThrow();
+    });
+  });
+
+  describe('Flow Management', () => {
+    it('should start a flow and set activeFlow', () => {
+      const store = useChatStore.getState();
+      const onEnter = vi.fn();
+      const flow: ChatFlow = {
+        id: 'settings',
+        initialMessages: [{ type: 'other', content: 'Settings root' }],
+        onEnter,
+      };
+
+      store.startFlow(flow);
+
+      expect(useChatStore.getState().activeFlow?.id).toBe('settings');
+      expect(store.getMessages()).toHaveLength(1);
+      expect(store.getMessages()[0]?.content).toBe('Settings root');
+      expect(onEnter).toHaveBeenCalledTimes(1);
+    });
+
+    it('should seed flow from initialMessage', () => {
+      const store = useChatStore.getState();
+      const flow: ChatFlow = {
+        id: 'single-message-flow',
+        initialMessage: { type: 'other', content: 'Single flow message' },
+      };
+
+      store.startFlow(flow);
+
+      expect(store.getMessages()).toHaveLength(1);
+      expect(store.getMessages()[0]?.content).toBe('Single flow message');
+    });
+
+    it('should allow flow transitions and call onExit', () => {
+      const store = useChatStore.getState();
+      const firstOnExit = vi.fn();
+      const secondOnEnter = vi.fn();
+
+      const firstFlow: ChatFlow = {
+        id: 'first',
+        initialMessages: [{ type: 'other', content: 'First flow' }],
+        onExit: firstOnExit,
+      };
+      const secondFlow: ChatFlow = {
+        id: 'second',
+        initialMessages: [{ type: 'other', content: 'Second flow' }],
+        onEnter: secondOnEnter,
+      };
+
+      store.startFlow(firstFlow);
+      store.startFlow(secondFlow);
+
+      expect(firstOnExit).toHaveBeenCalledTimes(1);
+      expect(secondOnEnter).toHaveBeenCalledTimes(1);
+      expect(useChatStore.getState().activeFlow?.id).toBe('second');
+      expect(store.getMessages()[0]?.content).toBe('Second flow');
+    });
+
+    it('should append flow messages when clearMessages is false', () => {
+      const store = useChatStore.getState();
+      store.addMessage({ type: 'self', content: 'Existing message' });
+
+      store.startFlow(
+        {
+          id: 'append-flow',
+          initialMessages: [{ type: 'other', content: 'Flow message' }],
+        },
+        { clearMessages: false }
+      );
+      const messages = store.getMessages();
+
+      expect(messages).toHaveLength(2);
+      expect(messages[0]?.content).toBe('Existing message');
+      expect(messages[1]?.content).toBe('Flow message');
+    });
+
+    it('should clear active flow', () => {
+      const store = useChatStore.getState();
+      const onExit = vi.fn();
+
+      store.startFlow({
+        id: 'flow-to-clear',
+        initialMessage: { type: 'other', content: 'Flow message' },
+        onExit,
+      });
+
+      store.clearActiveFlow();
+
+      expect(store.getActiveFlow()).toBeUndefined();
+      expect(onExit).toHaveBeenCalledTimes(1);
     });
   });
 });
