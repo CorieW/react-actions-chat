@@ -12,7 +12,7 @@ export function MessageBubble({
 }: MessageBubbleProps): React.JSX.Element {
   return (
     <div
-      className={`flex gap-3 mb-1 ${
+      className={`mb-1 flex gap-3 ${
         message.type === 'self' ? 'flex-row-reverse' : 'flex-row'
       }`}
     >
@@ -33,12 +33,12 @@ export function MessageBubble({
         >
           <p
             data-testid='chat-message-content'
-            className='text-sm leading-relaxed wrap-break-words'
+            className='wrap-break-words text-sm leading-relaxed'
           >
             {message.content}
           </p>
           <span
-            className='block mt-1.5 text-xs'
+            className='mt-1.5 block text-xs'
             style={{
               color:
                 message.type === 'self'
