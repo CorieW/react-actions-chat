@@ -59,7 +59,7 @@ export function Chat({
   return (
     <div className='asc-chat-wrapper'>
       <div
-        className='flex flex-col h-screen'
+        className='flex h-screen flex-col'
         style={{
           ...getThemeStyles(mergedTheme),
           backgroundColor: mergedTheme.backgroundColor,

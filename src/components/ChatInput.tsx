@@ -83,7 +83,7 @@ export function ChatInput({
 
   return (
     <div
-      className='p-4 border-t'
+      className='border-t p-4'
       style={{
         borderColor: `${theme.borderColor}40`,
         backgroundColor: theme.backgroundColor,
@@ -97,7 +97,7 @@ export function ChatInput({
           {getInputFieldDescription()}
         </div>
       )}
-      <div className='flex gap-3 items-center'>
+      <div className='flex items-center gap-3'>
         <input
           ref={inputRef}
           type={inputType}
@@ -105,7 +105,7 @@ export function ChatInput({
           onChange={e => setInputFieldValue(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder={inputPlaceholder}
-          className='flex-1 px-4 py-3 rounded-lg focus:outline-none focus:ring-1 placeholder:text-opacity-50'
+          className='placeholder:text-opacity-50 flex-1 rounded-lg px-4 py-3 focus:ring-1 focus:outline-none'
           style={{
             backgroundColor: `${theme.inputBackgroundColor}80`,
             borderColor: 'transparent',
@@ -116,13 +116,13 @@ export function ChatInput({
         <Button
           onClick={getInputFieldSubmitFunc?.() ?? (() => {})}
           disabled={getInputFieldValue().trim() === ''}
-          className='px-4 py-3 rounded-lg disabled:opacity-40'
+          className='rounded-lg px-4 py-3 disabled:opacity-40'
           style={{
             backgroundColor: theme.buttonColor,
             color: theme.buttonTextColor,
           }}
         >
-          <Send className='w-5 h-5' />
+          <Send className='h-5 w-5' />
         </Button>
       </div>
     </div>

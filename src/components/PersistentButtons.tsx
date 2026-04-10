@@ -72,7 +72,7 @@ export function PersistentButtons({
 
   return (
     <div
-      className='px-4 py-3 border-t flex flex-wrap gap-2 justify-center'
+      className='flex flex-wrap justify-center gap-2 border-t px-4 py-3'
       style={{
         borderColor: `${theme.borderColor}40`,
         backgroundColor: theme.backgroundColor,
