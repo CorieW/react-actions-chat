@@ -28,6 +28,9 @@
     "format:check": "prettier --check . --config config/.prettierrc --ignore-path .gitignore --ignore-path config/.prettierignore",
     "preview": "vite preview --config config/vite.config.ts",
     "test": "vitest --config config/vite.config.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
     "test:ui": "vitest --ui --config config/vite.config.ts",
     "test:coverage": "vitest --coverage --config config/vite.config.ts"
   },
@@ -48,6 +51,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/vite": "^4.1.16",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",

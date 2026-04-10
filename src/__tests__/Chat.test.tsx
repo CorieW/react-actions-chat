@@ -1,37 +1,34 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Chat } from '../components/Chat';
 import { useChatStore } from '../lib/chatStore';
+import { useInputFieldStore } from '../lib/inputFieldStore';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
 import type { InputMessage } from '../js/types';
 
-describe('Chat Component Integration Tests', () => {
+describe('Chat integration tests', () => {
   beforeEach(() => {
-    // Clear stores before each test
     useChatStore.getState().clearMessages();
     usePersistentButtonStore.getState().clearButtons();
+
+    const inputFieldStore = useInputFieldStore.getState();
+    inputFieldStore.resetInputField();
+    inputFieldStore.resetInputFieldValue();
+    inputFieldStore.resetInputFieldDescription();
+    inputFieldStore.resetInputFieldType();
+    inputFieldStore.resetInputFieldPlaceholder();
+    inputFieldStore.resetInputFieldValidator();
   });
 
-  it('should render empty chat', () => {
-    render(<Chat />);
-
-    // Should have input field
-    expect(
-      screen.getByPlaceholderText('Type your message...')
-    ).toBeInTheDocument();
-  });
-
-  it('should render with initial messages', () => {
+  it('renders initial messages and the input field', () => {
     const initialMessages: InputMessage[] = [
       {
-        id: 1,
         type: 'other',
         content: 'Hello!',
         timestamp: new Date(),
       },
       {
-        id: 2,
         type: 'self',
         content: 'Hi there!',
         timestamp: new Date(),
@@ -42,76 +39,49 @@ describe('Chat Component Integration Tests', () => {
 
     expect(screen.getByText('Hello!')).toBeInTheDocument();
     expect(screen.getByText('Hi there!')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Type your message...')
+    ).toBeInTheDocument();
   });
 
-  it('should send message via ChatInput', async () => {
+  it('sends a message from the input and clears the field', async () => {
     const user = userEvent.setup();
     render(<Chat />);
 
     const input = screen.getByPlaceholderText('Type your message...');
-    await user.type(input, 'Test message');
-    await user.keyboard('{Enter}');
+    await user.type(input, 'Test message{Enter}');
 
     await waitFor(() => {
       expect(screen.getByText('Test message')).toBeInTheDocument();
     });
 
-    // Input should be cleared
     expect(input).toHaveValue('');
   });
 
-  it('should apply light theme', () => {
-    const { container } = render(<Chat theme='light' />);
+  it('masks password input in chat while keeping raw content', async () => {
+    const user = userEvent.setup();
+    useInputFieldStore.getState().setInputFieldType('password');
+    render(<Chat />);
 
-    // The styles are applied to the inner div, not the wrapper
-    const chatContainer = container.querySelector(
-      '.flex.flex-col'
-    ) as HTMLElement;
-    // Check that theme styles are applied (without checking specific values)
-    expect(chatContainer).toBeInTheDocument();
-    expect(chatContainer.style.backgroundColor).toBeTruthy();
-    expect(chatContainer.style.color).toBeTruthy();
-  });
+    const input = screen.getByPlaceholderText('Type your message...');
+    await user.type(input, 'secret{Enter}');
 
-  it('should apply dark theme', () => {
-    const { container } = render(<Chat theme='dark' />);
-
-    // The styles are applied to the inner div, not the wrapper
-    const chatContainer = container.querySelector(
-      '.flex.flex-col'
-    ) as HTMLElement;
-    // Check that theme styles are applied (without checking specific values)
-    expect(chatContainer).toBeInTheDocument();
-    expect(chatContainer.style.backgroundColor).toBeTruthy();
-    expect(chatContainer.style.color).toBeTruthy();
-  });
-
-  it('should apply custom theme', () => {
-    const customTheme = {
-      backgroundColor: '#ff0000',
-      textColor: '#00ff00',
-      primaryColor: '#0000ff',
-    };
-
-    const { container } = render(<Chat theme={customTheme} />);
-
-    // The styles are applied to the inner div, not the wrapper
-    const chatContainer = container.querySelector(
-      '.flex.flex-col'
-    ) as HTMLElement;
-    expect(chatContainer).toHaveStyle({
-      backgroundColor: customTheme.backgroundColor,
-      color: customTheme.textColor,
+    const maskedContent = '\u2022'.repeat('secret'.length);
+    await waitFor(() => {
+      expect(screen.getByText(maskedContent)).toBeInTheDocument();
     });
+
+    const latestMessage = useChatStore.getState().getPreviousMessage();
+    expect(latestMessage?.rawContent).toBe('secret');
+    expect(latestMessage?.content).toBe(maskedContent);
   });
 
-  it('should trigger userResponseCallback when user replies', async () => {
+  it('calls userResponseCallback for the previous other message', async () => {
     const user = userEvent.setup();
     const callback = vi.fn();
 
     const initialMessages: InputMessage[] = [
       {
-        id: 1,
         type: 'other',
         content: 'Please respond',
         timestamp: new Date(),
@@ -122,23 +92,21 @@ describe('Chat Component Integration Tests', () => {
     render(<Chat initialMessages={initialMessages} />);
 
     const input = screen.getByPlaceholderText('Type your message...');
-    await user.type(input, 'My response');
-    await user.keyboard('{Enter}');
+    await user.type(input, 'My response{Enter}');
 
     await waitFor(() => {
       expect(callback).toHaveBeenCalledTimes(1);
     });
   });
 
-  it('should not trigger callback on self message', async () => {
+  it('does not call userResponseCallback for the previous self message', async () => {
     const user = userEvent.setup();
     const callback = vi.fn();
 
     const initialMessages: InputMessage[] = [
       {
-        id: 1,
         type: 'self',
-        content: 'My message',
+        content: 'My own message',
         timestamp: new Date(),
         userResponseCallback: callback,
       },
@@ -147,44 +115,21 @@ describe('Chat Component Integration Tests', () => {
     render(<Chat initialMessages={initialMessages} />);
 
     const input = screen.getByPlaceholderText('Type your message...');
-    await user.type(input, 'Another message');
-    await user.keyboard('{Enter}');
+    await user.type(input, 'Another message{Enter}');
 
     await waitFor(() => {
       expect(screen.getByText('Another message')).toBeInTheDocument();
     });
 
-    // Callback should not be called for self messages
     expect(callback).not.toHaveBeenCalled();
   });
 
-  it('should display message buttons', () => {
-    const initialMessages: InputMessage[] = [
-      {
-        id: 1,
-        type: 'other',
-        content: 'Choose an option',
-        timestamp: new Date(),
-        buttons: [
-          { label: 'Option 1', onClick: () => {} },
-          { label: 'Option 2', onClick: () => {} },
-        ],
-      },
-    ];
-
-    render(<Chat initialMessages={initialMessages} />);
-
-    expect(screen.getByText('Option 1')).toBeInTheDocument();
-    expect(screen.getByText('Option 2')).toBeInTheDocument();
-  });
-
-  it('should handle button clicks', async () => {
+  it('renders message buttons and invokes button handlers', async () => {
     const user = userEvent.setup();
     const onClick = vi.fn();
 
     const initialMessages: InputMessage[] = [
       {
-        id: 1,
         type: 'other',
         content: 'Click the button',
         timestamp: new Date(),
@@ -194,48 +139,54 @@ describe('Chat Component Integration Tests', () => {
 
     render(<Chat initialMessages={initialMessages} />);
 
-    const button = screen.getByText('Click Me');
+    const button = screen.getByRole('button', { name: 'Click Me' });
     await user.click(button);
 
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it('should clear previous message buttons when new message is sent', async () => {
+  it('clears previous message buttons once the user sends a new message', async () => {
     const user = userEvent.setup();
 
     const initialMessages: InputMessage[] = [
       {
-        id: 1,
         type: 'other',
-        content: 'Message with buttons',
+        content: 'Choose an option',
         timestamp: new Date(),
-        buttons: [{ label: 'Button 1' }],
+        buttons: [{ label: 'Option 1' }],
       },
     ];
 
     render(<Chat initialMessages={initialMessages} />);
 
-    expect(screen.getByText('Button 1')).toBeInTheDocument();
+    expect(screen.getByText('Option 1')).toBeInTheDocument();
 
     const input = screen.getByPlaceholderText('Type your message...');
-    await user.type(input, 'New message');
-    await user.keyboard('{Enter}');
+    await user.type(input, 'Next{Enter}');
 
     await waitFor(() => {
-      expect(screen.queryByText('Button 1')).not.toBeInTheDocument();
+      expect(screen.queryByText('Option 1')).not.toBeInTheDocument();
     });
   });
 
-  it('should not send empty messages', async () => {
+  it('does not send blank messages and applies custom theme styles', async () => {
     const user = userEvent.setup();
-    render(<Chat />);
+    const customTheme = {
+      backgroundColor: '#ff0000',
+      textColor: '#00ff00',
+      primaryColor: '#0000ff',
+    };
+
+    render(<Chat theme={customTheme} />);
 
     const input = screen.getByPlaceholderText('Type your message...');
-    await user.type(input, '   ');
-    await user.keyboard('{Enter}');
+    await user.type(input, '   {Enter}');
 
-    // No message should be added
-    const messages = useChatStore.getState().getMessages();
-    expect(messages.length).toBe(0);
+    const container = screen.getByTestId('chat-container');
+    expect(container).toHaveStyle({
+      backgroundColor: customTheme.backgroundColor,
+      color: customTheme.textColor,
+    });
+    expect(useChatStore.getState().getMessages()).toHaveLength(0);
   });
 });

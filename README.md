@@ -52,6 +52,16 @@ See the [examples](examples) folder for examples of how to use the Chat componen
 
 ## Development
 
+### Testing
+
+```bash
+# Unit and integration tests
+npm test -- --run
+
+# E2E tests (Playwright)
+npm run test:e2e
+```
+
 ### Building Styles
 
 This project uses Tailwind CSS for development. The standalone CSS file (`src/styles.css`) is auto-generated:

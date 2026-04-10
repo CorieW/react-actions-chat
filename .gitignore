@@ -13,6 +13,8 @@ dist-ssr
 *.local
 coverage
 .temp-styles-build
+playwright-report
+test-results
 
 # Editor directories and files
 .vscode/*

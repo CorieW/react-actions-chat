@@ -31,7 +31,10 @@ export function MessageBubble({
             maxWidth: message.type === 'self' ? 'fit-content' : '100%',
           }}
         >
-          <p className='text-sm leading-relaxed wrap-break-words'>
+          <p
+            data-testid='chat-message-content'
+            className='text-sm leading-relaxed wrap-break-words'
+          >
             {message.content}
           </p>
           <span

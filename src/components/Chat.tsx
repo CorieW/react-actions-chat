@@ -38,7 +38,7 @@ export function Chat({
 
     let displayedContent = messageContent;
     if (getInputFieldType() === 'password') {
-      displayedContent = '•'.repeat(messageContent.length);
+      displayedContent = '\u2022'.repeat(messageContent.length);
     }
 
     // Add the self message
@@ -59,6 +59,7 @@ export function Chat({
   return (
     <div className='asc-chat-wrapper'>
       <div
+        data-testid='chat-container'
         className='flex flex-col h-screen'
         style={{
           ...getThemeStyles(mergedTheme),
