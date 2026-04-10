@@ -66,6 +66,12 @@ test.describe('Basic QA Bot E2E', () => {
   test('does not send a whitespace-only message', async ({ page }) => {
     const input = page.getByPlaceholder(CHAT_INPUT_PLACEHOLDER);
     const messageLocator = page.getByTestId('chat-message-content');
+
+    await expect(
+      page.getByText(
+        "Hello! I'm a basic Q&A bot. Ask me anything and I'll do my best to help you!"
+      )
+    ).toBeVisible();
     const initialMessageCount = await messageLocator.count();
 
     await input.fill('   ');

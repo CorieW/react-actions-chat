@@ -19,6 +19,16 @@ export default defineConfig([
     },
   },
   {
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
+      },
+    },
+  },
+  {
     files: ['src/**/*.{js,jsx,ts,tsx}', 'e2e/**/*.ts'],
     languageOptions: {
       globals: globals.browser,

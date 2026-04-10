@@ -196,6 +196,12 @@ jobs:
       - name: Install example app dependencies
         run: npm ci --prefix examples/basic-qa-bot
 
+      - name: Install login example dependencies
+        run: npm ci --prefix examples/login
+
+      - name: Install settings example dependencies
+        run: npm ci --prefix examples/settings
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
