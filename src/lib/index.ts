@@ -6,5 +6,6 @@ export {
   DARK_THEME,
   getResolvedTheme,
   getThemeStyles,
+  type ThemeInput,
 } from './themes';
 export { cn } from './utils';

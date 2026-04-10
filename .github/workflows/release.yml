@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.13.0'
           cache: 'npm'
 
       - name: Get version from tag or input
@@ -79,7 +79,10 @@ jobs:
         run: npm run lint
 
       - name: Type check
-        run: npx tsc --noEmit --project config/tsconfig.json
+        run: npm run typecheck
+
+      - name: Check for unused files, exports, and dependencies
+        run: npm run knip
 
       - name: Build
         run: npm run build

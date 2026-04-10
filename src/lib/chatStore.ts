@@ -112,7 +112,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       set(state => ({
         messages: state.messages.map(message => {
           if (message.id === previousMessage.id) {
-            const { userResponseCallback, ...rest } = message;
+            const { userResponseCallback: _userResponseCallback, ...rest } =
+              message;
             return rest;
           }
           return message;
