@@ -18,32 +18,31 @@
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
+  "engines": {
+    "node": "^22.13.0 || >=24.0.0"
+  },
   "scripts": {
     "dev": "vite --config config/vite.config.ts",
     "build": "npm run build:styles && vite build --config config/vite.config.ts",
     "build:styles": "node scripts/build-styles-v4.js",
     "check:styles": "node scripts/check-styles.js",
     "lint": "eslint . --config config/eslint.config.js",
+    "knip": "knip",
     "format": "prettier --write . --config config/.prettierrc --ignore-path .gitignore --ignore-path config/.prettierignore",
     "format:check": "prettier --check . --config config/.prettierrc --ignore-path .gitignore --ignore-path config/.prettierignore",
     "preview": "vite preview --config config/vite.config.ts",
     "test": "vitest --config config/vite.config.ts",
+    "typecheck": "tsc --noEmit -p config/tsconfig.json",
     "test:ui": "vitest --ui --config config/vite.config.ts",
     "test:coverage": "vitest --coverage --config config/vite.config.ts"
   },
   "dependencies": {
-    "@tailwindcss/typography": "^0.5.19",
-    "@tanstack/react-query": "^5.90.5",
-    "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.547.0",
-    "postcss": "^8.5.6",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.16",
-    "tailwindcss-animate": "^1.0.7",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
@@ -62,9 +61,12 @@
     "eslint-plugin-react-refresh": "^0.4.22",
     "globals": "^16.4.0",
     "jsdom": "^27.0.1",
+    "knip": "^6.3.1",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.2",
+    "tailwindcss": "^4.2.2",
     "typescript": "^5.7.2",
+    "typescript-eslint": "^8.58.1",
     "vite": "^7.1.7",
     "vitest": "^3.2.4"
   }

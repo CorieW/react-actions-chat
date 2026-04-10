@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "project": [
+    "config/**/*.{js,ts}",
+    "scripts/**/*.{js,ts}",
+    "src/**/*.{js,jsx,ts,tsx}"
+  ],
+  "ignore": [
+    "config/tailwind.config.js",
+    "scripts/build-styles-simple.js",
+    "scripts/build-styles.js"
+  ],
+  "ignoreDependencies": ["prettier-plugin-tailwindcss"]
+}

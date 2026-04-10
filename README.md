@@ -20,6 +20,8 @@ An interactive React chat component with support for actionable buttons, confirm
 npm install actionable-support-chat
 ```
 
+This package targets Node.js `22.13.0+`.
+
 ## Quick Start
 
 ```tsx
@@ -51,6 +53,8 @@ function App() {
 See the [examples](examples) folder for examples of how to use the Chat component.
 
 ## Development
+
+Use Node.js `22.13.0` or newer.
 
 ### Building Styles
 

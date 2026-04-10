@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import type { KeyboardEvent } from 'react';
 import { Send } from 'lucide-react';
 import type { ChatTheme } from '../js/types';
@@ -15,13 +15,12 @@ export function ChatInput({
   theme,
 }: ChatInputProps): React.JSX.Element {
   const inputRef = useRef<HTMLInputElement>(null);
-
+  const handleSendRef = useRef<() => void>(() => {});
   const {
     setInputFieldValue,
     setInputFieldElement,
     setInputFieldSubmitFunc,
     getInputFieldValue,
-    getInputFieldSubmitFunc,
     getInputFieldDescription,
     getInputFieldType,
     getInputFieldPlaceholder,
@@ -29,6 +28,20 @@ export function ChatInput({
 
   const inputType = getInputFieldType();
   const inputPlaceholder = getInputFieldPlaceholder();
+
+  const handleSend = useCallback((): void => {
+    if (getInputFieldValue().trim() === '') return;
+
+    // Note: Validation is handled in the userResponseCallback of the requesting message
+    // We allow sending here to enable error messages to be displayed when validation fails
+    onSend(getInputFieldValue());
+    setInputFieldValue('');
+  }, [getInputFieldValue, onSend, setInputFieldValue]);
+  handleSendRef.current = handleSend;
+
+  const submitInput = useCallback((): void => {
+    handleSendRef.current();
+  }, []);
 
   // Register the input element and submit function with the store
   useEffect(() => {
@@ -38,18 +51,13 @@ export function ChatInput({
       inputRef.current.type = inputType;
     }
 
-    setInputFieldSubmitFunc(handleSend);
+    setInputFieldSubmitFunc(submitInput);
 
     return () => {
       setInputFieldElement(null);
       setInputFieldSubmitFunc(null);
     };
-  }, [
-    setInputFieldElement,
-    setInputFieldSubmitFunc,
-    inputType,
-    getInputFieldValue,
-  ]);
+  }, [setInputFieldElement, setInputFieldSubmitFunc, submitInput, inputType]);
 
   // Update input type when it changes in the store
   useEffect(() => {
@@ -65,19 +73,10 @@ export function ChatInput({
     }
   }, [inputPlaceholder]);
 
-  const handleSend = (): void => {
-    if (getInputFieldValue().trim() === '') return;
-
-    // Note: Validation is handled in the userResponseCallback of the requesting message
-    // We allow sending here to enable error messages to be displayed when validation fails
-    onSend(getInputFieldValue());
-    setInputFieldValue('');
-  };
-
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      getInputFieldSubmitFunc?.()?.();
+      submitInput();
     }
   };
 
@@ -114,7 +113,7 @@ export function ChatInput({
           }}
         />
         <Button
-          onClick={getInputFieldSubmitFunc?.() ?? (() => {})}
+          onClick={handleSend}
           disabled={getInputFieldValue().trim() === ''}
           className='rounded-lg px-4 py-3 disabled:opacity-40'
           style={{
