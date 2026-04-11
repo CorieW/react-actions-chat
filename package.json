@@ -23,7 +23,8 @@
   },
   "scripts": {
     "dev": "vite --config config/vite.config.ts",
-    "build": "npm run build:styles && vite build --config config/vite.config.ts",
+    "refresh:all": "node scripts/refresh-all.js",
+    "build": "npm run refresh:all && npm run build:styles && vite build --config config/vite.config.ts",
     "build:styles": "node scripts/build-styles-v4.js",
     "check:styles": "node scripts/check-styles.js",
     "lint": "eslint . --config config/eslint.config.js",
