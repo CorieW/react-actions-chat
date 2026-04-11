@@ -1,14 +1,24 @@
-export { Chat } from './Chat';
-export { MessageBubble } from './MessageBubble';
-export { MessageButtons } from './MessageButtons';
-export { MessagesList } from './MessagesList';
-export { ChatInput } from './ChatInput';
-export { PersistentButtons } from './PersistentButtons';
+export { Chat } from "./Chat";
+export { MessageBubble } from "./MessageBubble";
+export { MessageButtons } from "./MessageButtons";
+export { MessagesList } from "./MessagesList";
+export { LoadingIndicator } from "./LoadingIndicator";
+export { ChatInput } from "./ChatInput";
+export { PersistentButtons } from "./PersistentButtons";
 export {
-  createRequestConfirmationButton,
-  type RequestConfirmationButtonConfig,
-} from './RequestConfirmationButton';
+  createButton,
+  type AnyButtonDefinition,
+  type ButtonDefinition,
+  type ButtonRuntimeConfig,
+  type CreatedButton,
+} from "./createButton";
 export {
-  createRequestInputButton,
-  type RequestInputButtonConfig,
-} from './RequestInputButton';
+  createRequestConfirmationButtonDef,
+  type RequestConfirmationButtonDefinition,
+  type RequestConfirmationButtonRuntimeConfig,
+} from "./RequestConfirmationButton";
+export {
+  createRequestInputButtonDef,
+  type RequestInputButtonDefinition,
+  type RequestInputButtonRuntimeConfig,
+} from "./RequestInputButton";

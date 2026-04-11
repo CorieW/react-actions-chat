@@ -1,5 +1,5 @@
-import type { MessageButton, MessageButtonVariant } from '../js/types';
-import { useChatStore } from '../lib';
+import type { MessageButton, MessageButtonVariant } from "../js/types";
+import { useChatStore } from "../lib";
 
 export interface RequestConfirmationButtonConfig {
   /**
@@ -48,6 +48,54 @@ export interface RequestConfirmationButtonConfig {
   readonly style?: React.CSSProperties | undefined;
 }
 
+export interface RequestConfirmationButtonRuntimeConfig {
+  /**
+   * Optional persistent button id. When provided, createButton can return a
+   * button that is safe to reuse in persistent button collections.
+   */
+  readonly id?: string | undefined;
+
+  /**
+   * Callback function executed when the user confirms.
+   */
+  readonly onConfirm?: (() => void) | undefined;
+
+  /**
+   * Callback function executed when the user rejects.
+   */
+  readonly onReject?: (() => void) | undefined;
+}
+
+/**
+ * Static configuration for a confirmation request button before runtime
+ * callbacks are attached by the app.
+ */
+export interface RequestConfirmationButtonDefinition
+  extends Omit<RequestConfirmationButtonConfig, "onConfirm" | "onReject"> {
+  readonly kind: "request-confirmation";
+  readonly id?: string | undefined;
+
+  /**
+   * Optional success callback attached directly to the definition. This runs
+   * when the confirmation is accepted through a button created from the
+   * definition.
+   */
+  readonly onSuccess?: (() => void) | undefined;
+}
+
+/**
+ * Creates a reusable definition for a confirmation request button. Apps can
+ * pass this definition to createButton and provide runtime callbacks there.
+ */
+export function createRequestConfirmationButtonDef(
+  definition: Omit<RequestConfirmationButtonDefinition, "kind">,
+): RequestConfirmationButtonDefinition {
+  return {
+    ...definition,
+    kind: "request-confirmation",
+  };
+}
+
 /**
  * Creates a MessageButton configuration that implements a confirmation flow.
  *
@@ -58,13 +106,13 @@ export interface RequestConfirmationButtonConfig {
  * @returns A MessageButton configuration that can be used in a Message's buttons array
  */
 export function createRequestConfirmationButton(
-  config: RequestConfirmationButtonConfig
+  config: RequestConfirmationButtonConfig,
 ): MessageButton {
   const {
     initialLabel,
     confirmationMessage,
-    confirmLabel = 'Confirm',
-    rejectLabel = 'Decline',
+    confirmLabel = "Confirm",
+    rejectLabel = "Decline",
     onConfirm,
     onReject,
     variant,
@@ -82,19 +130,19 @@ export function createRequestConfirmationButton(
 
       // Add a followup message with the confirmation message and buttons
       addMessage({
-        type: 'other',
-        content: confirmationMessage ?? 'Are you sure you want to do this?',
+        type: "other",
+        content: confirmationMessage ?? "Are you sure you want to do this?",
         buttons: [
           {
             label: confirmLabel,
-            variant: 'success',
+            variant: "success",
             onClick: () => {
               onConfirm();
             },
           },
           {
             label: rejectLabel,
-            variant: 'dull',
+            variant: "dull",
             onClick: () => {
               if (onReject) {
                 onReject();

@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
-import type { ChatPropsWithFlexibleTheme } from '../js/types';
+import { useEffect } from "react";
+import type { ChatPropsWithFlexibleTheme } from "../js/types";
 import {
   useChatStore,
   getResolvedTheme,
   getThemeStyles,
   useInputFieldStore,
-} from '../lib';
-import { MessagesList, ChatInput, PersistentButtons } from './';
+} from "../lib";
+import { MessagesList, ChatInput, PersistentButtons } from "./";
 
 export function Chat({
   initialMessages = [],
@@ -14,6 +14,8 @@ export function Chat({
 }: ChatPropsWithFlexibleTheme): React.JSX.Element {
   const {
     messages,
+    isLoading,
+    loadingMessage,
     addMessage,
     addMessages,
     getPreviousMessage,
@@ -37,19 +39,19 @@ export function Chat({
     const previousMessage = getPreviousMessage();
 
     let displayedContent = messageContent;
-    if (getInputFieldType() === 'password') {
-      displayedContent = '•'.repeat(messageContent.length);
+    if (getInputFieldType() === "password") {
+      displayedContent = "•".repeat(messageContent.length);
     }
 
     // Add the self message
     addMessage({
-      type: 'self',
+      type: "self",
       content: displayedContent,
       rawContent: messageContent,
     });
 
     // If the previous message is an other message and has a userResponseCallback, call it
-    const isPreviousMessageOther = previousMessage?.type === 'other';
+    const isPreviousMessageOther = previousMessage?.type === "other";
     const hasUserResponseCallback = previousMessage?.userResponseCallback;
     if (isPreviousMessageOther && hasUserResponseCallback) {
       previousMessage.userResponseCallback();
@@ -57,16 +59,21 @@ export function Chat({
   };
 
   return (
-    <div className='asc-chat-wrapper'>
+    <div className="asc-chat-wrapper">
       <div
-        className='flex h-screen flex-col'
+        className="flex h-screen flex-col"
         style={{
           ...getThemeStyles(mergedTheme),
           backgroundColor: mergedTheme.backgroundColor,
           color: mergedTheme.textColor,
         }}
       >
-        <MessagesList messages={messages} theme={mergedTheme} />
+        <MessagesList
+          messages={messages}
+          isLoading={isLoading}
+          loadingMessage={loadingMessage}
+          theme={mergedTheme}
+        />
         <PersistentButtons theme={mergedTheme} />
         <ChatInput onSend={handleSend} theme={mergedTheme} />
       </div>

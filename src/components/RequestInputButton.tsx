@@ -1,10 +1,10 @@
-import type { MessageButton, MessageButtonVariant } from '../js/types';
-import { useChatStore, usePersistentButtonStore } from '../lib';
+import type { MessageButton, MessageButtonVariant } from "../js/types";
+import { useChatStore, usePersistentButtonStore } from "../lib";
 import {
   useInputFieldStore,
   type InputType,
   type InputValidator,
-} from '../lib/inputFieldStore';
+} from "../lib/inputFieldStore";
 
 export interface RequestInputButtonConfig {
   /**
@@ -90,6 +90,66 @@ export interface RequestInputButtonConfig {
   readonly showAbort?: boolean | undefined;
 }
 
+export interface RequestInputButtonRuntimeConfig {
+  /**
+   * Optional persistent button id. When provided, createButton can return a
+   * button that is safe to reuse in persistent button collections.
+   */
+  readonly id?: string | undefined;
+
+  /**
+   * Custom callback function executed when the abort button is clicked.
+   * If not provided, the default abort behavior will be used (resets input field and clears callback).
+   */
+  readonly abortCallback?: () => void | undefined;
+
+  /**
+   * Callback function executed when the user provides invalid input.
+   * @param errorMessage The error message to display to the user
+   */
+  readonly onInvalidInput?:
+    | undefined
+    | ((inputValue: string, errorMessage: string) => void);
+
+  /**
+   * Callback function executed when the user provides valid input.
+   * @param inputValue The validated input value provided by the user
+   */
+  readonly onValidInput?: undefined | ((inputValue: string) => void);
+}
+
+/**
+ * Static configuration for an input request button before runtime callbacks
+ * are attached by the app.
+ */
+export interface RequestInputButtonDefinition
+  extends Omit<
+    RequestInputButtonConfig,
+    "abortCallback" | "onInvalidInput" | "onValidInput"
+  > {
+  readonly kind: "request-input";
+  readonly id?: string | undefined;
+
+  /**
+   * Optional success callback attached directly to the definition. This runs
+   * when valid input is submitted through a button created from the definition.
+   */
+  readonly onSuccess?: ((inputValue: string) => void) | undefined;
+}
+
+/**
+ * Creates a reusable definition for an input request button. Apps can pass
+ * this definition to createButton and provide runtime callbacks there.
+ */
+export function createRequestInputButtonDef(
+  definition: Omit<RequestInputButtonDefinition, "kind">,
+): RequestInputButtonDefinition {
+  return {
+    ...definition,
+    kind: "request-input",
+  };
+}
+
 /**
  * Creates a MessageButton configuration that implements an input request flow.
  *
@@ -100,17 +160,17 @@ export interface RequestInputButtonConfig {
  * @param config Configuration options for the input request button
  * @returns A MessageButton configuration that can be used in a Message's buttons array
  */
-const ABORT_BUTTON_ID = 'input-request-abort';
+const ABORT_BUTTON_ID = "input-request-abort";
 
 export function createRequestInputButton(
-  config: RequestInputButtonConfig
+  config: RequestInputButtonConfig,
 ): MessageButton {
   const {
     initialLabel,
     inputPromptMessage,
-    placeholder = 'Type your message...',
+    placeholder = "Type your message...",
     inputDescription,
-    inputType = 'text',
+    inputType = "text",
     validator,
     onValidInput,
     onInvalidInput,
@@ -159,7 +219,7 @@ export function createRequestInputButton(
         // Remove the abort button
         removeButton(ABORT_BUTTON_ID);
         // Reset input field stuff
-        setInputFieldValue('');
+        setInputFieldValue("");
         resetInputFieldType();
         resetInputFieldPlaceholder();
         resetInputFieldDescription();
@@ -192,7 +252,7 @@ export function createRequestInputButton(
           const messages = getMessages();
           const lastSelfMessage = [...messages]
             .reverse()
-            .find(msg => msg.type === 'self');
+            .find((msg) => msg.type === "self");
           if (lastSelfMessage) {
             const inputValue = lastSelfMessage.rawContent;
 
@@ -206,9 +266,9 @@ export function createRequestInputButton(
               } else {
                 isValid = false;
                 errorMessage =
-                  typeof validationResult === 'string'
+                  typeof validationResult === "string"
                     ? validationResult
-                    : 'Invalid input. Please try again.';
+                    : "Invalid input. Please try again.";
               }
             }
 
@@ -221,7 +281,7 @@ export function createRequestInputButton(
             } else {
               onInvalidInput?.(
                 inputValue,
-                errorMessage ?? 'Invalid input. Please try again.'
+                errorMessage ?? "Invalid input. Please try again.",
               );
 
               if (!suppressValidationFailureMessage) {
@@ -229,16 +289,16 @@ export function createRequestInputButton(
                 // so the self can try again. The abort button will be cleared by addMessage,
                 // so we need to re-add it.
                 addMessageCallback({
-                  type: 'other',
-                  content: errorMessage ?? 'Invalid input. Please try again.',
+                  type: "other",
+                  content: errorMessage ?? "Invalid input. Please try again.",
                   userResponseCallback: createValidationCallback(),
                 });
                 // Re-add abort button after error message since addMessage clears it
                 if (showAbort) {
                   addButton({
                     id: ABORT_BUTTON_ID,
-                    label: abortLabel ?? 'Abort',
-                    variant: 'error',
+                    label: abortLabel ?? "Abort",
+                    variant: "error",
                     onClick: handleAbort,
                   });
                 }
@@ -250,7 +310,7 @@ export function createRequestInputButton(
 
       // Add a message prompting for input with userResponseCallback to capture the input
       addMessage({
-        type: 'other',
+        type: "other",
         content: inputPromptMessage,
         userResponseCallback: createValidationCallback(),
       });
@@ -260,8 +320,8 @@ export function createRequestInputButton(
       if (showAbort) {
         addButton({
           id: ABORT_BUTTON_ID,
-          label: abortLabel ?? 'Abort',
-          variant: 'error',
+          label: abortLabel ?? "Abort",
+          variant: "error",
           onClick: handleAbort,
         });
       }
