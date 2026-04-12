@@ -84,7 +84,7 @@ export interface RequestInputButtonDefinition
  * Creates a reusable definition for an input request button. Apps can pass
  * this definition to createButton and provide runtime callbacks there.
  *
- * @param definition The static input-request button settings.
+ * @param definition The `Omit<RequestInputButtonDefinition, 'kind'>` object.
  */
 export function createRequestInputButtonDef(
   definition: Omit<RequestInputButtonDefinition, 'kind'>
@@ -102,7 +102,7 @@ export function createRequestInputButtonDef(
  * the input field with the specified type, placeholder, description, and validator.
  * Once the user provides valid input, the onInput callback is executed.
  *
- * @param config Configuration options for the input request button.
+ * @param config The `RequestInputButtonConfig` object.
  * @returns A MessageButton configuration that can be used in a Message's buttons array.
  */
 const ABORT_BUTTON_ID = 'input-request-abort';

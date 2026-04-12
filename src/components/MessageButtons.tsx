@@ -71,7 +71,7 @@ function getButtonVariantStyles(
 /**
  * Renders the action buttons attached to a single message.
  *
- * @param props The message button group props.
+ * @param props The `MessageButtonsProps` object.
  */
 export function MessageButtons({
   buttons,
