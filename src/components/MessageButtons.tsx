@@ -6,12 +6,16 @@ import type {
 } from '../js/types';
 import { cn } from '../lib/utils';
 
+/**
+ * Props for the action buttons shown below a message.
+ *
+ * @property buttons Action buttons attached to the message.
+ * @property messageType Message side used to align the buttons with the bubble.
+ * @property theme Theme tokens used to style button colors.
+ */
 interface MessageButtonsProps {
-  /** Action buttons attached to the message. */
   readonly buttons: InputMessage['buttons'];
-  /** Message side used to align the buttons with the bubble. */
   readonly messageType: InputMessage['type'];
-  /** Theme tokens used to style button colors. */
   readonly theme: ChatTheme;
 }
 
@@ -64,6 +68,14 @@ function getButtonVariantStyles(
   }
 }
 
+/**
+ * Renders the action buttons attached to a single message.
+ *
+ * @param props The message button group props.
+ * @param props.buttons Action buttons attached to the message.
+ * @param props.messageType Message side used to align the buttons with the bubble.
+ * @param props.theme Theme tokens used to style button colors.
+ */
 export function MessageButtons({
   buttons,
   messageType,

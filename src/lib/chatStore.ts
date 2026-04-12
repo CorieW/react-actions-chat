@@ -9,6 +9,23 @@ import { usePersistentButtonStore } from './persistentButtonStore';
 
 const ABORT_BUTTON_ID = 'input-request-abort';
 
+/**
+ * Internal chat store shape.
+ *
+ * @property messages Current chat transcript.
+ * @property isLoading Whether the chat is currently waiting on async work.
+ * @property getMessages Returns the current chat transcript.
+ * @property getPreviousMessage Returns the latest message in the transcript.
+ * @property addMessage Adds one message to the transcript.
+ * @property addMessages Adds multiple messages to the transcript.
+ * @property setMessages Replaces the transcript with a new message list.
+ * @property setLoading Sets the loading state.
+ * @property clearLoading Clears the loading state.
+ * @property clearMessages Clears the transcript and loading state.
+ * @property clearButtons Removes buttons from all messages.
+ * @property clearPreviousMessageButtons Removes buttons from the latest message.
+ * @property clearPreviousMessageCallback Removes the latest message callback.
+ */
 interface ChatState {
   readonly messages: readonly Message[];
   readonly isLoading: boolean;
@@ -25,6 +42,9 @@ interface ChatState {
   readonly clearPreviousMessageCallback: () => void;
 }
 
+/**
+ * Shared chat state store for messages and loading state.
+ */
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isLoading: false,

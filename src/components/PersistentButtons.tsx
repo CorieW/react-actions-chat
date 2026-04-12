@@ -52,11 +52,21 @@ function getButtonVariantStyles(
   }
 }
 
+/**
+ * Props for the persistent action bar.
+ *
+ * @property theme Theme tokens used to style the persistent action bar and buttons.
+ */
 interface PersistentButtonsProps {
-  /** Theme tokens used to style the persistent action bar and buttons. */
   readonly theme: ChatTheme;
 }
 
+/**
+ * Renders the persistent action buttons shown above the input field.
+ *
+ * @param props The persistent button bar props.
+ * @param props.theme Theme tokens used to style the persistent action bar and buttons.
+ */
 export function PersistentButtons({
   theme,
 }: PersistentButtonsProps): React.JSX.Element | null {

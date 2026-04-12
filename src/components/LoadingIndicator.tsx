@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import type { ChatTheme } from '../js/types';
 
+/**
+ * Props for the loading indicator.
+ *
+ * @property theme Theme tokens used to style the indicator.
+ */
 interface LoadingIndicatorProps {
-  /** Theme tokens used to style the indicator. */
   readonly theme: ChatTheme;
 }
 
 /**
  * Lightweight chat loading indicator shown while async work is in progress.
+ *
+ * @param props The loading indicator props.
+ * @param props.theme Theme tokens used to style the indicator.
  */
 export function LoadingIndicator({
   theme,

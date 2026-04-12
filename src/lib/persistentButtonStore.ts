@@ -9,44 +9,37 @@ import type { MessageButton } from '../js/types';
 /**
  * A persistent button that extends MessageButton with a unique identifier.
  * These buttons are displayed at the bottom of the chat, above the input box.
+ *
+ * @property id Unique identifier for the persistent button.
  */
 interface PersistentButton extends MessageButton {
   readonly id: string;
 }
 
+/**
+ * Internal persistent button store shape.
+ *
+ * @property buttons Current persistent buttons shown above the input field.
+ * @property getButtons Returns the current array of persistent buttons.
+ * @property addButton Adds a new persistent button or updates an existing one with the same id.
+ * @property removeButton Removes a persistent button by id.
+ * @property setButtons Replaces all persistent buttons with a new array.
+ * @property clearButtons Removes all persistent buttons.
+ */
 interface PersistentButtonStoreState {
   readonly buttons: readonly PersistentButton[];
-
-  // Getters
-  /**
-   * Returns the current array of persistent buttons.
-   */
   readonly getButtons: () => readonly PersistentButton[];
-
-  // Setters
-  /**
-   * Adds a new persistent button or updates an existing one if a button with the same id already exists.
-   * @param button The button configuration with a unique id
-   */
   readonly addButton: (button: MessageButton & { readonly id: string }) => void;
-  /**
-   * Removes a persistent button by its id.
-   * @param id The unique identifier of the button to remove
-   */
   readonly removeButton: (id: string) => void;
-  /**
-   * Replaces all persistent buttons with the provided array.
-   * @param buttons Array of button configurations with unique ids
-   */
   readonly setButtons: (
     buttons: readonly (MessageButton & { readonly id: string })[]
   ) => void;
-  /**
-   * Removes all persistent buttons.
-   */
   readonly clearButtons: () => void;
 }
 
+/**
+ * Shared store for buttons that stay visible above the input field.
+ */
 export const usePersistentButtonStore = create<PersistentButtonStoreState>(
   (set, get) => ({
     buttons: [],

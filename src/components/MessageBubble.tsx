@@ -3,13 +3,24 @@ import type { ChatTheme, Message } from '../js/types';
 import { LoadingIndicator } from './LoadingIndicator';
 import { MessageButtons } from './MessageButtons';
 
+/**
+ * Props for a single chat bubble.
+ *
+ * @property message Message data to render, including content, metadata, and actions.
+ * @property theme Theme tokens used to style the bubble and text colors.
+ */
 interface MessageBubbleProps {
-  /** Message data to render, including content, metadata, and actions. */
   readonly message: Message;
-  /** Theme tokens used to style the bubble and text colors. */
   readonly theme: ChatTheme;
 }
 
+/**
+ * Renders a single chat bubble with its timestamp and optional actions.
+ *
+ * @param props The message bubble props.
+ * @param props.message Message data to render, including content, metadata, and actions.
+ * @param props.theme Theme tokens used to style the bubble and text colors.
+ */
 export function MessageBubble({
   message,
   theme,

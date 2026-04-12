@@ -5,13 +5,24 @@ import type { ChatTheme } from '../js/types';
 import { Button } from './ui/button';
 import { useInputFieldStore } from '../lib/inputFieldStore';
 
+/**
+ * Props for the shared chat input field.
+ *
+ * @property onSend Called when the user submits the current input value.
+ * @property theme Theme tokens used to style the input area and send button.
+ */
 interface ChatInputProps {
-  /** Called when the user submits the current input value. */
   readonly onSend: (message: string) => void;
-  /** Theme tokens used to style the input area and send button. */
   readonly theme: ChatTheme;
 }
 
+/**
+ * Renders the shared chat input field and submit button.
+ *
+ * @param props The chat input props.
+ * @param props.onSend Called when the user submits the current input value.
+ * @param props.theme Theme tokens used to style the input area and send button.
+ */
 export function ChatInput({
   onSend,
   theme,

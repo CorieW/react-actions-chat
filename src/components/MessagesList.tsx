@@ -2,15 +2,27 @@ import React, { useRef, useEffect } from 'react';
 import type { ChatTheme, Message } from '../js/types';
 import { MessageBubble } from './';
 
+/**
+ * Props for the chat transcript list.
+ *
+ * @property messages Messages to render in the chat transcript.
+ * @property isLoading Shows the loading indicator below the transcript when true.
+ * @property theme Theme tokens used to style message surfaces.
+ */
 interface MessagesListProps {
-  /** Messages to render in the chat transcript. */
   readonly messages: readonly Message[];
-  /** Shows the loading indicator below the transcript when true. */
   readonly isLoading?: boolean | undefined;
-  /** Theme tokens used to style message surfaces. */
   readonly theme: ChatTheme;
 }
 
+/**
+ * Renders the chat transcript and keeps the latest content in view.
+ *
+ * @param props The message list props.
+ * @param props.messages Messages to render in the chat transcript.
+ * @param props.isLoading Shows the loading indicator below the transcript when true.
+ * @param props.theme Theme tokens used to style message surfaces.
+ */
 export function MessagesList({
   messages,
   isLoading = false,
@@ -37,12 +49,11 @@ export function MessagesList({
   return (
     <div className='flex-1 space-y-5 overflow-y-auto scroll-smooth p-6'>
       {messages.map(message => (
-        <MessageBubble
-          key={message.id}
-          message={isLoading ? loadingIndicatorBubble : message}
-          theme={theme}
-        />
+        <MessageBubble key={message.id} message={message} theme={theme} />
       ))}
+      {isLoading ? (
+        <MessageBubble message={loadingIndicatorBubble} theme={theme} />
+      ) : null}
       <div ref={messagesEndRef} />
     </div>
   );

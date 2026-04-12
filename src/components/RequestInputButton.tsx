@@ -6,121 +6,69 @@ import {
   type InputValidator,
 } from '../lib/inputFieldStore';
 
+/**
+ * Configuration for a button that asks the user to submit a follow-up input.
+ *
+ * @property initialLabel Label for the initial button that triggers the input request flow.
+ * @property inputPromptMessage Message displayed when requesting input from the user.
+ * @property placeholder Placeholder text for the input field.
+ * @property inputDescription Description text shown above the input field.
+ * @property inputType Type of input field used for the request flow.
+ * @property validator Validation function used to accept or reject submitted input.
+ * @property onInvalidInput Callback function executed when the user provides invalid input.
+ * @property onValidInput Callback function executed when the user provides valid input.
+ * @property suppressValidationFailureMessage When true, skips the default validation failure message.
+ * @property variant Optional variant for the initial button.
+ * @property className Optional className for the initial button.
+ * @property style Optional style for the initial button.
+ * @property abortLabel Custom label for the abort button.
+ * @property abortCallback Custom callback function executed when the abort button is clicked.
+ * @property showAbort Whether to show the abort button during the flow.
+ */
 export interface RequestInputButtonConfig {
-  /**
-   * Label for the initial button that triggers the input request flow.
-   */
   readonly initialLabel: string;
-
-  /**
-   * Message displayed when requesting input from the user.
-   */
   readonly inputPromptMessage: string;
-
-  /**
-   * Placeholder text for the input field. Defaults to "Type your message...".
-   */
   readonly placeholder?: string | undefined;
-
-  /**
-   * Description text shown above the input field. Optional.
-   */
   readonly inputDescription?: string | undefined;
-
-  /**
-   * Type of input field (text, password, email, etc.). Defaults to 'text'.
-   */
   readonly inputType?: InputType | undefined;
-
-  /**
-   * Validation function for the input. Returns true if valid, or an error message string if invalid.
-   * If validation fails, the input will not be processed.
-   */
   readonly validator?: InputValidator | undefined;
-
-  /**
-   * Callback function executed when the user provides invalid input.
-   * @param errorMessage The error message to display to the user
-   */
   readonly onInvalidInput?:
     | undefined
     | ((inputValue: string, errorMessage: string) => void);
-
-  /**
-   * Callback function executed when the user provides valid input.
-   * @param inputValue The validated input value provided by the user
-   */
   readonly onValidInput?: undefined | ((inputValue: string) => void);
-
-  /**
-   * If true, suppress the default validation failure message. Defaults to false.
-   * When enabled, only the onInvalidInput callback will be triggered with the validation result.
-   */
   readonly suppressValidationFailureMessage?: boolean | undefined;
-
-  /**
-   * Optional variant for the initial button. Defaults to 'default'.
-   */
   readonly variant?: MessageButtonVariant | undefined;
-
-  /**
-   * Optional className for the initial button.
-   */
   readonly className?: string | undefined;
-
-  /**
-   * Optional style for the initial button.
-   */
   readonly style?: React.CSSProperties | undefined;
-
-  /**
-   * Custom label for the abort button. Defaults to 'Abort'.
-   */
   readonly abortLabel?: string | undefined;
-
-  /**
-   * Custom callback function executed when the abort button is clicked.
-   * If not provided, the default abort behavior will be used (resets input field and clears callback).
-   */
   readonly abortCallback?: () => void | undefined;
-
-  /**
-   * Whether to show the abort button. Defaults to true.
-   */
   readonly showAbort?: boolean | undefined;
 }
 
+/**
+ * Runtime overrides that can be added when building an input request button.
+ *
+ * @property id Optional persistent button id.
+ * @property abortCallback Custom callback function executed when the abort button is clicked.
+ * @property onInvalidInput Callback function executed when the user provides invalid input.
+ * @property onValidInput Callback function executed when the user provides valid input.
+ */
 export interface RequestInputButtonRuntimeConfig {
-  /**
-   * Optional persistent button id. When provided, createButton can return a
-   * button that is safe to reuse in persistent button collections.
-   */
   readonly id?: string | undefined;
-
-  /**
-   * Custom callback function executed when the abort button is clicked.
-   * If not provided, the default abort behavior will be used (resets input field and clears callback).
-   */
   readonly abortCallback?: () => void | undefined;
-
-  /**
-   * Callback function executed when the user provides invalid input.
-   * @param errorMessage The error message to display to the user
-   */
   readonly onInvalidInput?:
     | undefined
     | ((inputValue: string, errorMessage: string) => void);
-
-  /**
-   * Callback function executed when the user provides valid input.
-   * @param inputValue The validated input value provided by the user
-   */
   readonly onValidInput?: undefined | ((inputValue: string) => void);
 }
 
 /**
  * Static configuration for an input request button before runtime callbacks
  * are attached by the app.
+ *
+ * @property kind Discriminator used by createButton to detect this definition type.
+ * @property id Optional id used when reusing the button in persistent button collections.
+ * @property onSuccess Optional success callback attached directly to the definition.
  */
 export interface RequestInputButtonDefinition
   extends Omit<
@@ -129,17 +77,28 @@ export interface RequestInputButtonDefinition
   > {
   readonly kind: 'request-input';
   readonly id?: string | undefined;
-
-  /**
-   * Optional success callback attached directly to the definition. This runs
-   * when valid input is submitted through a button created from the definition.
-   */
   readonly onSuccess?: ((inputValue: string) => void) | undefined;
 }
 
 /**
  * Creates a reusable definition for an input request button. Apps can pass
  * this definition to createButton and provide runtime callbacks there.
+ *
+ * @param definition The static input-request button settings.
+ * @param definition.id Optional id carried onto buttons created from the definition.
+ * @param definition.initialLabel Label for the initial button that starts the flow.
+ * @param definition.inputPromptMessage Message shown when requesting input from the user.
+ * @param definition.placeholder Optional placeholder shown in the input field.
+ * @param definition.inputDescription Optional helper text shown above the input field.
+ * @param definition.inputType Optional input type used for the shared input field.
+ * @param definition.validator Optional validator used to accept or reject submitted input.
+ * @param definition.suppressValidationFailureMessage When true, skips the default validation error message.
+ * @param definition.variant Optional variant for the initial button.
+ * @param definition.className Optional classes applied to the initial button.
+ * @param definition.style Optional inline styles applied to the initial button.
+ * @param definition.abortLabel Optional label shown on the abort button.
+ * @param definition.showAbort Whether to show the abort button during the flow.
+ * @param definition.onSuccess Optional callback run after valid input is submitted.
  */
 export function createRequestInputButtonDef(
   definition: Omit<RequestInputButtonDefinition, 'kind'>
@@ -157,8 +116,23 @@ export function createRequestInputButtonDef(
  * the input field with the specified type, placeholder, description, and validator.
  * Once the user provides valid input, the onInput callback is executed.
  *
- * @param config Configuration options for the input request button
- * @returns A MessageButton configuration that can be used in a Message's buttons array
+ * @param config Configuration options for the input request button.
+ * @param config.initialLabel Label for the initial button that starts the flow.
+ * @param config.inputPromptMessage Message shown when requesting input from the user.
+ * @param config.placeholder Optional placeholder shown in the input field.
+ * @param config.inputDescription Optional helper text shown above the input field.
+ * @param config.inputType Optional input type used for the shared input field.
+ * @param config.validator Optional validator used to accept or reject submitted input.
+ * @param config.onInvalidInput Optional callback run when submitted input is rejected.
+ * @param config.onValidInput Optional callback run when submitted input is accepted.
+ * @param config.suppressValidationFailureMessage When true, skips the default validation error message.
+ * @param config.variant Optional variant for the initial button.
+ * @param config.className Optional classes applied to the initial button.
+ * @param config.style Optional inline styles applied to the initial button.
+ * @param config.abortLabel Optional label shown on the abort button.
+ * @param config.abortCallback Optional custom abort handler.
+ * @param config.showAbort Whether to show the abort button during the flow.
+ * @returns A MessageButton configuration that can be used in a Message's buttons array.
  */
 const ABORT_BUTTON_ID = 'input-request-abort';
 

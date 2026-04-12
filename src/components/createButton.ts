@@ -12,20 +12,39 @@ import {
   type RequestInputButtonRuntimeConfig,
 } from './RequestInputButton';
 
+/**
+ * Base configuration for a plain message button definition.
+ *
+ * @property id Optional id used when reusing the button in persistent button collections.
+ */
 export interface ButtonDefinition extends Omit<MessageButton, 'onClick'> {
   readonly id?: string | undefined;
 }
 
+/**
+ * Runtime overrides that can be applied when creating a plain message button.
+ *
+ * @property id Optional id that overrides the definition id when the button is created.
+ * @property onClick Click handler attached to the created button at runtime.
+ */
 export interface ButtonRuntimeConfig {
   readonly id?: string | undefined;
   readonly onClick?: (() => void) | undefined;
 }
 
+/**
+ * Union of all button definition shapes supported by createButton.
+ */
 export type AnyButtonDefinition =
   | ButtonDefinition
   | RequestInputButtonDefinition
   | RequestConfirmationButtonDefinition;
 
+/**
+ * Final button shape returned by createButton.
+ *
+ * @property id Optional id used when storing the button in persistent button collections.
+ */
 export type CreatedButton = MessageButton & {
   readonly id?: string | undefined;
 };
@@ -56,6 +75,14 @@ function isRequestConfirmationButtonDefinition(
   return 'kind' in definition && definition.kind === 'request-confirmation';
 }
 
+/**
+ * Creates a plain, input-request, or confirmation button from a shared API.
+ *
+ * @param definition The button definition to turn into a clickable message button.
+ * @param definition.id Optional id carried onto the created button.
+ * @param runtimeConfig Optional runtime overrides applied when the button is created.
+ * @param runtimeConfig.id Optional id that overrides the definition id.
+ */
 export function createButton(
   definition: ButtonDefinition,
   runtimeConfig?: ButtonRuntimeConfig
@@ -68,6 +95,14 @@ export function createButton(
   definition: RequestConfirmationButtonDefinition,
   runtimeConfig?: RequestConfirmationButtonRuntimeConfig
 ): CreatedButton;
+/**
+ * Creates a plain, input-request, or confirmation button from a shared API.
+ *
+ * @param definition The button definition to turn into a clickable message button.
+ * @param definition.id Optional id carried onto the created button.
+ * @param runtimeConfig Optional runtime overrides applied when the button is created.
+ * @param runtimeConfig.id Optional id that overrides the definition id.
+ */
 export function createButton(
   definition: AnyButtonDefinition,
   runtimeConfig:
