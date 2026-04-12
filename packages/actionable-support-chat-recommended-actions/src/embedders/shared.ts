@@ -6,7 +6,7 @@ export type EmbeddingVector = readonly number[];
 /**
  * Describes whether text is being embedded as a query or a document.
  */
-export type EmbeddingInputType = "query" | "document";
+export type EmbeddingInputType = 'query' | 'document';
 
 export interface EmbedTextOptions {
   readonly inputType?: EmbeddingInputType | undefined;
@@ -18,25 +18,25 @@ export interface EmbedTextOptions {
 export interface TextEmbedder {
   readonly embedText: (
     text: string,
-    options?: EmbedTextOptions,
+    options?: EmbedTextOptions
   ) => Promise<EmbeddingVector>;
   readonly embedTexts?:
     | ((
         texts: readonly string[],
-        options?: EmbedTextOptions,
+        options?: EmbedTextOptions
       ) => Promise<readonly EmbeddingVector[]>)
     | undefined;
 }
 
 export type FetchLike = (
   input: RequestInfo | URL,
-  init?: RequestInit,
+  init?: RequestInit
 ) => Promise<Response>;
 
 export async function embedTexts(
   embedder: TextEmbedder,
   texts: readonly string[],
-  inputType: EmbeddingInputType,
+  inputType: EmbeddingInputType
 ): Promise<readonly EmbeddingVector[]> {
   if (embedder.embedTexts) {
     return embedder.embedTexts(texts, {
@@ -45,11 +45,11 @@ export async function embedTexts(
   }
 
   return Promise.all(
-    texts.map((text) =>
+    texts.map(text =>
       embedder.embedText(text, {
         inputType,
-      }),
-    ),
+      })
+    )
   );
 }
 
@@ -58,7 +58,7 @@ export function getFetchImplementation(fetchImpl?: FetchLike): FetchLike {
 
   if (!resolvedFetch) {
     throw new Error(
-      "No fetch implementation was available for the text embedder request.",
+      'No fetch implementation was available for the text embedder request.'
     );
   }
 
@@ -66,11 +66,11 @@ export function getFetchImplementation(fetchImpl?: FetchLike): FetchLike {
 }
 
 export async function parseJsonResponse<T>(
-  response: Response,
+  response: Response
 ): Promise<T | null> {
   const responseText = await response.text();
 
-  if (responseText.trim() === "") {
+  if (responseText.trim() === '') {
     return null;
   }
 
@@ -79,25 +79,25 @@ export async function parseJsonResponse<T>(
 
 export function extractProviderErrorMessage(
   data: unknown,
-  fallbackMessage: string,
+  fallbackMessage: string
 ): string {
   if (
     data &&
-    typeof data === "object" &&
-    "error" in data &&
+    typeof data === 'object' &&
+    'error' in data &&
     data.error &&
-    typeof data.error === "object" &&
-    "message" in data.error &&
-    typeof data.error.message === "string"
+    typeof data.error === 'object' &&
+    'message' in data.error &&
+    typeof data.error.message === 'string'
   ) {
     return data.error.message;
   }
 
   if (
     data &&
-    typeof data === "object" &&
-    "message" in data &&
-    typeof data.message === "string"
+    typeof data === 'object' &&
+    'message' in data &&
+    typeof data.message === 'string'
   ) {
     return data.message;
   }

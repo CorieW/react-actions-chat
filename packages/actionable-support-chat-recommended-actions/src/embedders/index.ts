@@ -1,11 +1,11 @@
 export {
   createCohereTextEmbedder,
   type CohereTextEmbedderConfig,
-} from "./cohere";
+} from './cohere';
 export {
   createOpenAITextEmbedder,
   type OpenAITextEmbedderConfig,
-} from "./openai";
+} from './openai';
 export {
   type EmbedTextOptions,
   type EmbeddingInputType,
@@ -13,8 +13,8 @@ export {
   type FetchLike,
   type TextEmbedder,
   embedTexts,
-} from "./shared";
+} from './shared';
 export {
   createVoyageTextEmbedder,
   type VoyageTextEmbedderConfig,
-} from "./voyage";
+} from './voyage';

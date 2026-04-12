@@ -6,7 +6,7 @@ import {
   type RequestInputButtonDefinition,
   type RequestInputButtonRuntimeConfig,
   useChatStore,
-} from "actionable-support-chat";
+} from 'actionable-support-chat';
 
 /**
  * Context passed to query recommendation resolvers.
@@ -44,7 +44,7 @@ type QueryRecommendedActionsResolverResult =
 
 export type QueryRecommendedActionsResolver = (
   query: string,
-  context: QueryRecommendedActionsContext,
+  context: QueryRecommendedActionsContext
 ) =>
   | QueryRecommendedActionsResolverResult
   | Promise<QueryRecommendedActionsResolverResult>;
@@ -54,7 +54,7 @@ type FlowErrorMessageResolver = (query: string, error: unknown) => string;
 type FlowLoadingMessageResolver = (query: string) => string;
 
 function wait(durationMs: number): Promise<void> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     globalThis.setTimeout(resolve, durationMs);
   });
 }
@@ -65,19 +65,19 @@ function wait(durationMs: number): Promise<void> {
 export interface QueryRecommendedActionsFlowConfig
   extends Pick<
       RequestInputButtonDefinition,
-      | "abortLabel"
-      | "className"
-      | "id"
-      | "inputDescription"
-      | "inputType"
-      | "placeholder"
-      | "showAbort"
-      | "style"
-      | "suppressValidationFailureMessage"
-      | "validator"
-      | "variant"
+      | 'abortLabel'
+      | 'className'
+      | 'id'
+      | 'inputDescription'
+      | 'inputType'
+      | 'placeholder'
+      | 'showAbort'
+      | 'style'
+      | 'suppressValidationFailureMessage'
+      | 'validator'
+      | 'variant'
     >,
-    Pick<RequestInputButtonRuntimeConfig, "abortCallback" | "onInvalidInput"> {
+    Pick<RequestInputButtonRuntimeConfig, 'abortCallback' | 'onInvalidInput'> {
   /**
    * Label for the button that starts the flow.
    */
@@ -135,7 +135,7 @@ export interface QueryRecommendedActionsFlowConfig
     | ((
         query: string,
         error: unknown,
-        context: QueryRecommendedActionsContext,
+        context: QueryRecommendedActionsContext
       ) => void);
 }
 
@@ -160,7 +160,7 @@ export interface QueryRecommendedActionsFlow {
 }
 
 function isRecommendedActionArray(
-  result: QueryRecommendedActionsResolverResult,
+  result: QueryRecommendedActionsResolverResult
 ): result is readonly QueryRecommendedAction[] {
   return Array.isArray(result);
 }
@@ -173,7 +173,7 @@ function createContext(query: string): QueryRecommendedActionsContext {
 }
 
 function normalizeResolverResult(
-  result: QueryRecommendedActionsResolverResult,
+  result: QueryRecommendedActionsResolverResult
 ): QueryRecommendedActionsResult {
   if (!result) {
     return {
@@ -196,9 +196,9 @@ function normalizeResolverResult(
 function resolveMessage(
   query: string,
   message: string | FlowMessageResolver | undefined,
-  fallback: string,
+  fallback: string
 ): string {
-  if (typeof message === "function") {
+  if (typeof message === 'function') {
     return message(query);
   }
 
@@ -207,9 +207,9 @@ function resolveMessage(
 
 function resolveLoadingMessage(
   query: string,
-  message: string | FlowLoadingMessageResolver | undefined,
+  message: string | FlowLoadingMessageResolver | undefined
 ): string {
-  if (typeof message === "function") {
+  if (typeof message === 'function') {
     return message(query);
   }
 
@@ -219,9 +219,9 @@ function resolveLoadingMessage(
 function resolveErrorMessage(
   query: string,
   error: unknown,
-  message: string | FlowErrorMessageResolver | undefined,
+  message: string | FlowErrorMessageResolver | undefined
 ): string {
-  if (typeof message === "function") {
+  if (typeof message === 'function') {
     return message(query, error);
   }
 
@@ -236,7 +236,7 @@ function resolveErrorMessage(
  * recommended actions, and displays the resulting buttons in the chat.
  */
 export function createQueryRecommendedActionsFlow(
-  config: QueryRecommendedActionsFlowConfig,
+  config: QueryRecommendedActionsFlowConfig
 ): QueryRecommendedActionsFlow {
   const {
     abortCallback,
@@ -247,16 +247,16 @@ export function createQueryRecommendedActionsFlow(
     errorMessage,
     getRecommendedActions,
     id,
-    initialLabel = "Find help",
+    initialLabel = 'Find help',
     inputDescription,
-    inputType = "search",
-    normalizeQuery = (query) => query.trim(),
+    inputType = 'search',
+    normalizeQuery = query => query.trim(),
     onError,
     onInvalidInput,
     loadingMessage,
     minimumLoadingDurationMs = 0,
-    placeholder = "Search for help topics...",
-    queryPromptMessage = "What would you like help with?",
+    placeholder = 'Search for help topics...',
+    queryPromptMessage = 'What would you like help with?',
     showAbort = true,
     style,
     suppressValidationFailureMessage = false,
@@ -272,7 +272,7 @@ export function createQueryRecommendedActionsFlow(
     const loadingLabel = resolveLoadingMessage(query, loadingMessage);
     let pendingMessage:
       | {
-          readonly type: "other";
+          readonly type: 'other';
           readonly content: string;
           readonly buttons?: readonly QueryRecommendedAction[] | undefined;
         }
@@ -281,8 +281,8 @@ export function createQueryRecommendedActionsFlow(
 
     try {
       addMessage({
-        type: "other",
-        content: "",
+        type: 'other',
+        content: '',
         isLoading: true,
         loadingLabel: loadingLabel,
       });
@@ -290,27 +290,27 @@ export function createQueryRecommendedActionsFlow(
 
       const resolverResult = await getRecommendedActions(
         query,
-        createContext(query),
+        createContext(query)
       );
       const normalizedResult = normalizeResolverResult(resolverResult);
       const recommendedActions = normalizedResult.recommendedActions ?? [];
 
       if (recommendedActions.length === 0) {
         pendingMessage = {
-          type: "other",
+          type: 'other',
           content: resolveMessage(
             query,
             normalizedResult.responseMessage ?? emptyStateMessage,
-            `I couldn't find any recommended actions for "${query}" yet.`,
+            `I couldn't find any recommended actions for "${query}" yet.`
           ),
         };
       } else {
         pendingMessage = {
-          type: "other",
+          type: 'other',
           content: resolveMessage(
             query,
             normalizedResult.responseMessage ?? buildRecommendationsMessage,
-            `Here are the recommended next steps for "${query}".`,
+            `Here are the recommended next steps for "${query}".`
           ),
           buttons: recommendedActions,
         };
@@ -319,7 +319,7 @@ export function createQueryRecommendedActionsFlow(
       const context = createContext(query);
       onError?.(query, error, context);
       pendingMessage = {
-        type: "other",
+        type: 'other',
         content: resolveErrorMessage(query, error, errorMessage),
       };
     } finally {
@@ -334,7 +334,7 @@ export function createQueryRecommendedActionsFlow(
     if (pendingMessage) {
       if (loadingMessageId === undefined) {
         addMessage({
-          type: "other",
+          type: 'other',
           content: pendingMessage.content,
           ...(pendingMessage.buttons
             ? { buttons: pendingMessage.buttons }
@@ -344,7 +344,7 @@ export function createQueryRecommendedActionsFlow(
       }
 
       setMessages(
-        getMessages().map((message) => {
+        getMessages().map(message => {
           if (message.id !== loadingMessageId) {
             return message;
           }
@@ -357,7 +357,7 @@ export function createQueryRecommendedActionsFlow(
 
           return {
             ...resolvedMessage,
-            type: "other",
+            type: 'other',
             content: pendingMessage.content,
             rawContent: pendingMessage.content,
             isLoading: false,
@@ -365,12 +365,12 @@ export function createQueryRecommendedActionsFlow(
               ? { buttons: pendingMessage.buttons }
               : { buttons: [] }),
           };
-        }),
+        })
       );
     }
   };
 
-  const buttonConfig: Omit<RequestInputButtonDefinition, "kind"> = {
+  const buttonConfig: Omit<RequestInputButtonDefinition, 'kind'> = {
     id,
     initialLabel,
     inputPromptMessage: queryPromptMessage,
@@ -391,7 +391,7 @@ export function createQueryRecommendedActionsFlow(
     ...(abortCallback ? { abortCallback } : {}),
     ...(id ? { id } : {}),
     ...(onInvalidInput ? { onInvalidInput } : {}),
-    onValidInput: (query) => {
+    onValidInput: query => {
       void runFlow(query);
     },
   });
