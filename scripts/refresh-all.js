@@ -4,20 +4,17 @@
  * build or dev session starts from a clean state.
  */
 
-import { readdirSync, existsSync, rmSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { readdirSync, existsSync, rmSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 
-const rootDir = resolve(import.meta.dirname, "..");
+const rootDir = resolve(import.meta.dirname, '..');
 const projectDirectories = [
   rootDir,
-  ...getProjectDirectories(join(rootDir, "packages")),
-  ...getProjectDirectories(join(rootDir, "examples")),
+  ...getProjectDirectories(join(rootDir, 'packages')),
+  ...getProjectDirectories(join(rootDir, 'examples')),
 ];
 
-const refreshTargets = [
-  "dist",
-  join("node_modules", ".vite"),
-];
+const refreshTargets = ['dist', join('node_modules', '.vite')];
 
 for (const projectDirectory of projectDirectories) {
   for (const target of refreshTargets) {
@@ -25,10 +22,10 @@ for (const projectDirectory of projectDirectories) {
   }
 }
 
-removePath(join(rootDir, ".temp-styles-build"));
+removePath(join(rootDir, '.temp-styles-build'));
 
 console.log(
-  `Refreshed ${projectDirectories.length} project(s) across examples and packages.`,
+  `Refreshed ${projectDirectories.length} project(s) across examples and packages.`
 );
 
 function getProjectDirectories(parentDirectory) {
@@ -37,9 +34,9 @@ function getProjectDirectories(parentDirectory) {
   }
 
   return readdirSync(parentDirectory, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => join(parentDirectory, entry.name))
-    .filter((directory) => existsSync(join(directory, "package.json")))
+    .filter(entry => entry.isDirectory())
+    .map(entry => join(parentDirectory, entry.name))
+    .filter(directory => existsSync(join(directory, 'package.json')))
     .sort();
 }
 
@@ -53,5 +50,5 @@ function removePath(targetPath) {
     recursive: true,
   });
 
-  console.log(`Removed ${targetPath.replace(`${rootDir}/`, "")}`);
+  console.log(`Removed ${targetPath.replace(`${rootDir}/`, '')}`);
 }

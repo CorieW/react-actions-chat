@@ -31,24 +31,24 @@ npm install actionable-support-chat-recommended-actions
 ## Quick Start
 
 ```tsx
-import { Chat } from "actionable-support-chat";
-import "actionable-support-chat/styles";
+import { Chat } from 'actionable-support-chat';
+import 'actionable-support-chat/styles';
 
 function App() {
   const initialMessages = [
     {
-      type: "other",
-      content: "Hello! How can I help you today?",
+      type: 'other',
+      content: 'Hello! How can I help you today?',
       buttons: [
         {
-          label: "Get Support",
-          onClick: () => console.log("Support requested"),
+          label: 'Get Support',
+          onClick: () => console.log('Support requested'),
         },
       ],
     },
   ];
 
-  return <Chat initialMessages={initialMessages} theme="dark" />;
+  return <Chat initialMessages={initialMessages} theme='dark' />;
 }
 ```
 
@@ -66,8 +66,8 @@ Reusable recommended-action flows now live in the companion package `actionable-
 import {
   createQueryRecommendedActionsFlow,
   createVectorSearchQueryRecommendedActionsFlow,
-} from "actionable-support-chat-recommended-actions";
-import "actionable-support-chat/styles";
+} from 'actionable-support-chat-recommended-actions';
+import 'actionable-support-chat/styles';
 ```
 
 It includes:
