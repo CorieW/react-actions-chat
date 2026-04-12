@@ -179,15 +179,11 @@ describe('Chat Component Integration Tests', () => {
   });
 
   it('should display a loading indicator from the chat store', () => {
-    useChatStore.getState().setLoading(true, 'Looking up recommendations...');
+    useChatStore.getState().setLoading(true);
 
     render(<Chat />);
 
-    expect(
-      screen.getByRole('status', {
-        name: 'Looking up recommendations...',
-      })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
   });
 
   it('should render a loading assistant message in the message list', () => {
@@ -198,17 +194,12 @@ describe('Chat Component Integration Tests', () => {
             type: 'other',
             content: '',
             isLoading: true,
-            loadingLabel: 'Looking up recommendations...',
           },
         ]}
       />
     );
 
-    expect(
-      screen.getByRole('status', {
-        name: 'Looking up recommendations...',
-      })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
   });
 
   it('should handle button clicks', async () => {

@@ -12,13 +12,12 @@ const ABORT_BUTTON_ID = 'input-request-abort';
 interface ChatState {
   readonly messages: readonly Message[];
   readonly isLoading: boolean;
-  readonly loadingMessage?: string | undefined;
   readonly getMessages: () => readonly Message[];
   readonly getPreviousMessage: () => Message | undefined;
   readonly addMessage: (message: InputMessage) => void;
   readonly addMessages: (messages: readonly InputMessage[]) => void;
   readonly setMessages: (messages: readonly Message[]) => void;
-  readonly setLoading: (isLoading: boolean, message?: string) => void;
+  readonly setLoading: (isLoading: boolean) => void;
   readonly clearLoading: () => void;
   readonly clearMessages: () => void;
   readonly clearButtons: () => void;
@@ -29,7 +28,6 @@ interface ChatState {
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isLoading: false,
-  loadingMessage: undefined,
 
   getMessages: () => {
     return get().messages;
@@ -86,19 +84,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ messages: newMessages });
   },
 
-  setLoading: (isLoading, message) => {
+  setLoading: isLoading => {
     set({
       isLoading,
-      ...(isLoading
-        ? { loadingMessage: message }
-        : { loadingMessage: undefined }),
     });
   },
 
   clearLoading: () => {
     set({
       isLoading: false,
-      loadingMessage: undefined,
     });
   },
 
@@ -106,7 +100,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({
       messages: [],
       isLoading: false,
-      loadingMessage: undefined,
     });
   },
 

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import type { ChatPropsWithFlexibleTheme } from '../js/types';
 import {
   useChatStore,
@@ -15,7 +15,6 @@ export function Chat({
   const {
     messages,
     isLoading,
-    loadingMessage,
     addMessage,
     addMessages,
     getPreviousMessage,
@@ -71,7 +70,6 @@ export function Chat({
         <MessagesList
           messages={messages}
           isLoading={isLoading}
-          loadingMessage={loadingMessage}
           theme={mergedTheme}
         />
         <PersistentButtons theme={mergedTheme} />

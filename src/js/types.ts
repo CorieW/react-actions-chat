@@ -71,7 +71,6 @@ export interface InputMessage {
   readonly rawContent?: string;
   readonly timestamp?: Date;
   readonly isLoading?: boolean;
-  readonly loadingLabel?: string;
   readonly userResponseCallback?: () => void;
   readonly buttons?: readonly MessageButton[];
 }

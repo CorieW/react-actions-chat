@@ -219,11 +219,10 @@ describe('Chat Store Unit Tests', () => {
     it('should clear loading state', () => {
       const store = useChatStore.getState();
 
-      store.setLoading(true, 'Thinking...');
+      store.setLoading(true);
       store.clearMessages();
 
       expect(useChatStore.getState().isLoading).toBe(false);
-      expect(useChatStore.getState().loadingMessage).toBeUndefined();
     });
   });
 
@@ -231,17 +230,13 @@ describe('Chat Store Unit Tests', () => {
     it('should set and clear loading state', () => {
       const store = useChatStore.getState();
 
-      store.setLoading(true, 'Looking up options...');
+      store.setLoading(true);
 
       expect(useChatStore.getState().isLoading).toBe(true);
-      expect(useChatStore.getState().loadingMessage).toBe(
-        'Looking up options...'
-      );
 
       store.clearLoading();
 
       expect(useChatStore.getState().isLoading).toBe(false);
-      expect(useChatStore.getState().loadingMessage).toBeUndefined();
     });
   });
 

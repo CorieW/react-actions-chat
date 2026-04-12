@@ -1,3 +1,4 @@
+import React from 'react';
 import type { ChatTheme, Message } from '../js/types';
 import { LoadingIndicator } from './LoadingIndicator';
 import { MessageButtons } from './MessageButtons';
@@ -37,11 +38,7 @@ export function MessageBubble({
           }}
         >
           {isLoadingMessage ? (
-            <LoadingIndicator
-              bubble={false}
-              label={message.loadingLabel}
-              theme={theme}
-            />
+            <LoadingIndicator theme={theme} />
           ) : (
             <>
               <p className='wrap-break-words text-sm leading-relaxed'>

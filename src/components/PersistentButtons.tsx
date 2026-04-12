@@ -1,3 +1,4 @@
+import React from 'react';
 import type { ChatTheme, MessageButtonVariant } from '../js/types';
 import { usePersistentButtonStore } from '../lib';
 import { cn } from '../lib/utils';
