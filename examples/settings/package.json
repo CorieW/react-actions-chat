@@ -11,7 +11,6 @@
   "dependencies": {
     "actionable-support-chat": "workspace:*",
     "actionable-support-chat-recommended-actions": "workspace:*",
-    "@tailwindcss/typography": "^0.5.19",
     "@tanstack/react-query": "^5.90.5",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
