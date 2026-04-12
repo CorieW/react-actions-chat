@@ -22,8 +22,8 @@ import {
  * A scored vector search match for a button definition.
  */
 export interface VectorSearchButtonMatch<
-  TButtonDefinition extends
-    VectorSearchButtonDefinition = VectorSearchButtonDefinition,
+  TButtonDefinition extends VectorSearchButtonDefinition =
+    VectorSearchButtonDefinition,
 > {
   readonly button: TButtonDefinition;
   readonly score: number;
@@ -42,8 +42,8 @@ export type QueryEmbeddingResolver = (
  * By default, the flow calls createButton on the matched button definition.
  */
 export type VectorSearchButtonActionResolver<
-  TButtonDefinition extends
-    VectorSearchButtonDefinition = VectorSearchButtonDefinition,
+  TButtonDefinition extends VectorSearchButtonDefinition =
+    VectorSearchButtonDefinition,
 > = (args: {
   readonly match: VectorSearchButtonMatch<TButtonDefinition>;
   readonly query: string;
@@ -54,8 +54,8 @@ export type VectorSearchButtonActionResolver<
  * Optional hook for customizing the full recommendation result after search.
  */
 export type VectorSearchButtonsResultResolver<
-  TButtonDefinition extends
-    VectorSearchButtonDefinition = VectorSearchButtonDefinition,
+  TButtonDefinition extends VectorSearchButtonDefinition =
+    VectorSearchButtonDefinition,
 > = (args: {
   readonly matches: readonly VectorSearchButtonMatch<TButtonDefinition>[];
   readonly query: string;
@@ -76,8 +76,8 @@ export type VectorSearchButtonsResultResolver<
  * Search adapter for hosted vector databases or custom retrieval systems.
  */
 export type VectorSearchButtonSearchAdapter<
-  TButtonDefinition extends
-    VectorSearchButtonDefinition = VectorSearchButtonDefinition,
+  TButtonDefinition extends VectorSearchButtonDefinition =
+    VectorSearchButtonDefinition,
 > = (args: {
   readonly query: string;
   readonly context: QueryRecommendedActionsContext;
@@ -88,8 +88,8 @@ export type VectorSearchButtonSearchAdapter<
   | Promise<readonly VectorSearchButtonMatch<TButtonDefinition>[]>;
 
 interface VectorSearchQueryRecommendedActionsFlowConfigBase<
-  TButtonDefinition extends
-    VectorSearchButtonDefinition = VectorSearchButtonDefinition,
+  TButtonDefinition extends VectorSearchButtonDefinition =
+    VectorSearchButtonDefinition,
 > extends Omit<QueryRecommendedActionsFlowConfig, 'getRecommendedActions'> {
   /**
    * Optional hook to override how matched buttons are rendered into actions.
@@ -132,8 +132,8 @@ interface VectorSearchQueryRecommendedActionsFlowConfigBase<
  * In-memory vector search setup with precomputed button embeddings.
  */
 export interface EmbeddedButtonsVectorSearchQueryRecommendedActionsFlowConfig<
-  TButtonDefinition extends
-    VectorSearchButtonDefinition = VectorSearchButtonDefinition,
+  TButtonDefinition extends VectorSearchButtonDefinition =
+    VectorSearchButtonDefinition,
 > extends VectorSearchQueryRecommendedActionsFlowConfigBase<TButtonDefinition> {
   readonly buttons: readonly TButtonDefinition[];
   readonly getButtonEmbedding: (button: TButtonDefinition) => EmbeddingVector;
@@ -145,8 +145,8 @@ export interface EmbeddedButtonsVectorSearchQueryRecommendedActionsFlowConfig<
  * In-memory vector search setup that embeds button text for you.
  */
 export interface TextButtonsVectorSearchQueryRecommendedActionsFlowConfig<
-  TButtonDefinition extends
-    VectorSearchButtonDefinition = VectorSearchButtonDefinition,
+  TButtonDefinition extends VectorSearchButtonDefinition =
+    VectorSearchButtonDefinition,
 > extends VectorSearchQueryRecommendedActionsFlowConfigBase<TButtonDefinition> {
   readonly buttons: readonly TButtonDefinition[];
   readonly embedder: TextEmbedder;
@@ -159,8 +159,8 @@ export interface TextButtonsVectorSearchQueryRecommendedActionsFlowConfig<
  * Hosted vector search setup for external vector databases.
  */
 export interface SearchButtonsVectorSearchQueryRecommendedActionsFlowConfig<
-  TButtonDefinition extends
-    VectorSearchButtonDefinition = VectorSearchButtonDefinition,
+  TButtonDefinition extends VectorSearchButtonDefinition =
+    VectorSearchButtonDefinition,
 > extends VectorSearchQueryRecommendedActionsFlowConfigBase<TButtonDefinition> {
   readonly search: VectorSearchButtonSearchAdapter<TButtonDefinition>;
   readonly buttons?: undefined;
@@ -172,24 +172,24 @@ export interface SearchButtonsVectorSearchQueryRecommendedActionsFlowConfig<
  * Configuration for vector-search-backed button recommendations.
  */
 export type VectorSearchQueryRecommendedActionsFlowConfig<
-  TButtonDefinition extends
-    VectorSearchButtonDefinition = VectorSearchButtonDefinition,
+  TButtonDefinition extends VectorSearchButtonDefinition =
+    VectorSearchButtonDefinition,
 > =
   | EmbeddedButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
   | TextButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
   | SearchButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
 
 interface LegacyVectorSearchButtonMatch<
-  TButtonDefinition extends
-    VectorSearchButtonDefinition = VectorSearchButtonDefinition,
+  TButtonDefinition extends VectorSearchButtonDefinition =
+    VectorSearchButtonDefinition,
 > {
   readonly document: TButtonDefinition;
   readonly score: number;
 }
 
 interface LegacyVectorSearchQueryRecommendedActionsFlowConfig<
-  TButtonDefinition extends
-    VectorSearchButtonDefinition = VectorSearchButtonDefinition,
+  TButtonDefinition extends VectorSearchButtonDefinition =
+    VectorSearchButtonDefinition,
 > {
   readonly documents?: readonly TButtonDefinition[] | undefined;
   readonly getDocumentEmbedding?:
@@ -459,11 +459,13 @@ function createVectorSearchResolver<
 
     return Promise.all(
       matches.map(match =>
-        createAction({
-          match,
-          query,
-          context,
-        })
+        Promise.resolve(
+          createAction({
+            match,
+            query,
+            context,
+          })
+        )
       )
     );
   };

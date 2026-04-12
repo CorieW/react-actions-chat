@@ -56,19 +56,26 @@ See the [examples](examples) folder for examples of how to use the Chat componen
 
 Use Node.js `22.13.0` or newer.
 
+This repo uses `pnpm` workspaces for the core package, companion packages, and local examples.
+
+```bash
+corepack enable
+pnpm install
+```
+
 ### Building Styles
 
 This project uses Tailwind CSS for development. The standalone CSS file (`src/styles.css`) is auto-generated:
 
 ```bash
 # Generate standalone CSS from Tailwind classes
-npm run build:styles
+pnpm build:styles
 
 # Build the package (automatically generates styles first)
-npm run build
+pnpm build
 ```
 
-**Important:** After adding new Tailwind classes to components, run `npm run build:styles` to update the standalone CSS.
+**Important:** After adding new Tailwind classes to components, run `pnpm build:styles` to update the standalone CSS.
 
 ## Contributing
 

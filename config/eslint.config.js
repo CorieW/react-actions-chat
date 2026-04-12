@@ -19,7 +19,11 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/**/*.{js,jsx,ts,tsx}', 'e2e/**/*.ts'],
+    files: [
+      'src/**/*.{js,jsx,ts,tsx}',
+      'packages/**/*.{js,jsx,ts,tsx}',
+      'e2e/**/*.ts',
+    ],
     languageOptions: {
       globals: globals.browser,
     },
@@ -32,7 +36,7 @@ export default defineConfig([
   },
   ...tseslint.configs.recommendedTypeChecked.map(config => ({
     ...config,
-    files: ['src/**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx}', 'packages/**/*.{ts,tsx}'],
     languageOptions: {
       ...config.languageOptions,
       parserOptions: {
@@ -43,7 +47,7 @@ export default defineConfig([
     },
   })),
   {
-    files: ['src/**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx}', 'packages/**/*.{ts,tsx}'],
     extends: [
       reactHooks.configs['recommended-latest'],
       reactRefresh.configs.vite,

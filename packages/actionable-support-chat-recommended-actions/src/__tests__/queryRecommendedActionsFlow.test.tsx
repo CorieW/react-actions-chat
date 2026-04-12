@@ -12,10 +12,46 @@ import {
 } from 'actionable-support-chat';
 import {
   createQueryRecommendedActionsFlow,
+  type EmbedTextOptions,
+  type EmbeddingVector,
   type QueryRecommendedAction,
+  type QueryRecommendedActionsContext,
+  type QueryRecommendedActionsResolver,
   createVectorSearchQueryRecommendedActionsFlow,
   type TextEmbedder,
+  type VectorSearchButtonSearchAdapter,
 } from 'actionable-support-chat-recommended-actions';
+
+type EmbedTexts = NonNullable<TextEmbedder['embedTexts']>;
+
+function createTestEmbedding(
+  normalizedText: string,
+  options?: EmbedTextOptions
+): EmbeddingVector {
+  if (options?.inputType === 'query') {
+    return normalizedText.includes('leave my account') ? [0, 0, 1] : [1, 0, 0];
+  }
+
+  return normalizedText.includes('sign out') ? [0, 0, 1] : [1, 0, 0];
+}
+
+function createEmbedTextsSpy() {
+  return vi.fn<EmbedTexts>((texts, options) =>
+    Promise.resolve(
+      texts.map(text => createTestEmbedding(text.toLowerCase(), options))
+    )
+  );
+}
+
+function createTestEmbedder(embedTexts: EmbedTexts): TextEmbedder {
+  return {
+    embedText: async (text, options) => {
+      const [embedding] = await embedTexts([text], options);
+      return embedding ?? [];
+    },
+    embedTexts,
+  };
+}
 
 describe('Query Recommended Actions Flow', () => {
   beforeEach(() => {
@@ -31,8 +67,8 @@ describe('Query Recommended Actions Flow', () => {
   it('collects a query and renders recommended action buttons', async () => {
     const user = userEvent.setup();
     const handleRecommendation = vi.fn();
-    const getRecommendedActions = vi.fn(async (query: string) => {
-      return {
+    const getRecommendedActions = vi.fn<QueryRecommendedActionsResolver>(
+      (query: string) => ({
         responseMessage: `Best next steps for "${query}"`,
         recommendedActions: [
           {
@@ -41,8 +77,8 @@ describe('Query Recommended Actions Flow', () => {
             variant: 'info' as const,
           },
         ],
-      };
-    });
+      })
+    );
     const flow = createQueryRecommendedActionsFlow({
       initialLabel: 'Find help',
       queryPromptMessage: 'What would you like help with?',
@@ -72,15 +108,13 @@ describe('Query Recommended Actions Flow', () => {
     );
     await user.keyboard('{Enter}');
 
-    await waitFor(() => {
-      expect(getRecommendedActions).toHaveBeenCalledWith(
-        'reset password',
-        expect.objectContaining({
-          query: 'reset password',
-          messages: expect.any(Array),
-        })
-      );
-    });
+    await waitFor(() => expect(getRecommendedActions).toHaveBeenCalledTimes(1));
+
+    const [submittedQuery, recommendationContext] = getRecommendedActions.mock
+      .calls[0] as [string, QueryRecommendedActionsContext];
+    expect(submittedQuery).toBe('reset password');
+    expect(recommendationContext.query).toBe('reset password');
+    expect(Array.isArray(recommendationContext.messages)).toBe(true);
 
     expect(
       await screen.findByText('Best next steps for "reset password"')
@@ -101,7 +135,7 @@ describe('Query Recommended Actions Flow', () => {
       queryPromptMessage: 'Describe what you want to do.',
       emptyStateMessage:
         'I could not find a matching action yet. Please try another search.',
-      getRecommendedActions: async () => [],
+      getRecommendedActions: () => [],
     });
 
     render(
@@ -132,13 +166,19 @@ describe('Query Recommended Actions Flow', () => {
 
   it('shows the configured error message when recommendation lookup fails', async () => {
     const user = userEvent.setup();
-    const onError = vi.fn();
+    const onError = vi.fn(
+      (
+        _query: string,
+        _error: unknown,
+        _context: QueryRecommendedActionsContext
+      ) => undefined
+    );
     const flow = createQueryRecommendedActionsFlow({
       initialLabel: 'Recommend next steps',
       queryPromptMessage: 'What should we help you with?',
       errorMessage:
         'Something went wrong while loading recommendations. Please retry.',
-      getRecommendedActions: async () => {
+      getRecommendedActions: () => {
         throw new Error('Lookup failed');
       },
       onError,
@@ -171,14 +211,13 @@ describe('Query Recommended Actions Flow', () => {
       )
     ).toBeInTheDocument();
 
-    expect(onError).toHaveBeenCalledWith(
-      'close account',
-      expect.any(Error),
-      expect.objectContaining({
-        query: 'close account',
-        messages: expect.any(Array),
-      })
-    );
+    expect(onError).toHaveBeenCalledTimes(1);
+    const [submittedQuery, error, recommendationContext] = onError.mock
+      .calls[0] as [string, unknown, QueryRecommendedActionsContext];
+    expect(submittedQuery).toBe('close account');
+    expect(error).toBeInstanceOf(Error);
+    expect(recommendationContext.query).toBe('close account');
+    expect(Array.isArray(recommendationContext.messages)).toBe(true);
   });
 
   it('shows a loading indicator while recommendations are resolving', async () => {
@@ -247,7 +286,7 @@ describe('Query Recommended Actions Flow', () => {
     const flow = createQueryRecommendedActionsFlow({
       loadingMessage: 'Looking up the best next action...',
       minimumLoadingDurationMs: 500,
-      getRecommendedActions: async () => [],
+      getRecommendedActions: () => [],
     });
 
     const recommendPromise = flow.recommend('change email');
@@ -280,7 +319,7 @@ describe('Query Recommended Actions Flow', () => {
     const flow = createQueryRecommendedActionsFlow({
       loadingMessage: 'Looking up the best next action...',
       minimumLoadingDurationMs: 500,
-      getRecommendedActions: async () => [
+      getRecommendedActions: () => [
         {
           label: 'Change Email',
         },
@@ -321,7 +360,7 @@ describe('Query Recommended Actions Flow', () => {
     const flow = createQueryRecommendedActionsFlow({
       initialLabel: 'Unused trigger',
       queryPromptMessage: 'What do you need help with?',
-      getRecommendedActions: async query => [
+      getRecommendedActions: query => [
         {
           label: `Recommended for ${query}`,
           onClick: handleRecommendation,
@@ -391,7 +430,7 @@ describe('Query Recommended Actions Flow', () => {
         },
       ],
       getButtonEmbedding: button => button.embedding,
-      embedQuery: async () => [0.95, 0.05, 0] as const,
+      embedQuery: () => [0.95, 0.05, 0] as const,
       maxResults: 1,
       createAction: ({ match }) => ({
         label: match.button.label,
@@ -428,28 +467,8 @@ describe('Query Recommended Actions Flow', () => {
 
   it('supports document text embedding without precomputing document vectors', async () => {
     const user = userEvent.setup();
-    const embedTextsSpy = vi.fn(async (texts: readonly string[], options) => {
-      return texts.map(text => {
-        const normalizedText = text.toLowerCase();
-
-        if (options?.inputType === 'query') {
-          return normalizedText.includes('leave my account')
-            ? ([0, 0, 1] as const)
-            : ([1, 0, 0] as const);
-        }
-
-        return normalizedText.includes('sign out')
-          ? ([0, 0, 1] as const)
-          : ([1, 0, 0] as const);
-      });
-    });
-    const embedder: TextEmbedder = {
-      embedText: async (text, options) => {
-        const [embedding] = await embedTextsSpy([text], options);
-        return embedding ?? [];
-      },
-      embedTexts: embedTextsSpy,
-    };
+    const embedTextsSpy = createEmbedTextsSpy();
+    const embedder = createTestEmbedder(embedTextsSpy);
     const flow = createVectorSearchQueryRecommendedActionsFlow({
       initialLabel: 'Semantic search',
       queryPromptMessage: 'What should I help you do?',
@@ -510,28 +529,8 @@ describe('Query Recommended Actions Flow', () => {
 
   it('keeps legacy document-shaped configs working at runtime', async () => {
     const user = userEvent.setup();
-    const embedTextsSpy = vi.fn(async (texts: readonly string[], options) => {
-      return texts.map(text => {
-        const normalizedText = text.toLowerCase();
-
-        if (options?.inputType === 'query') {
-          return normalizedText.includes('leave my account')
-            ? ([0, 0, 1] as const)
-            : ([1, 0, 0] as const);
-        }
-
-        return normalizedText.includes('sign out')
-          ? ([0, 0, 1] as const)
-          : ([1, 0, 0] as const);
-      });
-    });
-    const embedder: TextEmbedder = {
-      embedText: async (text, options) => {
-        const [embedding] = await embedTextsSpy([text], options);
-        return embedding ?? [];
-      },
-      embedTexts: embedTextsSpy,
-    };
+    const embedTextsSpy = createEmbedTextsSpy();
+    const embedder = createTestEmbedder(embedTextsSpy);
     const flow = createVectorSearchQueryRecommendedActionsFlow({
       initialLabel: 'Legacy search',
       queryPromptMessage: 'What should I help you do?',
@@ -585,28 +584,8 @@ describe('Query Recommended Actions Flow', () => {
 
   it('automatically builds document text for vector search button definitions', async () => {
     const user = userEvent.setup();
-    const embedTextsSpy = vi.fn(async (texts: readonly string[], options) => {
-      return texts.map(text => {
-        const normalizedText = text.toLowerCase();
-
-        if (options?.inputType === 'query') {
-          return normalizedText.includes('leave my account')
-            ? ([0, 0, 1] as const)
-            : ([1, 0, 0] as const);
-        }
-
-        return normalizedText.includes('sign out')
-          ? ([0, 0, 1] as const)
-          : ([1, 0, 0] as const);
-      });
-    });
-    const embedder: TextEmbedder = {
-      embedText: async (text, options) => {
-        const [embedding] = await embedTextsSpy([text], options);
-        return embedding ?? [];
-      },
-      embedTexts: embedTextsSpy,
-    };
+    const embedTextsSpy = createEmbedTextsSpy();
+    const embedder = createTestEmbedder(embedTextsSpy);
     const flow = createVectorSearchQueryRecommendedActionsFlow({
       initialLabel: 'Semantic buttons',
       queryPromptMessage: 'What should I help you do?',
@@ -674,22 +653,24 @@ describe('Query Recommended Actions Flow', () => {
 
   it('passes embeddings into a custom vector search adapter', async () => {
     const user = userEvent.setup();
-    const search = vi.fn(async ({ queryEmbedding }) => {
-      expect(queryEmbedding).toEqual([0.2, 0.8]);
+    const search = vi.fn<VectorSearchButtonSearchAdapter>(
+      ({ queryEmbedding }) => {
+        expect(queryEmbedding).toEqual([0.2, 0.8]);
 
-      return [
-        {
-          button: {
-            label: 'Reset password',
+        return [
+          {
+            button: {
+              label: 'Reset password',
+            },
+            score: 0.92,
           },
-          score: 0.92,
-        },
-      ];
-    });
+        ];
+      }
+    );
     const flow = createVectorSearchQueryRecommendedActionsFlow({
       initialLabel: 'Hosted search',
       queryPromptMessage: 'What do you need help with?',
-      embedQuery: async () => [0.2, 0.8] as const,
+      embedQuery: () => [0.2, 0.8] as const,
       search,
     });
 

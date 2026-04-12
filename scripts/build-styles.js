@@ -42,7 +42,7 @@ async function buildStyles() {
 
       // Add header comment
       const header = `/* Standalone CSS for actionable-support-chat - auto-generated from Tailwind */
-/* DO NOT EDIT MANUALLY - run 'npm run build:styles' to regenerate */
+/* DO NOT EDIT MANUALLY - run 'pnpm build:styles' to regenerate */
 
 `;
       css = header + css;
