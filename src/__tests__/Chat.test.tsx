@@ -178,6 +178,30 @@ describe('Chat Component Integration Tests', () => {
     expect(screen.getByText('Option 2')).toBeInTheDocument();
   });
 
+  it('should display a loading indicator from the chat store', () => {
+    useChatStore.getState().setLoading(true);
+
+    render(<Chat />);
+
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
+  });
+
+  it('should render a loading assistant message in the message list', () => {
+    render(
+      <Chat
+        initialMessages={[
+          {
+            type: 'other',
+            content: '',
+            isLoading: true,
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
+  });
+
   it('should handle button clicks', async () => {
     const user = userEvent.setup();
     const onClick = vi.fn();

@@ -1,3 +1,4 @@
+import React from 'react';
 import type {
   InputMessage,
   ChatTheme,
@@ -5,6 +6,13 @@ import type {
 } from '../js/types';
 import { cn } from '../lib/utils';
 
+/**
+ * Props for the action buttons shown below a message.
+ *
+ * @property buttons Action buttons attached to the message.
+ * @property messageType Message side used to align the buttons with the bubble.
+ * @property theme Theme tokens used to style button colors.
+ */
 interface MessageButtonsProps {
   readonly buttons: InputMessage['buttons'];
   readonly messageType: InputMessage['type'];
@@ -60,6 +68,11 @@ function getButtonVariantStyles(
   }
 }
 
+/**
+ * Renders the action buttons attached to a single message.
+ *
+ * @param props The `MessageButtonsProps` object.
+ */
 export function MessageButtons({
   buttons,
   messageType,

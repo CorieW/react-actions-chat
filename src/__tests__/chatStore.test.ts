@@ -215,6 +215,29 @@ describe('Chat Store Unit Tests', () => {
 
       expect(store.getMessages()).toEqual([]);
     });
+
+    it('should clear loading state', () => {
+      const store = useChatStore.getState();
+
+      store.setLoading(true);
+      store.clearMessages();
+
+      expect(useChatStore.getState().isLoading).toBe(false);
+    });
+  });
+
+  describe('loading state', () => {
+    it('should set and clear loading state', () => {
+      const store = useChatStore.getState();
+
+      store.setLoading(true);
+
+      expect(useChatStore.getState().isLoading).toBe(true);
+
+      store.clearLoading();
+
+      expect(useChatStore.getState().isLoading).toBe(false);
+    });
   });
 
   describe('clearButtons', () => {

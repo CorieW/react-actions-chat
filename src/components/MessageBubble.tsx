@@ -1,15 +1,30 @@
+import React from 'react';
 import type { ChatTheme, Message } from '../js/types';
+import { LoadingIndicator } from './LoadingIndicator';
 import { MessageButtons } from './MessageButtons';
 
+/**
+ * Props for a single chat bubble.
+ *
+ * @property message Message data to render, including content, metadata, and actions.
+ * @property theme Theme tokens used to style the bubble and text colors.
+ */
 interface MessageBubbleProps {
   readonly message: Message;
   readonly theme: ChatTheme;
 }
 
+/**
+ * Renders a single chat bubble with its timestamp and optional actions.
+ *
+ * @param props The `MessageBubbleProps` object.
+ */
 export function MessageBubble({
   message,
   theme,
 }: MessageBubbleProps): React.JSX.Element {
+  const isLoadingMessage = message.isLoading === true;
+
   return (
     <div
       className={`mb-1 flex gap-3 ${
@@ -31,23 +46,29 @@ export function MessageBubble({
             maxWidth: message.type === 'self' ? 'fit-content' : '100%',
           }}
         >
-          <p className='wrap-break-words text-sm leading-relaxed'>
-            {message.content}
-          </p>
-          <span
-            className='mt-1.5 block text-xs'
-            style={{
-              color:
-                message.type === 'self'
-                  ? `${theme.buttonTextColor}70`
-                  : `${theme.textColor}60`,
-            }}
-          >
-            {message.timestamp.toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </span>
+          {isLoadingMessage ? (
+            <LoadingIndicator theme={theme} />
+          ) : (
+            <>
+              <p className='wrap-break-words text-sm leading-relaxed'>
+                {message.content}
+              </p>
+              <span
+                className='mt-1.5 block text-xs'
+                style={{
+                  color:
+                    message.type === 'self'
+                      ? `${theme.buttonTextColor}70`
+                      : `${theme.textColor}60`,
+                }}
+              >
+                {message.timestamp.toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </span>
+            </>
+          )}
         </div>
         {/* Message Buttons */}
         <MessageButtons

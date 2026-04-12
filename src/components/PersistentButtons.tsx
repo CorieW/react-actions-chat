@@ -1,3 +1,4 @@
+import React from 'react';
 import type { ChatTheme, MessageButtonVariant } from '../js/types';
 import { usePersistentButtonStore } from '../lib';
 import { cn } from '../lib/utils';
@@ -51,10 +52,20 @@ function getButtonVariantStyles(
   }
 }
 
+/**
+ * Props for the persistent action bar.
+ *
+ * @property theme Theme tokens used to style the persistent action bar and buttons.
+ */
 interface PersistentButtonsProps {
   readonly theme: ChatTheme;
 }
 
+/**
+ * Renders the persistent action buttons shown above the input field.
+ *
+ * @param props The `PersistentButtonsProps` object.
+ */
 export function PersistentButtons({
   theme,
 }: PersistentButtonsProps): React.JSX.Element | null {

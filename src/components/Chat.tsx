@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import type { ChatPropsWithFlexibleTheme } from '../js/types';
 import {
   useChatStore,
@@ -8,12 +8,18 @@ import {
 } from '../lib';
 import { MessagesList, ChatInput, PersistentButtons } from './';
 
+/**
+ * Renders the chat UI and wires user input into the shared chat state.
+ *
+ * @param props The `ChatPropsWithFlexibleTheme` object.
+ */
 export function Chat({
   initialMessages = [],
   theme,
 }: ChatPropsWithFlexibleTheme): React.JSX.Element {
   const {
     messages,
+    isLoading,
     addMessage,
     addMessages,
     getPreviousMessage,
@@ -66,7 +72,11 @@ export function Chat({
           color: mergedTheme.textColor,
         }}
       >
-        <MessagesList messages={messages} theme={mergedTheme} />
+        <MessagesList
+          messages={messages}
+          isLoading={isLoading}
+          theme={mergedTheme}
+        />
         <PersistentButtons theme={mergedTheme} />
         <ChatInput onSend={handleSend} theme={mergedTheme} />
       </div>

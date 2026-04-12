@@ -1,6 +1,8 @@
 import type { ChatTheme } from '../js/types';
 
-// Preset light and dark themes
+/**
+ * Built-in light theme preset for the chat UI.
+ */
 export const LIGHT_THEME: ChatTheme = {
   primaryColor: '#3b82f6', // Blue for self messages
   secondaryColor: '#e5e7eb', // Light gray for other messages
@@ -13,6 +15,9 @@ export const LIGHT_THEME: ChatTheme = {
   buttonTextColor: '#ffffff', // White button text
 };
 
+/**
+ * Built-in dark theme preset for the chat UI.
+ */
 export const DARK_THEME: ChatTheme = {
   primaryColor: '#4a7fc1', // Self message background (medium blue)
   secondaryColor: '#1a2942', // Other message background (dark blue-gray)
@@ -25,6 +30,9 @@ export const DARK_THEME: ChatTheme = {
   buttonTextColor: '#ffffff', // Button text (white)
 };
 
+/**
+ * Accepted theme inputs for the chat component and helpers.
+ */
 export type ThemeInput = 'light' | 'dark' | ChatTheme | undefined;
 
 /**

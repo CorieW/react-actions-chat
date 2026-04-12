@@ -32,10 +32,21 @@ const buttonVariants = cva(
   }
 );
 
+/**
+ * Shared button props that combine native button attributes with supported
+ * visual variants.
+ *
+ * @property variant Optional visual variant for the button.
+ * @property size Optional size variant for the button.
+ * @property className Optional classes merged into the button styles.
+ */
 interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {}
 
+/**
+ * Shared button primitive used across the chat UI.
+ */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, ...props }, ref) => {
     return (

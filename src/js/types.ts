@@ -1,17 +1,20 @@
+/**
+ * Indicates whether a message is from the local user or the assistant side.
+ */
 export type MessageType = 'self' | 'other';
 
 /**
  * Theme configuration for the chat component.
  *
- * @property primaryColor Color for self messages and primary elements
- * @property secondaryColor Color for other messages and secondary elements
- * @property backgroundColor Background color of the chat container
- * @property textColor Primary text color
- * @property borderColor Color for borders and dividers
- * @property inputBackgroundColor Background color for the input field
- * @property inputTextColor Text color for the input field
- * @property buttonColor Background color for buttons
- * @property buttonTextColor Text color for buttons
+ * @property primaryColor Color used for self messages and other primary surfaces.
+ * @property secondaryColor Color used for assistant messages and secondary surfaces.
+ * @property backgroundColor Background color of the chat container.
+ * @property textColor Primary text color used across the chat UI.
+ * @property borderColor Color used for borders and separators.
+ * @property inputBackgroundColor Background color of the shared input field.
+ * @property inputTextColor Text color used inside the shared input field.
+ * @property buttonColor Background color used for primary buttons.
+ * @property buttonTextColor Text color used on buttons.
  */
 export interface ChatTheme {
   readonly primaryColor?: string;
@@ -39,11 +42,11 @@ export type MessageButtonVariant =
 /**
  * Represents a button associated with a message.
  *
- * @property label The text displayed on the button.
- * @property onClick Callback function executed when the button is clicked.
- * @property variant Optional variant style for the button. Defaults to 'default'.
- * @property className Optional custom CSS class names to apply to the button.
- * @property style Optional custom inline styles to apply to the button. These will override variant styles.
+ * @property label Text shown on the button.
+ * @property onClick Runs when the button is clicked.
+ * @property variant Visual variant used to style the button.
+ * @property className Optional CSS classes applied to the button.
+ * @property style Optional inline styles that override the variant styles.
  */
 export interface MessageButton {
   readonly label: string;
@@ -56,13 +59,15 @@ export interface MessageButton {
 /**
  * Represents a single chat message.
  *
- * @property id Unique identifier for the message.
- * @property type Indicates whether the message is from 'self' or 'other'.
- * @property content The textual content of the message to be displayed to the user.
- * @property rawContent The raw content of the message, used for processing and validation.
- * @property timestamp The date and time the message was created.
- * @property userResponseCallback Optional callback function invoked when a self response is received right after this message.
- * @property buttons Optional array of buttons to display below the message.
+ * @property id Optional id used when seeding messages into the chat.
+ * @property type Which side of the conversation the message belongs to.
+ * @property content Text shown to the user in the chat transcript.
+ * @property rawContent Raw value preserved for follow-up logic such as validation.
+ * @property timestamp Optional timestamp to use instead of the current time.
+ * @property isLoading Marks the message as a loading placeholder.
+ * @property loadingLabel Optional label announced while a loading message is shown.
+ * @property userResponseCallback Runs when the next user response should be handled by this message.
+ * @property buttons Optional actions shown below the message bubble.
  */
 export interface InputMessage {
   readonly id?: number;
@@ -70,10 +75,19 @@ export interface InputMessage {
   readonly content: string;
   readonly rawContent?: string;
   readonly timestamp?: Date;
+  readonly isLoading?: boolean;
+  readonly loadingLabel?: string;
   readonly userResponseCallback?: () => void;
   readonly buttons?: readonly MessageButton[];
 }
 
+/**
+ * Normalized message shape stored in chat state after defaults are applied.
+ *
+ * @property rawContent Raw value preserved for follow-up logic such as validation.
+ * @property timestamp Creation time assigned to the stored message.
+ * @property id Stable id assigned by the chat store.
+ */
 export interface Message
   extends Omit<InputMessage, 'rawContent' | 'timestamp' | 'id'> {
   readonly rawContent: string;
@@ -84,8 +98,8 @@ export interface Message
 /**
  * Props for the Chat component.
  *
- * @property initialMessages Optional array of messages to initialize the chat with.
- * @property theme Optional theme configuration to customize the chat appearance.
+ * @property initialMessages Optional messages shown when the chat first renders.
+ * @property theme Optional theme configuration for the chat UI.
  */
 export interface ChatProps {
   readonly initialMessages?: readonly InputMessage[];
@@ -95,6 +109,8 @@ export interface ChatProps {
 /**
  * Props for the Chat component with flexible theme input.
  * Allows theme to be a string ('light' | 'dark'), a ChatTheme object, or undefined.
+ *
+ * @property theme Optional preset or full theme object used to style the chat UI.
  */
 export type ChatPropsWithFlexibleTheme = Omit<ChatProps, 'theme'> & {
   readonly theme?: 'light' | 'dark' | ChatTheme | undefined;

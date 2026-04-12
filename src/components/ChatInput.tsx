@@ -1,15 +1,26 @@
-import { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { KeyboardEvent } from 'react';
 import { Send } from 'lucide-react';
 import type { ChatTheme } from '../js/types';
 import { Button } from './ui/button';
 import { useInputFieldStore } from '../lib/inputFieldStore';
 
+/**
+ * Props for the shared chat input field.
+ *
+ * @property onSend Called when the user submits the current input value.
+ * @property theme Theme tokens used to style the input area and send button.
+ */
 interface ChatInputProps {
   readonly onSend: (message: string) => void;
   readonly theme: ChatTheme;
 }
 
+/**
+ * Renders the shared chat input field and submit button.
+ *
+ * @param props The `ChatInputProps` object.
+ */
 export function ChatInput({
   onSend,
   theme,
