@@ -11,7 +11,7 @@ import { MessagesList, ChatInput, PersistentButtons } from './';
 /**
  * Renders the chat UI and wires user input into the shared chat state.
  *
- * @param props The chat component props.
+ * @param props The `ChatPropsWithFlexibleTheme` object.
  */
 export function Chat({
   initialMessages = [],

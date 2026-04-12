@@ -64,7 +64,7 @@ interface PersistentButtonsProps {
 /**
  * Renders the persistent action buttons shown above the input field.
  *
- * @param props The persistent button bar props.
+ * @param props The `PersistentButtonsProps` object.
  */
 export function PersistentButtons({
   theme,
