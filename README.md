@@ -22,6 +22,12 @@ npm install actionable-support-chat
 
 This package targets Node.js `22.13.0+`.
 
+If you want query-driven recommendation flows or embedding helpers, install the companion package:
+
+```bash
+npm install actionable-support-chat-recommended-actions
+```
+
 ## Quick Start
 
 ```tsx
@@ -52,6 +58,28 @@ function App() {
 
 See the [examples](examples) folder for examples of how to use the Chat component.
 
+### Recommended Actions Package
+
+Reusable recommended-action flows now live in the companion package `actionable-support-chat-recommended-actions`.
+
+```tsx
+import {
+  createQueryRecommendedActionsFlow,
+  createVectorSearchQueryRecommendedActionsFlow,
+} from 'actionable-support-chat-recommended-actions';
+import 'actionable-support-chat/styles';
+```
+
+It includes:
+
+- `createQueryRecommendedActionsFlow`
+- `createVectorSearchQueryRecommendedActionsFlow` for semantic retrieval over button definitions
+- built-in embedders for OpenAI, Cohere, and Voyage
+
+See [packages/actionable-support-chat-recommended-actions/README.md](packages/actionable-support-chat-recommended-actions/README.md) and the [examples/settings](examples/settings) app for a working setup.
+
+The `examples/settings` app uses a real OpenAI embedder to recommend actions from the user's prompt. For simplicity it reads `VITE_OPENAI_API_KEY` in the browser, which is appropriate for a demo but not for production. In a production app, proxy embedding requests through your own backend.
+
 ## Development
 
 Use Node.js `22.13.0` or newer.
@@ -63,6 +91,18 @@ corepack enable
 pnpm install
 ```
 
+### Refreshing Local Outputs
+
+This repo includes a refresh script that clears generated build output and Vite
+caches across the root package, local packages, and examples:
+
+```bash
+# Clear dist folders and Vite caches across the repo
+pnpm run refresh:all
+```
+
+Use this when a local example or package seems to be serving stale code.
+
 ### Building Styles
 
 This project uses Tailwind CSS for development. The standalone CSS file (`src/styles.css`) is auto-generated:
@@ -71,11 +111,15 @@ This project uses Tailwind CSS for development. The standalone CSS file (`src/st
 # Generate standalone CSS from Tailwind classes
 pnpm build:styles
 
-# Build the package (automatically generates styles first)
+# Build the package (automatically runs refresh:all and generates styles first)
 pnpm build
 ```
 
 **Important:** After adding new Tailwind classes to components, run `pnpm build:styles` to update the standalone CSS.
+
+If a Vite dev server is already running, `npm run build` will not restart that
+live process. In that case, restart the dev server after the build so it picks
+up the refreshed output and cleared caches.
 
 ## Contributing
 
