@@ -17,7 +17,7 @@ interface MessageBubbleProps {
 /**
  * Renders a single chat bubble with its timestamp and optional actions.
  *
- * @param props The message bubble props.
+ * @param props The `MessageBubbleProps` object.
  */
 export function MessageBubble({
   message,

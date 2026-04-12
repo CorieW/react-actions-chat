@@ -58,7 +58,7 @@ export interface RequestConfirmationButtonDefinition
  * Creates a reusable definition for a confirmation request button. Apps can
  * pass this definition to createButton and provide runtime callbacks there.
  *
- * @param definition The static confirmation button settings.
+ * @param definition The `Omit<RequestConfirmationButtonDefinition, 'kind'>` object.
  */
 export function createRequestConfirmationButtonDef(
   definition: Omit<RequestConfirmationButtonDefinition, 'kind'>
@@ -75,7 +75,7 @@ export function createRequestConfirmationButtonDef(
  * When clicked, the initial button adds a followup message with confirmation buttons.
  * The user can then confirm or reject the action, triggering the respective callbacks.
  *
- * @param config Configuration options for the confirmation button.
+ * @param config The `RequestConfirmationButtonConfig` object.
  * @returns A MessageButton configuration that can be used in a Message's buttons array.
  */
 export function createRequestConfirmationButton(

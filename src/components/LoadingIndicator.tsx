@@ -13,7 +13,7 @@ interface LoadingIndicatorProps {
 /**
  * Lightweight chat loading indicator shown while async work is in progress.
  *
- * @param props The loading indicator props.
+ * @param props The `LoadingIndicatorProps` object.
  */
 export function LoadingIndicator({
   theme,
