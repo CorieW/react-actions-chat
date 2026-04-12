@@ -1,4 +1,4 @@
-import type { AnyButtonDefinition } from "actionable-support-chat";
+import type { AnyButtonDefinition } from 'actionable-support-chat';
 
 /**
  * A button definition enriched with descriptive text for semantic retrieval.
@@ -14,21 +14,21 @@ export type VectorSearchButtonDefinition<
  * Builds the default semantic search text for a button definition.
  */
 export function buildVectorSearchButtonText(
-  definition: VectorSearchButtonDefinition,
+  definition: VectorSearchButtonDefinition
 ): string {
   const label =
-    "label" in definition
+    'label' in definition
       ? definition.label
-      : "initialLabel" in definition
+      : 'initialLabel' in definition
         ? definition.initialLabel
-        : "";
+        : '';
 
   return [
     label,
-    definition.description ?? "",
+    definition.description ?? '',
     ...(definition.exampleQueries ?? []),
   ]
-    .map((part) => part.trim())
-    .filter((part) => part !== "")
-    .join(" ");
+    .map(part => part.trim())
+    .filter(part => part !== '')
+    .join(' ');
 }

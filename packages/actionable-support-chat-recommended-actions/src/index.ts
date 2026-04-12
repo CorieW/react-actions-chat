@@ -1,5 +1,5 @@
-export { type VectorSearchButtonDefinition } from "./vectorSearchButtonDefinition";
-export { buildVectorSearchButtonText } from "./vectorSearchButtonDefinition";
+export { type VectorSearchButtonDefinition } from './vectorSearchButtonDefinition';
+export { buildVectorSearchButtonText } from './vectorSearchButtonDefinition';
 export {
   createQueryRecommendedActionsFlow,
   type QueryRecommendedAction,
@@ -8,7 +8,7 @@ export {
   type QueryRecommendedActionsFlowConfig,
   type QueryRecommendedActionsResolver,
   type QueryRecommendedActionsResult,
-} from "./queryRecommendedActionsFlow";
+} from './queryRecommendedActionsFlow';
 export {
   createVectorSearchQueryRecommendedActionsFlow,
   type EmbeddedButtonsVectorSearchQueryRecommendedActionsFlowConfig,
@@ -20,7 +20,7 @@ export {
   type VectorSearchButtonSearchAdapter,
   type VectorSearchQueryRecommendedActionsFlowConfig,
   type VectorSearchButtonsResultResolver,
-} from "./vectorSearchQueryRecommendedActionsFlow";
+} from './vectorSearchQueryRecommendedActionsFlow';
 export {
   createCohereTextEmbedder,
   createOpenAITextEmbedder,
@@ -34,4 +34,4 @@ export {
   type TextEmbedder,
   type VoyageTextEmbedderConfig,
   embedTexts,
-} from "./embedders";
+} from './embedders';

@@ -5,7 +5,7 @@ import {
   extractProviderErrorMessage,
   getFetchImplementation,
   parseJsonResponse,
-} from "./shared";
+} from './shared';
 
 export interface OpenAITextEmbedderConfig {
   readonly apiKey: string;
@@ -27,14 +27,14 @@ interface OpenAIEmbeddingsResponse {
   };
 }
 
-const DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1";
-const DEFAULT_OPENAI_MODEL = "text-embedding-3-large";
+const DEFAULT_OPENAI_BASE_URL = 'https://api.openai.com/v1';
+const DEFAULT_OPENAI_MODEL = 'text-embedding-3-large';
 
 /**
  * Creates a text embedder backed by OpenAI's embeddings endpoint.
  */
 export function createOpenAITextEmbedder(
-  config: OpenAITextEmbedderConfig,
+  config: OpenAITextEmbedderConfig
 ): TextEmbedder {
   const {
     apiKey,
@@ -47,18 +47,18 @@ export function createOpenAITextEmbedder(
     project,
   } = config;
   const requestFetch = getFetchImplementation(fetchImpl);
-  const embeddingsUrl = `${baseUrl.replace(/\/$/, "")}/embeddings`;
+  const embeddingsUrl = `${baseUrl.replace(/\/$/, '')}/embeddings`;
 
   const embedTextsWithOpenAI = async (
-    texts: readonly string[],
+    texts: readonly string[]
   ): Promise<readonly EmbeddingVector[]> => {
     const response = await requestFetch(embeddingsUrl, {
-      method: "POST",
+      method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        ...(organization ? { "OpenAI-Organization": organization } : {}),
-        ...(project ? { "OpenAI-Project": project } : {}),
+        'Content-Type': 'application/json',
+        ...(organization ? { 'OpenAI-Organization': organization } : {}),
+        ...(project ? { 'OpenAI-Project': project } : {}),
         ...headers,
       },
       body: JSON.stringify({
@@ -73,27 +73,27 @@ export function createOpenAITextEmbedder(
       throw new Error(
         extractProviderErrorMessage(
           data,
-          `OpenAI embeddings request failed with status ${response.status}.`,
-        ),
+          `OpenAI embeddings request failed with status ${response.status}.`
+        )
       );
     }
 
     if (!data?.data || data.data.length !== texts.length) {
       throw new Error(
-        "OpenAI embeddings response did not include one embedding per input text.",
+        'OpenAI embeddings response did not include one embedding per input text.'
       );
     }
 
-    return data.data.map((item) => item.embedding ?? []);
+    return data.data.map(item => item.embedding ?? []);
   };
 
   return {
-    embedText: async (text) => {
+    embedText: async text => {
       const [embedding] = await embedTextsWithOpenAI([text]);
 
       if (!embedding) {
         throw new Error(
-          "OpenAI did not return an embedding for the input text.",
+          'OpenAI did not return an embedding for the input text.'
         );
       }
 

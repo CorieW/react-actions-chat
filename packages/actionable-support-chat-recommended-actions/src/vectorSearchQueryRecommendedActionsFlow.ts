@@ -1,4 +1,4 @@
-import { createButton } from "actionable-support-chat";
+import { createButton } from 'actionable-support-chat';
 import {
   createQueryRecommendedActionsFlow,
   type QueryRecommendedAction,
@@ -7,16 +7,16 @@ import {
   type QueryRecommendedActionsFlowConfig,
   type QueryRecommendedActionsResult,
   type QueryRecommendedActionsResolver,
-} from "./queryRecommendedActionsFlow";
+} from './queryRecommendedActionsFlow';
 import {
   embedTexts,
   type EmbeddingVector,
   type TextEmbedder,
-} from "./embedders";
+} from './embedders';
 import {
   buildVectorSearchButtonText,
   type VectorSearchButtonDefinition,
-} from "./vectorSearchButtonDefinition";
+} from './vectorSearchButtonDefinition';
 
 /**
  * A scored vector search match for a button definition.
@@ -34,7 +34,7 @@ export interface VectorSearchButtonMatch<
  */
 export type QueryEmbeddingResolver = (
   query: string,
-  context: QueryRecommendedActionsContext,
+  context: QueryRecommendedActionsContext
 ) => EmbeddingVector | Promise<EmbeddingVector>;
 
 /**
@@ -90,7 +90,7 @@ export type VectorSearchButtonSearchAdapter<
 interface VectorSearchQueryRecommendedActionsFlowConfigBase<
   TButtonDefinition extends
     VectorSearchButtonDefinition = VectorSearchButtonDefinition,
-> extends Omit<QueryRecommendedActionsFlowConfig, "getRecommendedActions"> {
+> extends Omit<QueryRecommendedActionsFlowConfig, 'getRecommendedActions'> {
   /**
    * Optional hook to override how matched buttons are rendered into actions.
    * When omitted, matched buttons are rendered with createButton.
@@ -205,10 +205,10 @@ interface LegacyVectorSearchQueryRecommendedActionsFlowConfig<
 
 function cosineSimilarity(
   left: EmbeddingVector,
-  right: EmbeddingVector,
+  right: EmbeddingVector
 ): number {
   if (left.length !== right.length) {
-    throw new Error("Embedding vectors must have the same length.");
+    throw new Error('Embedding vectors must have the same length.');
   }
 
   let dotProduct = 0;
@@ -234,30 +234,30 @@ function cosineSimilarity(
 function usesSearchAdapter<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>,
+  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
 ): config is SearchButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition> {
-  return "search" in config && typeof config.search === "function";
+  return 'search' in config && typeof config.search === 'function';
 }
 
 function usesEmbeddedButtons<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>,
+  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
 ): config is EmbeddedButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition> {
   const legacyConfig =
     config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
 
   return (
-    ("getButtonEmbedding" in config &&
-      typeof config.getButtonEmbedding === "function") ||
-    typeof legacyConfig.getDocumentEmbedding === "function"
+    ('getButtonEmbedding' in config &&
+      typeof config.getButtonEmbedding === 'function') ||
+    typeof legacyConfig.getDocumentEmbedding === 'function'
   );
 }
 
 function getConfiguredButtons<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>,
+  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
 ): readonly TButtonDefinition[] {
   const legacyConfig =
     config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
@@ -268,7 +268,7 @@ function getConfiguredButtons<
 function getButtonTextResolver<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>,
+  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
 ): ((button: TButtonDefinition) => string) | undefined {
   const legacyConfig =
     config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
@@ -279,7 +279,7 @@ function getButtonTextResolver<
 function getButtonEmbeddingResolver<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>,
+  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
 ): ((button: TButtonDefinition) => EmbeddingVector) | undefined {
   const legacyConfig =
     config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
@@ -293,15 +293,15 @@ function normalizeMatches<
   matches: readonly (
     | VectorSearchButtonMatch<TButtonDefinition>
     | LegacyVectorSearchButtonMatch<TButtonDefinition>
-  )[],
+  )[]
 ): readonly VectorSearchButtonMatch<TButtonDefinition>[] {
-  return matches.map((match) =>
-    "button" in match
+  return matches.map(match =>
+    'button' in match
       ? match
       : {
           button: match.document,
           score: match.score,
-        },
+        }
   );
 }
 
@@ -312,7 +312,7 @@ function runInMemoryVectorSearch<
   buttons: readonly {
     readonly button: TButtonDefinition;
     readonly embedding: EmbeddingVector;
-  }[],
+  }[]
 ): readonly VectorSearchButtonMatch<TButtonDefinition>[] {
   return buttons.map(({ button, embedding }) => ({
     button,
@@ -323,33 +323,33 @@ function runInMemoryVectorSearch<
 function createQueryEmbeddingResolver<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>,
+  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
 ): QueryEmbeddingResolver {
   if (config.embedQuery) {
     return config.embedQuery;
   }
 
   if (config.embedder) {
-    return async (query) => {
+    return async query => {
       return config.embedder!.embedText(query, {
-        inputType: "query",
+        inputType: 'query',
       });
     };
   }
 
   throw new Error(
-    "Vector search flow requires either embedQuery or embedder for query embeddings.",
+    'Vector search flow requires either embedQuery or embedder for query embeddings.'
   );
 }
 
 function createDefaultAction<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >({ match }: { readonly match: VectorSearchButtonMatch<TButtonDefinition> }) {
-  if ("kind" in match.button && match.button.kind === "request-input") {
+  if ('kind' in match.button && match.button.kind === 'request-input') {
     return createButton(match.button);
   }
 
-  if ("kind" in match.button && match.button.kind === "request-confirmation") {
+  if ('kind' in match.button && match.button.kind === 'request-confirmation') {
     return createButton(match.button);
   }
 
@@ -359,7 +359,7 @@ function createDefaultAction<
 function createVectorSearchResolver<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>,
+  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
 ): QueryRecommendedActionsResolver {
   const legacyConfig =
     config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
@@ -394,7 +394,7 @@ function createVectorSearchResolver<
     }
 
     if (usesEmbeddedButtons(config)) {
-      return buttons.map((button) => ({
+      return buttons.map(button => ({
         button,
         embedding: getButtonEmbedding?.(button) ?? [],
       }));
@@ -405,19 +405,18 @@ function createVectorSearchResolver<
 
       if (!embedder) {
         throw new Error(
-          "Text button vector search requires an embedder to create button embeddings.",
+          'Text button vector search requires an embedder to create button embeddings.'
         );
       }
 
       const buttonTexts = buttons.map(
-        (button) =>
-          getButtonText?.(button) ?? buildVectorSearchButtonText(button),
+        button => getButtonText?.(button) ?? buildVectorSearchButtonText(button)
       );
-      const embeddings = await embedTexts(embedder, buttonTexts, "document");
+      const embeddings = await embedTexts(embedder, buttonTexts, 'document');
 
       if (embeddings.length !== buttons.length) {
         throw new Error(
-          "Button embedding count did not match the number of source buttons.",
+          'Button embedding count did not match the number of source buttons.'
         );
       }
 
@@ -425,7 +424,7 @@ function createVectorSearchResolver<
         buttons.map((button, index) => ({
           button,
           embedding: embeddings[index] ?? [],
-        })),
+        }))
       );
     }
 
@@ -441,12 +440,12 @@ function createVectorSearchResolver<
             context,
             queryEmbedding,
             maxResults,
-          }),
+          })
         )
       : runInMemoryVectorSearch(queryEmbedding, await getEmbeddedButtons());
 
     const matches = [...rawMatches]
-      .filter((match) => match.score >= minScore)
+      .filter(match => match.score >= minScore)
       .sort((left, right) => right.score - left.score)
       .slice(0, maxResults);
 
@@ -459,13 +458,13 @@ function createVectorSearchResolver<
     }
 
     return Promise.all(
-      matches.map((match) =>
+      matches.map(match =>
         createAction({
           match,
           query,
           context,
-        }),
-      ),
+        })
+      )
     );
   };
 }
@@ -477,7 +476,7 @@ function createVectorSearchResolver<
 export function createVectorSearchQueryRecommendedActionsFlow<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>,
+  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
 ): QueryRecommendedActionsFlow {
   return createQueryRecommendedActionsFlow({
     ...config,
