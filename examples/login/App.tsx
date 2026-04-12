@@ -2,8 +2,9 @@ import { useMemo } from 'react';
 import type { InputMessage } from 'actionable-support-chat';
 import {
   Chat,
+  createButton,
+  createRequestInputButtonDef,
   useChatStore,
-  createRequestInputButton,
   useInputFieldStore,
 } from 'actionable-support-chat';
 
@@ -13,6 +14,21 @@ import {
  * This example demonstrates a login flow using email and password inputs.
  * The bot guides users through entering their credentials step by step.
  */
+const LOGIN_WITH_EMAIL_BUTTON_DEF = createRequestInputButtonDef({
+  initialLabel: 'Login with Email',
+  inputPromptMessage: 'Please enter your email address:',
+  inputType: 'email',
+  placeholder: 'your.email@example.com',
+  inputDescription: 'We will use this email to log you in',
+  validator: value => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      return 'Please enter a valid email address';
+    }
+    return true;
+  },
+});
+
 export function App(): React.JSX.Element {
   const { addMessage } = useChatStore();
   const {
@@ -87,19 +103,7 @@ export function App(): React.JSX.Element {
         content: 'Welcome! Please log in to continue.',
         timestamp: new Date(),
         buttons: [
-          createRequestInputButton({
-            initialLabel: 'Login with Email',
-            inputPromptMessage: 'Please enter your email address:',
-            inputType: 'email',
-            placeholder: 'your.email@example.com',
-            inputDescription: 'We will use this email to log you in',
-            validator: value => {
-              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-              if (!emailRegex.test(value)) {
-                return 'Please enter a valid email address';
-              }
-              return true;
-            },
+          createButton(LOGIN_WITH_EMAIL_BUTTON_DEF, {
             onValidInput: handleEmailInput,
           }),
         ],

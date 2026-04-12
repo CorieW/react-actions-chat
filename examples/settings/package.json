@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "actionable-support-chat": "workspace:*",
+    "actionable-support-chat-recommended-actions": "workspace:*",
     "@tanstack/react-query": "^5.90.5",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"

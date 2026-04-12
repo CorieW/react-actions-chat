@@ -176,6 +176,9 @@ importers:
       actionable-support-chat:
         specifier: workspace:*
         version: link:../..
+      actionable-support-chat-recommended-actions:
+        specifier: workspace:*
+        version: link:../../packages/actionable-support-chat-recommended-actions
       react:
         specifier: ^19.1.1
         version: 19.2.5

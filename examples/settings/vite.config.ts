@@ -4,5 +4,8 @@ import { actionableSupportChatVitePlugin } from 'actionable-support-chat/vite-pl
 
 // https://vite.dev/config/
 export default defineConfig({
+  resolve: {
+    preserveSymlinks: true,
+  },
   plugins: [react(), actionableSupportChatVitePlugin()],
 });
