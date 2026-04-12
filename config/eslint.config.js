@@ -6,7 +6,13 @@ import tseslint from 'typescript-eslint';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
-  globalIgnores(['coverage', 'dist', 'examples/**', 'node_modules']),
+  globalIgnores([
+    '.temp-styles-build',
+    'coverage',
+    'dist',
+    'examples/**',
+    'node_modules',
+  ]),
   {
     files: ['**/*.{js,mjs,cjs,jsx,ts,tsx}'],
     extends: [js.configs.recommended],

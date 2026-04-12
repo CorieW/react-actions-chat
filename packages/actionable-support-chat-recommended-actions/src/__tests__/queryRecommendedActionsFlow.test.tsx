@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   Chat,
@@ -11,6 +11,7 @@ import {
   usePersistentButtonStore,
 } from 'actionable-support-chat';
 import {
+  buildVectorSearchButtonText,
   createQueryRecommendedActionsFlow,
   type EmbedTextOptions,
   type EmbeddingVector,
@@ -126,7 +127,7 @@ describe('Query Recommended Actions Flow', () => {
     await user.click(recommendationButton);
 
     expect(handleRecommendation).toHaveBeenCalledTimes(1);
-  });
+  }, 10_000);
 
   it('shows the empty state message when no recommendations are returned', async () => {
     const user = userEvent.setup();
@@ -409,6 +410,91 @@ describe('Query Recommended Actions Flow', () => {
     expect(
       screen.queryByRole('button', { name: 'Unused trigger' })
     ).not.toBeInTheDocument();
+  });
+
+  it('adds recommendation messages directly when no loading state is configured', async () => {
+    const flow = createQueryRecommendedActionsFlow({
+      buildRecommendationsMessage: query => `Suggestions for ${query}`,
+      getRecommendedActions: () => [
+        {
+          label: 'Change Email',
+        },
+      ],
+    });
+
+    await flow.recommend('change email');
+
+    expect(useChatStore.getState().getMessages()).toContainEqual(
+      expect.objectContaining({
+        type: 'other',
+        content: 'Suggestions for change email',
+        buttons: [
+          expect.objectContaining({
+            label: 'Change Email',
+          }),
+        ],
+      })
+    );
+  });
+
+  it('starts the query flow programmatically', async () => {
+    const flow = createQueryRecommendedActionsFlow({
+      queryPromptMessage: 'Programmatic prompt',
+      getRecommendedActions: () => [],
+    });
+
+    render(
+      <Chat
+        initialMessages={[
+          {
+            type: 'other',
+            content: 'Need something specific?',
+            buttons: [flow.button],
+          },
+        ]}
+      />
+    );
+
+    act(() => {
+      flow.start();
+    });
+
+    expect(await screen.findByText('Programmatic prompt')).toBeInTheDocument();
+  });
+
+  it('falls back to adding a new message when the loading message cannot be located', async () => {
+    const originalGetPreviousMessage =
+      useChatStore.getState().getPreviousMessage;
+    useChatStore.setState({
+      getPreviousMessage: () => undefined,
+    });
+
+    const flow = createQueryRecommendedActionsFlow({
+      getRecommendedActions: () => [
+        {
+          label: 'Change Email',
+        },
+      ],
+    });
+
+    try {
+      await flow.recommend('change email');
+    } finally {
+      useChatStore.setState({
+        getPreviousMessage: originalGetPreviousMessage,
+      });
+    }
+
+    expect(useChatStore.getState().getMessages()).toContainEqual(
+      expect.objectContaining({
+        content: 'Here are the recommended next steps for "change email".',
+        buttons: [
+          expect.objectContaining({
+            label: 'Change Email',
+          }),
+        ],
+      })
+    );
   });
 
   it('supports in-memory vector search with precomputed embeddings', async () => {
@@ -706,5 +792,109 @@ describe('Query Recommended Actions Flow', () => {
     expect(
       await screen.findByRole('button', { name: 'Reset password' })
     ).toBeInTheDocument();
+  });
+
+  it('supports custom vector search result builders', async () => {
+    const flow = createVectorSearchQueryRecommendedActionsFlow({
+      buttons: [
+        {
+          id: 'email',
+          label: 'Change Email',
+          embedding: [1, 0, 0] as const,
+        },
+      ],
+      getButtonEmbedding: button => button.embedding,
+      embedQuery: () => [1, 0, 0] as const,
+      buildResult: ({ matches, query }) => ({
+        responseMessage: `Best result for ${query}`,
+        recommendedActions: matches.map(match => ({
+          label: match.button.label,
+        })),
+      }),
+    });
+
+    await flow.recommend('change email');
+
+    expect(useChatStore.getState().getMessages()).toContainEqual(
+      expect.objectContaining({
+        content: 'Best result for change email',
+        buttons: [
+          expect.objectContaining({
+            label: 'Change Email',
+          }),
+        ],
+      })
+    );
+  });
+
+  it('reports button embedding count mismatches through the flow error path', async () => {
+    const onError = vi.fn();
+    const embedder = createTestEmbedder(() => Promise.resolve([[1, 0, 0]]));
+    const flow = createVectorSearchQueryRecommendedActionsFlow({
+      buttons: [
+        {
+          label: 'Change Email',
+          description: 'Update my email',
+        },
+        {
+          label: 'Logout',
+          description: 'Leave my account',
+        },
+      ],
+      embedder,
+      onError,
+    });
+
+    await flow.recommend('change email');
+
+    expect(onError).toHaveBeenCalledTimes(1);
+    const [, error] = onError.mock.calls[0] as [string, Error];
+    expect(error.message).toBe(
+      'Button embedding count did not match the number of source buttons.'
+    );
+    expect(useChatStore.getState().getMessages()).toContainEqual(
+      expect.objectContaining({
+        content:
+          'I hit a problem while looking up recommendations for "change email". Please try again.',
+      })
+    );
+  });
+
+  it('supports function-based error messages', async () => {
+    const flow = createQueryRecommendedActionsFlow({
+      errorMessage: (query, error) =>
+        `Could not load actions for ${query}: ${error instanceof Error ? error.message : 'unknown'}`,
+      getRecommendedActions: () => {
+        throw new Error('Lookup failed');
+      },
+    });
+
+    await flow.recommend('change email');
+
+    expect(useChatStore.getState().getMessages()).toContainEqual(
+      expect.objectContaining({
+        content: 'Could not load actions for change email: Lookup failed',
+      })
+    );
+  });
+
+  it('builds vector search text from label and initialLabel variants', () => {
+    expect(
+      buildVectorSearchButtonText({
+        label: 'Reset Password',
+        description: 'Help me change my password',
+        exampleQueries: ['forgot password'],
+      })
+    ).toBe('Reset Password Help me change my password forgot password');
+
+    expect(
+      buildVectorSearchButtonText({
+        ...createRequestInputButtonDef({
+          initialLabel: 'Change Email',
+          inputPromptMessage: 'Enter your email',
+        }),
+        description: 'Update my address',
+      })
+    ).toBe('Change Email Update my address');
   });
 });

@@ -98,7 +98,7 @@ export function createCohereTextEmbedder(
         options?.inputType
       );
 
-      if (!embedding) {
+      if (!embedding || embedding.length === 0) {
         throw new Error(
           'Cohere did not return an embedding for the input text.'
         );

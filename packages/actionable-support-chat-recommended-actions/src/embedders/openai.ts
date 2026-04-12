@@ -91,7 +91,7 @@ export function createOpenAITextEmbedder(
     embedText: async text => {
       const [embedding] = await embedTextsWithOpenAI([text]);
 
-      if (!embedding) {
+      if (!embedding || embedding.length === 0) {
         throw new Error(
           'OpenAI did not return an embedding for the input text.'
         );
