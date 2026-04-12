@@ -32,6 +32,10 @@ const buttonVariants = cva(
   }
 );
 
+/**
+ * Shared button props that combine native button attributes with supported
+ * visual variants.
+ */
 interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {}

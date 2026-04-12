@@ -6,7 +6,9 @@ import { Button } from './ui/button';
 import { useInputFieldStore } from '../lib/inputFieldStore';
 
 interface ChatInputProps {
+  /** Called when the user submits the current input value. */
   readonly onSend: (message: string) => void;
+  /** Theme tokens used to style the input area and send button. */
   readonly theme: ChatTheme;
 }
 

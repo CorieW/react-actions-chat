@@ -85,12 +85,11 @@ export interface Message
 
 /**
  * Props for the Chat component.
- *
- * @property initialMessages Optional array of messages to initialize the chat with.
- * @property theme Optional theme configuration to customize the chat appearance.
  */
 export interface ChatProps {
+  /** Optional messages shown when the chat first renders. */
   readonly initialMessages?: readonly InputMessage[];
+  /** Optional theme configuration for the chat UI. */
   readonly theme?: ChatTheme;
 }
 
@@ -99,5 +98,6 @@ export interface ChatProps {
  * Allows theme to be a string ('light' | 'dark'), a ChatTheme object, or undefined.
  */
 export type ChatPropsWithFlexibleTheme = Omit<ChatProps, 'theme'> & {
+  /** Optional preset or full theme object used to style the chat UI. */
   readonly theme?: 'light' | 'dark' | ChatTheme | undefined;
 };

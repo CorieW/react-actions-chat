@@ -6,8 +6,11 @@ import type {
 import { cn } from '../lib/utils';
 
 interface MessageButtonsProps {
+  /** Action buttons attached to the message. */
   readonly buttons: InputMessage['buttons'];
+  /** Message side used to align the buttons with the bubble. */
   readonly messageType: InputMessage['type'];
+  /** Theme tokens used to style button colors. */
   readonly theme: ChatTheme;
 }
 

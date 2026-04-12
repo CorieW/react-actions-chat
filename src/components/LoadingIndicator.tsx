@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react';
 import type { ChatTheme } from '../js/types';
 
 interface LoadingIndicatorProps {
+  /** Optional status text announced to assistive technology while loading. */
   readonly label?: string | undefined;
+  /** Theme tokens used to style the indicator. */
   readonly theme: ChatTheme;
+  /** Renders the indicator inside a chat bubble when true. */
   readonly bubble?: boolean | undefined;
 }
 

@@ -3,9 +3,13 @@ import type { ChatTheme, Message } from '../js/types';
 import { LoadingIndicator, MessageBubble } from './';
 
 interface MessagesListProps {
+  /** Messages to render in the chat transcript. */
   readonly messages: readonly Message[];
+  /** Shows the loading indicator below the transcript when true. */
   readonly isLoading?: boolean | undefined;
+  /** Optional label announced while the loading indicator is visible. */
   readonly loadingMessage?: string | undefined;
+  /** Theme tokens used to style message surfaces. */
   readonly theme: ChatTheme;
 }
 

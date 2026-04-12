@@ -3,7 +3,9 @@ import { LoadingIndicator } from './LoadingIndicator';
 import { MessageButtons } from './MessageButtons';
 
 interface MessageBubbleProps {
+  /** Message data to render, including content, metadata, and actions. */
   readonly message: Message;
+  /** Theme tokens used to style the bubble and text colors. */
   readonly theme: ChatTheme;
 }
 

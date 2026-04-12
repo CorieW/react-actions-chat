@@ -52,6 +52,7 @@ function getButtonVariantStyles(
 }
 
 interface PersistentButtonsProps {
+  /** Theme tokens used to style the persistent action bar and buttons. */
   readonly theme: ChatTheme;
 }
 
