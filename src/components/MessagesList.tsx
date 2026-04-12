@@ -18,7 +18,7 @@ interface MessagesListProps {
 /**
  * Renders the chat transcript and keeps the latest content in view.
  *
- * @param props The message list props.
+ * @param props The `MessagesListProps` object.
  */
 export function MessagesList({
   messages,

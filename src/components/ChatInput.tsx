@@ -19,7 +19,7 @@ interface ChatInputProps {
 /**
  * Renders the shared chat input field and submit button.
  *
- * @param props The chat input props.
+ * @param props The `ChatInputProps` object.
  */
 export function ChatInput({
   onSend,
