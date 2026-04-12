@@ -15,21 +15,19 @@ import {
 /**
  * Base configuration for a plain message button definition.
  *
- * @property id Optional id used when reusing the button in persistent button collections.
+ * @property id Optional id used when reusing the button in persistent button collections. Can be either defined in the definition or in the runtime config.
  */
-export interface ButtonDefinition extends Omit<MessageButton, 'onClick'> {
+export interface ButtonDefinition extends MessageButton {
   readonly id?: string | undefined;
 }
 
 /**
  * Runtime overrides that can be applied when creating a plain message button.
  *
- * @property id Optional id that overrides the definition id when the button is created.
- * @property onClick Click handler attached to the created button at runtime.
+ * @property id Optional id that overrides the definition id when the button is created. Can be either defined in the definition or in the runtime config.
  */
 export interface ButtonRuntimeConfig {
   readonly id?: string | undefined;
-  readonly onClick?: (() => void) | undefined;
 }
 
 /**
@@ -156,10 +154,9 @@ export function createButton(
   }
 
   const { id: _definitionId, ...restDefinition } = definition;
-  const { id: _runtimeId, onClick } = runtimeConfig as ButtonRuntimeConfig;
+  const { id: _runtimeId } = runtimeConfig as ButtonRuntimeConfig;
   const button: MessageButton = {
     ...restDefinition,
-    ...(onClick ? { onClick } : {}),
   };
 
   return withOptionalId(button, id);

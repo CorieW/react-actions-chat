@@ -6,7 +6,7 @@ import {
   extractProviderErrorMessage,
   getFetchImplementation,
   parseJsonResponse,
-} from "./shared";
+} from './shared';
 
 export interface VoyageTextEmbedderConfig {
   readonly apiKey: string;
@@ -29,20 +29,20 @@ interface VoyageEmbeddingsResponse {
   };
 }
 
-const DEFAULT_VOYAGE_BASE_URL = "https://api.voyageai.com/v1";
-const DEFAULT_VOYAGE_MODEL = "voyage-4-large";
+const DEFAULT_VOYAGE_BASE_URL = 'https://api.voyageai.com/v1';
+const DEFAULT_VOYAGE_MODEL = 'voyage-4-large';
 
 function mapVoyageInputType(
-  inputType: EmbeddingInputType | undefined,
-): "query" | "document" {
-  return inputType === "query" ? "query" : "document";
+  inputType: EmbeddingInputType | undefined
+): 'query' | 'document' {
+  return inputType === 'query' ? 'query' : 'document';
 }
 
 /**
  * Creates a text embedder backed by Voyage's embeddings endpoint.
  */
 export function createVoyageTextEmbedder(
-  config: VoyageTextEmbedderConfig,
+  config: VoyageTextEmbedderConfig
 ): TextEmbedder {
   const {
     apiKey,
@@ -54,17 +54,17 @@ export function createVoyageTextEmbedder(
     truncation,
   } = config;
   const requestFetch = getFetchImplementation(fetchImpl);
-  const embeddingsUrl = `${baseUrl.replace(/\/$/, "")}/embeddings`;
+  const embeddingsUrl = `${baseUrl.replace(/\/$/, '')}/embeddings`;
 
   const embedTextsWithVoyage = async (
     texts: readonly string[],
-    inputType?: EmbeddingInputType,
+    inputType?: EmbeddingInputType
   ): Promise<readonly EmbeddingVector[]> => {
     const response = await requestFetch(embeddingsUrl, {
-      method: "POST",
+      method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         ...headers,
       },
       body: JSON.stringify({
@@ -81,17 +81,17 @@ export function createVoyageTextEmbedder(
       throw new Error(
         extractProviderErrorMessage(
           data,
-          `Voyage embeddings request failed with status ${response.status}.`,
-        ),
+          `Voyage embeddings request failed with status ${response.status}.`
+        )
       );
     }
 
     const embeddings =
-      data?.embeddings ?? data?.data?.map((item) => item.embedding ?? []);
+      data?.embeddings ?? data?.data?.map(item => item.embedding ?? []);
 
     if (!embeddings || embeddings.length !== texts.length) {
       throw new Error(
-        "Voyage embeddings response did not include one embedding per input text.",
+        'Voyage embeddings response did not include one embedding per input text.'
       );
     }
 
@@ -102,12 +102,12 @@ export function createVoyageTextEmbedder(
     embedText: async (text, options) => {
       const [embedding] = await embedTextsWithVoyage(
         [text],
-        options?.inputType,
+        options?.inputType
       );
 
       if (!embedding) {
         throw new Error(
-          "Voyage did not return an embedding for the input text.",
+          'Voyage did not return an embedding for the input text.'
         );
       }
 
