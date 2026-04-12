@@ -79,9 +79,7 @@ function isRequestConfirmationButtonDefinition(
  * Creates a plain, input-request, or confirmation button from a shared API.
  *
  * @param definition The button definition to turn into a clickable message button.
- * @param definition.id Optional id carried onto the created button.
  * @param runtimeConfig Optional runtime overrides applied when the button is created.
- * @param runtimeConfig.id Optional id that overrides the definition id.
  */
 export function createButton(
   definition: ButtonDefinition,
@@ -99,9 +97,7 @@ export function createButton(
  * Creates a plain, input-request, or confirmation button from a shared API.
  *
  * @param definition The button definition to turn into a clickable message button.
- * @param definition.id Optional id carried onto the created button.
  * @param runtimeConfig Optional runtime overrides applied when the button is created.
- * @param runtimeConfig.id Optional id that overrides the definition id.
  */
 export function createButton(
   definition: AnyButtonDefinition,

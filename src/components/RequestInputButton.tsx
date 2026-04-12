@@ -85,20 +85,6 @@ export interface RequestInputButtonDefinition
  * this definition to createButton and provide runtime callbacks there.
  *
  * @param definition The static input-request button settings.
- * @param definition.id Optional id carried onto buttons created from the definition.
- * @param definition.initialLabel Label for the initial button that starts the flow.
- * @param definition.inputPromptMessage Message shown when requesting input from the user.
- * @param definition.placeholder Optional placeholder shown in the input field.
- * @param definition.inputDescription Optional helper text shown above the input field.
- * @param definition.inputType Optional input type used for the shared input field.
- * @param definition.validator Optional validator used to accept or reject submitted input.
- * @param definition.suppressValidationFailureMessage When true, skips the default validation error message.
- * @param definition.variant Optional variant for the initial button.
- * @param definition.className Optional classes applied to the initial button.
- * @param definition.style Optional inline styles applied to the initial button.
- * @param definition.abortLabel Optional label shown on the abort button.
- * @param definition.showAbort Whether to show the abort button during the flow.
- * @param definition.onSuccess Optional callback run after valid input is submitted.
  */
 export function createRequestInputButtonDef(
   definition: Omit<RequestInputButtonDefinition, 'kind'>
@@ -117,21 +103,6 @@ export function createRequestInputButtonDef(
  * Once the user provides valid input, the onInput callback is executed.
  *
  * @param config Configuration options for the input request button.
- * @param config.initialLabel Label for the initial button that starts the flow.
- * @param config.inputPromptMessage Message shown when requesting input from the user.
- * @param config.placeholder Optional placeholder shown in the input field.
- * @param config.inputDescription Optional helper text shown above the input field.
- * @param config.inputType Optional input type used for the shared input field.
- * @param config.validator Optional validator used to accept or reject submitted input.
- * @param config.onInvalidInput Optional callback run when submitted input is rejected.
- * @param config.onValidInput Optional callback run when submitted input is accepted.
- * @param config.suppressValidationFailureMessage When true, skips the default validation error message.
- * @param config.variant Optional variant for the initial button.
- * @param config.className Optional classes applied to the initial button.
- * @param config.style Optional inline styles applied to the initial button.
- * @param config.abortLabel Optional label shown on the abort button.
- * @param config.abortCallback Optional custom abort handler.
- * @param config.showAbort Whether to show the abort button during the flow.
  * @returns A MessageButton configuration that can be used in a Message's buttons array.
  */
 const ABORT_BUTTON_ID = 'input-request-abort';

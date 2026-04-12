@@ -59,15 +59,6 @@ export interface RequestConfirmationButtonDefinition
  * pass this definition to createButton and provide runtime callbacks there.
  *
  * @param definition The static confirmation button settings.
- * @param definition.id Optional id carried onto buttons created from the definition.
- * @param definition.initialLabel Label for the initial button that starts the flow.
- * @param definition.confirmationMessage Optional follow-up confirmation message.
- * @param definition.confirmLabel Optional label shown on the confirm button.
- * @param definition.rejectLabel Optional label shown on the reject button.
- * @param definition.variant Optional variant for the initial button.
- * @param definition.className Optional classes applied to the initial button.
- * @param definition.style Optional inline styles applied to the initial button.
- * @param definition.onSuccess Optional callback run when the action is confirmed.
  */
 export function createRequestConfirmationButtonDef(
   definition: Omit<RequestConfirmationButtonDefinition, 'kind'>
@@ -85,15 +76,6 @@ export function createRequestConfirmationButtonDef(
  * The user can then confirm or reject the action, triggering the respective callbacks.
  *
  * @param config Configuration options for the confirmation button.
- * @param config.initialLabel Label for the initial button that starts the flow.
- * @param config.confirmationMessage Optional follow-up confirmation message.
- * @param config.confirmLabel Optional label shown on the confirm button.
- * @param config.rejectLabel Optional label shown on the reject button.
- * @param config.onConfirm Callback run when the user confirms the action.
- * @param config.onReject Callback run when the user rejects the action.
- * @param config.variant Optional variant for the initial button.
- * @param config.className Optional classes applied to the initial button.
- * @param config.style Optional inline styles applied to the initial button.
  * @returns A MessageButton configuration that can be used in a Message's buttons array.
  */
 export function createRequestConfirmationButton(

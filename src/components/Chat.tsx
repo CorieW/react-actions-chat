@@ -12,8 +12,6 @@ import { MessagesList, ChatInput, PersistentButtons } from './';
  * Renders the chat UI and wires user input into the shared chat state.
  *
  * @param props The chat component props.
- * @param props.initialMessages Optional messages shown when the chat first renders.
- * @param props.theme Optional preset or theme object used to style the chat UI.
  */
 export function Chat({
   initialMessages = [],

@@ -65,7 +65,6 @@ interface PersistentButtonsProps {
  * Renders the persistent action buttons shown above the input field.
  *
  * @param props The persistent button bar props.
- * @param props.theme Theme tokens used to style the persistent action bar and buttons.
  */
 export function PersistentButtons({
   theme,

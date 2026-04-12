@@ -19,9 +19,6 @@ interface MessagesListProps {
  * Renders the chat transcript and keeps the latest content in view.
  *
  * @param props The message list props.
- * @param props.messages Messages to render in the chat transcript.
- * @param props.isLoading Shows the loading indicator below the transcript when true.
- * @param props.theme Theme tokens used to style message surfaces.
  */
 export function MessagesList({
   messages,

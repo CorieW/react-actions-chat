@@ -72,9 +72,6 @@ function getButtonVariantStyles(
  * Renders the action buttons attached to a single message.
  *
  * @param props The message button group props.
- * @param props.buttons Action buttons attached to the message.
- * @param props.messageType Message side used to align the buttons with the bubble.
- * @param props.theme Theme tokens used to style button colors.
  */
 export function MessageButtons({
   buttons,

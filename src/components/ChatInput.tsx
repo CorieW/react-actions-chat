@@ -20,8 +20,6 @@ interface ChatInputProps {
  * Renders the shared chat input field and submit button.
  *
  * @param props The chat input props.
- * @param props.onSend Called when the user submits the current input value.
- * @param props.theme Theme tokens used to style the input area and send button.
  */
 export function ChatInput({
   onSend,

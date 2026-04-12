@@ -18,8 +18,6 @@ interface MessageBubbleProps {
  * Renders a single chat bubble with its timestamp and optional actions.
  *
  * @param props The message bubble props.
- * @param props.message Message data to render, including content, metadata, and actions.
- * @param props.theme Theme tokens used to style the bubble and text colors.
  */
 export function MessageBubble({
   message,
