@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import type { ChatTheme } from "../js/types";
+import { useEffect, useState } from 'react';
+import type { ChatTheme } from '../js/types';
 
 interface LoadingIndicatorProps {
   readonly label?: string | undefined;
@@ -16,12 +16,12 @@ export function LoadingIndicator({
   bubble = true,
 }: LoadingIndicatorProps): React.JSX.Element {
   const [visibleDotCount, setVisibleDotCount] = useState(1);
-  const accessibleLabel = label && label.trim() !== "" ? label : "Loading";
+  const accessibleLabel = label && label.trim() !== '' ? label : 'Loading';
 
   useEffect(() => {
     const intervalId = globalThis.setInterval(() => {
-      setVisibleDotCount((currentCount) =>
-        currentCount === 3 ? 1 : currentCount + 1,
+      setVisibleDotCount(currentCount =>
+        currentCount === 3 ? 1 : currentCount + 1
       );
     }, 240);
 
@@ -32,23 +32,23 @@ export function LoadingIndicator({
 
   const dots = (
     <div
-      role="status"
-      aria-live="polite"
+      role='status'
+      aria-live='polite'
       aria-label={accessibleLabel}
-      className="flex items-center text-sm leading-relaxed"
+      className='flex items-center text-sm leading-relaxed'
     >
       <span
-        aria-hidden="true"
-        className="inline-flex min-w-[1.8rem] font-mono text-base font-semibold"
+        aria-hidden='true'
+        className='inline-flex min-w-[1.8rem] font-mono text-base font-semibold'
         style={{
           color: theme.textColor,
         }}
       >
-        {[0, 1, 2].map((index) => (
+        {[0, 1, 2].map(index => (
           <span
             key={index}
             style={{
-              visibility: index < visibleDotCount ? "visible" : "hidden",
+              visibility: index < visibleDotCount ? 'visible' : 'hidden',
             }}
           >
             .
@@ -63,14 +63,14 @@ export function LoadingIndicator({
   }
 
   return (
-    <div className="mb-1 flex gap-3">
-      <div className="max-w-[85%]">
+    <div className='mb-1 flex gap-3'>
+      <div className='max-w-[85%]'>
         <div
-          className="mr-auto rounded-lg px-4 py-3 shadow-sm"
+          className='mr-auto rounded-lg px-4 py-3 shadow-sm'
           style={{
             background: `${theme.secondaryColor}f5`,
             color: theme.textColor,
-            maxWidth: "fit-content",
+            maxWidth: 'fit-content',
           }}
         >
           {dots}

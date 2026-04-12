@@ -1,6 +1,6 @@
-import { useRef, useEffect } from "react";
-import type { ChatTheme, Message } from "../js/types";
-import { LoadingIndicator, MessageBubble } from "./";
+import { useRef, useEffect } from 'react';
+import type { ChatTheme, Message } from '../js/types';
+import { LoadingIndicator, MessageBubble } from './';
 
 interface MessagesListProps {
   readonly messages: readonly Message[];
@@ -18,7 +18,7 @@ export function MessagesList({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = (): void => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
@@ -26,8 +26,8 @@ export function MessagesList({
   }, [isLoading, loadingMessage, messages]);
 
   return (
-    <div className="flex-1 space-y-5 overflow-y-auto scroll-smooth p-6">
-      {messages.map((message) => (
+    <div className='flex-1 space-y-5 overflow-y-auto scroll-smooth p-6'>
+      {messages.map(message => (
         <MessageBubble key={message.id} message={message} theme={theme} />
       ))}
       {isLoading ? (

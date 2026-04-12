@@ -1,18 +1,18 @@
-import type { MessageButton } from "../js/types";
+import type { MessageButton } from '../js/types';
 import {
   createRequestConfirmationButton,
   type RequestConfirmationButtonConfig,
   type RequestConfirmationButtonDefinition,
   type RequestConfirmationButtonRuntimeConfig,
-} from "./RequestConfirmationButton";
+} from './RequestConfirmationButton';
 import {
   createRequestInputButton,
   type RequestInputButtonConfig,
   type RequestInputButtonDefinition,
   type RequestInputButtonRuntimeConfig,
-} from "./RequestInputButton";
+} from './RequestInputButton';
 
-export interface ButtonDefinition extends Omit<MessageButton, "onClick"> {
+export interface ButtonDefinition extends Omit<MessageButton, 'onClick'> {
   readonly id?: string | undefined;
 }
 
@@ -32,7 +32,7 @@ export type CreatedButton = MessageButton & {
 
 function withOptionalId(
   button: MessageButton,
-  id: string | undefined,
+  id: string | undefined
 ): CreatedButton {
   if (!id) {
     return button;
@@ -45,35 +45,35 @@ function withOptionalId(
 }
 
 function isRequestInputButtonDefinition(
-  definition: AnyButtonDefinition,
+  definition: AnyButtonDefinition
 ): definition is RequestInputButtonDefinition {
-  return "kind" in definition && definition.kind === "request-input";
+  return 'kind' in definition && definition.kind === 'request-input';
 }
 
 function isRequestConfirmationButtonDefinition(
-  definition: AnyButtonDefinition,
+  definition: AnyButtonDefinition
 ): definition is RequestConfirmationButtonDefinition {
-  return "kind" in definition && definition.kind === "request-confirmation";
+  return 'kind' in definition && definition.kind === 'request-confirmation';
 }
 
 export function createButton(
   definition: ButtonDefinition,
-  runtimeConfig?: ButtonRuntimeConfig,
+  runtimeConfig?: ButtonRuntimeConfig
 ): CreatedButton;
 export function createButton(
   definition: RequestInputButtonDefinition,
-  runtimeConfig?: RequestInputButtonRuntimeConfig,
+  runtimeConfig?: RequestInputButtonRuntimeConfig
 ): CreatedButton;
 export function createButton(
   definition: RequestConfirmationButtonDefinition,
-  runtimeConfig?: RequestConfirmationButtonRuntimeConfig,
+  runtimeConfig?: RequestConfirmationButtonRuntimeConfig
 ): CreatedButton;
 export function createButton(
   definition: AnyButtonDefinition,
   runtimeConfig:
     | ButtonRuntimeConfig
     | RequestInputButtonRuntimeConfig
-    | RequestConfirmationButtonRuntimeConfig = {},
+    | RequestConfirmationButtonRuntimeConfig = {}
 ): CreatedButton {
   const id = runtimeConfig.id ?? definition.id;
 

@@ -1,40 +1,40 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { useChatStore } from "../lib/chatStore";
-import { usePersistentButtonStore } from "../lib/persistentButtonStore";
-import type { InputMessage, Message } from "../js/types";
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { useChatStore } from '../lib/chatStore';
+import { usePersistentButtonStore } from '../lib/persistentButtonStore';
+import type { InputMessage, Message } from '../js/types';
 
-describe("Chat Store Unit Tests", () => {
+describe('Chat Store Unit Tests', () => {
   beforeEach(() => {
     // Clear store before each test
     useChatStore.getState().clearMessages();
     usePersistentButtonStore.getState().clearButtons();
   });
 
-  describe("addMessage", () => {
-    it("should add message with id and timestamp", () => {
+  describe('addMessage', () => {
+    it('should add message with id and timestamp', () => {
       const store = useChatStore.getState();
 
       store.addMessage({
-        type: "self",
-        content: "Hello",
+        type: 'self',
+        content: 'Hello',
       });
 
       const messages = store.getMessages();
       expect(messages).toHaveLength(1);
       expect(messages[0]).toMatchObject({
         id: 1,
-        type: "self",
-        content: "Hello",
+        type: 'self',
+        content: 'Hello',
       });
       expect(messages[0]?.timestamp).toBeInstanceOf(Date);
     });
 
-    it("should increment id for each message", () => {
+    it('should increment id for each message', () => {
       const store = useChatStore.getState();
 
-      store.addMessage({ type: "self", content: "First" });
-      store.addMessage({ type: "other", content: "Second" });
-      store.addMessage({ type: "self", content: "Third" });
+      store.addMessage({ type: 'self', content: 'First' });
+      store.addMessage({ type: 'other', content: 'Second' });
+      store.addMessage({ type: 'self', content: 'Third' });
 
       const messages = store.getMessages();
       expect(messages).toHaveLength(3);
@@ -43,20 +43,20 @@ describe("Chat Store Unit Tests", () => {
       expect(messages[2]?.id).toBe(3);
     });
 
-    it("should clear buttons from previous messages when adding new message", () => {
+    it('should clear buttons from previous messages when adding new message', () => {
       const store = useChatStore.getState();
 
       store.addMessage({
-        type: "other",
-        content: "First message",
-        buttons: [{ label: "Button 1" }],
+        type: 'other',
+        content: 'First message',
+        buttons: [{ label: 'Button 1' }],
       });
 
       expect(store.getMessages()[0]?.buttons).toHaveLength(1);
 
       store.addMessage({
-        type: "self",
-        content: "Second message",
+        type: 'self',
+        content: 'Second message',
       });
 
       const messages = store.getMessages();
@@ -65,11 +65,11 @@ describe("Chat Store Unit Tests", () => {
       expect(messages[1]?.buttons).toBeUndefined();
     });
 
-    it("should remove abort button from persistent buttons", () => {
+    it('should remove abort button from persistent buttons', () => {
       const persistentStore = usePersistentButtonStore.getState();
       persistentStore.addButton({
-        id: "input-request-abort",
-        label: "Abort",
+        id: 'input-request-abort',
+        label: 'Abort',
         onClick: () => {},
       });
 
@@ -77,29 +77,29 @@ describe("Chat Store Unit Tests", () => {
 
       const chatStore = useChatStore.getState();
       chatStore.addMessage({
-        type: "self",
-        content: "New message",
+        type: 'self',
+        content: 'New message',
       });
 
       expect(persistentStore.getButtons()).toHaveLength(0);
     });
   });
 
-  describe("addMessages", () => {
-    it("should add multiple messages at once", () => {
+  describe('addMessages', () => {
+    it('should add multiple messages at once', () => {
       const store = useChatStore.getState();
 
       const messages: InputMessage[] = [
         {
           id: 1,
-          type: "other",
-          content: "First",
+          type: 'other',
+          content: 'First',
           timestamp: new Date(),
         },
         {
           id: 2,
-          type: "self",
-          content: "Second",
+          type: 'self',
+          content: 'Second',
           timestamp: new Date(),
         },
       ];
@@ -107,20 +107,20 @@ describe("Chat Store Unit Tests", () => {
       store.addMessages(messages);
 
       expect(store.getMessages()).toHaveLength(2);
-      expect(store.getMessages()[0]?.content).toBe("First");
-      expect(store.getMessages()[1]?.content).toBe("Second");
+      expect(store.getMessages()[0]?.content).toBe('First');
+      expect(store.getMessages()[1]?.content).toBe('Second');
     });
 
-    it("should append to existing messages", () => {
+    it('should append to existing messages', () => {
       const store = useChatStore.getState();
 
-      store.addMessage({ type: "self", content: "Existing" });
+      store.addMessage({ type: 'self', content: 'Existing' });
 
       const newMessages: InputMessage[] = [
         {
           id: 2,
-          type: "other",
-          content: "New",
+          type: 'other',
+          content: 'New',
           timestamp: new Date(),
         },
       ];
@@ -131,21 +131,21 @@ describe("Chat Store Unit Tests", () => {
     });
   });
 
-  describe("setMessages", () => {
-    it("should replace all messages", () => {
+  describe('setMessages', () => {
+    it('should replace all messages', () => {
       const store = useChatStore.getState();
 
-      store.addMessage({ type: "self", content: "First" });
-      store.addMessage({ type: "other", content: "Second" });
+      store.addMessage({ type: 'self', content: 'First' });
+      store.addMessage({ type: 'other', content: 'Second' });
 
       expect(store.getMessages()).toHaveLength(2);
 
       const newMessages: Message[] = [
         {
           id: 10,
-          rawContent: "Replaced",
-          type: "other",
-          content: "Replaced",
+          rawContent: 'Replaced',
+          type: 'other',
+          content: 'Replaced',
           timestamp: new Date(),
         },
       ];
@@ -154,60 +154,60 @@ describe("Chat Store Unit Tests", () => {
 
       const messages = store.getMessages();
       expect(messages).toHaveLength(1);
-      expect(messages[0]?.content).toBe("Replaced");
+      expect(messages[0]?.content).toBe('Replaced');
       expect(messages[0]?.id).toBe(10);
     });
 
-    it("should handle empty array", () => {
+    it('should handle empty array', () => {
       const store = useChatStore.getState();
 
-      store.addMessage({ type: "self", content: "Test" });
+      store.addMessage({ type: 'self', content: 'Test' });
       store.setMessages([]);
 
       expect(store.getMessages()).toHaveLength(0);
     });
   });
 
-  describe("getMessages", () => {
-    it("should return current messages", () => {
+  describe('getMessages', () => {
+    it('should return current messages', () => {
       const store = useChatStore.getState();
 
-      store.addMessage({ type: "self", content: "Test" });
+      store.addMessage({ type: 'self', content: 'Test' });
       const messages = store.getMessages();
 
       expect(messages).toHaveLength(1);
-      expect(messages[0]?.content).toBe("Test");
+      expect(messages[0]?.content).toBe('Test');
     });
 
-    it("should return empty array when no messages", () => {
+    it('should return empty array when no messages', () => {
       const store = useChatStore.getState();
       expect(store.getMessages()).toEqual([]);
     });
   });
 
-  describe("getPreviousMessage", () => {
-    it("should return last message", () => {
+  describe('getPreviousMessage', () => {
+    it('should return last message', () => {
       const store = useChatStore.getState();
 
-      store.addMessage({ type: "self", content: "First" });
-      store.addMessage({ type: "other", content: "Last" });
+      store.addMessage({ type: 'self', content: 'First' });
+      store.addMessage({ type: 'other', content: 'Last' });
 
       const previousMessage = store.getPreviousMessage();
-      expect(previousMessage?.content).toBe("Last");
+      expect(previousMessage?.content).toBe('Last');
     });
 
-    it("should return undefined when no messages", () => {
+    it('should return undefined when no messages', () => {
       const store = useChatStore.getState();
       expect(store.getPreviousMessage()).toBeUndefined();
     });
   });
 
-  describe("clearMessages", () => {
-    it("should remove all messages", () => {
+  describe('clearMessages', () => {
+    it('should remove all messages', () => {
       const store = useChatStore.getState();
 
-      store.addMessage({ type: "self", content: "First" });
-      store.addMessage({ type: "other", content: "Second" });
+      store.addMessage({ type: 'self', content: 'First' });
+      store.addMessage({ type: 'other', content: 'Second' });
 
       expect(store.getMessages()).toHaveLength(2);
 
@@ -216,10 +216,10 @@ describe("Chat Store Unit Tests", () => {
       expect(store.getMessages()).toEqual([]);
     });
 
-    it("should clear loading state", () => {
+    it('should clear loading state', () => {
       const store = useChatStore.getState();
 
-      store.setLoading(true, "Thinking...");
+      store.setLoading(true, 'Thinking...');
       store.clearMessages();
 
       expect(useChatStore.getState().isLoading).toBe(false);
@@ -227,15 +227,15 @@ describe("Chat Store Unit Tests", () => {
     });
   });
 
-  describe("loading state", () => {
-    it("should set and clear loading state", () => {
+  describe('loading state', () => {
+    it('should set and clear loading state', () => {
       const store = useChatStore.getState();
 
-      store.setLoading(true, "Looking up options...");
+      store.setLoading(true, 'Looking up options...');
 
       expect(useChatStore.getState().isLoading).toBe(true);
       expect(useChatStore.getState().loadingMessage).toBe(
-        "Looking up options...",
+        'Looking up options...'
       );
 
       store.clearLoading();
@@ -245,26 +245,26 @@ describe("Chat Store Unit Tests", () => {
     });
   });
 
-  describe("clearButtons", () => {
-    it("should remove buttons from all messages", () => {
+  describe('clearButtons', () => {
+    it('should remove buttons from all messages', () => {
       const store = useChatStore.getState();
 
       store.setMessages([
         {
           id: 1,
-          type: "other",
-          content: "First",
-          rawContent: "First",
+          type: 'other',
+          content: 'First',
+          rawContent: 'First',
           timestamp: new Date(),
-          buttons: [{ label: "Button 1" }],
+          buttons: [{ label: 'Button 1' }],
         },
         {
           id: 2,
-          type: "other",
-          content: "Second",
-          rawContent: "Second",
+          type: 'other',
+          content: 'Second',
+          rawContent: 'Second',
           timestamp: new Date(),
-          buttons: [{ label: "Button 2" }],
+          buttons: [{ label: 'Button 2' }],
         },
       ]);
 
@@ -275,36 +275,36 @@ describe("Chat Store Unit Tests", () => {
       expect(messages[1]?.buttons).toEqual([]);
     });
 
-    it("should work with messages that have no buttons", () => {
+    it('should work with messages that have no buttons', () => {
       const store = useChatStore.getState();
 
-      store.addMessage({ type: "self", content: "No buttons" });
+      store.addMessage({ type: 'self', content: 'No buttons' });
       store.clearButtons();
 
       expect(store.getMessages()[0]?.buttons).toEqual([]);
     });
   });
 
-  describe("clearPreviousMessageButtons", () => {
-    it("should remove buttons from last message only", () => {
+  describe('clearPreviousMessageButtons', () => {
+    it('should remove buttons from last message only', () => {
       const store = useChatStore.getState();
 
       store.setMessages([
         {
           id: 1,
-          type: "other",
-          content: "First",
-          rawContent: "First",
+          type: 'other',
+          content: 'First',
+          rawContent: 'First',
           timestamp: new Date(),
-          buttons: [{ label: "Button 1" }],
+          buttons: [{ label: 'Button 1' }],
         },
         {
           id: 2,
-          type: "other",
-          content: "Second",
-          rawContent: "Second",
+          type: 'other',
+          content: 'Second',
+          rawContent: 'Second',
           timestamp: new Date(),
-          buttons: [{ label: "Button 2" }],
+          buttons: [{ label: 'Button 2' }],
         },
       ]);
 
@@ -315,23 +315,23 @@ describe("Chat Store Unit Tests", () => {
       expect(messages[1]?.buttons).toEqual([]);
     });
 
-    it("should do nothing when no messages", () => {
+    it('should do nothing when no messages', () => {
       const store = useChatStore.getState();
       expect(() => store.clearPreviousMessageButtons()).not.toThrow();
     });
   });
 
-  describe("clearPreviousMessageCallback", () => {
-    it("should remove callback from last message", () => {
+  describe('clearPreviousMessageCallback', () => {
+    it('should remove callback from last message', () => {
       const store = useChatStore.getState();
       const callback = vi.fn();
 
       store.setMessages([
         {
           id: 1,
-          type: "other",
-          content: "Message",
-          rawContent: "Message",
+          type: 'other',
+          content: 'Message',
+          rawContent: 'Message',
           timestamp: new Date(),
           userResponseCallback: callback,
         },
@@ -344,7 +344,7 @@ describe("Chat Store Unit Tests", () => {
       expect(store.getPreviousMessage()?.userResponseCallback).toBeUndefined();
     });
 
-    it("should only remove callback from last message", () => {
+    it('should only remove callback from last message', () => {
       const store = useChatStore.getState();
       const callback1 = vi.fn();
       const callback2 = vi.fn();
@@ -352,17 +352,17 @@ describe("Chat Store Unit Tests", () => {
       store.setMessages([
         {
           id: 1,
-          type: "other",
-          content: "First",
-          rawContent: "First",
+          type: 'other',
+          content: 'First',
+          rawContent: 'First',
           timestamp: new Date(),
           userResponseCallback: callback1,
         },
         {
           id: 2,
-          type: "other",
-          content: "Second",
-          rawContent: "Second",
+          type: 'other',
+          content: 'Second',
+          rawContent: 'Second',
           timestamp: new Date(),
           userResponseCallback: callback2,
         },
@@ -375,7 +375,7 @@ describe("Chat Store Unit Tests", () => {
       expect(messages[1]?.userResponseCallback).toBeUndefined();
     });
 
-    it("should do nothing when no messages", () => {
+    it('should do nothing when no messages', () => {
       const store = useChatStore.getState();
       expect(() => store.clearPreviousMessageCallback()).not.toThrow();
     });

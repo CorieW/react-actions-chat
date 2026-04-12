@@ -1,5 +1,5 @@
-import type { MessageButton, MessageButtonVariant } from "../js/types";
-import { useChatStore } from "../lib";
+import type { MessageButton, MessageButtonVariant } from '../js/types';
+import { useChatStore } from '../lib';
 
 export interface RequestConfirmationButtonConfig {
   /**
@@ -71,8 +71,8 @@ export interface RequestConfirmationButtonRuntimeConfig {
  * callbacks are attached by the app.
  */
 export interface RequestConfirmationButtonDefinition
-  extends Omit<RequestConfirmationButtonConfig, "onConfirm" | "onReject"> {
-  readonly kind: "request-confirmation";
+  extends Omit<RequestConfirmationButtonConfig, 'onConfirm' | 'onReject'> {
+  readonly kind: 'request-confirmation';
   readonly id?: string | undefined;
 
   /**
@@ -88,11 +88,11 @@ export interface RequestConfirmationButtonDefinition
  * pass this definition to createButton and provide runtime callbacks there.
  */
 export function createRequestConfirmationButtonDef(
-  definition: Omit<RequestConfirmationButtonDefinition, "kind">,
+  definition: Omit<RequestConfirmationButtonDefinition, 'kind'>
 ): RequestConfirmationButtonDefinition {
   return {
     ...definition,
-    kind: "request-confirmation",
+    kind: 'request-confirmation',
   };
 }
 
@@ -106,13 +106,13 @@ export function createRequestConfirmationButtonDef(
  * @returns A MessageButton configuration that can be used in a Message's buttons array
  */
 export function createRequestConfirmationButton(
-  config: RequestConfirmationButtonConfig,
+  config: RequestConfirmationButtonConfig
 ): MessageButton {
   const {
     initialLabel,
     confirmationMessage,
-    confirmLabel = "Confirm",
-    rejectLabel = "Decline",
+    confirmLabel = 'Confirm',
+    rejectLabel = 'Decline',
     onConfirm,
     onReject,
     variant,
@@ -130,19 +130,19 @@ export function createRequestConfirmationButton(
 
       // Add a followup message with the confirmation message and buttons
       addMessage({
-        type: "other",
-        content: confirmationMessage ?? "Are you sure you want to do this?",
+        type: 'other',
+        content: confirmationMessage ?? 'Are you sure you want to do this?',
         buttons: [
           {
             label: confirmLabel,
-            variant: "success",
+            variant: 'success',
             onClick: () => {
               onConfirm();
             },
           },
           {
             label: rejectLabel,
-            variant: "dull",
+            variant: 'dull',
             onClick: () => {
               if (onReject) {
                 onReject();
