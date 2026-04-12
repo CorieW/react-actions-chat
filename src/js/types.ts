@@ -88,8 +88,10 @@ export interface InputMessage {
  * @property timestamp Creation time assigned to the stored message.
  * @property id Stable id assigned by the chat store.
  */
-export interface Message
-  extends Omit<InputMessage, 'rawContent' | 'timestamp' | 'id'> {
+export interface Message extends Omit<
+  InputMessage,
+  'rawContent' | 'timestamp' | 'id'
+> {
   readonly rawContent: string;
   readonly timestamp: Date;
   readonly id: number;

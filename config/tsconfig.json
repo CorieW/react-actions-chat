@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
@@ -16,12 +17,24 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "paths": {
+      "actionable-support-chat": ["../src/index.ts"],
+      "actionable-support-chat/components": ["../src/components/index.ts"],
+      "actionable-support-chat/lib": ["../src/lib/index.ts"],
+      "actionable-support-chat/types": ["../src/js/types.ts"],
+      "actionable-support-chat-recommended-actions": [
+        "../packages/actionable-support-chat-recommended-actions/src/index.ts"
+      ],
+      "actionable-support-chat-recommended-actions/embedders": [
+        "../packages/actionable-support-chat-recommended-actions/src/embedders/index.ts"
+      ]
+    },
 
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["../src"],
+  "include": ["../src", "../packages"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

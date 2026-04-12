@@ -23,7 +23,7 @@
   },
   "scripts": {
     "dev": "vite --config config/vite.config.ts",
-    "build": "npm run build:styles && vite build --config config/vite.config.ts",
+    "build": "node scripts/build-styles-v4.js && vite build --config config/vite.config.ts",
     "build:styles": "node scripts/build-styles-v4.js",
     "check:styles": "node scripts/check-styles.js",
     "lint": "eslint . --config config/eslint.config.js",
@@ -69,5 +69,6 @@
     "typescript-eslint": "^8.58.1",
     "vite": "^7.1.7",
     "vitest": "^3.2.4"
-  }
+  },
+  "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319"
 }

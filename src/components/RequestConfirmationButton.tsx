@@ -47,8 +47,10 @@ export interface RequestConfirmationButtonRuntimeConfig {
  * @property id Optional id used when reusing the button in persistent button collections.
  * @property onSuccess Optional success callback attached directly to the definition.
  */
-export interface RequestConfirmationButtonDefinition
-  extends Omit<RequestConfirmationButtonConfig, 'onConfirm' | 'onReject'> {
+export interface RequestConfirmationButtonDefinition extends Omit<
+  RequestConfirmationButtonConfig,
+  'onConfirm' | 'onReject'
+> {
   readonly kind: 'request-confirmation';
   readonly id?: string | undefined;
   readonly onSuccess?: (() => void) | undefined;

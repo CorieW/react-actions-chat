@@ -1,6 +1,6 @@
 # Chat Component Examples
 
-This folder contains self-contained, runnable examples demonstrating different use cases of the Chat component.
+This folder contains runnable workspace examples demonstrating different use cases of the Chat component.
 
 ## Examples
 
@@ -10,34 +10,35 @@ This folder contains self-contained, runnable examples demonstrating different u
 
 ## Running an Example
 
-Each example is a standalone project that installs `actionable-support-chat` from the local parent directory.
+Each example is a workspace package that resolves `actionable-support-chat` through the repo's shared `pnpm` workspace.
 
 ### Prerequisites
 
-Make sure you have Node.js and npm installed.
+Make sure you have Node.js and `pnpm` available. If needed, run `corepack enable` first.
 
 ### Steps
 
-1. Navigate to the example directory:
+1. Install workspace dependencies from the repo root:
+
+   ```bash
+   pnpm install
+   ```
+
+2. Start an example from the repo root:
+
+   ```bash
+   pnpm --filter basic-qa-bot-example dev
+   # or
+   pnpm --filter login-example dev
+   # or
+   pnpm --filter settings-example dev
+   ```
+
+3. If you prefer, you can still work inside the example directory after the root install:
 
    ```bash
    cd examples/basic-qa-bot
-   # or
-   cd examples/login
-   # or
-   cd examples/settings
-   ```
-
-2. Install dependencies (this will install the local `actionable-support-chat` package):
-
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
-
-   ```bash
-   npm run dev
+   pnpm dev
    ```
 
 4. Open your browser to the URL shown in the terminal (typically `http://localhost:5173`)
@@ -47,11 +48,11 @@ Make sure you have Node.js and npm installed.
 To build an example for production:
 
 ```bash
-npm run build
+pnpm --filter basic-qa-bot-example build
 ```
 
 The built files will be in the `dist` directory. You can preview the production build with:
 
 ```bash
-npm run preview
+pnpm --filter basic-qa-bot-example preview
 ```
