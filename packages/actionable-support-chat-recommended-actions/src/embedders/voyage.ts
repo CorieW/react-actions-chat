@@ -105,7 +105,7 @@ export function createVoyageTextEmbedder(
         options?.inputType
       );
 
-      if (!embedding) {
+      if (!embedding || embedding.length === 0) {
         throw new Error(
           'Voyage did not return an embedding for the input text.'
         );

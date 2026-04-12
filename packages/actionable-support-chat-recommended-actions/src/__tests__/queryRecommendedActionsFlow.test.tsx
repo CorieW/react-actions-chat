@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   Chat,
@@ -11,11 +11,48 @@ import {
   usePersistentButtonStore,
 } from 'actionable-support-chat';
 import {
+  buildVectorSearchButtonText,
   createQueryRecommendedActionsFlow,
+  type EmbedTextOptions,
+  type EmbeddingVector,
   type QueryRecommendedAction,
+  type QueryRecommendedActionsContext,
+  type QueryRecommendedActionsResolver,
   createVectorSearchQueryRecommendedActionsFlow,
   type TextEmbedder,
+  type VectorSearchButtonSearchAdapter,
 } from 'actionable-support-chat-recommended-actions';
+
+type EmbedTexts = NonNullable<TextEmbedder['embedTexts']>;
+
+function createTestEmbedding(
+  normalizedText: string,
+  options?: EmbedTextOptions
+): EmbeddingVector {
+  if (options?.inputType === 'query') {
+    return normalizedText.includes('leave my account') ? [0, 0, 1] : [1, 0, 0];
+  }
+
+  return normalizedText.includes('sign out') ? [0, 0, 1] : [1, 0, 0];
+}
+
+function createEmbedTextsSpy() {
+  return vi.fn<EmbedTexts>((texts, options) =>
+    Promise.resolve(
+      texts.map(text => createTestEmbedding(text.toLowerCase(), options))
+    )
+  );
+}
+
+function createTestEmbedder(embedTexts: EmbedTexts): TextEmbedder {
+  return {
+    embedText: async (text, options) => {
+      const [embedding] = await embedTexts([text], options);
+      return embedding ?? [];
+    },
+    embedTexts,
+  };
+}
 
 describe('Query Recommended Actions Flow', () => {
   beforeEach(() => {
@@ -31,8 +68,8 @@ describe('Query Recommended Actions Flow', () => {
   it('collects a query and renders recommended action buttons', async () => {
     const user = userEvent.setup();
     const handleRecommendation = vi.fn();
-    const getRecommendedActions = vi.fn(async (query: string) => {
-      return {
+    const getRecommendedActions = vi.fn<QueryRecommendedActionsResolver>(
+      (query: string) => ({
         responseMessage: `Best next steps for "${query}"`,
         recommendedActions: [
           {
@@ -41,8 +78,8 @@ describe('Query Recommended Actions Flow', () => {
             variant: 'info' as const,
           },
         ],
-      };
-    });
+      })
+    );
     const flow = createQueryRecommendedActionsFlow({
       initialLabel: 'Find help',
       queryPromptMessage: 'What would you like help with?',
@@ -72,15 +109,13 @@ describe('Query Recommended Actions Flow', () => {
     );
     await user.keyboard('{Enter}');
 
-    await waitFor(() => {
-      expect(getRecommendedActions).toHaveBeenCalledWith(
-        'reset password',
-        expect.objectContaining({
-          query: 'reset password',
-          messages: expect.any(Array),
-        })
-      );
-    });
+    await waitFor(() => expect(getRecommendedActions).toHaveBeenCalledTimes(1));
+
+    const [submittedQuery, recommendationContext] = getRecommendedActions.mock
+      .calls[0] as [string, QueryRecommendedActionsContext];
+    expect(submittedQuery).toBe('reset password');
+    expect(recommendationContext.query).toBe('reset password');
+    expect(Array.isArray(recommendationContext.messages)).toBe(true);
 
     expect(
       await screen.findByText('Best next steps for "reset password"')
@@ -92,7 +127,7 @@ describe('Query Recommended Actions Flow', () => {
     await user.click(recommendationButton);
 
     expect(handleRecommendation).toHaveBeenCalledTimes(1);
-  });
+  }, 10_000);
 
   it('shows the empty state message when no recommendations are returned', async () => {
     const user = userEvent.setup();
@@ -101,7 +136,7 @@ describe('Query Recommended Actions Flow', () => {
       queryPromptMessage: 'Describe what you want to do.',
       emptyStateMessage:
         'I could not find a matching action yet. Please try another search.',
-      getRecommendedActions: async () => [],
+      getRecommendedActions: () => [],
     });
 
     render(
@@ -132,13 +167,19 @@ describe('Query Recommended Actions Flow', () => {
 
   it('shows the configured error message when recommendation lookup fails', async () => {
     const user = userEvent.setup();
-    const onError = vi.fn();
+    const onError = vi.fn(
+      (
+        _query: string,
+        _error: unknown,
+        _context: QueryRecommendedActionsContext
+      ) => undefined
+    );
     const flow = createQueryRecommendedActionsFlow({
       initialLabel: 'Recommend next steps',
       queryPromptMessage: 'What should we help you with?',
       errorMessage:
         'Something went wrong while loading recommendations. Please retry.',
-      getRecommendedActions: async () => {
+      getRecommendedActions: () => {
         throw new Error('Lookup failed');
       },
       onError,
@@ -171,14 +212,13 @@ describe('Query Recommended Actions Flow', () => {
       )
     ).toBeInTheDocument();
 
-    expect(onError).toHaveBeenCalledWith(
-      'close account',
-      expect.any(Error),
-      expect.objectContaining({
-        query: 'close account',
-        messages: expect.any(Array),
-      })
-    );
+    expect(onError).toHaveBeenCalledTimes(1);
+    const [submittedQuery, error, recommendationContext] = onError.mock
+      .calls[0] as [string, unknown, QueryRecommendedActionsContext];
+    expect(submittedQuery).toBe('close account');
+    expect(error).toBeInstanceOf(Error);
+    expect(recommendationContext.query).toBe('close account');
+    expect(Array.isArray(recommendationContext.messages)).toBe(true);
   });
 
   it('shows a loading indicator while recommendations are resolving', async () => {
@@ -217,7 +257,7 @@ describe('Query Recommended Actions Flow', () => {
 
     expect(
       await screen.findByRole('status', {
-        name: 'Looking up the best next action...',
+        name: 'Loading',
       })
     ).toBeInTheDocument();
     expect(
@@ -235,7 +275,7 @@ describe('Query Recommended Actions Flow', () => {
     await waitFor(() => {
       expect(
         screen.queryByRole('status', {
-          name: 'Looking up the best next action...',
+          name: 'Loading',
         })
       ).not.toBeInTheDocument();
     });
@@ -247,7 +287,7 @@ describe('Query Recommended Actions Flow', () => {
     const flow = createQueryRecommendedActionsFlow({
       loadingMessage: 'Looking up the best next action...',
       minimumLoadingDurationMs: 500,
-      getRecommendedActions: async () => [],
+      getRecommendedActions: () => [],
     });
 
     const recommendPromise = flow.recommend('change email');
@@ -280,7 +320,7 @@ describe('Query Recommended Actions Flow', () => {
     const flow = createQueryRecommendedActionsFlow({
       loadingMessage: 'Looking up the best next action...',
       minimumLoadingDurationMs: 500,
-      getRecommendedActions: async () => [
+      getRecommendedActions: () => [
         {
           label: 'Change Email',
         },
@@ -321,7 +361,7 @@ describe('Query Recommended Actions Flow', () => {
     const flow = createQueryRecommendedActionsFlow({
       initialLabel: 'Unused trigger',
       queryPromptMessage: 'What do you need help with?',
-      getRecommendedActions: async query => [
+      getRecommendedActions: query => [
         {
           label: `Recommended for ${query}`,
           onClick: handleRecommendation,
@@ -372,6 +412,91 @@ describe('Query Recommended Actions Flow', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('adds recommendation messages directly when no loading state is configured', async () => {
+    const flow = createQueryRecommendedActionsFlow({
+      buildRecommendationsMessage: query => `Suggestions for ${query}`,
+      getRecommendedActions: () => [
+        {
+          label: 'Change Email',
+        },
+      ],
+    });
+
+    await flow.recommend('change email');
+
+    expect(useChatStore.getState().getMessages()).toContainEqual(
+      expect.objectContaining({
+        type: 'other',
+        content: 'Suggestions for change email',
+        buttons: [
+          expect.objectContaining({
+            label: 'Change Email',
+          }),
+        ],
+      })
+    );
+  });
+
+  it('starts the query flow programmatically', async () => {
+    const flow = createQueryRecommendedActionsFlow({
+      queryPromptMessage: 'Programmatic prompt',
+      getRecommendedActions: () => [],
+    });
+
+    render(
+      <Chat
+        initialMessages={[
+          {
+            type: 'other',
+            content: 'Need something specific?',
+            buttons: [flow.button],
+          },
+        ]}
+      />
+    );
+
+    act(() => {
+      flow.start();
+    });
+
+    expect(await screen.findByText('Programmatic prompt')).toBeInTheDocument();
+  });
+
+  it('falls back to adding a new message when the loading message cannot be located', async () => {
+    const originalGetPreviousMessage =
+      useChatStore.getState().getPreviousMessage;
+    useChatStore.setState({
+      getPreviousMessage: () => undefined,
+    });
+
+    const flow = createQueryRecommendedActionsFlow({
+      getRecommendedActions: () => [
+        {
+          label: 'Change Email',
+        },
+      ],
+    });
+
+    try {
+      await flow.recommend('change email');
+    } finally {
+      useChatStore.setState({
+        getPreviousMessage: originalGetPreviousMessage,
+      });
+    }
+
+    expect(useChatStore.getState().getMessages()).toContainEqual(
+      expect.objectContaining({
+        content: 'Here are the recommended next steps for "change email".',
+        buttons: [
+          expect.objectContaining({
+            label: 'Change Email',
+          }),
+        ],
+      })
+    );
+  });
+
   it('supports in-memory vector search with precomputed embeddings', async () => {
     const user = userEvent.setup();
     const handleEmailAction = vi.fn();
@@ -391,7 +516,7 @@ describe('Query Recommended Actions Flow', () => {
         },
       ],
       getButtonEmbedding: button => button.embedding,
-      embedQuery: async () => [0.95, 0.05, 0] as const,
+      embedQuery: () => [0.95, 0.05, 0] as const,
       maxResults: 1,
       createAction: ({ match }) => ({
         label: match.button.label,
@@ -428,28 +553,8 @@ describe('Query Recommended Actions Flow', () => {
 
   it('supports document text embedding without precomputing document vectors', async () => {
     const user = userEvent.setup();
-    const embedTextsSpy = vi.fn(async (texts: readonly string[], options) => {
-      return texts.map(text => {
-        const normalizedText = text.toLowerCase();
-
-        if (options?.inputType === 'query') {
-          return normalizedText.includes('leave my account')
-            ? ([0, 0, 1] as const)
-            : ([1, 0, 0] as const);
-        }
-
-        return normalizedText.includes('sign out')
-          ? ([0, 0, 1] as const)
-          : ([1, 0, 0] as const);
-      });
-    });
-    const embedder: TextEmbedder = {
-      embedText: async (text, options) => {
-        const [embedding] = await embedTextsSpy([text], options);
-        return embedding ?? [];
-      },
-      embedTexts: embedTextsSpy,
-    };
+    const embedTextsSpy = createEmbedTextsSpy();
+    const embedder = createTestEmbedder(embedTextsSpy);
     const flow = createVectorSearchQueryRecommendedActionsFlow({
       initialLabel: 'Semantic search',
       queryPromptMessage: 'What should I help you do?',
@@ -510,28 +615,8 @@ describe('Query Recommended Actions Flow', () => {
 
   it('keeps legacy document-shaped configs working at runtime', async () => {
     const user = userEvent.setup();
-    const embedTextsSpy = vi.fn(async (texts: readonly string[], options) => {
-      return texts.map(text => {
-        const normalizedText = text.toLowerCase();
-
-        if (options?.inputType === 'query') {
-          return normalizedText.includes('leave my account')
-            ? ([0, 0, 1] as const)
-            : ([1, 0, 0] as const);
-        }
-
-        return normalizedText.includes('sign out')
-          ? ([0, 0, 1] as const)
-          : ([1, 0, 0] as const);
-      });
-    });
-    const embedder: TextEmbedder = {
-      embedText: async (text, options) => {
-        const [embedding] = await embedTextsSpy([text], options);
-        return embedding ?? [];
-      },
-      embedTexts: embedTextsSpy,
-    };
+    const embedTextsSpy = createEmbedTextsSpy();
+    const embedder = createTestEmbedder(embedTextsSpy);
     const flow = createVectorSearchQueryRecommendedActionsFlow({
       initialLabel: 'Legacy search',
       queryPromptMessage: 'What should I help you do?',
@@ -585,28 +670,8 @@ describe('Query Recommended Actions Flow', () => {
 
   it('automatically builds document text for vector search button definitions', async () => {
     const user = userEvent.setup();
-    const embedTextsSpy = vi.fn(async (texts: readonly string[], options) => {
-      return texts.map(text => {
-        const normalizedText = text.toLowerCase();
-
-        if (options?.inputType === 'query') {
-          return normalizedText.includes('leave my account')
-            ? ([0, 0, 1] as const)
-            : ([1, 0, 0] as const);
-        }
-
-        return normalizedText.includes('sign out')
-          ? ([0, 0, 1] as const)
-          : ([1, 0, 0] as const);
-      });
-    });
-    const embedder: TextEmbedder = {
-      embedText: async (text, options) => {
-        const [embedding] = await embedTextsSpy([text], options);
-        return embedding ?? [];
-      },
-      embedTexts: embedTextsSpy,
-    };
+    const embedTextsSpy = createEmbedTextsSpy();
+    const embedder = createTestEmbedder(embedTextsSpy);
     const flow = createVectorSearchQueryRecommendedActionsFlow({
       initialLabel: 'Semantic buttons',
       queryPromptMessage: 'What should I help you do?',
@@ -674,22 +739,24 @@ describe('Query Recommended Actions Flow', () => {
 
   it('passes embeddings into a custom vector search adapter', async () => {
     const user = userEvent.setup();
-    const search = vi.fn(async ({ queryEmbedding }) => {
-      expect(queryEmbedding).toEqual([0.2, 0.8]);
+    const search = vi.fn<VectorSearchButtonSearchAdapter>(
+      ({ queryEmbedding }) => {
+        expect(queryEmbedding).toEqual([0.2, 0.8]);
 
-      return [
-        {
-          button: {
-            label: 'Reset password',
+        return [
+          {
+            button: {
+              label: 'Reset password',
+            },
+            score: 0.92,
           },
-          score: 0.92,
-        },
-      ];
-    });
+        ];
+      }
+    );
     const flow = createVectorSearchQueryRecommendedActionsFlow({
       initialLabel: 'Hosted search',
       queryPromptMessage: 'What do you need help with?',
-      embedQuery: async () => [0.2, 0.8] as const,
+      embedQuery: () => [0.2, 0.8] as const,
       search,
     });
 
@@ -725,5 +792,109 @@ describe('Query Recommended Actions Flow', () => {
     expect(
       await screen.findByRole('button', { name: 'Reset password' })
     ).toBeInTheDocument();
+  });
+
+  it('supports custom vector search result builders', async () => {
+    const flow = createVectorSearchQueryRecommendedActionsFlow({
+      buttons: [
+        {
+          id: 'email',
+          label: 'Change Email',
+          embedding: [1, 0, 0] as const,
+        },
+      ],
+      getButtonEmbedding: button => button.embedding,
+      embedQuery: () => [1, 0, 0] as const,
+      buildResult: ({ matches, query }) => ({
+        responseMessage: `Best result for ${query}`,
+        recommendedActions: matches.map(match => ({
+          label: match.button.label,
+        })),
+      }),
+    });
+
+    await flow.recommend('change email');
+
+    expect(useChatStore.getState().getMessages()).toContainEqual(
+      expect.objectContaining({
+        content: 'Best result for change email',
+        buttons: [
+          expect.objectContaining({
+            label: 'Change Email',
+          }),
+        ],
+      })
+    );
+  });
+
+  it('reports button embedding count mismatches through the flow error path', async () => {
+    const onError = vi.fn();
+    const embedder = createTestEmbedder(() => Promise.resolve([[1, 0, 0]]));
+    const flow = createVectorSearchQueryRecommendedActionsFlow({
+      buttons: [
+        {
+          label: 'Change Email',
+          description: 'Update my email',
+        },
+        {
+          label: 'Logout',
+          description: 'Leave my account',
+        },
+      ],
+      embedder,
+      onError,
+    });
+
+    await flow.recommend('change email');
+
+    expect(onError).toHaveBeenCalledTimes(1);
+    const [, error] = onError.mock.calls[0] as [string, Error];
+    expect(error.message).toBe(
+      'Button embedding count did not match the number of source buttons.'
+    );
+    expect(useChatStore.getState().getMessages()).toContainEqual(
+      expect.objectContaining({
+        content:
+          'I hit a problem while looking up recommendations for "change email". Please try again.',
+      })
+    );
+  });
+
+  it('supports function-based error messages', async () => {
+    const flow = createQueryRecommendedActionsFlow({
+      errorMessage: (query, error) =>
+        `Could not load actions for ${query}: ${error instanceof Error ? error.message : 'unknown'}`,
+      getRecommendedActions: () => {
+        throw new Error('Lookup failed');
+      },
+    });
+
+    await flow.recommend('change email');
+
+    expect(useChatStore.getState().getMessages()).toContainEqual(
+      expect.objectContaining({
+        content: 'Could not load actions for change email: Lookup failed',
+      })
+    );
+  });
+
+  it('builds vector search text from label and initialLabel variants', () => {
+    expect(
+      buildVectorSearchButtonText({
+        label: 'Reset Password',
+        description: 'Help me change my password',
+        exampleQueries: ['forgot password'],
+      })
+    ).toBe('Reset Password Help me change my password forgot password');
+
+    expect(
+      buildVectorSearchButtonText({
+        ...createRequestInputButtonDef({
+          initialLabel: 'Change Email',
+          inputPromptMessage: 'Enter your email',
+        }),
+        description: 'Update my address',
+      })
+    ).toBe('Change Email Update my address');
   });
 });

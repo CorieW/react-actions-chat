@@ -1,6 +1,6 @@
 # Chat Component Examples
 
-This folder contains self-contained, runnable examples demonstrating different use cases of the Chat component.
+This folder contains runnable workspace examples demonstrating different use cases of the Chat component.
 
 ## Examples
 
@@ -12,15 +12,31 @@ You can also build reusable recommended-action flows with the companion `actiona
 
 ## Running an Example
 
-Each example is a standalone project that installs `actionable-support-chat` from the local parent directory. The settings example also installs the local `actionable-support-chat-recommended-actions` companion package.
+Each example is a workspace package that resolves `actionable-support-chat` through the repo's shared `pnpm` workspace.
 
 ### Prerequisites
 
-Make sure you have Node.js and npm installed.
+Make sure you have Node.js and `pnpm` available. If needed, run `corepack enable` first.
 
 ### Steps
 
-1. Navigate to the example directory:
+1. Install workspace dependencies from the repo root:
+
+   ```bash
+   pnpm install
+   ```
+
+2. Start an example from the repo root:
+
+   ```bash
+   pnpm --filter basic-qa-bot-example dev
+   # or
+   pnpm --filter login-example dev
+   # or
+   pnpm --filter settings-example dev
+   ```
+
+3. If you prefer, you can still work inside the example directory after the root install:
 
    ```bash
    cd examples/basic-qa-bot
@@ -30,13 +46,13 @@ Make sure you have Node.js and npm installed.
    cd examples/settings
    ```
 
-2. Install dependencies (this will install the local `actionable-support-chat` package):
+4. Install dependencies (this will install the local `actionable-support-chat` package):
 
    ```bash
-   npm install
+   pnpm install
    ```
 
-3. If you are running the `settings` example, create `examples/settings/.env.local` with a real OpenAI API key:
+5. If you are running the `settings` example, create `examples/settings/.env.local` with a real OpenAI API key:
 
    ```bash
    VITE_OPENAI_API_KEY=your_openai_api_key
@@ -44,24 +60,24 @@ Make sure you have Node.js and npm installed.
 
    This keeps the example simple and fully runnable, but it exposes the key to the browser bundle. In a production app, call the embedder from your own backend instead.
 
-4. Start the development server:
+6. Start the development server:
 
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
-5. Open your browser to the URL shown in the terminal (typically `http://localhost:5173`)
+7. Open your browser to the URL shown in the terminal (typically `http://localhost:5173`)
 
 ### Building for Production
 
 To build an example for production:
 
 ```bash
-npm run build
+pnpm --filter basic-qa-bot-example build
 ```
 
 The built files will be in the `dist` directory. You can preview the production build with:
 
 ```bash
-npm run preview
+pnpm --filter basic-qa-bot-example preview
 ```
