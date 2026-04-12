@@ -217,7 +217,7 @@ describe('Query Recommended Actions Flow', () => {
 
     expect(
       await screen.findByRole('status', {
-        name: 'Looking up the best next action...',
+        name: 'Loading',
       })
     ).toBeInTheDocument();
     expect(
@@ -235,7 +235,7 @@ describe('Query Recommended Actions Flow', () => {
     await waitFor(() => {
       expect(
         screen.queryByRole('status', {
-          name: 'Looking up the best next action...',
+          name: 'Loading',
         })
       ).not.toBeInTheDocument();
     });
