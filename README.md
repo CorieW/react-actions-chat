@@ -48,7 +48,12 @@ function App() {
     },
   ];
 
-  return <Chat initialMessages={initialMessages} theme='dark' />;
+  return (
+    <Chat
+      initialMessages={initialMessages}
+      theme='dark'
+    />
+  );
 }
 ```
 

@@ -78,7 +78,10 @@ export function Chat({
           theme={mergedTheme}
         />
         <PersistentButtons theme={mergedTheme} />
-        <ChatInput onSend={handleSend} theme={mergedTheme} />
+        <ChatInput
+          onSend={handleSend}
+          theme={mergedTheme}
+        />
       </div>
     </div>
   );

@@ -77,5 +77,10 @@ export function App(): React.JSX.Element {
     []
   );
 
-  return <Chat initialMessages={INITIAL_MESSAGES} theme='dark' />;
+  return (
+    <Chat
+      initialMessages={INITIAL_MESSAGES}
+      theme='dark'
+    />
+  );
 }

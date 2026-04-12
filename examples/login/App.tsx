@@ -114,7 +114,10 @@ export function App(): React.JSX.Element {
 
   return (
     <div className='bg-background min-h-screen'>
-      <Chat initialMessages={INITIAL_MESSAGES} theme='dark' />
+      <Chat
+        initialMessages={INITIAL_MESSAGES}
+        theme='dark'
+      />
     </div>
   );
 }

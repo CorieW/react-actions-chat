@@ -46,10 +46,17 @@ export function MessagesList({
   return (
     <div className='flex-1 space-y-5 overflow-y-auto scroll-smooth p-6'>
       {messages.map(message => (
-        <MessageBubble key={message.id} message={message} theme={theme} />
+        <MessageBubble
+          key={message.id}
+          message={message}
+          theme={theme}
+        />
       ))}
       {isLoading ? (
-        <MessageBubble message={loadingIndicatorBubble} theme={theme} />
+        <MessageBubble
+          message={loadingIndicatorBubble}
+          theme={theme}
+        />
       ) : null}
       <div ref={messagesEndRef} />
     </div>
