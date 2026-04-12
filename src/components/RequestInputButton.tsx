@@ -70,11 +70,10 @@ export interface RequestInputButtonRuntimeConfig {
  * @property id Optional id used when reusing the button in persistent button collections.
  * @property onSuccess Optional success callback attached directly to the definition.
  */
-export interface RequestInputButtonDefinition
-  extends Omit<
-    RequestInputButtonConfig,
-    'abortCallback' | 'onInvalidInput' | 'onValidInput'
-  > {
+export interface RequestInputButtonDefinition extends Omit<
+  RequestInputButtonConfig,
+  'abortCallback' | 'onInvalidInput' | 'onValidInput'
+> {
   readonly kind: 'request-input';
   readonly id?: string | undefined;
   readonly onSuccess?: ((inputValue: string) => void) | undefined;

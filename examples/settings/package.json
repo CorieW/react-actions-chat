@@ -9,24 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "actionable-support-chat": "file:../..",
-    "actionable-support-chat-recommended-actions": "file:../../packages/actionable-support-chat-recommended-actions",
-    "@tailwindcss/typography": "^0.5.19",
+    "actionable-support-chat": "workspace:*",
+    "actionable-support-chat-recommended-actions": "workspace:*",
     "@tanstack/react-query": "^5.90.5",
-    "autoprefixer": "^10.4.21",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^0.547.0",
-    "postcss": "^8.5.6",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.16",
-    "tailwindcss-animate": "^1.0.7",
-    "zustand": "^5.0.8"
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.1.16",
     "@types/node": "^22.10.2",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",

@@ -21,9 +21,9 @@ async function checkStyles() {
     // Read the current styles.css
     const beforeContent = fs.readFileSync(stylesPath, 'utf-8');
 
-    // Run the build:styles script
+    // Rebuild styles with the same generator used by the package build.
     console.log('🎨 Rebuilding styles.css...');
-    execSync('npm run build:styles', {
+    execSync('node scripts/build-styles-v4.js', {
       cwd: rootDir,
       stdio: 'inherit',
     });
@@ -41,7 +41,7 @@ async function checkStyles() {
         'This means Tailwind classes in components have changed but styles.css was not regenerated.\n'
       );
       console.error('To fix this:');
-      console.error('  1. Run: npm run build:styles');
+      console.error('  1. Run: pnpm build:styles');
       console.error('  2. Commit the updated src/styles.css file\n');
       process.exit(1);
     }

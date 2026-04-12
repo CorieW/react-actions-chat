@@ -84,6 +84,13 @@ The `examples/settings` app uses a real OpenAI embedder to recommend actions fro
 
 Use Node.js `22.13.0` or newer.
 
+This repo uses `pnpm` workspaces for the core package, companion packages, and local examples.
+
+```bash
+corepack enable
+pnpm install
+```
+
 ### Refreshing Local Outputs
 
 This repo includes a refresh script that clears generated build output and Vite
@@ -91,7 +98,7 @@ caches across the root package, local packages, and examples:
 
 ```bash
 # Clear dist folders and Vite caches across the repo
-npm run refresh:all
+pnpm run refresh:all
 ```
 
 Use this when a local example or package seems to be serving stale code.
@@ -102,13 +109,13 @@ This project uses Tailwind CSS for development. The standalone CSS file (`src/st
 
 ```bash
 # Generate standalone CSS from Tailwind classes
-npm run build:styles
+pnpm build:styles
 
 # Build the package (automatically runs refresh:all and generates styles first)
-npm run build
+pnpm build
 ```
 
-**Important:** After adding new Tailwind classes to components, run `npm run build:styles` to update the standalone CSS.
+**Important:** After adding new Tailwind classes to components, run `pnpm build:styles` to update the standalone CSS.
 
 If a Vite dev server is already running, `npm run build` will not restart that
 live process. In that case, restart the dev server after the build so it picks

@@ -19,7 +19,7 @@ export interface QueryRecommendedActionsContext {
 /**
  * A recommended follow-up action shown as a chat button.
  */
-export interface QueryRecommendedAction extends MessageButton {}
+export type QueryRecommendedAction = MessageButton;
 
 /**
  * Structured result returned by a query recommendation resolver.
@@ -63,7 +63,8 @@ function wait(durationMs: number): Promise<void> {
  * Configuration for the query-based recommended actions flow.
  */
 export interface QueryRecommendedActionsFlowConfig
-  extends Pick<
+  extends
+    Pick<
       RequestInputButtonDefinition,
       | 'abortLabel'
       | 'className'

@@ -1,14 +1,33 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "project": [
-    "config/**/*.{js,ts}",
-    "scripts/**/*.{js,ts}",
-    "src/**/*.{js,jsx,ts,tsx}"
-  ],
-  "ignore": [
-    "config/tailwind.config.js",
-    "scripts/build-styles-simple.js",
-    "scripts/build-styles.js"
-  ],
-  "ignoreDependencies": ["prettier-plugin-tailwindcss"]
+  "workspaces": {
+    ".": {
+      "project": [
+        "config/**/*.{js,ts}",
+        "scripts/**/*.{js,ts}",
+        "src/**/*.{js,jsx,ts,tsx}"
+      ],
+      "ignore": [
+        "config/tailwind.config.js",
+        "scripts/build-styles-simple.js",
+        "scripts/build-styles.js"
+      ],
+      "ignoreDependencies": ["prettier-plugin-tailwindcss"]
+    },
+    "packages/actionable-support-chat-recommended-actions": {
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "examples/basic-qa-bot": {
+      "entry": ["main.tsx", "vite.config.ts"],
+      "project": ["**/*.{ts,tsx}"]
+    },
+    "examples/login": {
+      "entry": ["main.tsx", "vite.config.ts"],
+      "project": ["**/*.{ts,tsx}"]
+    },
+    "examples/settings": {
+      "entry": ["main.tsx", "vite.config.ts"],
+      "project": ["**/*.{ts,tsx}"]
+    }
+  }
 }
