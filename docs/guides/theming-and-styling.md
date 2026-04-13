@@ -7,7 +7,7 @@ The chat ships with bundled styles and a small theme object that controls the ma
 Import the bundled stylesheet once in your app:
 
 ```tsx
-import 'actionable-support-chat/styles';
+import 'react-actions-chat/styles';
 ```
 
 Without that import, the component will render without its packaged styling.
@@ -30,7 +30,7 @@ If you pass a custom object, it is merged over the built-in dark theme so omitte
 ## Custom Theme Example
 
 ```tsx
-import { Chat, type ChatTheme } from 'actionable-support-chat';
+import { Chat, type ChatTheme } from 'react-actions-chat';
 
 const supportTheme: ChatTheme = {
   primaryColor: '#0f766e',
@@ -69,10 +69,10 @@ If you use the package in a Vite app and hit duplicate React issues such as `res
 ```ts
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { actionableSupportChatVitePlugin } from 'actionable-support-chat/vite-plugin';
+import { reactActionsChatVitePlugin } from 'react-actions-chat/vite-plugin';
 
 export default defineConfig({
-  plugins: [react(), actionableSupportChatVitePlugin()],
+  plugins: [react(), reactActionsChatVitePlugin()],
 });
 ```
 

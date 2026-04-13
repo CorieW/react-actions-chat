@@ -3,13 +3,13 @@ import type {
   ChatTheme,
   InputMessage,
   MessageButton,
-} from 'actionable-support-chat';
+} from 'react-actions-chat';
 import {
   Chat,
   createButton,
   createRequestInputButtonDef,
   useChatStore,
-} from 'actionable-support-chat';
+} from 'react-actions-chat';
 
 const SUPPORT_THEME: ChatTheme = {
   primaryColor: '#1f8a70',

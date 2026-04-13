@@ -1,5 +1,5 @@
 {
-  "name": "actionable-support-chat-recommended-actions",
+  "name": "react-actions-chat-recommended-actions",
   "version": "0.0.0",
   "license": "Unlicense",
   "type": "module",
@@ -20,9 +20,9 @@
     "test:coverage": "vitest --coverage --config ../../config/vite.config.ts"
   },
   "peerDependencies": {
-    "actionable-support-chat": "*"
+    "react-actions-chat": "*"
   },
   "devDependencies": {
-    "actionable-support-chat": "workspace:*"
+    "react-actions-chat": "workspace:*"
   }
 }

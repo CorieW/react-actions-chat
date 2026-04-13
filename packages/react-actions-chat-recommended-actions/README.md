@@ -1,11 +1,11 @@
-# Actionable Support Chat Recommended Actions
+# React Actions Chat Recommended Actions
 
-Companion package for `actionable-support-chat` that adds query-driven and vector-search-backed recommended action flows.
+Companion package for `react-actions-chat` that adds query-driven and vector-search-backed recommended action flows.
 
 ## Installation
 
 ```bash
-npm install actionable-support-chat actionable-support-chat-recommended-actions
+npm install react-actions-chat react-actions-chat-recommended-actions
 ```
 
 ## What It Includes
@@ -19,7 +19,7 @@ npm install actionable-support-chat actionable-support-chat-recommended-actions
 ## Shared Docs
 
 - [Sub-packages](../../docs/sub-packages/index.md)
-- [actionable-support-chat-recommended-actions](../../docs/sub-packages/actionable-support-chat-recommended-actions.md)
+- [react-actions-chat-recommended-actions](../../docs/sub-packages/react-actions-chat-recommended-actions.md)
 - [Recommended actions overview](../../docs/guides/recommended-actions-overview.md)
 - [Recommended actions with vector search](../../docs/guides/recommended-actions-vector-search.md)
 - [Recommended actions API reference](../../docs/reference/recommended-actions-api.md)

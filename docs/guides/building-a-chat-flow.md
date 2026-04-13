@@ -1,8 +1,8 @@
 # Build a Chat Flow
 
-This guide covers the core conversation model behind `actionable-support-chat`.
+This guide covers the core conversation model behind `react-actions-chat`.
 
-The best runnable reference in this repo is [examples/qa-bot/App.tsx](https://github.com/CorieW/actionable-support-chat/blob/master/examples/qa-bot/App.tsx).
+The best runnable reference in this repo is [examples/qa-bot/App.tsx](https://github.com/CorieW/react-actions-chat/blob/master/examples/qa-bot/App.tsx).
 
 ## Core Pieces
 
@@ -14,8 +14,8 @@ The best runnable reference in this repo is [examples/qa-bot/App.tsx](https://gi
 ## Start With Seed Messages
 
 ```tsx
-import { Chat, type InputMessage } from 'actionable-support-chat';
-import 'actionable-support-chat/styles';
+import { Chat, type InputMessage } from 'react-actions-chat';
+import 'react-actions-chat/styles';
 
 const initialMessages: readonly InputMessage[] = [
   {
@@ -34,7 +34,7 @@ Use `type: 'other'` for assistant-side messages and `type: 'self'` for user-side
 ## Add Action Buttons
 
 ```tsx
-import { Chat, createButton, useChatStore } from 'actionable-support-chat';
+import { Chat, createButton, useChatStore } from 'react-actions-chat';
 
 function addWelcomeMessage() {
   useChatStore.getState().addMessage({

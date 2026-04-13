@@ -1,4 +1,4 @@
-import type { AnyButtonDefinition } from 'actionable-support-chat';
+import type { AnyButtonDefinition } from 'react-actions-chat';
 
 /**
  * A button definition enriched with descriptive text for semantic retrieval.

@@ -34,7 +34,7 @@ async function buildStyles() {
     const targetCssPath = path.resolve(rootDir, 'src/styles.css');
     let css = fs.readFileSync(targetCssPath, 'utf-8');
 
-    const header = `/* Standalone CSS for actionable-support-chat - auto-generated from Tailwind */
+    const header = `/* Standalone CSS for react-actions-chat - auto-generated from Tailwind */
 /* DO NOT EDIT MANUALLY - run 'pnpm build:styles' to regenerate */
 
 `;

@@ -1,6 +1,6 @@
 # Components Overview
 
-These pages describe the main building blocks exported by `actionable-support-chat`.
+These pages describe the main building blocks exported by `react-actions-chat`.
 
 ## Core Entry Point
 

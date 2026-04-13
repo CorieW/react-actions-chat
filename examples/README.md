@@ -8,11 +8,11 @@ This folder contains runnable workspace examples demonstrating different use cas
 - **login** - A login flow using email and password inputs
 - **settings** - A settings page that uses the companion recommended-actions package and a real OpenAI embedder to recommend settings actions from a user query
 
-You can also build reusable recommended-action flows with the companion `actionable-support-chat-recommended-actions` package, including embedding-based search backed by your own search or vector search service.
+You can also build reusable recommended-action flows with the companion `react-actions-chat-recommended-actions` package, including embedding-based search backed by your own search or vector search service.
 
 ## Running an Example
 
-Each example is a workspace package that resolves `actionable-support-chat` through the repo's shared `pnpm` workspace.
+Each example is a workspace package that resolves `react-actions-chat` through the repo's shared `pnpm` workspace.
 
 ### Prerequisites
 
@@ -46,7 +46,7 @@ Make sure you have Node.js and `pnpm` available. If needed, run `corepack enable
    cd examples/settings
    ```
 
-4. Install dependencies (this will install the local `actionable-support-chat` package):
+4. Install dependencies (this will install the local `react-actions-chat` package):
 
    ```bash
    pnpm install

@@ -5,13 +5,13 @@ import {
   createRequestInputButtonDef,
   createRequestConfirmationButtonDef,
   useChatStore,
-} from 'actionable-support-chat';
-import type { InputMessage } from 'actionable-support-chat';
+} from 'react-actions-chat';
+import type { InputMessage } from 'react-actions-chat';
 import {
   createOpenAITextEmbedder,
   createVectorSearchQueryRecommendedActionsFlow,
   type VectorSearchButtonDefinition,
-} from 'actionable-support-chat-recommended-actions';
+} from 'react-actions-chat-recommended-actions';
 
 /**
  * Settings Example

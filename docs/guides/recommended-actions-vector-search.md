@@ -2,7 +2,7 @@
 
 This guide covers semantic matching with `createVectorSearchQueryRecommendedActionsFlow`.
 
-The best runnable reference in this repo is [examples/settings/App.tsx](https://github.com/CorieW/actionable-support-chat/blob/master/examples/settings/App.tsx).
+The best runnable reference in this repo is [examples/settings/App.tsx](https://github.com/CorieW/react-actions-chat/blob/master/examples/settings/App.tsx).
 
 ## Button Definitions
 
@@ -39,7 +39,7 @@ import {
   createOpenAITextEmbedder,
   createVectorSearchQueryRecommendedActionsFlow,
   type VectorSearchButtonDefinition,
-} from 'actionable-support-chat-recommended-actions';
+} from 'react-actions-chat-recommended-actions';
 
 const buttons: readonly VectorSearchButtonDefinition[] = [
   {

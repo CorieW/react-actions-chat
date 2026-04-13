@@ -10,7 +10,7 @@ Use them for destructive or high-friction actions such as sign-out, deletion, or
 import {
   createButton,
   createRequestConfirmationButtonDef,
-} from 'actionable-support-chat';
+} from 'react-actions-chat';
 
 const deleteAccountDef = createRequestConfirmationButtonDef({
   initialLabel: 'Delete account',

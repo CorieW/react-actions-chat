@@ -1,6 +1,6 @@
 # Core API Reference
 
-Concise reference for the public exports from `actionable-support-chat`.
+Concise reference for the public exports from `react-actions-chat`.
 
 ## Components
 

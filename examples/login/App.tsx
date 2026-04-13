@@ -3,7 +3,7 @@ import type {
   ChatTheme,
   InputMessage,
   MessageButton,
-} from 'actionable-support-chat';
+} from 'react-actions-chat';
 import {
   Chat,
   createButton,
@@ -11,7 +11,7 @@ import {
   createRequestInputButtonDef,
   useChatStore,
   useInputFieldStore,
-} from 'actionable-support-chat';
+} from 'react-actions-chat';
 import {
   DEMO_ACCOUNTS,
   attemptDemoLogin,
@@ -408,8 +408,8 @@ export function App(): React.JSX.Element {
         <p className='login-example-eyebrow'>Secure sign-in demo</p>
         <h1 className='login-example-title'>Northstar Secure</h1>
         <p className='login-example-copy'>
-          A more polished login example for actionable-support-chat, with
-          multi-step auth, recovery states, and deterministic demo data.
+          A more polished login example for react-actions-chat, with multi-step
+          auth, recovery states, and deterministic demo data.
         </p>
 
         <section className='login-example-section'>

@@ -5,7 +5,7 @@ import {
   createVoyageTextEmbedder,
   embedTexts,
   type TextEmbedder,
-} from 'actionable-support-chat-recommended-actions';
+} from 'react-actions-chat-recommended-actions';
 import {
   extractProviderErrorMessage,
   getFetchImplementation,

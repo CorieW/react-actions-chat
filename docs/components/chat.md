@@ -1,6 +1,6 @@
 # `Chat`
 
-`Chat` is the main public component in `actionable-support-chat`.
+`Chat` is the main public component in `react-actions-chat`.
 
 It renders three major areas:
 
@@ -11,8 +11,8 @@ It renders three major areas:
 ## Basic Usage
 
 ```tsx
-import { Chat, type InputMessage } from 'actionable-support-chat';
-import 'actionable-support-chat/styles';
+import { Chat, type InputMessage } from 'react-actions-chat';
+import 'react-actions-chat/styles';
 
 const initialMessages: readonly InputMessage[] = [
   {

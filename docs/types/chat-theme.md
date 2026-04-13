@@ -19,7 +19,7 @@
 Pass a `ChatTheme` object to the `theme` prop on `Chat`:
 
 ```tsx
-import { Chat, type ChatTheme } from 'actionable-support-chat';
+import { Chat, type ChatTheme } from 'react-actions-chat';
 
 const supportTheme: ChatTheme = {
   primaryColor: '#0f766e',

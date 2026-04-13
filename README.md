@@ -1,13 +1,13 @@
-# Actionable Support Chat
+# React Actions Chat
 
-[![codecov](https://codecov.io/gh/CorieW/actionable-support-chat/graph/badge.svg?branch=master&token=pfMTdwuPfK)](https://codecov.io/gh/CorieW/actionable-support-chat)
+[![codecov](https://codecov.io/gh/CorieW/react-actions-chat/graph/badge.svg?branch=master&token=pfMTdwuPfK)](https://codecov.io/gh/CorieW/react-actions-chat)
 
 Interactive React chat UI for support flows, guided actions, confirmations, and user input collection.
 
 ## Installation
 
 ```bash
-npm install actionable-support-chat
+npm install react-actions-chat
 ```
 
 This package targets Node.js `22.13.0+`.
@@ -15,14 +15,14 @@ This package targets Node.js `22.13.0+`.
 If you want query-driven or vector-search-backed action recommendations, install the companion package too:
 
 ```bash
-npm install actionable-support-chat actionable-support-chat-recommended-actions
+npm install react-actions-chat react-actions-chat-recommended-actions
 ```
 
 ## Quick Start
 
 ```tsx
-import { Chat } from 'actionable-support-chat';
-import 'actionable-support-chat/styles';
+import { Chat } from 'react-actions-chat';
+import 'react-actions-chat/styles';
 
 export function App() {
   return (

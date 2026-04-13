@@ -1,10 +1,10 @@
 ---
 layout: home
-title: Actionable Support Chat Docs
+title: React Actions Chat Docs
 titleTemplate: false
 
 hero:
-  name: Actionable Support Chat
+  name: React Actions Chat
   text: Docs for guided React chat flows
   tagline: Build support chats with buttons, confirmations, shared input flows, and recommended actions.
   actions:

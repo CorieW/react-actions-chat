@@ -6,7 +6,7 @@ import {
   type RequestInputButtonDefinition,
   type RequestInputButtonRuntimeConfig,
   useChatStore,
-} from 'actionable-support-chat';
+} from 'react-actions-chat';
 
 /**
  * Context passed to query recommendation resolvers.

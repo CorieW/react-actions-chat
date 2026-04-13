@@ -4,7 +4,7 @@ This repo includes three runnable example apps. Each one maps cleanly to a secti
 
 ## `qa-bot`
 
-Path: [examples/qa-bot](https://github.com/CorieW/actionable-support-chat/tree/master/examples/qa-bot)
+Path: [examples/qa-bot](https://github.com/CorieW/react-actions-chat/tree/master/examples/qa-bot)
 
 Use this example for:
 
@@ -26,7 +26,7 @@ pnpm --filter qa-bot-example dev
 
 ## `login`
 
-Path: [examples/login](https://github.com/CorieW/actionable-support-chat/tree/master/examples/login)
+Path: [examples/login](https://github.com/CorieW/react-actions-chat/tree/master/examples/login)
 
 Use this example for:
 
@@ -48,11 +48,11 @@ pnpm --filter login-example dev
 
 ## `settings`
 
-Path: [examples/settings](https://github.com/CorieW/actionable-support-chat/tree/master/examples/settings)
+Path: [examples/settings](https://github.com/CorieW/react-actions-chat/tree/master/examples/settings)
 
 Use this example for:
 
-- `actionable-support-chat-recommended-actions`
+- `react-actions-chat-recommended-actions`
 - `createVectorSearchQueryRecommendedActionsFlow`
 - `VectorSearchButtonDefinition`
 - `createOpenAITextEmbedder`

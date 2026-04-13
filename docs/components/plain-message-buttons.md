@@ -1,6 +1,6 @@
 # Plain Message Buttons
 
-Plain message buttons are the simplest action type in `actionable-support-chat`.
+Plain message buttons are the simplest action type in `react-actions-chat`.
 
 They render under a message and run an `onClick` callback immediately.
 
@@ -17,7 +17,7 @@ Plain buttons use the `MessageButton` shape:
 ## Example
 
 ```tsx
-import { createButton, useChatStore } from 'actionable-support-chat';
+import { createButton, useChatStore } from 'react-actions-chat';
 
 const billingButton = createButton({
   label: 'Billing help',

@@ -1,6 +1,6 @@
 # Stores Overview
 
-These pages describe the exported Zustand stores that power `actionable-support-chat`.
+These pages describe the exported Zustand stores that power `react-actions-chat`.
 
 ## Available Stores
 

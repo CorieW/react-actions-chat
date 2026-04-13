@@ -1,11 +1,11 @@
 # Recommended Actions Overview
 
-Use `actionable-support-chat-recommended-actions` when you want a user query to resolve into one or more next-step buttons.
+Use `react-actions-chat-recommended-actions` when you want a user query to resolve into one or more next-step buttons.
 
 Install it alongside the core package:
 
 ```bash
-npm install actionable-support-chat actionable-support-chat-recommended-actions
+npm install react-actions-chat react-actions-chat-recommended-actions
 ```
 
 ## When To Use It
@@ -44,8 +44,8 @@ Choose this when:
 
 ```tsx
 import { useMemo } from 'react';
-import { createButton } from 'actionable-support-chat';
-import { createQueryRecommendedActionsFlow } from 'actionable-support-chat-recommended-actions';
+import { createButton } from 'react-actions-chat';
+import { createQueryRecommendedActionsFlow } from 'react-actions-chat-recommended-actions';
 
 const flow = createQueryRecommendedActionsFlow({
   initialLabel: 'Find help',

@@ -6,9 +6,9 @@ This guide focuses on choosing the right `inputType`, adding validation, and han
 
 The best runnable references in this repo are:
 
-- [examples/login/App.tsx](https://github.com/CorieW/actionable-support-chat/blob/master/examples/login/App.tsx)
-- [examples/settings/App.tsx](https://github.com/CorieW/actionable-support-chat/blob/master/examples/settings/App.tsx)
-- [examples/qa-bot/App.tsx](https://github.com/CorieW/actionable-support-chat/blob/master/examples/qa-bot/App.tsx)
+- [examples/login/App.tsx](https://github.com/CorieW/react-actions-chat/blob/master/examples/login/App.tsx)
+- [examples/settings/App.tsx](https://github.com/CorieW/react-actions-chat/blob/master/examples/settings/App.tsx)
+- [examples/qa-bot/App.tsx](https://github.com/CorieW/react-actions-chat/blob/master/examples/qa-bot/App.tsx)
 
 ## Supported Input Types
 
@@ -25,10 +25,7 @@ The shared chat input supports the following [`InputType`](../types/input-type.m
 ## Basic Pattern
 
 ```tsx
-import {
-  createButton,
-  createRequestInputButtonDef,
-} from 'actionable-support-chat';
+import { createButton, createRequestInputButtonDef } from 'react-actions-chat';
 
 const emailButtonDef = createRequestInputButtonDef({
   initialLabel: 'Update email',

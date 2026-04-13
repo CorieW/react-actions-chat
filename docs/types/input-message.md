@@ -17,7 +17,7 @@
 ## Usage
 
 ```tsx
-import type { InputMessage } from 'actionable-support-chat';
+import type { InputMessage } from 'react-actions-chat';
 
 const initialMessages: readonly InputMessage[] = [
   {

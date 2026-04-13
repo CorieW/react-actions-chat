@@ -9,7 +9,7 @@ import {
   useChatStore,
   useInputFieldStore,
   usePersistentButtonStore,
-} from 'actionable-support-chat';
+} from 'react-actions-chat';
 import {
   buildVectorSearchButtonText,
   createQueryRecommendedActionsFlow,
@@ -21,7 +21,7 @@ import {
   createVectorSearchQueryRecommendedActionsFlow,
   type TextEmbedder,
   type VectorSearchButtonSearchAdapter,
-} from 'actionable-support-chat-recommended-actions';
+} from 'react-actions-chat-recommended-actions';
 
 type EmbedTexts = NonNullable<TextEmbedder['embedTexts']>;
 

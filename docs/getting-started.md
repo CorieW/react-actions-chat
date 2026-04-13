@@ -1,11 +1,11 @@
 # Getting Started
 
-`actionable-support-chat` gives you a chat UI plus the primitives needed to turn messages into guided actions.
+`react-actions-chat` gives you a chat UI plus the primitives needed to turn messages into guided actions.
 
 ## Install
 
 ```bash
-npm install actionable-support-chat
+npm install react-actions-chat
 ```
 
 This package targets Node.js `22.13.0+`.
@@ -13,14 +13,14 @@ This package targets Node.js `22.13.0+`.
 Import the bundled styles anywhere you mount the chat:
 
 ```tsx
-import 'actionable-support-chat/styles';
+import 'react-actions-chat/styles';
 ```
 
 ## First Chat
 
 ```tsx
-import { Chat } from 'actionable-support-chat';
-import 'actionable-support-chat/styles';
+import { Chat } from 'react-actions-chat';
+import 'react-actions-chat/styles';
 
 export function App() {
   return (
@@ -58,7 +58,7 @@ export function App() {
 Install the companion package if you want recommended actions driven by a search query or vector search:
 
 ```bash
-npm install actionable-support-chat actionable-support-chat-recommended-actions
+npm install react-actions-chat react-actions-chat-recommended-actions
 ```
 
 Then continue with [Recommended actions overview](guides/recommended-actions-overview.md).

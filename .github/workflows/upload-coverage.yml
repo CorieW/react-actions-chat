@@ -40,7 +40,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
           disable_search: true
-          slug: CorieW/actionable-support-chat
+          slug: CorieW/react-actions-chat
           flags: unittests
           name: unit-tests
           fail_ci_if_error: true

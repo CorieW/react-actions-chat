@@ -108,12 +108,12 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.90.5
         version: 5.99.0(react@19.2.5)
-      actionable-support-chat:
-        specifier: workspace:*
-        version: link:../..
       react:
         specifier: ^19.1.1
         version: 19.2.5
+      react-actions-chat:
+        specifier: workspace:*
+        version: link:../..
       react-dom:
         specifier: ^19.1.1
         version: 19.2.5(react@19.2.5)
@@ -142,12 +142,12 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.90.5
         version: 5.99.0(react@19.2.5)
-      actionable-support-chat:
-        specifier: workspace:*
-        version: link:../..
       react:
         specifier: ^19.1.1
         version: 19.2.5
+      react-actions-chat:
+        specifier: workspace:*
+        version: link:../..
       react-dom:
         specifier: ^19.1.1
         version: 19.2.5(react@19.2.5)
@@ -176,15 +176,15 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.90.5
         version: 5.99.0(react@19.2.5)
-      actionable-support-chat:
-        specifier: workspace:*
-        version: link:../..
-      actionable-support-chat-recommended-actions:
-        specifier: workspace:*
-        version: link:../../packages/actionable-support-chat-recommended-actions
       react:
         specifier: ^19.1.1
         version: 19.2.5
+      react-actions-chat:
+        specifier: workspace:*
+        version: link:../..
+      react-actions-chat-recommended-actions:
+        specifier: workspace:*
+        version: link:../../packages/react-actions-chat-recommended-actions
       react-dom:
         specifier: ^19.1.1
         version: 19.2.5(react@19.2.5)
@@ -208,9 +208,9 @@ importers:
         specifier: ^7.1.7
         version: 7.3.2(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3)
 
-  packages/actionable-support-chat-recommended-actions:
+  packages/react-actions-chat-recommended-actions:
     devDependencies:
-      actionable-support-chat:
+      react-actions-chat:
         specifier: workspace:*
         version: link:../..
 

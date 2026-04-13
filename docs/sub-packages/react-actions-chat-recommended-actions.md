@@ -1,11 +1,11 @@
-# `actionable-support-chat-recommended-actions`
+# `react-actions-chat-recommended-actions`
 
-`actionable-support-chat-recommended-actions` is the companion package for building query-driven and vector-search-backed recommended action flows on top of `actionable-support-chat`.
+`react-actions-chat-recommended-actions` is the companion package for building query-driven and vector-search-backed recommended action flows on top of `react-actions-chat`.
 
 ## Installation
 
 ```bash
-npm install actionable-support-chat actionable-support-chat-recommended-actions
+npm install react-actions-chat react-actions-chat-recommended-actions
 ```
 
 ## What It Adds

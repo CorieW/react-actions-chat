@@ -16,7 +16,7 @@ It is the main store to use when you need to read history or add assistant messa
 ### Read Transcript History
 
 ```tsx
-import { useChatStore } from 'actionable-support-chat';
+import { useChatStore } from 'react-actions-chat';
 
 const messages = useChatStore.getState().getMessages();
 const latestMessage = useChatStore.getState().getPreviousMessage();

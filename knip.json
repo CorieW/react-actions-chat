@@ -14,7 +14,7 @@
       ],
       "ignoreDependencies": ["prettier-plugin-tailwindcss"]
     },
-    "packages/actionable-support-chat-recommended-actions": {
+    "packages/react-actions-chat-recommended-actions": {
       "project": ["src/**/*.{ts,tsx}"]
     },
     "examples/qa-bot": {

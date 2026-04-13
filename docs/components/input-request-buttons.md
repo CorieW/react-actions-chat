@@ -12,10 +12,7 @@ This is the pattern to use for collecting things like:
 ## Create a Reusable Definition
 
 ```tsx
-import {
-  createButton,
-  createRequestInputButtonDef,
-} from 'actionable-support-chat';
+import { createButton, createRequestInputButtonDef } from 'react-actions-chat';
 
 const emailButtonDef = createRequestInputButtonDef({
   initialLabel: 'Update email',

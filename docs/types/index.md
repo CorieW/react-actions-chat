@@ -1,6 +1,6 @@
 # Types Overview
 
-These pages describe the main data shapes used by `actionable-support-chat`.
+These pages describe the main data shapes used by `react-actions-chat`.
 
 ## Core Shapes
 

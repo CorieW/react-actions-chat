@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress';
 export default defineConfig({
   title: 'Actionable Support Chat',
   description:
-    'Consumer docs for actionable-support-chat and actionable-support-chat-recommended-actions.',
+    'Consumer docs for react-actions-chat and react-actions-chat-recommended-actions.',
   lastUpdated: true,
   themeConfig: {
     nav: [
@@ -16,7 +16,7 @@ export default defineConfig({
       { text: 'Examples', link: '/examples' },
       {
         text: 'GitHub',
-        link: 'https://github.com/CorieW/actionable-support-chat',
+        link: 'https://github.com/CorieW/react-actions-chat',
       },
     ],
     search: {
@@ -24,7 +24,7 @@ export default defineConfig({
     },
     editLink: {
       pattern:
-        'https://github.com/CorieW/actionable-support-chat/edit/master/docs/:path',
+        'https://github.com/CorieW/react-actions-chat/edit/master/docs/:path',
       text: 'Edit this page on GitHub',
     },
     sidebar: [
@@ -95,8 +95,8 @@ export default defineConfig({
         items: [
           { text: 'Sub-packages', link: '/sub-packages/index' },
           {
-            text: 'actionable-support-chat-recommended-actions',
-            link: '/sub-packages/actionable-support-chat-recommended-actions',
+            text: 'react-actions-chat-recommended-actions',
+            link: '/sub-packages/react-actions-chat-recommended-actions',
           },
         ],
       },
@@ -143,7 +143,7 @@ export default defineConfig({
     socialLinks: [
       {
         icon: 'github',
-        link: 'https://github.com/CorieW/actionable-support-chat',
+        link: 'https://github.com/CorieW/react-actions-chat',
       },
     ],
   },

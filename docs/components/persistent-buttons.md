@@ -15,7 +15,7 @@ Use persistent buttons when:
 ## Read the Current Buttons
 
 ```tsx
-import { usePersistentButtonStore } from 'actionable-support-chat';
+import { usePersistentButtonStore } from 'react-actions-chat';
 
 const buttons = usePersistentButtonStore.getState().getButtons();
 ```
@@ -23,7 +23,7 @@ const buttons = usePersistentButtonStore.getState().getButtons();
 ## Add or Remove Buttons
 
 ```tsx
-import { usePersistentButtonStore } from 'actionable-support-chat';
+import { usePersistentButtonStore } from 'react-actions-chat';
 
 usePersistentButtonStore.getState().addButton({
   id: 'cancel-flow',

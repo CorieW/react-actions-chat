@@ -1,4 +1,4 @@
-import { createButton } from 'actionable-support-chat';
+import { createButton } from 'react-actions-chat';
 import {
   createQueryRecommendedActionsFlow,
   type QueryRecommendedAction,

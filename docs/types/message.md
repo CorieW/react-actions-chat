@@ -15,7 +15,7 @@ Compared with `InputMessage`, a stored `Message` always has:
 ## Usage
 
 ```tsx
-import { useChatStore } from 'actionable-support-chat';
+import { useChatStore } from 'react-actions-chat';
 
 const messages = useChatStore.getState().getMessages();
 ```

@@ -9,35 +9,35 @@ export default defineConfig({
   resolve: {
     alias: [
       {
-        find: 'actionable-support-chat/components',
+        find: 'react-actions-chat/components',
         replacement: resolve(__dirname, '..', 'src/components/index.ts'),
       },
       {
-        find: 'actionable-support-chat/lib',
+        find: 'react-actions-chat/lib',
         replacement: resolve(__dirname, '..', 'src/lib/index.ts'),
       },
       {
-        find: 'actionable-support-chat/types',
+        find: 'react-actions-chat/types',
         replacement: resolve(__dirname, '..', 'src/js/types.ts'),
       },
       {
-        find: 'actionable-support-chat-recommended-actions/embedders',
+        find: 'react-actions-chat-recommended-actions/embedders',
         replacement: resolve(
           __dirname,
           '..',
-          'packages/actionable-support-chat-recommended-actions/src/embedders/index.ts'
+          'packages/react-actions-chat-recommended-actions/src/embedders/index.ts'
         ),
       },
       {
-        find: 'actionable-support-chat-recommended-actions',
+        find: 'react-actions-chat-recommended-actions',
         replacement: resolve(
           __dirname,
           '..',
-          'packages/actionable-support-chat-recommended-actions/src/index.ts'
+          'packages/react-actions-chat-recommended-actions/src/index.ts'
         ),
       },
       {
-        find: 'actionable-support-chat',
+        find: 'react-actions-chat',
         replacement: resolve(__dirname, '..', 'src/index.ts'),
       },
     ],
@@ -46,7 +46,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, '..', 'src/index.ts'),
-      name: 'ActionableSupportChat',
+      name: 'ReactActionsChat',
       formats: ['es', 'cjs'],
       fileName: format => `index.${format === 'es' ? 'js' : 'cjs'}`,
     },

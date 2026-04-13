@@ -28,7 +28,7 @@ Useful getters:
 Example:
 
 ```tsx
-import { useInputFieldStore } from 'actionable-support-chat';
+import { useInputFieldStore } from 'react-actions-chat';
 
 const inputFieldStore = useInputFieldStore.getState();
 const currentValue = inputFieldStore.getInputFieldValue();

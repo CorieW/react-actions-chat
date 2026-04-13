@@ -1,6 +1,6 @@
 # Recommended Actions API Reference
 
-Concise reference for the public exports from `actionable-support-chat-recommended-actions`.
+Concise reference for the public exports from `react-actions-chat-recommended-actions`.
 
 ## Main Flow Creators
 
