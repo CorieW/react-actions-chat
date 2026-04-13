@@ -1,4 +1,4 @@
-name: Deploy Docs
+name: Deploy Pages
 
 on:
   push:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build Docs
+    name: Build Pages
     runs-on: ubuntu-latest
 
     steps:
@@ -43,18 +43,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build docs
-        run: pnpm docs:build
+      - name: Build docs and live examples
+        run: pnpm pages:build
         env:
-          DOCS_BASE_PATH: /${{ github.event.repository.name }}/
+          PAGES_BASE_PATH: /${{ github.event.repository.name }}/
 
-      - name: Upload docs artifact
+      - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: docs/.vitepress/dist
 
   deploy:
-    name: Deploy Docs
+    name: Deploy Pages
     needs: build
     runs-on: ubuntu-latest
     environment:

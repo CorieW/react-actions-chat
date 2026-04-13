@@ -54,6 +54,12 @@ Runnable workspace examples live in [examples](examples/README.md):
 - `login`: input and confirmation flows
 - `settings`: companion recommended-actions package with a real OpenAI embedder
 
+Live demos:
+
+- `qa-bot`: https://coriew.github.io/react-actions-chat/examples/qa-bot/
+- `login`: https://coriew.github.io/react-actions-chat/examples/login/
+- `settings`: source only for now because the live version would require exposing an API key
+
 Start one from the repo root after `pnpm install`:
 
 ```bash
@@ -80,6 +86,7 @@ Useful scripts:
 - `pnpm lint`
 - `pnpm docs:dev`
 - `pnpm docs:build`
+- `pnpm pages:build`
 - `pnpm run refresh:all`
 
 ## License

@@ -6,6 +6,8 @@ This repo includes three runnable example apps. Each one maps cleanly to a secti
 
 Path: [examples/qa-bot](https://github.com/CorieW/react-actions-chat/tree/main/examples/qa-bot)
 
+Live demo: [qa-bot](/examples/qa-bot/)
+
 Use this example for:
 
 - the core `Chat` component
@@ -28,6 +30,8 @@ pnpm --filter qa-bot-example dev
 
 Path: [examples/login](https://github.com/CorieW/react-actions-chat/tree/main/examples/login)
 
+Live demo: [login](/examples/login/)
+
 Use this example for:
 
 - `createRequestInputButtonDef`
@@ -49,6 +53,8 @@ pnpm --filter login-example dev
 ## `settings`
 
 Path: [examples/settings](https://github.com/CorieW/react-actions-chat/tree/main/examples/settings)
+
+Live demo: not published because this example requires an API key.
 
 Use this example for:
 

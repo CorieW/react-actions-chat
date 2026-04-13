@@ -15,6 +15,7 @@ function normalizeBasePath(rawBasePath?: string): string {
 
 export default defineConfig({
   base: normalizeBasePath(process.env.DOCS_BASE_PATH),
+  ignoreDeadLinks: [/^\/examples\/(login|qa-bot)(\/index)?$/],
   title: 'React Actions Chat',
   description:
     'Consumer docs for react-actions-chat and react-actions-chat-recommended-actions.',
