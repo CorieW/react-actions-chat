@@ -34,7 +34,7 @@
     "build:styles": "node scripts/build-styles-v4.js",
     "check:styles": "node scripts/check-styles.js",
     "lint": "eslint . --config config/eslint.config.js",
-    "knip": "knip",
+    "knip": "knip -c config/knip.json",
     "format": "prettier --write . --config config/.prettierrc --ignore-path .gitignore --ignore-path config/.prettierignore",
     "format:check": "prettier --check . --config config/.prettierrc --ignore-path .gitignore --ignore-path config/.prettierignore",
     "preview": "vite preview --config config/vite.config.ts",
