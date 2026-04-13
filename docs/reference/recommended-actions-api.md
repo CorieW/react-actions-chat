@@ -2,11 +2,11 @@
 
 Concise reference for the public exports from `actionable-support-chat-recommended-actions`.
 
-## Main Flow Creators
+## Main Recommenders
 
-### `createQueryRecommendedActionsFlow(config)`
+### `createQueryRecommendedActionsRecommender(config)`
 
-Creates a reusable flow that asks for a query, resolves recommended buttons, and renders them in the chat.
+Creates a reusable recommender that asks for a query, resolves recommended buttons, and renders them in the chat.
 
 Returned API:
 
@@ -29,9 +29,9 @@ Important config fields:
 - `placeholder`
 - `inputDescription`
 
-### `createVectorSearchQueryRecommendedActionsFlow(config)`
+### `createVectorSearchQueryRecommendedActionsRecommender(config)`
 
-Creates a semantic recommendation flow over button definitions.
+Creates a semantic recommendation helper over button definitions.
 
 Supported config shapes:
 
@@ -54,7 +54,7 @@ Important config fields:
 
 ### `VectorSearchButtonDefinition`
 
-Searchable button definition used by the vector-search flow.
+Searchable button definition used by the vector-search helper.
 
 It extends a reusable action definition with metadata such as `description` and `exampleQueries` so semantically similar user prompts can map to the same button.
 
@@ -65,9 +65,9 @@ Resolver context with:
 - `query`
 - `messages`
 
-### `QueryRecommendedActionsFlow`
+### `QueryRecommendedActionsRecommender`
 
-Public object returned by `createQueryRecommendedActionsFlow(...)`.
+Public object returned by `createQueryRecommendedActionsRecommender(...)`.
 
 ### `VectorSearchButtonMatch`
 
@@ -107,4 +107,4 @@ Builds the search text used to represent a button definition.
 
 ### `embedTexts(...)`
 
-Shared utility used by the vector-search flow and the exported embedder layer.
+Shared utility used by the vector-search recommender and the exported embedder layer.

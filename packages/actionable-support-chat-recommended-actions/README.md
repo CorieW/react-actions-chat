@@ -1,6 +1,6 @@
 # Actionable Support Chat Recommended Actions
 
-Companion package for `actionable-support-chat` that adds query-driven and vector-search-backed recommended action flows.
+Companion package for `actionable-support-chat` that adds query-driven and vector-search-backed recommended action recommenders.
 
 ## Installation
 
@@ -10,8 +10,8 @@ npm install actionable-support-chat actionable-support-chat-recommended-actions
 
 ## What It Includes
 
-- `createQueryRecommendedActionsFlow`
-- `createVectorSearchQueryRecommendedActionsFlow`
+- `createQueryRecommendedActionsRecommender`
+- `createVectorSearchQueryRecommendedActionsRecommender`
 - `createOpenAITextEmbedder`
 - `createCohereTextEmbedder`
 - `createVoyageTextEmbedder`

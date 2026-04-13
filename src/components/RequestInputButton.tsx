@@ -9,11 +9,11 @@ import {
 /**
  * Configuration for a button that asks the user to submit a follow-up input.
  *
- * @property initialLabel Label for the initial button that triggers the input request flow.
+ * @property initialLabel Label for the initial button that triggers the input request.
  * @property inputPromptMessage Message displayed when requesting input from the user.
  * @property placeholder Placeholder text for the input field.
  * @property inputDescription Description text shown above the input field.
- * @property inputType Type of input field used for the request flow.
+ * @property inputType Type of input field used for the request.
  * @property validator Validation function used to accept or reject submitted input.
  * @property onInvalidInput Callback function executed when the user provides invalid input.
  * @property onValidInput Callback function executed when the user provides valid input.
@@ -23,7 +23,7 @@ import {
  * @property style Optional style for the initial button.
  * @property abortLabel Custom label for the abort button.
  * @property abortCallback Custom callback function executed when the abort button is clicked.
- * @property showAbort Whether to show the abort button during the flow.
+ * @property showAbort Whether to show the abort button during the request.
  */
 export interface RequestInputButtonConfig {
   readonly initialLabel: string;
@@ -95,7 +95,7 @@ export function createRequestInputButtonDef(
 }
 
 /**
- * Creates a MessageButton configuration that implements an input request flow.
+ * Creates a MessageButton configuration that implements an input request.
  *
  * When clicked, the initial button adds a message prompting for input and configures
  * the input field with the specified type, placeholder, description, and validator.

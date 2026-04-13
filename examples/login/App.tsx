@@ -37,7 +37,8 @@ const LOGIN_THEME: ChatTheme = {
 
 const EMAIL_SIGN_IN_BUTTON_DEF = createRequestInputButtonDef({
   initialLabel: 'Sign in with email',
-  inputPromptMessage: 'Enter your work email and I will open the sign-in flow.',
+  inputPromptMessage:
+    'Enter your work email and I will open the sign-in prompt.',
   inputType: 'email',
   placeholder: 'you@northstar.app',
   inputDescription:
@@ -78,7 +79,7 @@ const SIGN_OUT_BUTTON_DEF = createRequestConfirmationButtonDef({
 
 type LoginStage = 'idle' | 'awaiting-password' | 'awaiting-one-time-code';
 
-interface LoginFlowState {
+interface LoginSessionState {
   readonly stage: LoginStage;
   readonly account?: DemoAccount | undefined;
   readonly passwordAttempts: number;
@@ -99,11 +100,11 @@ function getLatestUserRawMessage(): string | undefined {
 }
 
 /**
- * Login example with a richer multi-step demo flow.
+ * Login example with a richer multi-step sign-in sequence.
  */
 export function App(): React.JSX.Element {
   const initialMessagesRef = useRef<readonly InputMessage[] | null>(null);
-  const flowStateRef = useRef<LoginFlowState>({
+  const loginStateRef = useRef<LoginSessionState>({
     stage: 'idle',
     passwordAttempts: 0,
   });
@@ -117,8 +118,8 @@ export function App(): React.JSX.Element {
     inputFieldStore.resetInputFieldValue();
   }
 
-  function clearFlowState(): void {
-    flowStateRef.current = {
+  function resetLoginState(): void {
+    loginStateRef.current = {
       stage: 'idle',
       passwordAttempts: 0,
     };
@@ -183,11 +184,11 @@ export function App(): React.JSX.Element {
   }
 
   function handleMissingAccount(email: string): void {
-    clearFlowState();
+    resetLoginState();
 
     useChatStore.getState().addMessage({
       type: 'other',
-      content: `I could not find a demo workspace for ${normalizeEmail(email)}. Try one of the sample accounts or start a password reset flow.`,
+      content: `I could not find a demo workspace for ${normalizeEmail(email)}. Try one of the sample accounts or start a password reset prompt.`,
       buttons: createPrimaryButtons(),
     });
   }
@@ -199,7 +200,7 @@ export function App(): React.JSX.Element {
       return;
     }
 
-    flowStateRef.current = {
+    loginStateRef.current = {
       stage: 'awaiting-password',
       account,
       passwordAttempts: 0,
@@ -233,7 +234,7 @@ export function App(): React.JSX.Element {
     account: DemoAccount,
     isResend: boolean = false
   ): void {
-    flowStateRef.current = {
+    loginStateRef.current = {
       stage: 'awaiting-one-time-code',
       account,
       passwordAttempts: 0,
@@ -271,7 +272,7 @@ export function App(): React.JSX.Element {
   }
 
   function completeLogin(account: DemoAccount): void {
-    clearFlowState();
+    resetLoginState();
 
     useChatStore.getState().addMessage({
       type: 'other',
@@ -281,31 +282,31 @@ export function App(): React.JSX.Element {
   }
 
   function handlePasswordReply(): void {
-    const currentFlow = flowStateRef.current;
+    const currentLoginState = loginStateRef.current;
     const submittedPassword = getLatestUserRawMessage();
 
     if (
-      currentFlow.stage !== 'awaiting-password' ||
-      !currentFlow.account ||
+      currentLoginState.stage !== 'awaiting-password' ||
+      !currentLoginState.account ||
       submittedPassword === undefined
     ) {
       return;
     }
 
     const loginResult = attemptDemoLogin(
-      currentFlow.account.email,
+      currentLoginState.account.email,
       submittedPassword
     );
 
     if (loginResult.kind === 'unknown-account') {
-      handleMissingAccount(currentFlow.account.email);
+      handleMissingAccount(currentLoginState.account.email);
       return;
     }
 
     if (loginResult.kind === 'invalid-password') {
-      const nextAttemptCount = currentFlow.passwordAttempts + 1;
-      flowStateRef.current = {
-        ...currentFlow,
+      const nextAttemptCount = currentLoginState.passwordAttempts + 1;
+      loginStateRef.current = {
+        ...currentLoginState,
         passwordAttempts: nextAttemptCount,
       };
 
@@ -330,18 +331,18 @@ export function App(): React.JSX.Element {
   }
 
   function handleOneTimeCodeReply(): void {
-    const currentFlow = flowStateRef.current;
+    const currentLoginState = loginStateRef.current;
     const submittedCode = getLatestUserRawMessage();
 
     if (
-      currentFlow.stage !== 'awaiting-one-time-code' ||
-      !currentFlow.account ||
+      currentLoginState.stage !== 'awaiting-one-time-code' ||
+      !currentLoginState.account ||
       submittedCode === undefined
     ) {
       return;
     }
 
-    const account = currentFlow.account;
+    const account = currentLoginState.account;
 
     if (!verifyOneTimeCode(account.email, submittedCode)) {
       useChatStore.getState().addMessage({
@@ -360,14 +361,14 @@ export function App(): React.JSX.Element {
       return;
     }
 
-    completeLogin(currentFlow.account);
+    completeLogin(currentLoginState.account);
   }
 
   function handlePasswordReset(email: string): void {
     const normalizedEmail = normalizeEmail(email);
     const account = findDemoAccount(normalizedEmail);
 
-    clearFlowState();
+    resetLoginState();
 
     useChatStore.getState().addMessage({
       type: 'other',
@@ -379,12 +380,12 @@ export function App(): React.JSX.Element {
   }
 
   function handleSignOut(): void {
-    clearFlowState();
+    resetLoginState();
 
     useChatStore.getState().addMessage({
       type: 'other',
       content:
-        'You are signed out. Start another sign-in flow, try a different demo account, or test password recovery.',
+        'You are signed out. Start another sign-in prompt, try a different demo account, or test password recovery.',
       buttons: createPrimaryButtons(),
     });
   }
@@ -440,7 +441,9 @@ export function App(): React.JSX.Element {
           <h2>Why it is better</h2>
           <ul className='login-example-checklist'>
             <li>Uses raw input values for password and code verification.</li>
-            <li>Shows happy path, recovery path, and MFA path in one flow.</li>
+            <li>
+              Shows happy path, recovery path, and MFA path in one example.
+            </li>
             <li>Keeps the example fully local so it is easy to understand.</li>
           </ul>
         </section>

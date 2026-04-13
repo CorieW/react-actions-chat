@@ -29,7 +29,7 @@ Useful methods:
 
 ## Read the Latest User Submission
 
-When building follow-up flows, you often want the most recent user-authored message:
+When building follow-up interactions, you often want the most recent user-authored message:
 
 ```tsx
 const messages = useChatStore.getState().getMessages();
@@ -45,12 +45,12 @@ This pattern is used by the example apps when an assistant message needs to reac
 
 Use `rawContent` when you need the actual submitted value.
 
-That matters most for password flows:
+That matters most for password inputs:
 
 - `content` may be masked in the transcript
 - `rawContent` still keeps the real submitted string
 
-For ordinary text flows, `content` and `rawContent` are usually the same.
+For ordinary text input, `content` and `rawContent` are usually the same.
 
 ## Read Message Metadata
 

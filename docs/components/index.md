@@ -15,7 +15,7 @@ These pages describe the main building blocks exported by `actionable-support-ch
 
 ## When To Read These Pages
 
-Read the component pages when you want to understand how the package is put together or when you are composing custom flows on top of the exported helpers and stores.
+Read the component pages when you want to understand how the package is put together or when you are composing custom interactions on top of the exported helpers and stores.
 
 For the data shapes and store access patterns behind these components, see:
 
@@ -27,6 +27,6 @@ For the data shapes and store access patterns behind these components, see:
 
 If you want a task-first walkthrough instead, start with:
 
-- [Build a chat flow](../guides/building-a-chat-flow.md)
+- [Build a chat conversation](../guides/building-a-chat-conversation.md)
 - [Collect input and confirmations](../guides/collecting-input-and-confirming-actions.md)
 - [Theming and styling](../guides/theming-and-styling.md)

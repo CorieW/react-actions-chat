@@ -1,4 +1,4 @@
-# Build a Chat Flow
+# Build a Chat Conversation
 
 This guide covers the core conversation model behind `actionable-support-chat`.
 
@@ -83,11 +83,11 @@ useChatStore.getState().addMessage({
 });
 ```
 
-Use `rawContent` when you need the real submitted value. That matters for flows such as password inputs, where the visible transcript may be masked. See [Message](../types/message.md) and [`useChatStore`](../stores/use-chat-store.md) for the stored message shape and common retrieval patterns.
+Use `rawContent` when you need the real submitted value. That matters for password inputs, where the visible transcript may be masked. See [Message](../types/message.md) and [`useChatStore`](../stores/use-chat-store.md) for the stored message shape and common retrieval patterns.
 
 ## Advanced State Access
 
-`useChatStore` is exported for advanced flows:
+`useChatStore` is exported for advanced conversation logic:
 
 - `addMessage` and `addMessages` append assistant or seeded messages
 - `getMessages` and `getPreviousMessage` inspect the current transcript

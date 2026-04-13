@@ -137,7 +137,7 @@ Common methods:
 
 ### `useInputFieldStore`
 
-Advanced shared state for the single input field used by input-request flows.
+Advanced shared state for the single input field used by input-request buttons.
 
 Useful fields and methods:
 

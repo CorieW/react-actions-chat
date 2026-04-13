@@ -95,7 +95,7 @@ interface InputFieldState {
 }
 
 /**
- * Shared input field state store used by input-request flows.
+ * Shared input field state store used by input-request buttons.
  */
 export const useInputFieldStore = create<InputFieldState>((set, get) => ({
   inputFieldElement: null,

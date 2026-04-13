@@ -5,10 +5,10 @@ This folder contains runnable workspace examples demonstrating different use cas
 ## Examples
 
 - **qa-bot** - A simple question and answer bot that responds to user queries
-- **login** - A login flow using email and password inputs
+- **login** - A login example using email and password inputs
 - **settings** - A settings page that uses the companion recommended-actions package and a real OpenAI embedder to recommend settings actions from a user query
 
-You can also build reusable recommended-action flows with the companion `actionable-support-chat-recommended-actions` package, including embedding-based search backed by your own search or vector search service.
+You can also build reusable recommended-action recommenders with the companion `actionable-support-chat-recommended-actions` package, including embedding-based search backed by your own search or vector search service.
 
 ## Running an Example
 

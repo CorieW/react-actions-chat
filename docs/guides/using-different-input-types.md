@@ -75,7 +75,7 @@ Use `email` when collecting email addresses.
 
 This is a good match for:
 
-- sign-in flows
+- sign-in prompts
 - account recovery
 - contact handoff steps
 
@@ -165,7 +165,7 @@ The shared input also supports:
 - `number`
 - `url`
 
-Use them when those HTML input semantics match your flow better than plain text.
+Use them when those HTML input semantics match your input request better than plain text.
 
 ## Validation Patterns
 
@@ -227,7 +227,7 @@ validator: value => {
 By default:
 
 - invalid input adds an assistant error message
-- the same input flow stays active so the user can retry
+- the same input request stays active so the user can retry
 
 Useful options:
 

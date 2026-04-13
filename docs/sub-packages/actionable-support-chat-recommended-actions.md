@@ -1,6 +1,6 @@
 # `actionable-support-chat-recommended-actions`
 
-`actionable-support-chat-recommended-actions` is the companion package for building query-driven and vector-search-backed recommended action flows on top of `actionable-support-chat`.
+`actionable-support-chat-recommended-actions` is the companion package for building query-driven and vector-search-backed recommended action recommenders on top of `actionable-support-chat`.
 
 ## Installation
 
@@ -10,8 +10,8 @@ npm install actionable-support-chat actionable-support-chat-recommended-actions
 
 ## What It Adds
 
-- `createQueryRecommendedActionsFlow`
-- `createVectorSearchQueryRecommendedActionsFlow`
+- `createQueryRecommendedActionsRecommender`
+- `createVectorSearchQueryRecommendedActionsRecommender`
 - `createOpenAITextEmbedder`
 - `createCohereTextEmbedder`
 - `createVoyageTextEmbedder`
@@ -24,17 +24,17 @@ Use this package when:
 - you want to recommend the best next actions instead of hard-coding every branch
 - you want semantic matching over button definitions
 
-Use the core package alone when your flows are already fully scripted and you know exactly which buttons should appear at each step.
+Use the core package alone when your button choices are already fully scripted and you know exactly which buttons should appear at each step.
 
 ## Main Paths
 
 ### Query-based recommendations
 
-Use `createQueryRecommendedActionsFlow(...)` when you already have a resolver, search system, or backend endpoint that can decide which actions to recommend.
+Use `createQueryRecommendedActionsRecommender(...)` when you already have a resolver, search system, or backend endpoint that can decide which actions to recommend.
 
 ### Vector-search recommendations
 
-Use `createVectorSearchQueryRecommendedActionsFlow(...)` when you want semantic matching over button definitions, with either in-memory embeddings or a hosted vector-search adapter.
+Use `createVectorSearchQueryRecommendedActionsRecommender(...)` when you want semantic matching over button definitions, with either in-memory embeddings or a hosted vector-search adapter.
 
 ## Production Note
 

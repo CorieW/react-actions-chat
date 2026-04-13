@@ -4,7 +4,7 @@ import { useChatStore } from '../lib';
 /**
  * Configuration for a button that asks the user to confirm or decline an action.
  *
- * @property initialLabel Label for the initial button that triggers the confirmation flow.
+ * @property initialLabel Label for the initial button that triggers the confirmation prompt.
  * @property confirmationMessage Message displayed in the followup message when the initial button is clicked.
  * @property confirmLabel Label for the confirm button.
  * @property rejectLabel Label for the reject button.
@@ -72,7 +72,7 @@ export function createRequestConfirmationButtonDef(
 }
 
 /**
- * Creates a MessageButton configuration that implements a confirmation flow.
+ * Creates a MessageButton configuration that implements a confirmation prompt.
  *
  * When clicked, the initial button adds a followup message with confirmation buttons.
  * The user can then confirm or reject the action, triggering the respective callbacks.

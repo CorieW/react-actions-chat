@@ -5,8 +5,8 @@ titleTemplate: false
 
 hero:
   name: Actionable Support Chat
-  text: Docs for guided React chat flows
-  tagline: Build support chats with buttons, confirmations, shared input flows, and recommended actions.
+  text: Docs for guided React chat conversations
+  tagline: Build support chats with buttons, confirmations, shared input prompts, and recommended actions.
   actions:
     - theme: brand
       text: Getting Started
@@ -29,11 +29,11 @@ features:
     details: Work directly with transcript history, shared input state, and persistent buttons through the exported stores.
     link: /stores/index
   - title: Sub-packages
-    details: Add optional companion functionality such as recommended-action flows without bloating the core package.
+    details: Add optional companion functionality such as recommended-action recommenders without bloating the core package.
     link: /sub-packages/index
-  - title: Core Chat Flows
+  - title: Core Chat Conversations
     details: Seed conversations, add message buttons, and handle free-form follow-ups through a shared chat input.
-    link: /guides/building-a-chat-flow
+    link: /guides/building-a-chat-conversation
   - title: Input and Confirmation Helpers
     details: Collect emails, passwords, or other structured values and gate risky actions behind confirm and decline steps.
     link: /guides/collecting-input-and-confirming-actions
@@ -49,11 +49,11 @@ features:
 - Reviewing the main data shapes: [Types overview](./types/index.md)
 - Working directly with state: [Stores overview](./stores/index.md)
 - Exploring companion packages: [Sub-packages](./sub-packages/index.md)
-- Building a conversation flow: [Build a chat flow](./guides/building-a-chat-flow.md)
+- Building a conversation: [Build a chat conversation](./guides/building-a-chat-conversation.md)
 - Working with passwords, emails, and validated fields: [Using different input types](./guides/using-different-input-types.md)
 - Collecting structured user input: [Collect input and confirmations](./guides/collecting-input-and-confirming-actions.md)
 - Changing the visual style: [Theming and styling](./guides/theming-and-styling.md)
-- Adding recommended action flows: [Recommended actions overview](./guides/recommended-actions-overview.md)
+- Adding recommended action recommenders: [Recommended actions overview](./guides/recommended-actions-overview.md)
 - Wiring semantic matching: [Recommended actions with vector search](./guides/recommended-actions-vector-search.md)
 
 ## Run The Site Locally

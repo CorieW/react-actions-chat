@@ -22,7 +22,7 @@ Useful method:
 import { usePersistentButtonStore } from 'actionable-support-chat';
 
 usePersistentButtonStore.getState().addButton({
-  id: 'cancel-flow',
+  id: 'cancel-request',
   label: 'Cancel',
   variant: 'error',
   onClick: () => {
@@ -30,7 +30,7 @@ usePersistentButtonStore.getState().addButton({
   },
 });
 
-usePersistentButtonStore.getState().removeButton('cancel-flow');
+usePersistentButtonStore.getState().removeButton('cancel-request');
 ```
 
 Useful methods:

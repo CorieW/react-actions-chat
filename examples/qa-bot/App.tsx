@@ -371,7 +371,7 @@ function createInitialMessages(): readonly InputMessage[] {
       id: 1,
       type: 'other',
       content:
-        'Welcome to the upgraded Q&A bot demo. It still runs entirely in the browser, but now it behaves more like a lightweight support assistant with quick actions and follow-up flows.',
+        'Welcome to the upgraded Q&A bot demo. It still runs entirely in the browser, but now it behaves more like a lightweight support assistant with quick actions and follow-up prompts.',
       timestamp: new Date(),
       buttons: createPrimaryButtons(),
       userResponseCallback: createConversationCallback(),

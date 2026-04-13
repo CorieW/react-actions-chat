@@ -16,13 +16,13 @@ Use the companion package when:
 - you want to suggest the best next actions instead of matching every intent by hand
 - you want the result to stay inside the chat UI as normal buttons
 
-Use the core package alone when your flows are fully scripted and you already know which buttons to show.
+Use the core package alone when your button choices are fully scripted and you already know which buttons to show.
 
 ## Two Main Paths
 
 ### Query-Based Recommendations
 
-`createQueryRecommendedActionsFlow` asks the user for a query, calls your resolver, and renders the buttons you return.
+`createQueryRecommendedActionsRecommender` asks the user for a query, calls your resolver, and renders the buttons you return.
 
 Choose this when:
 
@@ -32,7 +32,7 @@ Choose this when:
 
 ### Vector-Search Recommendations
 
-`createVectorSearchQueryRecommendedActionsFlow` is built for semantic matching over button definitions.
+`createVectorSearchQueryRecommendedActionsRecommender` is built for semantic matching over button definitions.
 
 Choose this when:
 
@@ -40,14 +40,14 @@ Choose this when:
 - you want embeddings to help match the right action
 - you want either in-memory matching or a hosted vector-search adapter
 
-## Basic Query Flow Example
+## Basic Query Recommender Example
 
 ```tsx
 import { useMemo } from 'react';
 import { createButton } from 'actionable-support-chat';
-import { createQueryRecommendedActionsFlow } from 'actionable-support-chat-recommended-actions';
+import { createQueryRecommendedActionsRecommender } from 'actionable-support-chat-recommended-actions';
 
-const flow = createQueryRecommendedActionsFlow({
+const recommender = createQueryRecommendedActionsRecommender({
   initialLabel: 'Find help',
   getRecommendedActions: query => {
     if (query.toLowerCase().includes('password')) {
@@ -72,7 +72,7 @@ const flow = createQueryRecommendedActionsFlow({
 The returned object exposes:
 
 - `button` to attach to a message
-- `start()` to launch the flow programmatically
+- `start()` to open the prompt programmatically
 - `recommend(query)` to skip the prompt and resolve directly
 
 ## Production Guidance

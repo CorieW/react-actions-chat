@@ -1,12 +1,12 @@
 /**
  * Demo account records and helper functions used by the login example.
  *
- * The example stays fully local and deterministic so the auth flow is easy to
+ * The example stays fully local and deterministic so the auth sequence is easy to
  * understand, test, and extend without wiring a real backend.
  */
 
 /**
- * Demo account metadata used to drive the example sign-in flow.
+ * Demo account metadata used to drive the example sign-in prompt.
  */
 export interface DemoAccount {
   readonly fullName: string;
@@ -64,7 +64,7 @@ export const DEMO_ACCOUNTS: readonly DemoAccount[] = [
     workspace: 'Care Desk',
     role: 'Support Manager',
     trustedDeviceLabel: 'Berlin support terminal',
-    securityNote: 'Standard email and password flow.',
+    securityNote: 'Standard email and password prompt.',
   },
   {
     fullName: 'Maya Patel',

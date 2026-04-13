@@ -6,7 +6,7 @@ Use this section when you want functionality that should stay modular instead of
 
 ## Available Sub-packages
 
-- [`actionable-support-chat-recommended-actions`](./actionable-support-chat-recommended-actions.md): query-driven and vector-search-backed recommended action flows for chat experiences
+- [`actionable-support-chat-recommended-actions`](./actionable-support-chat-recommended-actions.md): query-driven and vector-search-backed recommended action recommenders for chat experiences
 
 ## When To Use a Sub-package
 

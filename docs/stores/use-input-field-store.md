@@ -2,7 +2,7 @@
 
 `useInputFieldStore` manages the single shared input field used by the chat UI.
 
-Input-request flows use this store to switch the field into email, password, search, or other modes without rendering separate inline forms.
+Input-request buttons use this store to switch the field into email, password, search, or other modes without rendering separate inline forms.
 
 ## What It Manages
 
@@ -62,6 +62,6 @@ Reset helpers:
 ## Typical Use Cases
 
 - configuring input-request buttons
-- checking whether the current step is a password flow
-- reading the current input state in advanced multi-step flows
-- resetting the shared field after a custom flow completes
+- checking whether the current step expects a password
+- reading the current input state in advanced multi-step interactions
+- resetting the shared field after a custom input request completes

@@ -16,7 +16,7 @@ import {
 } from 'actionable-support-chat';
 ```
 
-This lets you define the shape of a flow once and attach runtime callbacks when you render the button.
+This lets you define the button once and attach runtime callbacks when you render it.
 
 ## Request Input
 
@@ -51,7 +51,7 @@ When the button is clicked, the library:
 
 `validator` returns an [`InputValidationResult`](../types/input-validation-result.md), and follows the [`InputValidator`](../types/input-validator.md) shape.
 
-By default, invalid input adds a new assistant message with the validation error and keeps the flow active for another try. Use these options when you need more control:
+By default, invalid input adds a new assistant message with the validation error and keeps the request active for another try. Use these options when you need more control:
 
 - `onInvalidInput` to log or branch on a validation failure
 - `suppressValidationFailureMessage` to skip the default retry message
@@ -88,9 +88,9 @@ The initial click adds a follow-up assistant message with confirm and reject but
 
 ## Related Stores
 
-These flows are powered by exported stores:
+These helpers are powered by exported stores:
 
 - `useInputFieldStore` for the shared input field type, placeholder, description, validator, and current value
 - `usePersistentButtonStore` for buttons that stay visible above the input field
 
-Most apps can stay at the helper level, but the stores are available when you need to coordinate multi-step flows with external state.
+Most apps can stay at the helper level, but the stores are available when you need to coordinate multi-step interactions with external state.

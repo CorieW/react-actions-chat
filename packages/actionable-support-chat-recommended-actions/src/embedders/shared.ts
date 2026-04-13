@@ -13,7 +13,7 @@ export interface EmbedTextOptions {
 }
 
 /**
- * Generic text embedder contract used by the vector search flow.
+ * Generic text embedder contract used by the vector search recommender.
  */
 export interface TextEmbedder {
   readonly embedText: (

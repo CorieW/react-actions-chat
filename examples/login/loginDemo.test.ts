@@ -17,7 +17,7 @@ describe('login demo helpers', () => {
     expect(findDemoAccount(' SAM@NORTHSTAR.APP ')?.fullName).toBe('Sam Rivera');
   });
 
-  it('returns a success result for the standard password flow', () => {
+  it('returns a success result for the standard password prompt', () => {
     expect(attemptDemoLogin('sam@northstar.app', 'Support!2026')).toMatchObject(
       {
         kind: 'success',

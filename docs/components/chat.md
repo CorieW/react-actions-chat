@@ -74,11 +74,11 @@ When the user submits text:
 2. it adds a `self` message to the transcript
 3. if the previous assistant message had a `userResponseCallback`, that callback runs
 
-That model is what makes the library's chat-like follow-up flows work without each screen needing its own custom form state.
+That model is what makes the library's chat-like follow-up interactions work without each screen needing its own custom form state.
 
 ## Related Exports
 
-`Chat` is the main component, but these supporting exports are useful for advanced flows:
+`Chat` is the main component, but these supporting exports are useful for advanced interactions:
 
 - `useChatStore`
 - `useInputFieldStore`
@@ -93,7 +93,7 @@ That model is what makes the library's chat-like follow-up flows work without ea
 - [`useChatStore`](../stores/use-chat-store.md)
 - [`useInputFieldStore`](../stores/use-input-field-store.md)
 - [`usePersistentButtonStore`](../stores/use-persistent-button-store.md)
-- [Build a chat flow](../guides/building-a-chat-flow.md)
+- [Build a chat conversation](../guides/building-a-chat-conversation.md)
 - [Plain message buttons](./plain-message-buttons.md)
 - [Input-request buttons](./input-request-buttons.md)
 - [Core API reference](../reference/core-api.md)

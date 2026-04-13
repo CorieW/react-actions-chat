@@ -9,7 +9,7 @@ import {
 import type { InputMessage } from 'actionable-support-chat';
 import {
   createOpenAITextEmbedder,
-  createVectorSearchQueryRecommendedActionsFlow,
+  createVectorSearchQueryRecommendedActionsRecommender,
   type VectorSearchButtonDefinition,
 } from 'actionable-support-chat-recommended-actions';
 
@@ -201,9 +201,7 @@ export function App(): React.JSX.Element {
             .find(message => message.type === 'self');
 
           if (lastSelfMessage) {
-            void settingsRecommendationFlow.recommend(
-              lastSelfMessage.rawContent
-            );
+            void settingsRecommender.recommend(lastSelfMessage.rawContent);
           }
         },
       });
@@ -286,7 +284,7 @@ export function App(): React.JSX.Element {
     {
       ...DELETE_ACCOUNT_BUTTON_DEF,
       description:
-        'Delete the current account and start the account removal flow.',
+        'Delete the current account and start the account removal prompt.',
       exampleQueries: [
         'delete my account',
         'close my account',
@@ -297,42 +295,45 @@ export function App(): React.JSX.Element {
     },
   ];
 
-  const settingsRecommendationFlow = useMemo(() => {
-    const recommendationFlow = createVectorSearchQueryRecommendedActionsFlow({
-      placeholder:
-        'Try "update my phone number", "enable 2fa", or "delete my account"',
-      inputDescription:
-        'Describe what you want to change and I will recommend the best settings action.',
-      buildResult: ({ query, matches }) => {
-        if (matches.length === 0) {
-          return {
-            responseMessage: `I couldn't find any recommended actions for "${query}".`,
-            recommendedActions: [HELP_BUTTON],
-          };
-        }
+  const settingsRecommender = useMemo(() => {
+    const actionRecommender =
+      createVectorSearchQueryRecommendedActionsRecommender({
+        placeholder:
+          'Try "update my phone number", "enable 2fa", or "delete my account"',
+        inputDescription:
+          'Describe what you want to change and I will recommend the best settings action.',
+        buildResult: ({ query, matches }) => {
+          if (matches.length === 0) {
+            return {
+              responseMessage: `I couldn't find any recommended actions for "${query}".`,
+              recommendedActions: [HELP_BUTTON],
+            };
+          }
 
-        return {
-          recommendedActions: matches.map(match => createButton(match.button)),
-        };
-      },
-      buildRecommendationsMessage: query =>
-        `Here are the best settings actions I found for "${query}".`,
-      loadingMessage: '',
-      minimumLoadingDurationMs: 2000,
-      embedder: createOpenAITextEmbedder({
-        apiKey: openAIApiKey ?? '',
-        model: 'text-embedding-3-large',
-      }),
-      buttons: SETTING_BUTTON_DEFINITIONS,
-      maxResults: 5,
-      onError: (query, error) => {
-        addMessage({
-          type: 'other',
-          content: `Error recommending settings action for "${query}": ${error}`,
-        });
-      },
-      minScore: 0.2,
-    });
+          return {
+            recommendedActions: matches.map(match =>
+              createButton(match.button)
+            ),
+          };
+        },
+        buildRecommendationsMessage: query =>
+          `Here are the best settings actions I found for "${query}".`,
+        loadingMessage: '',
+        minimumLoadingDurationMs: 2000,
+        embedder: createOpenAITextEmbedder({
+          apiKey: openAIApiKey ?? '',
+          model: 'text-embedding-3-large',
+        }),
+        buttons: SETTING_BUTTON_DEFINITIONS,
+        maxResults: 5,
+        onError: (query, error) => {
+          addMessage({
+            type: 'other',
+            content: `Error recommending settings action for "${query}": ${error}`,
+          });
+        },
+        minScore: 0.2,
+      });
 
     const continueListeningForPrompts = (): void => {
       const messages = getMessages();
@@ -374,12 +375,12 @@ export function App(): React.JSX.Element {
         return;
       }
 
-      await recommendationFlow.recommend(query);
+      await actionRecommender.recommend(query);
       continueListeningForPrompts();
     };
 
     return {
-      ...recommendationFlow,
+      ...actionRecommender,
       recommend: runRecommendationCycle,
     };
   }, [addMessage, getMessages, isOpenAIConfigured, openAIApiKey, setMessages]);
@@ -399,14 +400,12 @@ export function App(): React.JSX.Element {
             .find(message => message.type === 'self');
 
           if (lastSelfMessage) {
-            void settingsRecommendationFlow.recommend(
-              lastSelfMessage.rawContent
-            );
+            void settingsRecommender.recommend(lastSelfMessage.rawContent);
           }
         },
       },
     ],
-    [getMessages, isOpenAIConfigured, settingsRecommendationFlow]
+    [getMessages, isOpenAIConfigured, settingsRecommender]
   );
 
   return (

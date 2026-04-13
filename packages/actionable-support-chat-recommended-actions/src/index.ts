@@ -1,26 +1,26 @@
 export { type VectorSearchButtonDefinition } from './vectorSearchButtonDefinition';
 export { buildVectorSearchButtonText } from './vectorSearchButtonDefinition';
 export {
-  createQueryRecommendedActionsFlow,
+  createQueryRecommendedActionsRecommender,
   type QueryRecommendedAction,
   type QueryRecommendedActionsContext,
-  type QueryRecommendedActionsFlow,
-  type QueryRecommendedActionsFlowConfig,
+  type QueryRecommendedActionsRecommender,
+  type QueryRecommendedActionsRecommenderConfig,
   type QueryRecommendedActionsResolver,
   type QueryRecommendedActionsResult,
-} from './queryRecommendedActionsFlow';
+} from './queryRecommendedActionsRecommender';
 export {
-  createVectorSearchQueryRecommendedActionsFlow,
-  type EmbeddedButtonsVectorSearchQueryRecommendedActionsFlowConfig,
+  createVectorSearchQueryRecommendedActionsRecommender,
+  type EmbeddedButtonsVectorSearchQueryRecommendedActionsRecommenderConfig,
   type QueryEmbeddingResolver,
-  type SearchButtonsVectorSearchQueryRecommendedActionsFlowConfig,
-  type TextButtonsVectorSearchQueryRecommendedActionsFlowConfig,
+  type SearchButtonsVectorSearchQueryRecommendedActionsRecommenderConfig,
+  type TextButtonsVectorSearchQueryRecommendedActionsRecommenderConfig,
   type VectorSearchButtonActionResolver,
   type VectorSearchButtonMatch,
   type VectorSearchButtonSearchAdapter,
-  type VectorSearchQueryRecommendedActionsFlowConfig,
+  type VectorSearchQueryRecommendedActionsRecommenderConfig,
   type VectorSearchButtonsResultResolver,
-} from './vectorSearchQueryRecommendedActionsFlow';
+} from './vectorSearchQueryRecommendedActionsRecommender';
 export {
   createCohereTextEmbedder,
   createOpenAITextEmbedder,

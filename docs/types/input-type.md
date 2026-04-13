@@ -14,7 +14,7 @@
 
 ## Usage
 
-Use `InputType` when configuring an input-request flow or when reading the current shared input state from `useInputFieldStore()`.
+Use `InputType` when configuring an input-request button or when reading the current shared input state from `useInputFieldStore()`.
 
 ```tsx
 const emailButtonDef = createRequestInputButtonDef({

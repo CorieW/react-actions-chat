@@ -49,9 +49,12 @@ export type QueryRecommendedActionsResolver = (
   | QueryRecommendedActionsResolverResult
   | Promise<QueryRecommendedActionsResolverResult>;
 
-type FlowMessageResolver = (query: string) => string;
-type FlowErrorMessageResolver = (query: string, error: unknown) => string;
-type FlowLoadingMessageResolver = (query: string) => string;
+type RecommendationMessageResolver = (query: string) => string;
+type RecommendationErrorMessageResolver = (
+  query: string,
+  error: unknown
+) => string;
+type RecommendationLoadingMessageResolver = (query: string) => string;
 
 function wait(durationMs: number): Promise<void> {
   return new Promise(resolve => {
@@ -60,9 +63,9 @@ function wait(durationMs: number): Promise<void> {
 }
 
 /**
- * Configuration for the query-based recommended actions flow.
+ * Configuration for the query-based recommended actions recommender.
  */
-export interface QueryRecommendedActionsFlowConfig
+export interface QueryRecommendedActionsRecommenderConfig
   extends
     Pick<
       RequestInputButtonDefinition,
@@ -80,7 +83,7 @@ export interface QueryRecommendedActionsFlowConfig
     >,
     Pick<RequestInputButtonRuntimeConfig, 'abortCallback' | 'onInvalidInput'> {
   /**
-   * Label for the button that starts the flow.
+   * Label for the button that starts the recommender prompt.
    */
   readonly initialLabel?: string | undefined;
 
@@ -104,23 +107,34 @@ export interface QueryRecommendedActionsFlowConfig
    * Optional message builder used when recommendations are found and the
    * resolver does not provide a response message directly.
    */
-  readonly buildRecommendationsMessage?: FlowMessageResolver | undefined;
+  readonly buildRecommendationsMessage?:
+    | RecommendationMessageResolver
+    | undefined;
 
   /**
    * Optional message shown when no recommendations are returned.
    */
-  readonly emptyStateMessage?: string | FlowMessageResolver | undefined;
+  readonly emptyStateMessage?:
+    | string
+    | RecommendationMessageResolver
+    | undefined;
 
   /**
    * Optional message shown when recommendation lookup fails.
    */
-  readonly errorMessage?: string | FlowErrorMessageResolver | undefined;
+  readonly errorMessage?:
+    | string
+    | RecommendationErrorMessageResolver
+    | undefined;
 
   /**
    * Optional loading indicator text shown while recommendations are being
    * resolved. Defaults to a generic lookup message.
    */
-  readonly loadingMessage?: string | FlowLoadingMessageResolver | undefined;
+  readonly loadingMessage?:
+    | string
+    | RecommendationLoadingMessageResolver
+    | undefined;
 
   /**
    * Optional minimum time to keep the loading indicator visible, in
@@ -141,16 +155,16 @@ export interface QueryRecommendedActionsFlowConfig
 }
 
 /**
- * Public API returned by the query-based recommended actions flow.
+ * Public API returned by the query-based recommended actions recommender.
  */
-export interface QueryRecommendedActionsFlow {
+export interface QueryRecommendedActionsRecommender {
   /**
    * Button that can be attached to a message.
    */
   readonly button: MessageButton;
 
   /**
-   * Starts the flow programmatically.
+   * Starts the input prompt programmatically.
    */
   readonly start: () => void;
 
@@ -196,7 +210,7 @@ function normalizeResolverResult(
 
 function resolveMessage(
   query: string,
-  message: string | FlowMessageResolver | undefined,
+  message: string | RecommendationMessageResolver | undefined,
   fallback: string
 ): string {
   if (typeof message === 'function') {
@@ -208,7 +222,7 @@ function resolveMessage(
 
 function resolveLoadingMessage(
   query: string,
-  message: string | FlowLoadingMessageResolver | undefined
+  message: string | RecommendationLoadingMessageResolver | undefined
 ): string {
   if (typeof message === 'function') {
     return message(query);
@@ -220,7 +234,7 @@ function resolveLoadingMessage(
 function resolveErrorMessage(
   query: string,
   error: unknown,
-  message: string | FlowErrorMessageResolver | undefined
+  message: string | RecommendationErrorMessageResolver | undefined
 ): string {
   if (typeof message === 'function') {
     return message(query, error);
@@ -233,12 +247,12 @@ function resolveErrorMessage(
 }
 
 /**
- * Creates a reusable flow that asks the user for a query, resolves
+ * Creates a reusable recommender that asks the user for a query, resolves
  * recommended actions, and displays the resulting buttons in the chat.
  */
-export function createQueryRecommendedActionsFlow(
-  config: QueryRecommendedActionsFlowConfig
-): QueryRecommendedActionsFlow {
+export function createQueryRecommendedActionsRecommender(
+  config: QueryRecommendedActionsRecommenderConfig
+): QueryRecommendedActionsRecommender {
   const {
     abortCallback,
     abortLabel,
@@ -265,7 +279,7 @@ export function createQueryRecommendedActionsFlow(
     variant,
   } = config;
 
-  const runFlow = async (submittedQuery: string): Promise<void> => {
+  const runRecommendation = async (submittedQuery: string): Promise<void> => {
     const query = normalizeQuery(submittedQuery);
     const { addMessage, getMessages, getPreviousMessage, setMessages } =
       useChatStore.getState();
@@ -393,7 +407,7 @@ export function createQueryRecommendedActionsFlow(
     ...(id ? { id } : {}),
     ...(onInvalidInput ? { onInvalidInput } : {}),
     onValidInput: query => {
-      void runFlow(query);
+      void runRecommendation(query);
     },
   });
 
@@ -402,6 +416,6 @@ export function createQueryRecommendedActionsFlow(
     start: () => {
       button.onClick?.();
     },
-    recommend: runFlow,
+    recommend: runRecommendation,
   };
 }

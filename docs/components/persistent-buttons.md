@@ -10,7 +10,7 @@ Use persistent buttons when:
 
 - an action should stay available across multiple steps
 - you need a visible escape hatch or shortcut
-- an input-request flow should expose an abort action outside the transcript
+- an input-request button should expose an abort action outside the transcript
 
 ## Read the Current Buttons
 
@@ -26,7 +26,7 @@ const buttons = usePersistentButtonStore.getState().getButtons();
 import { usePersistentButtonStore } from 'actionable-support-chat';
 
 usePersistentButtonStore.getState().addButton({
-  id: 'cancel-flow',
+  id: 'cancel-request',
   label: 'Cancel',
   variant: 'error',
   onClick: () => {
@@ -34,7 +34,7 @@ usePersistentButtonStore.getState().addButton({
   },
 });
 
-usePersistentButtonStore.getState().removeButton('cancel-flow');
+usePersistentButtonStore.getState().removeButton('cancel-request');
 ```
 
 ## Notes

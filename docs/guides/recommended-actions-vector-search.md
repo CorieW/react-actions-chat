@@ -1,6 +1,6 @@
 # Recommended Actions With Vector Search
 
-This guide covers semantic matching with `createVectorSearchQueryRecommendedActionsFlow`.
+This guide covers semantic matching with `createVectorSearchQueryRecommendedActionsRecommender`.
 
 The best runnable reference in this repo is [examples/settings/App.tsx](https://github.com/CorieW/actionable-support-chat/blob/master/examples/settings/App.tsx).
 
@@ -20,7 +20,7 @@ Those fields are turned into search text with `buildVectorSearchButtonText(...)`
 
 ### 1. Text Buttons + Embedder
 
-Pass `buttons` plus an `embedder`. The flow embeds the button text for you and runs in-memory similarity search.
+Pass `buttons` plus an `embedder`. The helper embeds the button text for you and runs in-memory similarity search.
 
 This is the shape used by the `settings` example.
 
@@ -37,7 +37,7 @@ Pass `search(args)` when your vector database already handles retrieval and scor
 ```tsx
 import {
   createOpenAITextEmbedder,
-  createVectorSearchQueryRecommendedActionsFlow,
+  createVectorSearchQueryRecommendedActionsRecommender,
   type VectorSearchButtonDefinition,
 } from 'actionable-support-chat-recommended-actions';
 
@@ -56,7 +56,7 @@ const embedder = createOpenAITextEmbedder({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
 });
 
-const flow = createVectorSearchQueryRecommendedActionsFlow({
+const recommender = createVectorSearchQueryRecommendedActionsRecommender({
   initialLabel: 'Find the right setting',
   buttons,
   embedder,
@@ -71,11 +71,11 @@ When you provide a hosted `search` adapter, your adapter is responsible for:
 - retrieving the best matching buttons
 - returning matches in score order as `{ button, score }`
 
-The flow then applies `minScore`, `maxResults`, and action rendering behavior.
+The helper then applies `minScore`, `maxResults`, and action rendering behavior.
 
 ## Customization Hooks
 
-Useful hooks on the vector-search flow config:
+Useful hooks on the vector-search helper config:
 
 - `createAction` to turn a match into a custom button
 - `buildResult` to customize the full recommendation response

@@ -2,7 +2,7 @@
 
 [![codecov](https://codecov.io/gh/CorieW/actionable-support-chat/graph/badge.svg?branch=master&token=pfMTdwuPfK)](https://codecov.io/gh/CorieW/actionable-support-chat)
 
-Interactive React chat UI for support flows, guided actions, confirmations, and user input collection.
+Interactive React chat UI for guided support conversations, actions, confirmations, and user input collection.
 
 ## Installation
 
@@ -44,8 +44,8 @@ Check out the [documentation](docs/index.md) for more information.
 
 Runnable workspace examples live in [examples](examples/README.md):
 
-- `qa-bot`: basic support assistant flow
-- `login`: input and confirmation flows
+- `qa-bot`: basic support assistant conversation
+- `login`: input and confirmation prompts
 - `settings`: companion recommended-actions package with a real OpenAI embedder
 
 Start one from the repo root after `pnpm install`:

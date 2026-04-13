@@ -15,7 +15,7 @@ Use this example for:
 
 Docs:
 
-- [Build a chat flow](guides/building-a-chat-flow.md)
+- [Build a chat conversation](guides/building-a-chat-conversation.md)
 - [Theming and styling](guides/theming-and-styling.md)
 
 Run it:
@@ -53,7 +53,7 @@ Path: [examples/settings](https://github.com/CorieW/actionable-support-chat/tree
 Use this example for:
 
 - `actionable-support-chat-recommended-actions`
-- `createVectorSearchQueryRecommendedActionsFlow`
+- `createVectorSearchQueryRecommendedActionsRecommender`
 - `VectorSearchButtonDefinition`
 - `createOpenAITextEmbedder`
 

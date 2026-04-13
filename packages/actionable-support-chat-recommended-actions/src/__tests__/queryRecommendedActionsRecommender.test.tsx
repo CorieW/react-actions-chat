@@ -12,13 +12,13 @@ import {
 } from 'actionable-support-chat';
 import {
   buildVectorSearchButtonText,
-  createQueryRecommendedActionsFlow,
+  createQueryRecommendedActionsRecommender,
   type EmbedTextOptions,
   type EmbeddingVector,
   type QueryRecommendedAction,
   type QueryRecommendedActionsContext,
   type QueryRecommendedActionsResolver,
-  createVectorSearchQueryRecommendedActionsFlow,
+  createVectorSearchQueryRecommendedActionsRecommender,
   type TextEmbedder,
   type VectorSearchButtonSearchAdapter,
 } from 'actionable-support-chat-recommended-actions';
@@ -54,7 +54,7 @@ function createTestEmbedder(embedTexts: EmbedTexts): TextEmbedder {
   };
 }
 
-describe('Query Recommended Actions Flow', () => {
+describe('Query Recommended Actions Recommender', () => {
   beforeEach(() => {
     useChatStore.getState().clearMessages();
     usePersistentButtonStore.getState().clearButtons();
@@ -80,7 +80,7 @@ describe('Query Recommended Actions Flow', () => {
         ],
       })
     );
-    const flow = createQueryRecommendedActionsFlow({
+    const recommender = createQueryRecommendedActionsRecommender({
       initialLabel: 'Find help',
       queryPromptMessage: 'What would you like help with?',
       getRecommendedActions,
@@ -91,7 +91,7 @@ describe('Query Recommended Actions Flow', () => {
         type: 'other',
         content: 'Need something specific?',
         timestamp: new Date(),
-        buttons: [flow.button],
+        buttons: [recommender.button],
       },
     ];
 
@@ -131,7 +131,7 @@ describe('Query Recommended Actions Flow', () => {
 
   it('shows the empty state message when no recommendations are returned', async () => {
     const user = userEvent.setup();
-    const flow = createQueryRecommendedActionsFlow({
+    const recommender = createQueryRecommendedActionsRecommender({
       initialLabel: 'Search actions',
       queryPromptMessage: 'Describe what you want to do.',
       emptyStateMessage:
@@ -145,7 +145,7 @@ describe('Query Recommended Actions Flow', () => {
           {
             type: 'other',
             content: 'Let us find the right action.',
-            buttons: [flow.button],
+            buttons: [recommender.button],
           },
         ]}
       />
@@ -174,7 +174,7 @@ describe('Query Recommended Actions Flow', () => {
         _context: QueryRecommendedActionsContext
       ) => undefined
     );
-    const flow = createQueryRecommendedActionsFlow({
+    const recommender = createQueryRecommendedActionsRecommender({
       initialLabel: 'Recommend next steps',
       queryPromptMessage: 'What should we help you with?',
       errorMessage:
@@ -191,7 +191,7 @@ describe('Query Recommended Actions Flow', () => {
           {
             type: 'other',
             content: 'I can suggest what to do next.',
-            buttons: [flow.button],
+            buttons: [recommender.button],
           },
         ]}
       />
@@ -226,7 +226,7 @@ describe('Query Recommended Actions Flow', () => {
     let resolveRecommendations:
       | ((value: readonly QueryRecommendedAction[]) => void)
       | undefined;
-    const flow = createQueryRecommendedActionsFlow({
+    const recommender = createQueryRecommendedActionsRecommender({
       initialLabel: 'Find help',
       queryPromptMessage: 'What would you like help with?',
       loadingMessage: 'Looking up the best next action...',
@@ -242,7 +242,7 @@ describe('Query Recommended Actions Flow', () => {
           {
             type: 'other',
             content: 'Need something specific?',
-            buttons: [flow.button],
+            buttons: [recommender.button],
           },
         ]}
       />
@@ -284,13 +284,13 @@ describe('Query Recommended Actions Flow', () => {
   it('keeps loading visible for the configured minimum duration', async () => {
     vi.useFakeTimers();
 
-    const flow = createQueryRecommendedActionsFlow({
+    const recommender = createQueryRecommendedActionsRecommender({
       loadingMessage: 'Looking up the best next action...',
       minimumLoadingDurationMs: 500,
       getRecommendedActions: () => [],
     });
 
-    const recommendPromise = flow.recommend('change email');
+    const recommendPromise = recommender.recommend('change email');
 
     expect(useChatStore.getState().getMessages()).toHaveLength(1);
     expect(useChatStore.getState().getMessages()[0]).toMatchObject({
@@ -317,7 +317,7 @@ describe('Query Recommended Actions Flow', () => {
   it('waits for loading to finish before showing the next message', async () => {
     vi.useFakeTimers();
 
-    const flow = createQueryRecommendedActionsFlow({
+    const recommender = createQueryRecommendedActionsRecommender({
       loadingMessage: 'Looking up the best next action...',
       minimumLoadingDurationMs: 500,
       getRecommendedActions: () => [
@@ -327,7 +327,7 @@ describe('Query Recommended Actions Flow', () => {
       ],
     });
 
-    const recommendPromise = flow.recommend('change email');
+    const recommendPromise = recommender.recommend('change email');
 
     expect(useChatStore.getState().getMessages()[0]?.isLoading).toBe(true);
     expect(
@@ -358,7 +358,7 @@ describe('Query Recommended Actions Flow', () => {
   it('can be invoked directly from a user prompt without showing a trigger button', async () => {
     const user = userEvent.setup();
     const handleRecommendation = vi.fn();
-    const flow = createQueryRecommendedActionsFlow({
+    const recommender = createQueryRecommendedActionsRecommender({
       initialLabel: 'Unused trigger',
       queryPromptMessage: 'What do you need help with?',
       getRecommendedActions: query => [
@@ -381,7 +381,7 @@ describe('Query Recommended Actions Flow', () => {
                 .find(message => message.type === 'self');
 
               if (lastSelfMessage) {
-                void flow.recommend(lastSelfMessage.rawContent);
+                void recommender.recommend(lastSelfMessage.rawContent);
               }
             },
           },
@@ -413,7 +413,7 @@ describe('Query Recommended Actions Flow', () => {
   });
 
   it('adds recommendation messages directly when no loading state is configured', async () => {
-    const flow = createQueryRecommendedActionsFlow({
+    const recommender = createQueryRecommendedActionsRecommender({
       buildRecommendationsMessage: query => `Suggestions for ${query}`,
       getRecommendedActions: () => [
         {
@@ -422,7 +422,7 @@ describe('Query Recommended Actions Flow', () => {
       ],
     });
 
-    await flow.recommend('change email');
+    await recommender.recommend('change email');
 
     expect(useChatStore.getState().getMessages()).toContainEqual(
       expect.objectContaining({
@@ -437,8 +437,8 @@ describe('Query Recommended Actions Flow', () => {
     );
   });
 
-  it('starts the query flow programmatically', async () => {
-    const flow = createQueryRecommendedActionsFlow({
+  it('starts the query recommender programmatically', async () => {
+    const recommender = createQueryRecommendedActionsRecommender({
       queryPromptMessage: 'Programmatic prompt',
       getRecommendedActions: () => [],
     });
@@ -449,14 +449,14 @@ describe('Query Recommended Actions Flow', () => {
           {
             type: 'other',
             content: 'Need something specific?',
-            buttons: [flow.button],
+            buttons: [recommender.button],
           },
         ]}
       />
     );
 
     act(() => {
-      flow.start();
+      recommender.start();
     });
 
     expect(await screen.findByText('Programmatic prompt')).toBeInTheDocument();
@@ -469,7 +469,7 @@ describe('Query Recommended Actions Flow', () => {
       getPreviousMessage: () => undefined,
     });
 
-    const flow = createQueryRecommendedActionsFlow({
+    const recommender = createQueryRecommendedActionsRecommender({
       getRecommendedActions: () => [
         {
           label: 'Change Email',
@@ -478,7 +478,7 @@ describe('Query Recommended Actions Flow', () => {
     });
 
     try {
-      await flow.recommend('change email');
+      await recommender.recommend('change email');
     } finally {
       useChatStore.setState({
         getPreviousMessage: originalGetPreviousMessage,
@@ -500,7 +500,7 @@ describe('Query Recommended Actions Flow', () => {
   it('supports in-memory vector search with precomputed embeddings', async () => {
     const user = userEvent.setup();
     const handleEmailAction = vi.fn();
-    const flow = createVectorSearchQueryRecommendedActionsFlow({
+    const recommender = createVectorSearchQueryRecommendedActionsRecommender({
       initialLabel: 'Vector search',
       queryPromptMessage: 'What do you want to change?',
       buttons: [
@@ -530,7 +530,7 @@ describe('Query Recommended Actions Flow', () => {
           {
             type: 'other',
             content: 'Use vector search to find the right option.',
-            buttons: [flow.button],
+            buttons: [recommender.button],
           },
         ]}
       />
@@ -555,7 +555,7 @@ describe('Query Recommended Actions Flow', () => {
     const user = userEvent.setup();
     const embedTextsSpy = createEmbedTextsSpy();
     const embedder = createTestEmbedder(embedTextsSpy);
-    const flow = createVectorSearchQueryRecommendedActionsFlow({
+    const recommender = createVectorSearchQueryRecommendedActionsRecommender({
       initialLabel: 'Semantic search',
       queryPromptMessage: 'What should I help you do?',
       buttons: [
@@ -583,7 +583,7 @@ describe('Query Recommended Actions Flow', () => {
           {
             type: 'other',
             content: 'Describe what you want to do.',
-            buttons: [flow.button],
+            buttons: [recommender.button],
           },
         ]}
       />
@@ -617,7 +617,7 @@ describe('Query Recommended Actions Flow', () => {
     const user = userEvent.setup();
     const embedTextsSpy = createEmbedTextsSpy();
     const embedder = createTestEmbedder(embedTextsSpy);
-    const flow = createVectorSearchQueryRecommendedActionsFlow({
+    const recommender = createVectorSearchQueryRecommendedActionsRecommender({
       initialLabel: 'Legacy search',
       queryPromptMessage: 'What should I help you do?',
       documents: [
@@ -650,7 +650,7 @@ describe('Query Recommended Actions Flow', () => {
           {
             type: 'other',
             content: 'Describe what you want to do.',
-            buttons: [flow.button],
+            buttons: [recommender.button],
           },
         ]}
       />
@@ -672,7 +672,7 @@ describe('Query Recommended Actions Flow', () => {
     const user = userEvent.setup();
     const embedTextsSpy = createEmbedTextsSpy();
     const embedder = createTestEmbedder(embedTextsSpy);
-    const flow = createVectorSearchQueryRecommendedActionsFlow({
+    const recommender = createVectorSearchQueryRecommendedActionsRecommender({
       initialLabel: 'Semantic buttons',
       queryPromptMessage: 'What should I help you do?',
       buttons: [
@@ -706,7 +706,7 @@ describe('Query Recommended Actions Flow', () => {
           {
             type: 'other',
             content: 'Describe what you want to do.',
-            buttons: [flow.button],
+            buttons: [recommender.button],
           },
         ]}
       />
@@ -753,7 +753,7 @@ describe('Query Recommended Actions Flow', () => {
         ];
       }
     );
-    const flow = createVectorSearchQueryRecommendedActionsFlow({
+    const recommender = createVectorSearchQueryRecommendedActionsRecommender({
       initialLabel: 'Hosted search',
       queryPromptMessage: 'What do you need help with?',
       embedQuery: () => [0.2, 0.8] as const,
@@ -766,7 +766,7 @@ describe('Query Recommended Actions Flow', () => {
           {
             type: 'other',
             content: 'Ask a question and I will search the vector index.',
-            buttons: [flow.button],
+            buttons: [recommender.button],
           },
         ]}
       />
@@ -795,7 +795,7 @@ describe('Query Recommended Actions Flow', () => {
   });
 
   it('supports custom vector search result builders', async () => {
-    const flow = createVectorSearchQueryRecommendedActionsFlow({
+    const recommender = createVectorSearchQueryRecommendedActionsRecommender({
       buttons: [
         {
           id: 'email',
@@ -813,7 +813,7 @@ describe('Query Recommended Actions Flow', () => {
       }),
     });
 
-    await flow.recommend('change email');
+    await recommender.recommend('change email');
 
     expect(useChatStore.getState().getMessages()).toContainEqual(
       expect.objectContaining({
@@ -827,10 +827,10 @@ describe('Query Recommended Actions Flow', () => {
     );
   });
 
-  it('reports button embedding count mismatches through the flow error path', async () => {
+  it('reports button embedding count mismatches through the recommender error path', async () => {
     const onError = vi.fn();
     const embedder = createTestEmbedder(() => Promise.resolve([[1, 0, 0]]));
-    const flow = createVectorSearchQueryRecommendedActionsFlow({
+    const recommender = createVectorSearchQueryRecommendedActionsRecommender({
       buttons: [
         {
           label: 'Change Email',
@@ -845,7 +845,7 @@ describe('Query Recommended Actions Flow', () => {
       onError,
     });
 
-    await flow.recommend('change email');
+    await recommender.recommend('change email');
 
     expect(onError).toHaveBeenCalledTimes(1);
     const [, error] = onError.mock.calls[0] as [string, Error];
@@ -861,7 +861,7 @@ describe('Query Recommended Actions Flow', () => {
   });
 
   it('supports function-based error messages', async () => {
-    const flow = createQueryRecommendedActionsFlow({
+    const recommender = createQueryRecommendedActionsRecommender({
       errorMessage: (query, error) =>
         `Could not load actions for ${query}: ${error instanceof Error ? error.message : 'unknown'}`,
       getRecommendedActions: () => {
@@ -869,7 +869,7 @@ describe('Query Recommended Actions Flow', () => {
       },
     });
 
-    await flow.recommend('change email');
+    await recommender.recommend('change email');
 
     expect(useChatStore.getState().getMessages()).toContainEqual(
       expect.objectContaining({

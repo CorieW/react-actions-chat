@@ -1,13 +1,13 @@
 import { createButton } from 'actionable-support-chat';
 import {
-  createQueryRecommendedActionsFlow,
+  createQueryRecommendedActionsRecommender,
   type QueryRecommendedAction,
   type QueryRecommendedActionsContext,
-  type QueryRecommendedActionsFlow,
-  type QueryRecommendedActionsFlowConfig,
+  type QueryRecommendedActionsRecommender,
+  type QueryRecommendedActionsRecommenderConfig,
   type QueryRecommendedActionsResult,
   type QueryRecommendedActionsResolver,
-} from './queryRecommendedActionsFlow';
+} from './queryRecommendedActionsRecommender';
 import {
   embedTexts,
   type EmbeddingVector,
@@ -39,7 +39,7 @@ export type QueryEmbeddingResolver = (
 
 /**
  * Optional hook for customizing how a button match becomes a rendered action.
- * By default, the flow calls createButton on the matched button definition.
+ * By default, the recommender calls createButton on the matched button definition.
  */
 export type VectorSearchButtonActionResolver<
   TButtonDefinition extends VectorSearchButtonDefinition =
@@ -87,10 +87,13 @@ export type VectorSearchButtonSearchAdapter<
   | readonly VectorSearchButtonMatch<TButtonDefinition>[]
   | Promise<readonly VectorSearchButtonMatch<TButtonDefinition>[]>;
 
-interface VectorSearchQueryRecommendedActionsFlowConfigBase<
+interface VectorSearchQueryRecommendedActionsRecommenderConfigBase<
   TButtonDefinition extends VectorSearchButtonDefinition =
     VectorSearchButtonDefinition,
-> extends Omit<QueryRecommendedActionsFlowConfig, 'getRecommendedActions'> {
+> extends Omit<
+  QueryRecommendedActionsRecommenderConfig,
+  'getRecommendedActions'
+> {
   /**
    * Optional hook to override how matched buttons are rendered into actions.
    * When omitted, matched buttons are rendered with createButton.
@@ -131,10 +134,10 @@ interface VectorSearchQueryRecommendedActionsFlowConfigBase<
 /**
  * In-memory vector search setup with precomputed button embeddings.
  */
-export interface EmbeddedButtonsVectorSearchQueryRecommendedActionsFlowConfig<
+export interface EmbeddedButtonsVectorSearchQueryRecommendedActionsRecommenderConfig<
   TButtonDefinition extends VectorSearchButtonDefinition =
     VectorSearchButtonDefinition,
-> extends VectorSearchQueryRecommendedActionsFlowConfigBase<TButtonDefinition> {
+> extends VectorSearchQueryRecommendedActionsRecommenderConfigBase<TButtonDefinition> {
   readonly buttons: readonly TButtonDefinition[];
   readonly getButtonEmbedding: (button: TButtonDefinition) => EmbeddingVector;
   readonly getButtonText?: undefined;
@@ -144,10 +147,10 @@ export interface EmbeddedButtonsVectorSearchQueryRecommendedActionsFlowConfig<
 /**
  * In-memory vector search setup that embeds button text for you.
  */
-export interface TextButtonsVectorSearchQueryRecommendedActionsFlowConfig<
+export interface TextButtonsVectorSearchQueryRecommendedActionsRecommenderConfig<
   TButtonDefinition extends VectorSearchButtonDefinition =
     VectorSearchButtonDefinition,
-> extends VectorSearchQueryRecommendedActionsFlowConfigBase<TButtonDefinition> {
+> extends VectorSearchQueryRecommendedActionsRecommenderConfigBase<TButtonDefinition> {
   readonly buttons: readonly TButtonDefinition[];
   readonly embedder: TextEmbedder;
   readonly getButtonText?: ((button: TButtonDefinition) => string) | undefined;
@@ -158,10 +161,10 @@ export interface TextButtonsVectorSearchQueryRecommendedActionsFlowConfig<
 /**
  * Hosted vector search setup for external vector databases.
  */
-export interface SearchButtonsVectorSearchQueryRecommendedActionsFlowConfig<
+export interface SearchButtonsVectorSearchQueryRecommendedActionsRecommenderConfig<
   TButtonDefinition extends VectorSearchButtonDefinition =
     VectorSearchButtonDefinition,
-> extends VectorSearchQueryRecommendedActionsFlowConfigBase<TButtonDefinition> {
+> extends VectorSearchQueryRecommendedActionsRecommenderConfigBase<TButtonDefinition> {
   readonly search: VectorSearchButtonSearchAdapter<TButtonDefinition>;
   readonly buttons?: undefined;
   readonly getButtonEmbedding?: undefined;
@@ -171,13 +174,13 @@ export interface SearchButtonsVectorSearchQueryRecommendedActionsFlowConfig<
 /**
  * Configuration for vector-search-backed button recommendations.
  */
-export type VectorSearchQueryRecommendedActionsFlowConfig<
+export type VectorSearchQueryRecommendedActionsRecommenderConfig<
   TButtonDefinition extends VectorSearchButtonDefinition =
     VectorSearchButtonDefinition,
 > =
-  | EmbeddedButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
-  | TextButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
-  | SearchButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
+  | EmbeddedButtonsVectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>
+  | TextButtonsVectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>
+  | SearchButtonsVectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>;
 
 interface LegacyVectorSearchButtonMatch<
   TButtonDefinition extends VectorSearchButtonDefinition =
@@ -187,7 +190,7 @@ interface LegacyVectorSearchButtonMatch<
   readonly score: number;
 }
 
-interface LegacyVectorSearchQueryRecommendedActionsFlowConfig<
+interface LegacyVectorSearchQueryRecommendedActionsRecommenderConfig<
   TButtonDefinition extends VectorSearchButtonDefinition =
     VectorSearchButtonDefinition,
 > {
@@ -234,18 +237,18 @@ function cosineSimilarity(
 function usesSearchAdapter<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
-): config is SearchButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition> {
+  config: VectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>
+): config is SearchButtonsVectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition> {
   return 'search' in config && typeof config.search === 'function';
 }
 
 function usesEmbeddedButtons<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
-): config is EmbeddedButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition> {
+  config: VectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>
+): config is EmbeddedButtonsVectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition> {
   const legacyConfig =
-    config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
+    config as LegacyVectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>;
 
   return (
     ('getButtonEmbedding' in config &&
@@ -257,10 +260,10 @@ function usesEmbeddedButtons<
 function getConfiguredButtons<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
+  config: VectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>
 ): readonly TButtonDefinition[] {
   const legacyConfig =
-    config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
+    config as LegacyVectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>;
 
   return config.buttons ?? legacyConfig.documents ?? [];
 }
@@ -268,10 +271,10 @@ function getConfiguredButtons<
 function getButtonTextResolver<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
+  config: VectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>
 ): ((button: TButtonDefinition) => string) | undefined {
   const legacyConfig =
-    config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
+    config as LegacyVectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>;
 
   return config.getButtonText ?? legacyConfig.getDocumentText;
 }
@@ -279,10 +282,10 @@ function getButtonTextResolver<
 function getButtonEmbeddingResolver<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
+  config: VectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>
 ): ((button: TButtonDefinition) => EmbeddingVector) | undefined {
   const legacyConfig =
-    config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
+    config as LegacyVectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>;
 
   return config.getButtonEmbedding ?? legacyConfig.getDocumentEmbedding;
 }
@@ -323,7 +326,7 @@ function runInMemoryVectorSearch<
 function createQueryEmbeddingResolver<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
+  config: VectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>
 ): QueryEmbeddingResolver {
   if (config.embedQuery) {
     return config.embedQuery;
@@ -338,7 +341,7 @@ function createQueryEmbeddingResolver<
   }
 
   throw new Error(
-    'Vector search flow requires either embedQuery or embedder for query embeddings.'
+    'Vector search recommendations require either embedQuery or embedder for query embeddings.'
   );
 }
 
@@ -359,10 +362,10 @@ function createDefaultAction<
 function createVectorSearchResolver<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
+  config: VectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>
 ): QueryRecommendedActionsResolver {
   const legacyConfig =
-    config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
+    config as LegacyVectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>;
   const {
     buildResult,
     createAction = legacyConfig.toAction ?? createDefaultAction,
@@ -472,15 +475,15 @@ function createVectorSearchResolver<
 }
 
 /**
- * Creates a query flow with built-in embedding and vector search wiring for
- * button definitions.
+ * Creates a query recommender with built-in embedding and vector search
+ * wiring for button definitions.
  */
-export function createVectorSearchQueryRecommendedActionsFlow<
+export function createVectorSearchQueryRecommendedActionsRecommender<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
-  config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
-): QueryRecommendedActionsFlow {
-  return createQueryRecommendedActionsFlow({
+  config: VectorSearchQueryRecommendedActionsRecommenderConfig<TButtonDefinition>
+): QueryRecommendedActionsRecommender {
+  return createQueryRecommendedActionsRecommender({
     ...config,
     getRecommendedActions: createVectorSearchResolver(config),
   });

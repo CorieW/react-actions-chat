@@ -37,7 +37,7 @@ const emailButton = createButton(emailButtonDef, {
 
 ## What Happens When Clicked
 
-The button flow:
+The button behavior:
 
 - adds a prompt message to the transcript
 - reconfigures the shared input field
@@ -71,8 +71,8 @@ Important runtime fields:
 - `true` when the value is valid
 - an error string when the value is invalid
 
-By default, invalid input adds a retry message and keeps the flow active.
+By default, invalid input adds a retry message and keeps the request active.
 
-## Password Flows
+## Password Inputs
 
 If `inputType` is `password`, the visible transcript message is masked. Use `rawContent` from the stored message when you need the real submitted value.

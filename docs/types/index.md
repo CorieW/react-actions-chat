@@ -21,5 +21,5 @@ If you want higher-level behavior first, start with:
 - [Components overview](../components/index.md)
 - [Chat](../components/chat.md)
 - [Stores overview](../stores/index.md)
-- [Build a chat flow](../guides/building-a-chat-flow.md)
+- [Build a chat conversation](../guides/building-a-chat-conversation.md)
 - [Core API reference](../reference/core-api.md)

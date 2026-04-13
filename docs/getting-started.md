@@ -48,8 +48,8 @@ export function App() {
 - [Chat](components/chat.md) for the main component
 - [Plain message buttons](components/plain-message-buttons.md) for the simplest action type
 - [Using different input types](guides/using-different-input-types.md) for passwords, emails, phone numbers, search, and validation
-- [Build a chat flow](guides/building-a-chat-flow.md) for the core message model and button patterns
-- [Collect input and confirmations](guides/collecting-input-and-confirming-actions.md) for email, password, and confirm/decline flows
+- [Build a chat conversation](guides/building-a-chat-conversation.md) for the core message model and button patterns
+- [Collect input and confirmations](guides/collecting-input-and-confirming-actions.md) for email, password, and confirm/decline prompts
 - [Theming and styling](guides/theming-and-styling.md) for presets, custom themes, and Vite setup notes
 - [Examples guide](examples.md) for runnable demos in this repo
 
