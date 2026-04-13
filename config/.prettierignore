@@ -4,6 +4,8 @@
 # Build outputs
 ../dist/
 ../build/
+../coverage/
+../docs/.vitepress/
 
 # Package files
 ../package-lock.json

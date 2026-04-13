@@ -7,14 +7,16 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
   globalIgnores([
+    '**/*.min.js',
     '.temp-styles-build',
     'coverage',
     'dist',
-    'docs/.vitepress/.temp',
-    'docs/.vitepress/cache',
-    'docs/.vitepress/dist',
+    'docs/.vitepress',
     'examples/**',
     'node_modules',
+    'package-lock.json',
+    'pnpm-lock.yaml',
+    'yarn.lock',
   ]),
   {
     files: ['**/*.{js,mjs,cjs,jsx,ts,tsx}'],
