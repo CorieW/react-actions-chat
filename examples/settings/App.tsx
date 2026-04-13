@@ -82,6 +82,76 @@ export function App(): React.JSX.Element {
     },
   });
 
+  const CHANGE_DISPLAY_NAME_BUTTON_DEF = createRequestInputButtonDef({
+    id: 'display-name',
+    initialLabel: 'Update Display Name',
+    inputPromptMessage: 'What display name would you like to use?',
+    inputType: 'text',
+    placeholder: 'Enter display name',
+    inputDescription:
+      'Your display name appears on your profile and in account notifications.',
+    validator: (value: string) => {
+      const trimmedValue = value.trim();
+
+      if (trimmedValue.length < 2) {
+        return 'Display name must be at least 2 characters long';
+      }
+
+      if (trimmedValue.length > 40) {
+        return 'Display name must be 40 characters or less';
+      }
+
+      return true;
+    },
+    onSuccess: (displayName: string): void => {
+      addMessage({
+        type: 'other',
+        content: `Display name updated to "${displayName.trim()}".`,
+      });
+    },
+  });
+
+  const CHANGE_PHONE_NUMBER_BUTTON_DEF = createRequestInputButtonDef({
+    id: 'phone-number',
+    initialLabel: 'Update Phone Number',
+    inputPromptMessage: 'Please enter your new phone number:',
+    inputType: 'tel',
+    placeholder: '+44 7700 900123',
+    inputDescription:
+      'We use your phone number for account recovery and login verification.',
+    validator: (value: string) => {
+      const digitsOnly = value.replace(/\D/g, '');
+
+      if (digitsOnly.length < 7 || digitsOnly.length > 15) {
+        return 'Please enter a valid phone number';
+      }
+
+      return true;
+    },
+    onSuccess: (phoneNumber: string): void => {
+      addMessage({
+        type: 'other',
+        content: `Phone number updated to ${phoneNumber}.`,
+      });
+    },
+  });
+
+  const ENABLE_TWO_FACTOR_BUTTON_DEF = createRequestConfirmationButtonDef({
+    id: 'two-factor-auth',
+    initialLabel: 'Enable Two-Factor Authentication',
+    confirmationMessage:
+      'Turn on two-factor authentication for this account? You will be asked for a verification code when signing in on a new device.',
+    variant: 'info',
+    confirmLabel: 'Enable 2FA',
+    rejectLabel: 'Not Now',
+    onSuccess: (): void => {
+      addMessage({
+        type: 'other',
+        content: 'Two-factor authentication is now enabled for your account.',
+      });
+    },
+  });
+
   const LOGOUT_BUTTON_DEF = createRequestConfirmationButtonDef({
     id: 'logout',
     initialLabel: 'Logout',
@@ -98,6 +168,35 @@ export function App(): React.JSX.Element {
       });
     },
   });
+
+  const DELETE_ACCOUNT_BUTTON_DEF = createRequestConfirmationButtonDef({
+    id: 'delete-account',
+    initialLabel: 'Delete Account',
+    confirmationMessage:
+      'Are you sure you want to delete your account? This demo treats the action as permanent.',
+    variant: 'error',
+    confirmLabel: 'Delete Account',
+    rejectLabel: 'Keep Account',
+    onSuccess: (): void => {
+      addMessage({
+        type: 'other',
+        content:
+          'Your account deletion request has been submitted. You will receive a confirmation email shortly.',
+      });
+    },
+  });
+
+  const HELP_BUTTON = {
+    label: 'Help',
+    variant: 'info' as const,
+    onClick: (): void => {
+      addMessage({
+        type: 'other',
+        content:
+          'Try asking about changing your email or password, updating your display name or phone number, enabling two-factor authentication, deleting your account, or logging out.',
+      });
+    },
+  };
 
   const SETTING_BUTTON_DEFINITIONS: readonly VectorSearchButtonDefinition[] = [
     {
@@ -125,6 +224,42 @@ export function App(): React.JSX.Element {
       ],
     },
     {
+      ...CHANGE_DISPLAY_NAME_BUTTON_DEF,
+      description:
+        'Update the profile display name shown in the account and support notifications.',
+      exampleQueries: [
+        'change my display name',
+        'update my profile name',
+        'rename my account',
+        'use a different name',
+        'edit the name on my profile',
+      ],
+    },
+    {
+      ...CHANGE_PHONE_NUMBER_BUTTON_DEF,
+      description:
+        'Update the phone number used for account recovery and verification codes.',
+      exampleQueries: [
+        'change my phone number',
+        'update my mobile number',
+        'use a different phone for verification',
+        'fix my recovery number',
+        'replace the phone on my account',
+      ],
+    },
+    {
+      ...ENABLE_TWO_FACTOR_BUTTON_DEF,
+      description:
+        'Enable two-factor authentication to make account sign-in more secure.',
+      exampleQueries: [
+        'turn on two-factor authentication',
+        'enable 2fa',
+        'make my login more secure',
+        'add verification codes to sign in',
+        'set up extra login security',
+      ],
+    },
+    {
       ...LOGOUT_BUTTON_DEF,
       description:
         'Sign out of the current account and end the active session on this device.',
@@ -136,17 +271,38 @@ export function App(): React.JSX.Element {
         'leave this account',
       ],
     },
+    {
+      ...DELETE_ACCOUNT_BUTTON_DEF,
+      description:
+        'Delete the current account and start the account removal flow.',
+      exampleQueries: [
+        'delete my account',
+        'close my account',
+        'remove my profile',
+        'erase this account',
+        'permanently delete everything',
+      ],
+    },
   ];
 
   const settingsRecommendationFlow = useMemo(() => {
     const recommendationFlow = createVectorSearchQueryRecommendedActionsFlow({
-      placeholder: 'Try "update my email" or "sign me out"',
+      placeholder:
+        'Try "update my phone number", "enable 2fa", or "delete my account"',
       inputDescription:
         'Describe what you want to change and I will recommend the best settings action.',
+      buildResult: ({ query, matches }) => {
+        if (matches.length === 0) {
+          return {
+            responseMessage: `I couldn't find any recommended actions for "${query}".`,
+            recommendedActions: [HELP_BUTTON],
+          };
+        }
+
+        return undefined;
+      },
       buildRecommendationsMessage: query =>
         `Here are the best settings actions I found for "${query}".`,
-      emptyStateMessage:
-        'I could not match that to a settings action yet. Try asking about email, password, or logging out.',
       loadingMessage: '',
       minimumLoadingDurationMs: 2000,
       embedder: createOpenAITextEmbedder({
@@ -220,8 +376,8 @@ export function App(): React.JSX.Element {
         id: 1,
         type: 'other',
         content: isOpenAIConfigured
-          ? 'Welcome to Settings. Tell me what you want to change, and I will use real OpenAI embeddings to recommend the right settings action.'
-          : 'Welcome to Settings. Add VITE_OPENAI_API_KEY to examples/settings/.env.local before sending a request. This example uses real OpenAI embeddings to recommend the right settings action.',
+          ? 'Welcome to Settings. Tell me what you want to change, and I will use real OpenAI embeddings to recommend actions like changing your email, updating your phone number, enabling 2FA, deleting your account, or logging out.'
+          : 'Welcome to Settings. Add VITE_OPENAI_API_KEY to examples/settings/.env.local before sending a request. This example uses real OpenAI embeddings to recommend actions like changing your email, updating your phone number, enabling 2FA, deleting your account, or logging out.',
         timestamp: new Date(),
         userResponseCallback: () => {
           const lastSelfMessage = [...getMessages()]
