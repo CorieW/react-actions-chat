@@ -11,7 +11,10 @@
     "./components": "./src/components/index.ts",
     "./lib": "./src/lib/index.ts",
     "./types": "./src/js/types.ts",
-    "./vite-plugin": "./src/vite-plugin.js",
+    "./vite-plugin": {
+      "types": "./src/vite-plugin.d.ts",
+      "default": "./src/vite-plugin.js"
+    },
     "./styles": "./src/styles.css"
   },
   "peerDependencies": {
