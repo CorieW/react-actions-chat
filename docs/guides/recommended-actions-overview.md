@@ -78,9 +78,3 @@ The returned object exposes:
 ## Production Guidance
 
 The `examples/settings` app uses a real OpenAI embedder and reads `VITE_OPENAI_API_KEY` in the browser to keep the demo self-contained. That is fine for a local example, but production apps should route embedder calls through a trusted backend.
-
-## Related Docs
-
-- [Vector search recommended actions](recommended-actions-vector-search.md)
-- [Recommended actions API reference](../reference/recommended-actions-api.md)
-- [Examples guide](../examples.md)

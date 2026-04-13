@@ -108,9 +108,3 @@ Builds the search text used to represent a button definition.
 ### `embedTexts(...)`
 
 Shared utility used by the vector-search flow and the exported embedder layer.
-
-## Related Docs
-
-- [Recommended actions overview](../guides/recommended-actions-overview.md)
-- [Recommended actions with vector search](../guides/recommended-actions-vector-search.md)
-- [Examples guide](../examples.md)

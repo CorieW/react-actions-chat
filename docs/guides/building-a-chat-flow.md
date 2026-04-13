@@ -6,9 +6,9 @@ The best runnable reference in this repo is [examples/qa-bot/App.tsx](https://gi
 
 ## Core Pieces
 
-- `Chat` renders the transcript, persistent buttons, and shared input field.
-- `InputMessage` is the shape you pass into `initialMessages` or `useChatStore().addMessage(...)`.
-- `MessageButton` describes an action shown under an assistant message.
+- [`Chat`](../components/chat.md) renders the transcript, persistent buttons, and shared input field.
+- [`InputMessage`](../types/input-message.md) is the shape you pass into `initialMessages` or `useChatStore().addMessage(...)`.
+- [`MessageButton`](../types/message-button.md) describes an action shown under an assistant message.
 - `userResponseCallback` lets an assistant message react to the next user submission.
 
 ## Start With Seed Messages
@@ -29,7 +29,7 @@ export function App() {
 }
 ```
 
-Use `type: 'other'` for assistant-side messages and `type: 'self'` for user-side messages. In most apps you add assistant messages yourself and let the component add user messages when the shared input is submitted.
+Use `type: 'other'` for assistant-side messages and `type: 'self'` for user-side messages. For the full message shape, see [`InputMessage`](../types/input-message.md). In most apps you add assistant messages yourself and let the component add user messages when the shared input is submitted.
 
 ## Add Action Buttons
 
@@ -83,7 +83,7 @@ useChatStore.getState().addMessage({
 });
 ```
 
-Use `rawContent` when you need the real submitted value. That matters for flows such as password inputs, where the visible transcript may be masked.
+Use `rawContent` when you need the real submitted value. That matters for flows such as password inputs, where the visible transcript may be masked. See [Message](../types/message.md) and [`useChatStore`](../stores/use-chat-store.md) for the stored message shape and common retrieval patterns.
 
 ## Advanced State Access
 
@@ -95,10 +95,3 @@ Use `rawContent` when you need the real submitted value. That matters for flows 
 - `clearMessages`, `clearButtons`, and related helpers reset or trim the conversation
 
 Reach for the store when you need app-driven branching or async coordination. For straightforward static UIs, `initialMessages` plus `createButton` is often enough.
-
-## Related Docs
-
-- [Getting started](../getting-started.md)
-- [Collect input and confirmations](collecting-input-and-confirming-actions.md)
-- [Core API reference](../reference/core-api.md)
-- [Examples guide](../examples.md)

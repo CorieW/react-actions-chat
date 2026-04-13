@@ -41,6 +41,13 @@ export function App() {
 
 ## What To Read Next
 
+- [Components overview](components/index.md) for the main public building blocks
+- [Types overview](types/index.md) for the main data shapes and store-backed state
+- [Stores overview](stores/index.md) for transcript, input, and persistent button state
+- [Sub-packages](sub-packages/index.md) for optional companion functionality
+- [Chat](components/chat.md) for the main component
+- [Plain message buttons](components/plain-message-buttons.md) for the simplest action type
+- [Using different input types](guides/using-different-input-types.md) for passwords, emails, phone numbers, search, and validation
 - [Build a chat flow](guides/building-a-chat-flow.md) for the core message model and button patterns
 - [Collect input and confirmations](guides/collecting-input-and-confirming-actions.md) for email, password, and confirm/decline flows
 - [Theming and styling](guides/theming-and-styling.md) for presets, custom themes, and Vite setup notes

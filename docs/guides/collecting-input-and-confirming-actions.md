@@ -49,7 +49,7 @@ When the button is clicked, the library:
 
 ## Validation and Retry Behavior
 
-`validator` returns either `true` or an error message string.
+`validator` returns an [`InputValidationResult`](../types/input-validation-result.md), and follows the [`InputValidator`](../types/input-validator.md) shape.
 
 By default, invalid input adds a new assistant message with the validation error and keeps the flow active for another try. Use these options when you need more control:
 
@@ -61,7 +61,7 @@ By default, invalid input adds a new assistant message with the validation error
 
 If the shared input field is configured as `password`, the visible user message is masked in the transcript. The original value is still preserved in `rawContent`.
 
-That is why the login demo reads the latest user message from `rawContent` instead of `content`.
+That is why the login demo reads the latest user message from `rawContent` instead of `content`. See [Message](../types/message.md) and [`useChatStore`](../stores/use-chat-store.md) for the stored message shape and retrieval patterns.
 
 ## Confirm and Decline Actions
 
@@ -94,10 +94,3 @@ These flows are powered by exported stores:
 - `usePersistentButtonStore` for buttons that stay visible above the input field
 
 Most apps can stay at the helper level, but the stores are available when you need to coordinate multi-step flows with external state.
-
-## Related Docs
-
-- [Build a chat flow](building-a-chat-flow.md)
-- [Theming and styling](theming-and-styling.md)
-- [Core API reference](../reference/core-api.md)
-- [Examples guide](../examples.md)

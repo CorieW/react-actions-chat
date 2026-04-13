@@ -91,9 +91,3 @@ The package exports ready-made embedders for:
 - Voyage via `createVoyageTextEmbedder`
 
 All three are convenient for demos and app integrations, but production apps should usually call them from backend code rather than the browser.
-
-## Related Docs
-
-- [Recommended actions overview](recommended-actions-overview.md)
-- [Recommended actions API reference](../reference/recommended-actions-api.md)
-- [Examples guide](../examples.md)

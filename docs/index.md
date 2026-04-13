@@ -9,16 +9,28 @@ hero:
   tagline: Build support chats with buttons, confirmations, shared input flows, and recommended actions.
   actions:
     - theme: brand
-      text: Get Started
+      text: Getting Started
       link: /getting-started
     - theme: alt
-      text: Build a Chat Flow
-      link: /guides/building-a-chat-flow
+      text: Components
+      link: /components/index
     - theme: alt
-      text: Recommended Actions
-      link: /guides/recommended-actions-overview
+      text: Types
+      link: /types/index
 
 features:
+  - title: Key Components
+    details: Learn how Chat and the button helpers fit together.
+    link: /components/index
+  - title: Core Types and State
+    details: Understand ChatTheme, messages, buttons, and the core data shapes used across the package.
+    link: /types/index
+  - title: Stores
+    details: Work directly with transcript history, shared input state, and persistent buttons through the exported stores.
+    link: /stores/index
+  - title: Sub-packages
+    details: Add optional companion functionality such as recommended-action flows without bloating the core package.
+    link: /sub-packages/index
   - title: Core Chat Flows
     details: Seed conversations, add message buttons, and handle free-form follow-ups through a shared chat input.
     link: /guides/building-a-chat-flow
@@ -28,15 +40,17 @@ features:
   - title: Recommended Actions
     details: Turn user queries into next-step buttons with a custom resolver, embeddings, or vector search.
     link: /guides/recommended-actions-overview
-  - title: API Reference
-    details: Look up the exported components, types, stores, and companion package helpers in one place.
-    link: /reference/core-api
 ---
 
 ## Start Here
 
 - New to the package: [Getting started](./getting-started.md)
+- Exploring the main building blocks: [Components overview](./components/index.md)
+- Reviewing the main data shapes: [Types overview](./types/index.md)
+- Working directly with state: [Stores overview](./stores/index.md)
+- Exploring companion packages: [Sub-packages](./sub-packages/index.md)
 - Building a conversation flow: [Build a chat flow](./guides/building-a-chat-flow.md)
+- Working with passwords, emails, and validated fields: [Using different input types](./guides/using-different-input-types.md)
 - Collecting structured user input: [Collect input and confirmations](./guides/collecting-input-and-confirming-actions.md)
 - Changing the visual style: [Theming and styling](./guides/theming-and-styling.md)
 - Adding recommended action flows: [Recommended actions overview](./guides/recommended-actions-overview.md)

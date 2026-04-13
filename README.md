@@ -38,18 +38,7 @@ export function App() {
 }
 ```
 
-## Docs
-
-- [Docs home](docs/index.md)
-- [Getting started](docs/getting-started.md)
-- [Build a chat flow](docs/guides/building-a-chat-flow.md)
-- [Collect input and confirmations](docs/guides/collecting-input-and-confirming-actions.md)
-- [Theme and style the chat](docs/guides/theming-and-styling.md)
-- [Recommended actions overview](docs/guides/recommended-actions-overview.md)
-- [Vector search recommended actions](docs/guides/recommended-actions-vector-search.md)
-- [Core API reference](docs/reference/core-api.md)
-- [Recommended actions API reference](docs/reference/recommended-actions-api.md)
-- [Examples guide](docs/examples.md)
+Check out the [documentation](docs/index.md) for more information.
 
 ## Examples
 

@@ -18,7 +18,7 @@ Without that import, the component will render without its packaged styling.
 
 - `'dark'`
 - `'light'`
-- a partial or complete `ChatTheme` object
+- a partial or complete [`ChatTheme`](../types/chat-theme.md) object
 
 ```tsx
 <Chat theme='light' />
@@ -49,17 +49,7 @@ export function App() {
 }
 ```
 
-`ChatTheme` includes these tokens:
-
-- `primaryColor`
-- `secondaryColor`
-- `backgroundColor`
-- `textColor`
-- `borderColor`
-- `inputBackgroundColor`
-- `inputTextColor`
-- `buttonColor`
-- `buttonTextColor`
+For the full `ChatTheme` shape and token list, see [`ChatTheme`](../types/chat-theme.md).
 
 ## Theme Helpers
 
@@ -87,10 +77,3 @@ export default defineConfig({
 ```
 
 This deduplicates `react` and `react-dom`. The runnable `login` and `qa-bot` examples in this repo both use it.
-
-## Related Docs
-
-- [Getting started](../getting-started.md)
-- [Collect input and confirmations](collecting-input-and-confirming-actions.md)
-- [Core API reference](../reference/core-api.md)
-- [Examples guide](../examples.md)

@@ -18,6 +18,8 @@ npm install actionable-support-chat actionable-support-chat-recommended-actions
 
 ## Shared Docs
 
+- [Sub-packages](../../docs/sub-packages/index.md)
+- [actionable-support-chat-recommended-actions](../../docs/sub-packages/actionable-support-chat-recommended-actions.md)
 - [Recommended actions overview](../../docs/guides/recommended-actions-overview.md)
 - [Recommended actions with vector search](../../docs/guides/recommended-actions-vector-search.md)
 - [Recommended actions API reference](../../docs/reference/recommended-actions-api.md)
