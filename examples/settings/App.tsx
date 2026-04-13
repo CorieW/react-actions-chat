@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import {
   Chat,
+  createButton,
   createRequestInputButtonDef,
   createRequestConfirmationButtonDef,
   useChatStore,
@@ -194,6 +195,17 @@ export function App(): React.JSX.Element {
         type: 'other',
         content:
           'Try asking about changing your email or password, updating your display name or phone number, enabling two-factor authentication, deleting your account, or logging out.',
+        userResponseCallback: () => {
+          const lastSelfMessage = [...useChatStore.getState().getMessages()]
+            .reverse()
+            .find(message => message.type === 'self');
+
+          if (lastSelfMessage) {
+            void settingsRecommendationFlow.recommend(
+              lastSelfMessage.rawContent
+            );
+          }
+        },
       });
     },
   };
@@ -299,7 +311,9 @@ export function App(): React.JSX.Element {
           };
         }
 
-        return undefined;
+        return {
+          recommendedActions: matches.map(match => createButton(match.button)),
+        };
       },
       buildRecommendationsMessage: query =>
         `Here are the best settings actions I found for "${query}".`,
