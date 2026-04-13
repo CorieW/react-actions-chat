@@ -5,22 +5,22 @@ coverage:
         target: auto
         threshold: 0%
         paths:
-          - "src"
-          - "packages"
+          - 'src'
+          - 'packages'
     patch:
       default:
         target: auto
         threshold: 0%
         paths:
-          - "src"
-          - "packages"
+          - 'src'
+          - 'packages'
 
 ignore:
-  - "src/**/*.test.ts"
-  - "src/**/*.test.tsx"
-  - "src/**/__tests__/**"
-  - "packages/**/*.test.ts"
-  - "packages/**/*.test.tsx"
-  - "packages/**/__tests__/**"
-  - "examples/**"
-  - "config/**"
+  - 'src/**/*.test.ts'
+  - 'src/**/*.test.tsx'
+  - 'src/**/__tests__/**'
+  - 'packages/**/*.test.ts'
+  - 'packages/**/*.test.tsx'
+  - 'packages/**/__tests__/**'
+  - 'examples/**'
+  - 'config/**'
