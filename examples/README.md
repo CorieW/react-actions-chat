@@ -4,7 +4,7 @@ This folder contains runnable workspace examples demonstrating different use cas
 
 ## Examples
 
-- **basic-qa-bot** - A simple question and answer bot that responds to user queries
+- **qa-bot** - A simple question and answer bot that responds to user queries
 - **login** - A login flow using email and password inputs
 - **settings** - A settings page that uses the companion recommended-actions package and a real OpenAI embedder to recommend settings actions from a user query
 
@@ -29,7 +29,7 @@ Make sure you have Node.js and `pnpm` available. If needed, run `corepack enable
 2. Start an example from the repo root:
 
    ```bash
-   pnpm --filter basic-qa-bot-example dev
+   pnpm --filter qa-bot-example dev
    # or
    pnpm --filter login-example dev
    # or
@@ -39,7 +39,7 @@ Make sure you have Node.js and `pnpm` available. If needed, run `corepack enable
 3. If you prefer, you can still work inside the example directory after the root install:
 
    ```bash
-   cd examples/basic-qa-bot
+   cd examples/qa-bot
    # or
    cd examples/login
    # or
@@ -73,11 +73,11 @@ Make sure you have Node.js and `pnpm` available. If needed, run `corepack enable
 To build an example for production:
 
 ```bash
-pnpm --filter basic-qa-bot-example build
+pnpm --filter qa-bot-example build
 ```
 
 The built files will be in the `dist` directory. You can preview the production build with:
 
 ```bash
-pnpm --filter basic-qa-bot-example preview
+pnpm --filter qa-bot-example preview
 ```

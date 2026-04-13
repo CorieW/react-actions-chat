@@ -17,7 +17,7 @@
     "packages/actionable-support-chat-recommended-actions": {
       "project": ["src/**/*.{ts,tsx}"]
     },
-    "examples/basic-qa-bot": {
+    "examples/qa-bot": {
       "entry": ["main.tsx", "vite.config.ts"],
       "project": ["**/*.{ts,tsx}"]
     },

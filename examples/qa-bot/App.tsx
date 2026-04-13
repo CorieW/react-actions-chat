@@ -380,7 +380,7 @@ function createInitialMessages(): readonly InputMessage[] {
 }
 
 /**
- * Basic Question and Answer Bot Example
+ * Q&A Bot Example
  *
  * This example demonstrates a richer support-style Q&A bot with:
  * - guided quick actions
@@ -393,72 +393,22 @@ export function App(): React.JSX.Element {
 
   return (
     <div className='qa-demo'>
-      <div
-        className='qa-demo__backdrop'
-        aria-hidden='true'
-      >
-        <div className='qa-demo__glow qa-demo__glow--top' />
-        <div className='qa-demo__glow qa-demo__glow--bottom' />
-      </div>
-
-      <main className='qa-demo__layout'>
-        <section className='qa-demo__intro'>
-          <p className='qa-demo__eyebrow'>Basic Q&amp;A Bot Example</p>
-          <h1 className='qa-demo__title'>
-            A small support bot that feels alive.
-          </h1>
+      <main className='qa-demo__shell'>
+        <header className='qa-demo__header'>
+          <p className='qa-demo__eyebrow'>Q&amp;A Bot Example</p>
+          <h1 className='qa-demo__title'>Simple local support demo.</h1>
           <p className='qa-demo__description'>
-            This version keeps the example simple and local, but shows off more
-            of what the chat component can do: guided next steps, richer canned
-            answers, and realistic support flows without a backend.
+            Ask naturally or try a prompt like “Where is order AS-2048?”, “What
+            is your refund policy?”, or “I need billing help”.
           </p>
+        </header>
 
-          <div className='qa-demo__chips'>
-            <span>Quick actions</span>
-            <span>Order lookup</span>
-            <span>Follow-up prompts</span>
-            <span>No API required</span>
-          </div>
-
-          <div className='qa-demo__highlights'>
-            <article>
-              <strong>Guided entry point</strong>
-              <p>
-                Users can start with buttons instead of guessing what to ask.
-              </p>
-            </article>
-            <article>
-              <strong>Local support logic</strong>
-              <p>
-                Keyword routing keeps the demo understandable from the source.
-              </p>
-            </article>
-            <article>
-              <strong>More realistic journeys</strong>
-              <p>
-                Track an order, ask about refunds, or simulate a human handoff.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section className='qa-demo__chat-panel'>
-          <div className='qa-demo__panel-copy'>
-            <p className='qa-demo__panel-label'>Live demo</p>
-            <h2>Try “Where is order AS-2048?”</h2>
-            <p>
-              The assistant keeps listening after every reply, so the
-              conversation can continue naturally.
-            </p>
-          </div>
-
-          <div className='qa-demo__chat-frame'>
-            <Chat
-              initialMessages={initialMessages}
-              theme={SUPPORT_THEME}
-            />
-          </div>
-        </section>
+        <div className='qa-demo__chat-frame'>
+          <Chat
+            initialMessages={initialMessages}
+            theme={SUPPORT_THEME}
+          />
+        </div>
       </main>
     </div>
   );

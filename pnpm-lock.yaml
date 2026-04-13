@@ -100,7 +100,7 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@22.19.17)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.32.0)(yaml@2.8.3)
 
-  examples/basic-qa-bot:
+  examples/qa-bot:
     dependencies:
       '@tanstack/react-query':
         specifier: ^5.90.5
