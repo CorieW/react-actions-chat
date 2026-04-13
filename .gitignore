@@ -17,6 +17,8 @@ dist-ssr
 *.local
 coverage
 .temp-styles-build
+docs/.vitepress/cache
+docs/.vitepress/dist
 
 # Editor directories and files
 .vscode/*
