@@ -25,7 +25,8 @@ export function MessagesList({
   isLoading = false,
   theme,
 }: MessagesListProps): React.JSX.Element {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesListRef = useRef<HTMLDivElement>(null);
+  const hasAutoScrolledRef = useRef(false);
   const loadingIndicatorBubble: Message = {
     id: -1,
     type: 'other',
@@ -36,7 +37,20 @@ export function MessagesList({
   };
 
   const scrollToBottom = (): void => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const messagesList = messagesListRef.current;
+
+    if (!messagesList) {
+      return;
+    }
+
+    const nextScrollTop = messagesList.scrollHeight;
+    const scrollBehavior = hasAutoScrolledRef.current ? 'smooth' : 'auto';
+
+    messagesList.scrollTo({
+      top: nextScrollTop,
+      behavior: scrollBehavior,
+    });
+    hasAutoScrolledRef.current = true;
   };
 
   useEffect(() => {
@@ -44,7 +58,10 @@ export function MessagesList({
   }, [isLoading, messages]);
 
   return (
-    <div className='flex-1 space-y-5 overflow-y-auto scroll-smooth p-6'>
+    <div
+      ref={messagesListRef}
+      className='flex-1 space-y-5 overflow-y-auto scroll-smooth p-6'
+    >
       {messages.map(message => (
         <MessageBubble
           key={message.id}
@@ -58,7 +75,6 @@ export function MessagesList({
           theme={theme}
         />
       ) : null}
-      <div ref={messagesEndRef} />
     </div>
   );
 }

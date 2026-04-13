@@ -44,6 +44,33 @@ describe('Chat Component Integration Tests', () => {
     expect(screen.getByText('Hi there!')).toBeInTheDocument();
   });
 
+  it('should auto-scroll the message list without scrolling the page', () => {
+    const scrollIntoViewSpy = vi.spyOn(Element.prototype, 'scrollIntoView');
+    const scrollToSpy = vi.spyOn(HTMLElement.prototype, 'scrollTo');
+
+    render(
+      <Chat
+        initialMessages={[
+          {
+            id: 1,
+            type: 'other',
+            content: 'Welcome to the chat',
+            timestamp: new Date(),
+          },
+        ]}
+      />
+    );
+
+    expect(scrollIntoViewSpy).not.toHaveBeenCalled();
+    expect(scrollToSpy).toHaveBeenCalledWith({
+      top: expect.any(Number),
+      behavior: 'auto',
+    });
+
+    scrollIntoViewSpy.mockRestore();
+    scrollToSpy.mockRestore();
+  });
+
   it('should send message via ChatInput', async () => {
     const user = userEvent.setup();
     render(<Chat />);
