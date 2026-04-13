@@ -6,7 +6,7 @@ This repo includes three runnable example apps. Each one maps cleanly to a secti
 
 Path: [examples/qa-bot](https://github.com/CorieW/react-actions-chat/tree/main/examples/qa-bot)
 
-Live demo: [qa-bot](/examples/qa-bot/)
+Live demo: [qa-bot](https://coriew.github.io/react-actions-chat/examples/qa-bot/)
 
 Use this example for:
 
@@ -30,7 +30,7 @@ pnpm --filter qa-bot-example dev
 
 Path: [examples/login](https://github.com/CorieW/react-actions-chat/tree/main/examples/login)
 
-Live demo: [login](/examples/login/)
+Live demo: [login](https://coriew.github.io/react-actions-chat/examples/login/)
 
 Use this example for:
 
