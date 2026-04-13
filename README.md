@@ -38,7 +38,13 @@ export function App() {
 }
 ```
 
-Check out the [documentation](docs/index.md) for more information.
+## Documentation
+
+Read the published documentation site:
+
+- [Getting Started](https://coriew.github.io/react-actions-chat/getting-started.html)
+
+If you're contributing to this repo, the docs source lives in [docs](docs/index.md).
 
 ## Examples
 
