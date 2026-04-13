@@ -23,7 +23,7 @@ export interface DemoAccount {
  * Result returned after checking an email and password against the local demo
  * accounts.
  */
-export type LoginAttemptResult =
+type LoginAttemptResult =
   | {
       readonly kind: 'unknown-account';
     }

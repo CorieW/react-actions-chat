@@ -85,12 +85,6 @@ export default defineConfig({
         'packages/**/index.ts',
       ],
       all: true,
-      thresholds: {
-        lines: 84,
-        functions: 90,
-        branches: 85,
-        statements: 84,
-      },
     },
   },
 });

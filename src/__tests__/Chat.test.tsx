@@ -6,6 +6,21 @@ import { useChatStore } from '../lib/chatStore';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
 import type { InputMessage } from '../js/types';
 
+function getScrollToOptions(
+  value: unknown[] | undefined
+): Record<string, unknown> | null {
+  if (value?.length !== 1) {
+    return null;
+  }
+
+  const [firstArg] = value;
+  if (typeof firstArg !== 'object' || firstArg === null) {
+    return null;
+  }
+
+  return firstArg as Record<string, unknown>;
+}
+
 describe('Chat Component Integration Tests', () => {
   beforeEach(() => {
     // Clear stores before each test
@@ -62,10 +77,23 @@ describe('Chat Component Integration Tests', () => {
     );
 
     expect(scrollIntoViewSpy).not.toHaveBeenCalled();
-    expect(scrollToSpy).toHaveBeenCalledWith({
-      top: expect.any(Number),
-      behavior: 'auto',
-    });
+    expect(scrollToSpy).toHaveBeenCalled();
+
+    const scrollOptions =
+      scrollToSpy.mock.calls
+        .map(call => getScrollToOptions(call as unknown[]))
+        .find(options => options?.behavior === 'auto') ?? null;
+
+    expect(scrollOptions).not.toBeNull();
+
+    if (!scrollOptions) {
+      throw new Error(
+        'Expected scrollTo to be called with ScrollToOptions using auto behavior.'
+      );
+    }
+
+    expect(scrollOptions.behavior).toBe('auto');
+    expect(typeof scrollOptions.top).toBe('number');
 
     scrollIntoViewSpy.mockRestore();
     scrollToSpy.mockRestore();
