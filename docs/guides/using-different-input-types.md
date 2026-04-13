@@ -6,9 +6,9 @@ This guide focuses on choosing the right `inputType`, adding validation, and han
 
 The best runnable references in this repo are:
 
-- [examples/login/App.tsx](https://github.com/CorieW/react-actions-chat/blob/master/examples/login/App.tsx)
-- [examples/settings/App.tsx](https://github.com/CorieW/react-actions-chat/blob/master/examples/settings/App.tsx)
-- [examples/qa-bot/App.tsx](https://github.com/CorieW/react-actions-chat/blob/master/examples/qa-bot/App.tsx)
+- [examples/login/App.tsx](https://github.com/CorieW/react-actions-chat/blob/main/examples/login/App.tsx)
+- [examples/settings/App.tsx](https://github.com/CorieW/react-actions-chat/blob/main/examples/settings/App.tsx)
+- [examples/qa-bot/App.tsx](https://github.com/CorieW/react-actions-chat/blob/main/examples/qa-bot/App.tsx)
 
 ## Supported Input Types
 

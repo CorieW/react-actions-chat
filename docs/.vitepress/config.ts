@@ -24,7 +24,7 @@ export default defineConfig({
     },
     editLink: {
       pattern:
-        'https://github.com/CorieW/react-actions-chat/edit/master/docs/:path',
+        'https://github.com/CorieW/react-actions-chat/edit/main/docs/:path',
       text: 'Edit this page on GitHub',
     },
     sidebar: [

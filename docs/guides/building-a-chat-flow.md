@@ -2,7 +2,7 @@
 
 This guide covers the core conversation model behind `react-actions-chat`.
 
-The best runnable reference in this repo is [examples/qa-bot/App.tsx](https://github.com/CorieW/react-actions-chat/blob/master/examples/qa-bot/App.tsx).
+The best runnable reference in this repo is [examples/qa-bot/App.tsx](https://github.com/CorieW/react-actions-chat/blob/main/examples/qa-bot/App.tsx).
 
 ## Core Pieces
 

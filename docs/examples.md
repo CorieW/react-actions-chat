@@ -4,7 +4,7 @@ This repo includes three runnable example apps. Each one maps cleanly to a secti
 
 ## `qa-bot`
 
-Path: [examples/qa-bot](https://github.com/CorieW/react-actions-chat/tree/master/examples/qa-bot)
+Path: [examples/qa-bot](https://github.com/CorieW/react-actions-chat/tree/main/examples/qa-bot)
 
 Use this example for:
 
@@ -26,7 +26,7 @@ pnpm --filter qa-bot-example dev
 
 ## `login`
 
-Path: [examples/login](https://github.com/CorieW/react-actions-chat/tree/master/examples/login)
+Path: [examples/login](https://github.com/CorieW/react-actions-chat/tree/main/examples/login)
 
 Use this example for:
 
@@ -48,7 +48,7 @@ pnpm --filter login-example dev
 
 ## `settings`
 
-Path: [examples/settings](https://github.com/CorieW/react-actions-chat/tree/master/examples/settings)
+Path: [examples/settings](https://github.com/CorieW/react-actions-chat/tree/main/examples/settings)
 
 Use this example for:
 

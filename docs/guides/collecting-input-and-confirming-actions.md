@@ -2,7 +2,7 @@
 
 Use the shared input and confirmation helpers when a chat step needs real user data or a clear confirm/decline decision.
 
-The best runnable reference in this repo is [examples/login/App.tsx](https://github.com/CorieW/react-actions-chat/blob/master/examples/login/App.tsx).
+The best runnable reference in this repo is [examples/login/App.tsx](https://github.com/CorieW/react-actions-chat/blob/main/examples/login/App.tsx).
 
 ## Reusable Button Definitions
 

@@ -1,6 +1,6 @@
 # React Actions Chat
 
-[![codecov](https://codecov.io/gh/CorieW/react-actions-chat/graph/badge.svg?branch=master&token=pfMTdwuPfK)](https://codecov.io/gh/CorieW/react-actions-chat)
+[![codecov](https://codecov.io/gh/CorieW/react-actions-chat/graph/badge.svg?branch=main&token=pfMTdwuPfK)](https://codecov.io/gh/CorieW/react-actions-chat)
 
 Interactive React chat UI for support flows, guided actions, confirmations, and user input collection.
 

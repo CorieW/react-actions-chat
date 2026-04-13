@@ -2,7 +2,7 @@
 
 This guide covers semantic matching with `createVectorSearchQueryRecommendedActionsFlow`.
 
-The best runnable reference in this repo is [examples/settings/App.tsx](https://github.com/CorieW/react-actions-chat/blob/master/examples/settings/App.tsx).
+The best runnable reference in this repo is [examples/settings/App.tsx](https://github.com/CorieW/react-actions-chat/blob/main/examples/settings/App.tsx).
 
 ## Button Definitions
 
