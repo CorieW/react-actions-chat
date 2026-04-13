@@ -2,17 +2,7 @@
 
 [![codecov](https://codecov.io/gh/CorieW/actionable-support-chat/graph/badge.svg?branch=master&token=pfMTdwuPfK)](https://codecov.io/gh/CorieW/actionable-support-chat)
 
-An interactive React chat component with support for actionable buttons, confirmations, and user input collection. Perfect for building support chat interfaces, customer service bots, or interactive conversations that require user actions.
-
-## Features
-
-- **Interactive Messages** - Add actionable buttons to messages for quick user responses
-- **Confirmation Dialogs** - Built-in support for confirmation requests (e.g., account deletion)
-- **Persistent Buttons** - Buttons that remain accessible throughout the conversation
-- **Customizable Themes** - Built-in light/dark themes with full customization options
-- **TypeScript Support** - Fully typed for better developer experience
-- **Responsive Design** - Mobile-friendly chat interface
-- **Validation Support** - Request and validate user input directly in the chat (email, password, etc.)
+Interactive React chat UI for support flows, guided actions, confirmations, and user input collection.
 
 ## Installation
 
@@ -22,10 +12,10 @@ npm install actionable-support-chat
 
 This package targets Node.js `22.13.0+`.
 
-If you want query-driven recommendation flows or embedding helpers, install the companion package:
+If you want query-driven or vector-search-backed action recommendations, install the companion package too:
 
 ```bash
-npm install actionable-support-chat-recommended-actions
+npm install actionable-support-chat actionable-support-chat-recommended-actions
 ```
 
 ## Quick Start
@@ -34,108 +24,58 @@ npm install actionable-support-chat-recommended-actions
 import { Chat } from 'actionable-support-chat';
 import 'actionable-support-chat/styles';
 
-function App() {
-  const initialMessages = [
-    {
-      type: 'other',
-      content: 'Hello! How can I help you today?',
-      buttons: [
-        {
-          label: 'Get Support',
-          onClick: () => console.log('Support requested'),
-        },
-      ],
-    },
-  ];
-
+export function App() {
   return (
     <Chat
-      initialMessages={initialMessages}
-      theme='dark'
+      initialMessages={[
+        {
+          type: 'other',
+          content: 'Hello! How can I help you today?',
+        },
+      ]}
     />
   );
 }
 ```
 
-> **Note:** Import `actionable-support-chat/styles` to include the component styles.
+Check out the [documentation](docs/index.md) for more information.
 
-## Usage Examples
+## Examples
 
-See the [examples](examples) folder for examples of how to use the Chat component.
+Runnable workspace examples live in [examples](examples/README.md):
 
-### Recommended Actions Package
+- `qa-bot`: basic support assistant flow
+- `login`: input and confirmation flows
+- `settings`: companion recommended-actions package with a real OpenAI embedder
 
-Reusable recommended-action flows now live in the companion package `actionable-support-chat-recommended-actions`.
+Start one from the repo root after `pnpm install`:
 
-```tsx
-import {
-  createQueryRecommendedActionsFlow,
-  createVectorSearchQueryRecommendedActionsFlow,
-} from 'actionable-support-chat-recommended-actions';
-import 'actionable-support-chat/styles';
+```bash
+pnpm --filter qa-bot-example dev
+pnpm --filter login-example dev
+pnpm --filter settings-example dev
 ```
-
-It includes:
-
-- `createQueryRecommendedActionsFlow`
-- `createVectorSearchQueryRecommendedActionsFlow` for semantic retrieval over button definitions
-- built-in embedders for OpenAI, Cohere, and Voyage
-
-See [packages/actionable-support-chat-recommended-actions/README.md](packages/actionable-support-chat-recommended-actions/README.md) and the [examples/settings](examples/settings) app for a working setup.
-
-The `examples/settings` app uses a real OpenAI embedder to recommend actions from the user's prompt. For simplicity it reads `VITE_OPENAI_API_KEY` in the browser, which is appropriate for a demo but not for production. In a production app, proxy embedding requests through your own backend.
 
 ## Development
 
-Use Node.js `22.13.0` or newer.
-
-This repo uses `pnpm` workspaces for the core package, companion packages, and local examples.
+Use Node.js `22.13.0` or newer with `pnpm`.
 
 ```bash
 corepack enable
 pnpm install
-```
-
-### Refreshing Local Outputs
-
-This repo includes a refresh script that clears generated build output and Vite
-caches across the root package, local packages, and examples:
-
-```bash
-# Clear dist folders and Vite caches across the repo
-pnpm run refresh:all
-```
-
-Use this when a local example or package seems to be serving stale code.
-
-### Building Styles
-
-This project uses Tailwind CSS for development. The standalone CSS file (`src/styles.css`) is auto-generated:
-
-```bash
-# Generate standalone CSS from Tailwind classes
-pnpm build:styles
-
-# Build the package (automatically runs refresh:all and generates styles first)
 pnpm build
 ```
 
-**Important:** After adding new Tailwind classes to components, run `pnpm build:styles` to update the standalone CSS.
+Useful scripts:
 
-If a Vite dev server is already running, `npm run build` will not restart that
-live process. In that case, restart the dev server after the build so it picks
-up the refreshed output and cleared caches.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin amazing-feature`)
-5. Open a Pull Request
+- `pnpm test`
+- `pnpm test:coverage`
+- `pnpm typecheck`
+- `pnpm lint`
+- `pnpm docs:dev`
+- `pnpm docs:build`
+- `pnpm run refresh:all`
 
 ## License
 
-This project is licensed under the Unlicense - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Unlicense. See [LICENSE](LICENSE).

@@ -1,6 +1,6 @@
 # Actionable Support Chat Recommended Actions
 
-Companion package for `actionable-support-chat` that provides recommended-action flows, vector-search helpers for button definitions, and built-in embedders for common providers.
+Companion package for `actionable-support-chat` that adds query-driven and vector-search-backed recommended action flows.
 
 ## Installation
 
@@ -8,7 +8,7 @@ Companion package for `actionable-support-chat` that provides recommended-action
 npm install actionable-support-chat actionable-support-chat-recommended-actions
 ```
 
-## Included Helpers
+## What It Includes
 
 - `createQueryRecommendedActionsFlow`
 - `createVectorSearchQueryRecommendedActionsFlow`
@@ -16,6 +16,17 @@ npm install actionable-support-chat actionable-support-chat-recommended-actions
 - `createCohereTextEmbedder`
 - `createVoyageTextEmbedder`
 
-Use this package when you want semantic retrieval over button definitions or recommended-action flows without expanding the core chat package.
+## Shared Docs
 
-The `examples/settings` app in this repo demonstrates the package with a real OpenAI embedder. It uses a client-side API key to keep the example self-contained; production apps should call provider embedders from a trusted backend.
+- [Sub-packages](../../docs/sub-packages/index.md)
+- [actionable-support-chat-recommended-actions](../../docs/sub-packages/actionable-support-chat-recommended-actions.md)
+- [Recommended actions overview](../../docs/guides/recommended-actions-overview.md)
+- [Recommended actions with vector search](../../docs/guides/recommended-actions-vector-search.md)
+- [Recommended actions API reference](../../docs/reference/recommended-actions-api.md)
+- [Examples guide](../../docs/examples.md)
+
+The runnable `settings` example lives at [examples/settings](../../examples/settings).
+
+## Production Note
+
+The `settings` example uses a browser-side OpenAI API key to stay self-contained. For production, call embedding providers from your own backend instead of exposing the key to the client.

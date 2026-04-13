@@ -320,6 +320,10 @@
     visibility: visible;
   }
 
+  .static {
+    position: static;
+  }
+
   .start {
     inset-inline-start: var(--spacing);
   }
