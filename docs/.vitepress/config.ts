@@ -1,7 +1,21 @@
 import { defineConfig } from 'vitepress';
 
+/**
+ * Keeps the docs base path safe for local development and static hosting.
+ */
+function normalizeBasePath(rawBasePath?: string): string {
+  if (!rawBasePath || rawBasePath === '/') {
+    return '/';
+  }
+
+  const trimmedBasePath = rawBasePath.trim().replace(/^\/+|\/+$/g, '');
+
+  return trimmedBasePath ? `/${trimmedBasePath}/` : '/';
+}
+
 export default defineConfig({
-  title: 'Actionable Support Chat',
+  base: normalizeBasePath(process.env.DOCS_BASE_PATH),
+  title: 'React Actions Chat',
   description:
     'Consumer docs for react-actions-chat and react-actions-chat-recommended-actions.',
   lastUpdated: true,
