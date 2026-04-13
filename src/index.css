@@ -1,41 +1,41 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Darker deep blue gradient background colors */
-  --color-background: rgb(2, 6, 23);
-  --color-foreground: rgb(224, 231, 255);
+  /* Neutral black and gray base colors */
+  --color-background: rgb(13, 15, 18);
+  --color-foreground: rgb(243, 244, 246);
 
-  /* Card and surface colors with darker blue tones */
-  --color-card: rgb(10, 22, 40);
-  --color-card-foreground: rgb(224, 231, 255);
-  --color-popover: rgb(10, 22, 40);
-  --color-popover-foreground: rgb(224, 231, 255);
+  /* Card and surface colors */
+  --color-card: rgb(22, 26, 32);
+  --color-card-foreground: rgb(243, 244, 246);
+  --color-popover: rgb(22, 26, 32);
+  --color-popover-foreground: rgb(243, 244, 246);
 
-  /* Darker blue primary */
-  --color-primary: rgb(29, 78, 216);
-  --color-primary-foreground: rgb(255, 255, 255);
+  /* Primary interactive gray */
+  --color-primary: rgb(59, 66, 77);
+  --color-primary-foreground: rgb(249, 250, 251);
 
-  /* Secondary with darker blue tones */
-  --color-secondary: rgb(12, 30, 61);
-  --color-secondary-foreground: rgb(224, 231, 255);
+  /* Secondary surface gray */
+  --color-secondary: rgb(24, 28, 34);
+  --color-secondary-foreground: rgb(229, 231, 235);
 
   /* Muted colors for subtle elements */
-  --color-muted: rgb(30, 58, 100);
-  --color-muted-foreground: rgb(129, 157, 204);
+  --color-muted: rgb(38, 44, 52);
+  --color-muted-foreground: rgb(156, 163, 175);
 
-  /* Accent with darker blue */
-  --color-accent: rgb(30, 64, 175);
-  --color-accent-foreground: rgb(255, 255, 255);
+  /* Accent and focus colors */
+  --color-accent: rgb(82, 91, 105);
+  --color-accent-foreground: rgb(249, 250, 251);
 
-  /* Destructive with better visibility */
+  /* Destructive with clear contrast */
   --color-destructive: rgb(239, 68, 68);
   --color-destructive-foreground: rgb(255, 255, 255);
 
-  /* Border and input with darker blue tones */
-  --color-border: rgb(12, 30, 61);
-  --color-input: rgb(12, 30, 61);
-  --color-ring: rgb(29, 78, 216);
-  --color-navbar: rgb(2, 6, 23);
+  /* Border, input, and focus */
+  --color-border: rgb(38, 44, 52);
+  --color-input: rgb(22, 26, 32);
+  --color-ring: rgb(82, 91, 105);
+  --color-navbar: rgb(13, 15, 18);
 
   /* Modern radius values */
   --radius: 0.75rem;
@@ -46,7 +46,7 @@
 }
 
 body {
-  background: rgb(15, 23, 41);
+  background: rgb(13, 15, 18);
   background-attachment: fixed;
   color: var(--color-foreground);
   font-smooth: always;
@@ -54,21 +54,21 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Modern scrollbar styling with darker blue */
+/* Modern scrollbar styling with neutral gray */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgb(10, 22, 40);
+  background: rgb(18, 21, 26);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgb(30, 58, 100);
+  background: rgb(59, 66, 77);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgb(29, 78, 216);
+  background: rgb(82, 91, 105);
 }

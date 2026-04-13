@@ -19,15 +19,15 @@ export const LIGHT_THEME: ChatTheme = {
  * Built-in dark theme preset for the chat UI.
  */
 export const DARK_THEME: ChatTheme = {
-  primaryColor: '#4a7fc1', // Self message background (medium blue)
-  secondaryColor: '#1a2942', // Other message background (dark blue-gray)
-  backgroundColor: '#0f1729', // Chat container background (very dark navy)
-  textColor: '#d1dae6', // Primary text (light gray-blue)
-  borderColor: '#1a2942', // Border (dark blue-gray)
-  inputBackgroundColor: '#1a2942', // Input background (dark blue-gray)
-  inputTextColor: '#9ca7b8', // Input text (muted gray-blue)
-  buttonColor: '#5b8dd8', // Button (brighter blue)
-  buttonTextColor: '#ffffff', // Button text (white)
+  primaryColor: '#30363f', // Self message background (charcoal)
+  secondaryColor: '#181c22', // Other message background (near-black)
+  backgroundColor: '#0d0f12', // Chat container background (neutral black)
+  textColor: '#f3f4f6', // Primary text (soft white)
+  borderColor: '#262c34', // Border (cool gray)
+  inputBackgroundColor: '#161a20', // Input background (dark gray)
+  inputTextColor: '#e5e7eb', // Input text (light gray)
+  buttonColor: '#3b424d', // Button (modern gray)
+  buttonTextColor: '#f9fafb', // Button text (near-white)
 };
 
 /**

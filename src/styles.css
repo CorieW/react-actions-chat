@@ -50,19 +50,19 @@
     --default-font-family: var(--font-sans);
     --default-mono-font-family: var(--font-mono);
     --radius: .75rem;
-    --color-background: #020617;
-    --color-foreground: #e0e7ff;
-    --color-primary: #1d4ed8;
-    --color-primary-foreground: #fff;
-    --color-secondary: #0c1e3d;
-    --color-secondary-foreground: #e0e7ff;
-    --color-accent: #1e40af;
-    --color-accent-foreground: #fff;
+    --color-background: #0d0f12;
+    --color-foreground: #f3f4f6;
+    --color-primary: #3b424d;
+    --color-primary-foreground: #f9fafb;
+    --color-secondary: #181c22;
+    --color-secondary-foreground: #e5e7eb;
+    --color-accent: #525b69;
+    --color-accent-foreground: #f9fafb;
     --color-destructive: #ef4444;
     --color-destructive-foreground: #fff;
-    --color-border: #0c1e3d;
-    --color-input: #0c1e3d;
-    --color-ring: #1d4ed8;
+    --color-border: #262c34;
+    --color-input: #161a20;
+    --color-ring: #525b69;
   }
 }
 
@@ -426,6 +426,10 @@
     height: calc(var(--spacing) * 11);
   }
 
+  .h-auto {
+    height: auto;
+  }
+
   .h-screen {
     height: 100vh;
   }
@@ -454,6 +458,10 @@
     flex: 1;
   }
 
+  .shrink-0 {
+    flex-shrink: 0;
+  }
+
   .flex-col {
     flex-direction: column;
   }
@@ -472,6 +480,10 @@
 
   .items-center {
     align-items: center;
+  }
+
+  .items-stretch {
+    align-items: stretch;
   }
 
   .justify-center {
@@ -537,7 +549,7 @@
   }
 
   .bg-background\/50 {
-    background-color: #02061780;
+    background-color: #0d0f1280;
   }
 
   @supports (color: color-mix(in lab, red, red)) {
@@ -686,7 +698,7 @@
     }
 
     .hover\:bg-accent\/80:hover {
-      background-color: #1e40afcc;
+      background-color: #525b69cc;
     }
 
     @supports (color: color-mix(in lab, red, red)) {
@@ -706,7 +718,7 @@
     }
 
     .hover\:bg-primary\/90:hover {
-      background-color: #1d4ed8e6;
+      background-color: #3b424de6;
     }
 
     @supports (color: color-mix(in lab, red, red)) {
@@ -716,7 +728,7 @@
     }
 
     .hover\:bg-secondary\/80:hover {
-      background-color: #0c1e3dcc;
+      background-color: #181c22cc;
     }
 
     @supports (color: color-mix(in lab, red, red)) {
@@ -784,7 +796,7 @@ body {
   font-smooth: always;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #0f1729 fixed;
+  background: #0d0f12 fixed;
 }
 
 ::-webkit-scrollbar {
@@ -793,16 +805,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a1628;
+  background: #12151a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e3a64;
+  background: #3b424d;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #1d4ed8;
+  background: #525b69;
 }
 
 @property --tw-space-y-reverse {

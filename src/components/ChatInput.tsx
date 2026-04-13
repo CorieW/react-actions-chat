@@ -107,7 +107,7 @@ export function ChatInput({
           {getInputFieldDescription()}
         </div>
       )}
-      <div className='flex items-center gap-3'>
+      <div className='flex items-stretch gap-3'>
         <input
           ref={inputRef}
           type={inputType}
@@ -126,7 +126,7 @@ export function ChatInput({
         <Button
           onClick={handleSend}
           disabled={getInputFieldValue().trim() === ''}
-          className='rounded-lg px-4 py-3 disabled:opacity-40'
+          className='h-auto shrink-0 rounded-lg px-4 py-3 disabled:opacity-40'
           style={{
             backgroundColor: theme.buttonColor,
             color: theme.buttonTextColor,
