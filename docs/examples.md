@@ -50,6 +50,38 @@ Run it:
 pnpm --filter login-example dev
 ```
 
+## `llm-support`
+
+Path: [examples/llm-support](https://github.com/CorieW/react-actions-chat/tree/main/examples/llm-support)
+
+Live demo: not published because this example requires a server-side OpenAI API key.
+
+Use this example for:
+
+- `react-actions-chat-llms`
+- `createLlmAssistantResponder`
+- `createOpenAITextGenerator`
+- production-safe follow-up helpers documented via `createRemoteTextGenerator` and `handleTextGenerationApiRequest`
+- a simple chat-only UI for talking directly with the LLM
+
+Docs:
+
+- [LLM integrations overview](guides/llm-integrations-overview.md)
+
+Run it:
+
+```bash
+pnpm --filter llm-support-example dev
+```
+
+If you want to run the `llm-support` demo, create `examples/llm-support/.env.local` with a server-side OpenAI key:
+
+```bash
+OPENAI_API_KEY=your_openai_api_key
+```
+
+The example browser app calls a local `/api/llm` backend route provided by the example's Vite server, so the key stays server-side instead of being exposed in the browser bundle.
+
 ## `settings`
 
 Path: [examples/settings](https://github.com/CorieW/react-actions-chat/tree/main/examples/settings)
@@ -81,3 +113,10 @@ VITE_OPENAI_API_KEY=your_openai_api_key
 ```
 
 That keeps the example easy to run locally, but production apps should move embedding calls behind a backend service.
+
+## Companion Package Example Pattern
+
+The repo now includes both:
+
+- `examples/llm-support` for hosted LLM replies with `react-actions-chat-llms`
+- `examples/settings` for query and vector-search recommendations with `react-actions-chat-recommended-actions`

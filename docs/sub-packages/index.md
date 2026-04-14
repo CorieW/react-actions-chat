@@ -7,6 +7,7 @@ Use this section when you want functionality that should stay modular instead of
 ## Available Sub-packages
 
 - [`react-actions-chat-recommended-actions`](./react-actions-chat-recommended-actions.md): query-driven and vector-search-backed recommended action flows for chat experiences
+- [`react-actions-chat-llms`](./react-actions-chat-llms.md): hosted LLM provider adapters and a chat responder helper for transcript-driven replies
 
 ## When To Use a Sub-package
 

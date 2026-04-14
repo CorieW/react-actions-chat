@@ -40,6 +40,9 @@ features:
   - title: Recommended Actions
     details: Turn user queries into next-step buttons with a custom resolver, embeddings, or vector search.
     link: /guides/recommended-actions-overview
+  - title: LLM Integrations
+    details: Connect hosted text-generation providers and pipe replies back into the chat transcript with a shared responder helper.
+    link: /guides/llm-integrations-overview
 ---
 
 ## Start Here
@@ -55,6 +58,7 @@ features:
 - Changing the visual style: [Theming and styling](./guides/theming-and-styling.md)
 - Adding recommended action flows: [Recommended actions overview](./guides/recommended-actions-overview.md)
 - Wiring semantic matching: [Recommended actions with vector search](./guides/recommended-actions-vector-search.md)
+- Wiring hosted LLM replies: [LLM integrations overview](./guides/llm-integrations-overview.md)
 
 ## Run The Site Locally
 

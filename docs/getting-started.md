@@ -53,7 +53,7 @@ export function App() {
 - [Theming and styling](guides/theming-and-styling.md) for presets, custom themes, and Vite setup notes
 - [Examples guide](examples.md) for runnable demos in this repo
 
-## Companion Package
+## Companion Packages
 
 Install the companion package if you want recommended actions driven by a search query or vector search:
 
@@ -62,3 +62,11 @@ npm install react-actions-chat react-actions-chat-recommended-actions
 ```
 
 Then continue with [Recommended actions overview](guides/recommended-actions-overview.md).
+
+Install the LLM companion package if you want provider adapters plus a helper that turns transcript history into hosted model replies:
+
+```bash
+npm install react-actions-chat react-actions-chat-llms
+```
+
+Then continue with [LLM integrations overview](guides/llm-integrations-overview.md).

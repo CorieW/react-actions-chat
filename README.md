@@ -18,6 +18,12 @@ If you want query-driven or vector-search-backed action recommendations, install
 npm install react-actions-chat react-actions-chat-recommended-actions
 ```
 
+If you want lightweight adapters for hosted LLM providers such as OpenAI, Anthropic, or Gemini, install the LLM companion package:
+
+```bash
+npm install react-actions-chat react-actions-chat-llms
+```
+
 ## Quick Start
 
 ```tsx
@@ -52,12 +58,19 @@ Runnable workspace examples live in [examples](examples/README.md):
 
 - `qa-bot`: basic support assistant flow
 - `login`: input and confirmation flows
+- `llm-support`: companion LLM package with an OpenAI chat demo backed by a local server route
 - `settings`: companion recommended-actions package with a real OpenAI embedder
+
+Companion packages:
+
+- `react-actions-chat-recommended-actions`: query-driven and vector-search-backed recommended action flows
+- `react-actions-chat-llms`: hosted LLM adapters plus a chat responder helper for OpenAI, Anthropic, and Gemini
 
 Live demos:
 
 - `qa-bot`: https://coriew.github.io/react-actions-chat/examples/qa-bot/
 - `login`: https://coriew.github.io/react-actions-chat/examples/login/
+- `llm-support`: source only for now because the live version would require exposing provider API keys
 - `settings`: source only for now because the live version would require exposing an API key
 
 Start one from the repo root after `pnpm install`:
@@ -65,6 +78,7 @@ Start one from the repo root after `pnpm install`:
 ```bash
 pnpm --filter qa-bot-example dev
 pnpm --filter login-example dev
+pnpm --filter llm-support-example dev
 pnpm --filter settings-example dev
 ```
 

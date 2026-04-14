@@ -17,7 +17,7 @@ export default defineConfig({
   base: normalizeBasePath(process.env.DOCS_BASE_PATH),
   title: 'React Actions Chat',
   description:
-    'Consumer docs for react-actions-chat and react-actions-chat-recommended-actions.',
+    'Consumer docs for react-actions-chat and its companion packages for recommended actions and LLM integrations.',
   lastUpdated: true,
   themeConfig: {
     nav: [
@@ -112,6 +112,10 @@ export default defineConfig({
             text: 'react-actions-chat-recommended-actions',
             link: '/sub-packages/react-actions-chat-recommended-actions',
           },
+          {
+            text: 'react-actions-chat-llms',
+            link: '/sub-packages/react-actions-chat-llms',
+          },
         ],
       },
       {
@@ -141,6 +145,10 @@ export default defineConfig({
             text: 'Recommended Actions With Vector Search',
             link: '/guides/recommended-actions-vector-search',
           },
+          {
+            text: 'LLM Integrations Overview',
+            link: '/guides/llm-integrations-overview',
+          },
         ],
       },
       {
@@ -150,6 +158,10 @@ export default defineConfig({
           {
             text: 'Recommended Actions API',
             link: '/reference/recommended-actions-api',
+          },
+          {
+            text: 'LLM Integrations API',
+            link: '/reference/llm-integrations-api',
           },
         ],
       },
