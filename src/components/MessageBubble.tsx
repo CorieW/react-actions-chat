@@ -50,7 +50,10 @@ export function MessageBubble({
             <LoadingIndicator theme={theme} />
           ) : (
             <>
-              <p className='wrap-break-words text-sm leading-relaxed'>
+              <p
+                className='text-sm leading-relaxed'
+                style={{ overflowWrap: 'anywhere' }}
+              >
                 {message.content}
               </p>
               <span
