@@ -27,6 +27,18 @@
       ],
       "react-actions-chat-recommended-actions/embedders": [
         "../packages/react-actions-chat-recommended-actions/src/embedders/index.ts"
+      ],
+      "react-actions-chat-llms": [
+        "../packages/react-actions-chat-llms/src/index.ts"
+      ],
+      "react-actions-chat-llms/client": [
+        "../packages/react-actions-chat-llms/src/client/index.ts"
+      ],
+      "react-actions-chat-llms/server": [
+        "../packages/react-actions-chat-llms/src/server/index.ts"
+      ],
+      "react-actions-chat-llms/providers": [
+        "../packages/react-actions-chat-llms/src/providers/index.ts"
       ]
     },
 

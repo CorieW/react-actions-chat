@@ -37,6 +37,38 @@ export default defineConfig({
         ),
       },
       {
+        find: 'react-actions-chat-llms/providers',
+        replacement: resolve(
+          __dirname,
+          '..',
+          'packages/react-actions-chat-llms/src/providers/index.ts'
+        ),
+      },
+      {
+        find: 'react-actions-chat-llms/server',
+        replacement: resolve(
+          __dirname,
+          '..',
+          'packages/react-actions-chat-llms/src/server/index.ts'
+        ),
+      },
+      {
+        find: 'react-actions-chat-llms/client',
+        replacement: resolve(
+          __dirname,
+          '..',
+          'packages/react-actions-chat-llms/src/client/index.ts'
+        ),
+      },
+      {
+        find: 'react-actions-chat-llms',
+        replacement: resolve(
+          __dirname,
+          '..',
+          'packages/react-actions-chat-llms/src/index.ts'
+        ),
+      },
+      {
         find: 'react-actions-chat',
         replacement: resolve(__dirname, '..', 'src/index.ts'),
       },
