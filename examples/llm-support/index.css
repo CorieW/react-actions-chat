@@ -1,0 +1,131 @@
+:root {
+  color-scheme: dark;
+  font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  --llm-page-bg: #091017;
+  --llm-surface: rgba(15, 22, 31, 0.9);
+  --llm-surface-strong: #16202b;
+  --llm-border: rgba(128, 153, 178, 0.16);
+  --llm-border-strong: rgba(144, 171, 198, 0.34);
+  --llm-ink: #dbe5ef;
+  --llm-ink-muted: #a3b4c6;
+  --llm-ink-soft: #8a9bae;
+  --llm-accent: #89a0b8;
+  --llm-accent-soft: #1b2734;
+  --llm-accent-glow: rgba(137, 160, 184, 0.16);
+  --llm-success-bg: #163127;
+  --llm-success-ink: #9fcdb4;
+  background:
+    radial-gradient(circle at top, rgba(108, 132, 158, 0.2), transparent 34%),
+    radial-gradient(
+      circle at bottom right,
+      rgba(66, 87, 109, 0.28),
+      transparent 32%
+    ),
+    var(--llm-page-bg);
+  color: var(--llm-ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.llm-demo-shell {
+  width: min(1120px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 24px 0 32px;
+}
+
+.llm-demo-header {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.llm-demo-card {
+  border: 1px solid var(--llm-border);
+  border-radius: 24px;
+  background: var(--llm-surface);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+}
+
+.llm-demo-intro {
+  padding: 28px;
+}
+
+.llm-demo-kicker {
+  margin: 0 0 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--llm-accent);
+}
+
+.llm-demo-title {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+
+.llm-demo-copy {
+  margin: 14px 0 0;
+  max-width: 58rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--llm-ink-muted);
+}
+
+.llm-demo-note {
+  margin: 16px 0 0;
+  font-size: 0.93rem;
+  line-height: 1.6;
+  color: var(--llm-ink-soft);
+}
+
+.llm-demo-chat-frame {
+  overflow: hidden;
+  height: 680px;
+}
+
+.llm-demo-chat-frame .asc-chat-wrapper {
+  height: 680px;
+}
+
+.llm-demo-chat-frame .asc-chat-wrapper > div {
+  height: 100%;
+}
+
+@media (max-width: 720px) {
+  .llm-demo-shell {
+    width: min(100vw - 20px, 1120px);
+    padding-top: 12px;
+  }
+
+  .llm-demo-intro,
+  .llm-demo-controls {
+    padding: 20px;
+  }
+
+  .llm-demo-chat-frame,
+  .llm-demo-chat-frame .asc-chat-wrapper {
+    height: 74vh;
+  }
+}
