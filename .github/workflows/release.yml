@@ -2,23 +2,25 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches:
+      - main
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Semantic version (e.g., 1.0.0)'
-        required: true
-        type: string
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  validate-version:
-    name: Validate Semantic Version
+  release:
+    name: Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -28,58 +30,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.13.0'
-          cache: 'pnpm'
+          node-version: "22.13.0"
+          cache: "pnpm"
           cache-dependency-path: pnpm-lock.yaml
-
-      - name: Get version from tag or input
-        id: get-version
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          DISPATCH_VERSION: ${{ github.event.inputs.version }}
-        run: |
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            VERSION="$DISPATCH_VERSION"
-          else
-            VERSION="${GITHUB_REF#refs/tags/v}"
-          fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "tag_name=v$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Version: $VERSION"
-
-      - name: Validate semantic version format
-        env:
-          RELEASE_VERSION: ${{ steps.get-version.outputs.version }}
-        run: |
-          if ! echo "$RELEASE_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?(\+[a-zA-Z0-9.-]+)?$'; then
-            echo "Error: Invalid semantic version format: $RELEASE_VERSION"
-            echo "Expected format: MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]"
-            exit 1
-          fi
-          echo "✓ Valid semantic version: $RELEASE_VERSION"
-
-      - name: Check version in package.json matches
-        env:
-          RELEASE_VERSION: ${{ steps.get-version.outputs.version }}
-        run: |
-          # Remove any prerelease or build metadata for comparison
-          VERSION=$(echo "$RELEASE_VERSION" | sed 's/[-+].*//')
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-
-          if [ "$PACKAGE_VERSION" != "$VERSION" ]; then
-            echo "Error: Version mismatch!"
-            echo "Tag/Input version: $VERSION"
-            echo "package.json version: $PACKAGE_VERSION"
-            echo "Please ensure package.json includes the same version (including any prerelease/build metadata)."
-            exit 1
-          fi
-          echo "✓ Version in package.json matches: $PACKAGE_VERSION"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Check formatting
         run: pnpm format:check
+
+      - name: Check if styles.css is up to date
+        run: pnpm check:styles
 
       - name: Run linter
         run: pnpm lint
@@ -93,10 +55,14 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
         with:
-          tag_name: ${{ steps.get-version.outputs.tag_name }}
-          name: Release ${{ steps.get-version.outputs.version }}
-          draft: false
-          prerelease: ${{ contains(steps.get-version.outputs.version, '-') }}
+          version: pnpm version-packages
+          publish: pnpm release
+          commit: "chore: release package"
+          title: "chore: release package"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

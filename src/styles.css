@@ -320,6 +320,10 @@
     visibility: visible;
   }
 
+  .fixed {
+    position: fixed;
+  }
+
   .static {
     position: static;
   }

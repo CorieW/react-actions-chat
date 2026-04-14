@@ -21,16 +21,16 @@ npm install react-actions-chat react-actions-chat-recommended-actions
 ## Quick Start
 
 ```tsx
-import { Chat } from 'react-actions-chat';
-import 'react-actions-chat/styles';
+import { Chat } from "react-actions-chat";
+import "react-actions-chat/styles";
 
 export function App() {
   return (
     <Chat
       initialMessages={[
         {
-          type: 'other',
-          content: 'Hello! How can I help you today?',
+          type: "other",
+          content: "Hello! How can I help you today?",
         },
       ]}
     />
@@ -84,10 +84,15 @@ Useful scripts:
 - `pnpm test:coverage`
 - `pnpm typecheck`
 - `pnpm lint`
+- `pnpm changeset`
+- `pnpm version-packages`
 - `pnpm docs:dev`
 - `pnpm docs:build`
 - `pnpm pages:build`
 - `pnpm run refresh:all`
+
+When a pull request changes a published package, add a changeset with `pnpm changeset` unless the PR is intentionally marked with the `no-changeset` label.
+Merging changesets to `main` opens or updates a release PR, and merging that release PR publishes to npm when the repo has an `NPM_TOKEN` secret configured.
 
 ## License
 
