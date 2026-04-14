@@ -25,6 +25,13 @@ const liveExamples = [
     packageName: 'login-example',
     directoryName: 'login',
   },
+  {
+    packageName: 'settings-example',
+    directoryName: 'settings',
+    env: {
+      VITE_SETTINGS_RECOMMENDATION_MODE: 'static',
+    },
+  },
 ];
 
 runCommand('pnpm', ['docs:build'], {
@@ -38,6 +45,7 @@ for (const example of liveExamples) {
       'examples',
       example.directoryName
     ),
+    ...example.env,
   });
 }
 

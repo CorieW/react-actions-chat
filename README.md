@@ -58,7 +58,7 @@ Live demos:
 
 - `qa-bot`: https://coriew.github.io/react-actions-chat/examples/qa-bot/
 - `login`: https://coriew.github.io/react-actions-chat/examples/login/
-- `settings`: source only for now because the live version would require exposing an API key
+- `settings`: https://coriew.github.io/react-actions-chat/examples/settings/
 
 Start one from the repo root after `pnpm install`:
 

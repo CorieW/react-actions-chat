@@ -54,7 +54,7 @@ pnpm --filter login-example dev
 
 Path: [examples/settings](https://github.com/CorieW/react-actions-chat/tree/main/examples/settings)
 
-Live demo: not published because this example requires an API key.
+Live demo: [settings](https://coriew.github.io/react-actions-chat/examples/settings/)
 
 Use this example for:
 
@@ -81,3 +81,7 @@ OPENAI_API_KEY=your_openai_api_key
 ```
 
 The example uses a local backend endpoint so the API key stays on the server while the browser talks to `/api/recommendations`.
+
+The published GitHub Pages demo uses a static fallback recommendation mode
+because GitHub Pages cannot run serverless functions.
+

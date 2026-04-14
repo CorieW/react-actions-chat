@@ -7,7 +7,10 @@ import {
   useChatStore,
 } from 'react-actions-chat';
 import type { InputMessage } from 'react-actions-chat';
-import { createRemoteRecommendedActionsFlow } from 'react-actions-chat-recommended-actions';
+import {
+  createQueryRecommendedActionsFlow,
+  createRemoteRecommendedActionsFlow,
+} from 'react-actions-chat-recommended-actions';
 
 type SettingsClientActionId =
   | 'email'
@@ -18,6 +21,75 @@ type SettingsClientActionId =
   | 'logout'
   | 'delete-account'
   | 'help';
+
+const SETTINGS_DEMO_MODE = 'static';
+function normalizeRecommendationQuery(query: string): string {
+  return query.trim().toLowerCase();
+}
+
+function getDemoRecommendedActionIds(
+  query: string
+): readonly SettingsClientActionId[] {
+  const normalizedQuery = normalizeRecommendationQuery(query);
+
+  if (
+    normalizedQuery.includes('email') ||
+    normalizedQuery.includes('verification')
+  ) {
+    return ['email'];
+  }
+
+  if (
+    normalizedQuery.includes('password') ||
+    normalizedQuery.includes('login') ||
+    normalizedQuery.includes('sign in')
+  ) {
+    return ['password'];
+  }
+
+  if (
+    normalizedQuery.includes('display name') ||
+    normalizedQuery.includes('profile name') ||
+    normalizedQuery.includes('rename')
+  ) {
+    return ['display-name'];
+  }
+
+  if (
+    normalizedQuery.includes('phone') ||
+    normalizedQuery.includes('mobile') ||
+    normalizedQuery.includes('recovery number')
+  ) {
+    return ['phone-number'];
+  }
+
+  if (
+    normalizedQuery.includes('two-factor') ||
+    normalizedQuery.includes('2fa') ||
+    normalizedQuery.includes('secure')
+  ) {
+    return ['two-factor-auth'];
+  }
+
+  if (
+    normalizedQuery.includes('logout') ||
+    normalizedQuery.includes('log out') ||
+    normalizedQuery.includes('sign out') ||
+    normalizedQuery.includes('session')
+  ) {
+    return ['logout'];
+  }
+
+  if (
+    normalizedQuery.includes('delete') ||
+    normalizedQuery.includes('close account') ||
+    normalizedQuery.includes('remove account')
+  ) {
+    return ['delete-account'];
+  }
+
+  return ['help'];
+}
 
 /**
  * Settings Example
@@ -31,6 +103,8 @@ type SettingsClientActionId =
  */
 export function App(): React.JSX.Element {
   const { addMessage, getMessages, setMessages } = useChatStore();
+  const isStaticDemoMode =
+    import.meta.env.VITE_SETTINGS_RECOMMENDATION_MODE === SETTINGS_DEMO_MODE;
 
   const CHANGE_EMAIL_BUTTON_DEF = createRequestInputButtonDef({
     id: 'email',
@@ -213,35 +287,63 @@ export function App(): React.JSX.Element {
   };
 
   const settingsRecommendationFlow = useMemo(() => {
-    const recommendationFlow = createRemoteRecommendedActionsFlow({
-      endpoint: '/api/recommendations',
+    const actions = {
+      email: () => createButton(CHANGE_EMAIL_BUTTON_DEF),
+      password: () => createButton(CHANGE_PASSWORD_BUTTON_DEF),
+      'display-name': () => createButton(CHANGE_DISPLAY_NAME_BUTTON_DEF),
+      'phone-number': () => createButton(CHANGE_PHONE_NUMBER_BUTTON_DEF),
+      'two-factor-auth': () => createButton(ENABLE_TWO_FACTOR_BUTTON_DEF),
+      logout: () => createButton(LOGOUT_BUTTON_DEF),
+      'delete-account': () => createButton(DELETE_ACCOUNT_BUTTON_DEF),
+      help: HELP_BUTTON,
+    } satisfies Record<
+      SettingsClientActionId,
+      ReturnType<typeof createButton> | (() => ReturnType<typeof createButton>)
+    >;
+
+    const sharedFlowConfig = {
       placeholder:
         'Try "update my phone number", "enable 2fa", or "delete my account"',
       inputDescription:
         'Describe what you want to change and I will recommend the best settings action.',
-      actions: {
-        email: () => createButton(CHANGE_EMAIL_BUTTON_DEF),
-        password: () => createButton(CHANGE_PASSWORD_BUTTON_DEF),
-        'display-name': () => createButton(CHANGE_DISPLAY_NAME_BUTTON_DEF),
-        'phone-number': () => createButton(CHANGE_PHONE_NUMBER_BUTTON_DEF),
-        'two-factor-auth': () => createButton(ENABLE_TWO_FACTOR_BUTTON_DEF),
-        logout: () => createButton(LOGOUT_BUTTON_DEF),
-        'delete-account': () => createButton(DELETE_ACCOUNT_BUTTON_DEF),
-        help: HELP_BUTTON,
-      } satisfies Record<
-        SettingsClientActionId,
-        | ReturnType<typeof createButton>
-        | (() => ReturnType<typeof createButton>)
-      >,
       loadingMessage: '',
       minimumLoadingDurationMs: 2000,
-      onError: (query, error) => {
+      onError: (query: string, error: unknown) => {
         addMessage({
           type: 'other',
           content: `Error recommending settings action for "${query}": ${error instanceof Error ? error.message : String(error)}`,
         });
       },
-    });
+    };
+
+    const recommendationFlow = isStaticDemoMode
+      ? createQueryRecommendedActionsFlow({
+          ...sharedFlowConfig,
+          getRecommendedActions: query => {
+            const actionIds = getDemoRecommendedActionIds(query);
+            const recommendedActions = actionIds.map(actionId => {
+              const action = actions[actionId];
+              return typeof action === 'function' ? action() : action;
+            });
+
+            if (actionIds.includes('help')) {
+              return {
+                responseMessage: `I couldn't find any recommended actions for "${query}".`,
+                recommendedActions,
+              };
+            }
+
+            return {
+              responseMessage: `Here are the best settings actions I found for "${query}".`,
+              recommendedActions,
+            };
+          },
+        })
+      : createRemoteRecommendedActionsFlow({
+          ...sharedFlowConfig,
+          endpoint: '/api/recommendations',
+          actions,
+        });
 
     const continueListeningForPrompts = (): void => {
       const messages = getMessages();
@@ -282,15 +384,21 @@ export function App(): React.JSX.Element {
       ...recommendationFlow,
       recommend: runRecommendationCycle,
     };
-  }, [addMessage, getMessages, setMessages]);
+  }, [
+    addMessage,
+    getMessages,
+    isStaticDemoMode,
+    setMessages,
+  ]);
 
   const INITIAL_MESSAGES: readonly InputMessage[] = useMemo(
     () => [
       {
         id: 1,
         type: 'other',
-        content:
-          'Welcome to Settings. Tell me what you want to change, and I will send your request to a local backend that uses real OpenAI embeddings to recommend actions like changing your email, updating your phone number, enabling 2FA, deleting your account, or logging out.',
+        content: isStaticDemoMode
+          ? 'Welcome to Settings. This published demo uses a built-in recommendation mode so you can try the flow directly in the browser.'
+          : 'Welcome to Settings. Tell me what you want to change, and I will send your request to a local backend that uses real OpenAI embeddings to recommend actions like changing your email, updating your phone number, enabling 2FA, deleting your account, or logging out.',
         timestamp: new Date(),
         userResponseCallback: () => {
           const lastSelfMessage = [...getMessages()]
@@ -305,7 +413,7 @@ export function App(): React.JSX.Element {
         },
       },
     ],
-    [getMessages, settingsRecommendationFlow]
+    [getMessages, isStaticDemoMode, settingsRecommendationFlow]
   );
 
   return (
