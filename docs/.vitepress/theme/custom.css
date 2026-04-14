@@ -1,0 +1,57 @@
+.homepage-chat-demo {
+  width: min(100%, 23rem);
+  margin: 0 auto;
+  text-align: left;
+}
+
+.homepage-chat-demo__mount {
+  height: 42rem;
+}
+
+.VPHomeHero .image-bg {
+  display: none;
+}
+
+@media (max-width: 959px) {
+  .VPHomeHero .main {
+    order: 1;
+  }
+
+  .VPHomeHero .image {
+    order: 2;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 2rem 0 0;
+  }
+
+  .VPHomeHero .image-container {
+    width: 100%;
+    max-width: 23rem;
+    height: auto;
+    transform: none;
+  }
+
+  .homepage-chat-demo__mount {
+    height: 36rem;
+  }
+}
+
+@media (min-width: 960px) {
+  .VPHomeHero .image {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .VPHomeHero .image-container {
+    width: 100%;
+    max-width: 26rem;
+    height: 100%;
+    transform: translate(-12px, 0);
+  }
+
+  .homepage-chat-demo {
+    width: 100%;
+  }
+}
