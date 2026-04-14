@@ -30,6 +30,10 @@ Choose this when:
 - you want to call a backend endpoint that returns recommended actions
 - you do not need embedding-based similarity inside the package
 
+If you already know the frontend should talk to a backend endpoint, use
+`createRemoteRecommendedActionsFlow` to handle the fetch, shared payload
+shape, and client-side button hydration for you.
+
 ### Vector-Search Recommendations
 
 `createVectorSearchQueryRecommendedActionsFlow` is built for semantic matching over button definitions.
@@ -77,4 +81,10 @@ The returned object exposes:
 
 ## Production Guidance
 
-The `examples/settings` app uses a real OpenAI embedder and reads `VITE_OPENAI_API_KEY` in the browser to keep the demo self-contained. That is fine for a local example, but production apps should route embedder calls through a trusted backend.
+The `examples/settings` app routes recommendation requests through a local backend that uses a real OpenAI embedder. Production apps should follow the same pattern so provider keys stay on a trusted backend instead of in the browser.
+
+For backend-driven recommendations, the package also exports:
+
+- `react-actions-chat-recommended-actions/client` for the frontend flow helper
+- `react-actions-chat-recommended-actions/server` for a JSON handler helper
+- `react-actions-chat-recommended-actions/shared` for the shared request and response types

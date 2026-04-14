@@ -1,6 +1,16 @@
 export { type VectorSearchButtonDefinition } from './vectorSearchButtonDefinition';
 export { buildVectorSearchButtonText } from './vectorSearchButtonDefinition';
 export {
+  createRemoteRecommendedActionsFlow,
+  createRemoteRecommendedActionsResolver,
+  type RemoteRecommendedActionFactory,
+  type RemoteRecommendedActionRegistry,
+  type RemoteRecommendedActionRegistryEntry,
+  type RemoteRecommendedActionsFlowConfig,
+  type RemoteRecommendedActionsFlowConfigWithFactory,
+  type RemoteRecommendedActionsFlowConfigWithRegistry,
+} from './client';
+export {
   createQueryRecommendedActionsFlow,
   type QueryRecommendedAction,
   type QueryRecommendedActionsContext,
@@ -21,6 +31,22 @@ export {
   type VectorSearchQueryRecommendedActionsFlowConfig,
   type VectorSearchButtonsResultResolver,
 } from './vectorSearchQueryRecommendedActionsFlow';
+export {
+  createRemoteRecommendedActionsHandler,
+  type RemoteRecommendedActionsHandler,
+  type RemoteRecommendedActionsHandlerConfig,
+  type RemoteRecommendedActionsHandlerErrorResolver,
+  type RemoteRecommendedActionsHandlerResolver,
+  type RemoteRecommendedActionsHandlerResult,
+} from './server';
+export {
+  serializeRecommendedActionsMessages,
+  type RemoteRecommendedAction,
+  type RemoteRecommendedActionsErrorResponse,
+  type RemoteRecommendedActionsMessage,
+  type RemoteRecommendedActionsRequest,
+  type RemoteRecommendedActionsResponse,
+} from './shared';
 export {
   createCohereTextEmbedder,
   createOpenAITextEmbedder,

@@ -6,7 +6,7 @@ This folder contains runnable workspace examples demonstrating different use cas
 
 - **qa-bot** - A simple question and answer bot that responds to user queries
 - **login** - A login flow using email and password inputs
-- **settings** - A settings page that uses the companion recommended-actions package and a real OpenAI embedder to recommend settings actions from a user query
+- **settings** - A settings page that uses the companion recommended-actions package and a local backend with a real OpenAI embedder to recommend settings actions from a user query
 
 You can also build reusable recommended-action flows with the companion `react-actions-chat-recommended-actions` package, including embedding-based search backed by your own search or vector search service.
 
@@ -55,10 +55,10 @@ Make sure you have Node.js and `pnpm` available. If needed, run `corepack enable
 5. If you are running the `settings` example, create `examples/settings/.env.local` with a real OpenAI API key:
 
    ```bash
-   VITE_OPENAI_API_KEY=your_openai_api_key
+   OPENAI_API_KEY=your_openai_api_key
    ```
 
-   This keeps the example simple and fully runnable, but it exposes the key to the browser bundle. In a production app, call the embedder from your own backend instead.
+   The example's local API route keeps the key on the server instead of exposing it to the browser bundle.
 
 6. Start the development server:
 

@@ -2,32 +2,35 @@ import { useMemo } from 'react';
 import {
   Chat,
   createButton,
-  createRequestInputButtonDef,
   createRequestConfirmationButtonDef,
+  createRequestInputButtonDef,
   useChatStore,
 } from 'react-actions-chat';
 import type { InputMessage } from 'react-actions-chat';
-import {
-  createOpenAITextEmbedder,
-  createVectorSearchQueryRecommendedActionsFlow,
-  type VectorSearchButtonDefinition,
-} from 'react-actions-chat-recommended-actions';
+import { createRemoteRecommendedActionsFlow } from 'react-actions-chat-recommended-actions';
+
+type SettingsClientActionId =
+  | 'email'
+  | 'password'
+  | 'display-name'
+  | 'phone-number'
+  | 'two-factor-auth'
+  | 'logout'
+  | 'delete-account'
+  | 'help';
 
 /**
  * Settings Example
  *
  * This example demonstrates a settings page with:
  * - Automatic query-based recommendations for the right settings action
- * - The companion recommended-actions package with a real OpenAI embedder
+ * - The companion recommended-actions package with a backend recommendation API
  *
- * This uses a browser-side API key for demonstration so the example stays
- * self-contained. In a production app, route embedding requests through your
- * own backend instead of exposing a provider key to the client.
+ * The browser sends recommendation queries to a local API endpoint and the
+ * server uses a real OpenAI embedder. That keeps the API key off the client.
  */
 export function App(): React.JSX.Element {
   const { addMessage, getMessages, setMessages } = useChatStore();
-  const openAIApiKey = import.meta.env.VITE_OPENAI_API_KEY?.trim();
-  const isOpenAIConfigured = openAIApiKey !== undefined && openAIApiKey !== '';
 
   const CHANGE_EMAIL_BUTTON_DEF = createRequestInputButtonDef({
     id: 'email',
@@ -44,7 +47,6 @@ export function App(): React.JSX.Element {
       return true;
     },
     onSuccess: (newEmail: string): void => {
-      // In a real app, this would call an API to update the email
       addMessage({
         type: 'other',
         content: `Email updated successfully! We sent a verification email to ${newEmail}.`,
@@ -210,128 +212,35 @@ export function App(): React.JSX.Element {
     },
   };
 
-  const SETTING_BUTTON_DEFINITIONS: readonly VectorSearchButtonDefinition[] = [
-    {
-      ...CHANGE_EMAIL_BUTTON_DEF,
-      description:
-        'Update the email address on the account and send a verification email to the new address.',
-      exampleQueries: [
-        'change my email',
-        'update my email address',
-        'use a different email',
-        'fix the email on my account',
-        'replace the email linked to my account',
-      ],
-    },
-    {
-      ...CHANGE_PASSWORD_BUTTON_DEF,
-      description:
-        'Reset or change the account password to improve account security and sign-in access.',
-      exampleQueries: [
-        'change my password',
-        'reset my password',
-        'I forgot my password',
-        'secure my login',
-        'I cannot sign in with my password',
-      ],
-    },
-    {
-      ...CHANGE_DISPLAY_NAME_BUTTON_DEF,
-      description:
-        'Update the profile display name shown in the account and support notifications.',
-      exampleQueries: [
-        'change my display name',
-        'update my profile name',
-        'rename my account',
-        'use a different name',
-        'edit the name on my profile',
-      ],
-    },
-    {
-      ...CHANGE_PHONE_NUMBER_BUTTON_DEF,
-      description:
-        'Update the phone number used for account recovery and verification codes.',
-      exampleQueries: [
-        'change my phone number',
-        'update my mobile number',
-        'use a different phone for verification',
-        'fix my recovery number',
-        'replace the phone on my account',
-      ],
-    },
-    {
-      ...ENABLE_TWO_FACTOR_BUTTON_DEF,
-      description:
-        'Enable two-factor authentication to make account sign-in more secure.',
-      exampleQueries: [
-        'turn on two-factor authentication',
-        'enable 2fa',
-        'make my login more secure',
-        'add verification codes to sign in',
-        'set up extra login security',
-      ],
-    },
-    {
-      ...LOGOUT_BUTTON_DEF,
-      description:
-        'Sign out of the current account and end the active session on this device.',
-      exampleQueries: [
-        'log me out',
-        'sign me out',
-        'I want to get out of my account',
-        'end my session',
-        'leave this account',
-      ],
-    },
-    {
-      ...DELETE_ACCOUNT_BUTTON_DEF,
-      description:
-        'Delete the current account and start the account removal flow.',
-      exampleQueries: [
-        'delete my account',
-        'close my account',
-        'remove my profile',
-        'erase this account',
-        'permanently delete everything',
-      ],
-    },
-  ];
-
   const settingsRecommendationFlow = useMemo(() => {
-    const recommendationFlow = createVectorSearchQueryRecommendedActionsFlow({
+    const recommendationFlow = createRemoteRecommendedActionsFlow({
+      endpoint: '/api/recommendations',
       placeholder:
         'Try "update my phone number", "enable 2fa", or "delete my account"',
       inputDescription:
         'Describe what you want to change and I will recommend the best settings action.',
-      buildResult: ({ query, matches }) => {
-        if (matches.length === 0) {
-          return {
-            responseMessage: `I couldn't find any recommended actions for "${query}".`,
-            recommendedActions: [HELP_BUTTON],
-          };
-        }
-
-        return {
-          recommendedActions: matches.map(match => createButton(match.button)),
-        };
-      },
-      buildRecommendationsMessage: query =>
-        `Here are the best settings actions I found for "${query}".`,
+      actions: {
+        email: () => createButton(CHANGE_EMAIL_BUTTON_DEF),
+        password: () => createButton(CHANGE_PASSWORD_BUTTON_DEF),
+        'display-name': () => createButton(CHANGE_DISPLAY_NAME_BUTTON_DEF),
+        'phone-number': () => createButton(CHANGE_PHONE_NUMBER_BUTTON_DEF),
+        'two-factor-auth': () => createButton(ENABLE_TWO_FACTOR_BUTTON_DEF),
+        logout: () => createButton(LOGOUT_BUTTON_DEF),
+        'delete-account': () => createButton(DELETE_ACCOUNT_BUTTON_DEF),
+        help: HELP_BUTTON,
+      } satisfies Record<
+        SettingsClientActionId,
+        | ReturnType<typeof createButton>
+        | (() => ReturnType<typeof createButton>)
+      >,
       loadingMessage: '',
       minimumLoadingDurationMs: 2000,
-      embedder: createOpenAITextEmbedder({
-        apiKey: openAIApiKey ?? '',
-        model: 'text-embedding-3-large',
-      }),
-      buttons: SETTING_BUTTON_DEFINITIONS,
-      maxResults: 5,
       onError: (query, error) => {
         addMessage({
           type: 'other',
-          content: `Error recommending settings action for "${query}": ${error}`,
+          content: `Error recommending settings action for "${query}": ${error instanceof Error ? error.message : String(error)}`,
         });
       },
-      minScore: 0.2,
     });
 
     const continueListeningForPrompts = (): void => {
@@ -365,15 +274,6 @@ export function App(): React.JSX.Element {
     };
 
     const runRecommendationCycle = async (query: string): Promise<void> => {
-      if (!isOpenAIConfigured) {
-        addMessage({
-          type: 'other',
-          content:
-            'Set VITE_OPENAI_API_KEY in examples/settings/.env.local to use the real OpenAI embedder in this example.',
-        });
-        return;
-      }
-
       await recommendationFlow.recommend(query);
       continueListeningForPrompts();
     };
@@ -382,16 +282,15 @@ export function App(): React.JSX.Element {
       ...recommendationFlow,
       recommend: runRecommendationCycle,
     };
-  }, [addMessage, getMessages, isOpenAIConfigured, openAIApiKey, setMessages]);
+  }, [addMessage, getMessages, setMessages]);
 
   const INITIAL_MESSAGES: readonly InputMessage[] = useMemo(
     () => [
       {
         id: 1,
         type: 'other',
-        content: isOpenAIConfigured
-          ? 'Welcome to Settings. Tell me what you want to change, and I will use real OpenAI embeddings to recommend actions like changing your email, updating your phone number, enabling 2FA, deleting your account, or logging out.'
-          : 'Welcome to Settings. Add VITE_OPENAI_API_KEY to examples/settings/.env.local before sending a request. This example uses real OpenAI embeddings to recommend actions like changing your email, updating your phone number, enabling 2FA, deleting your account, or logging out.',
+        content:
+          'Welcome to Settings. Tell me what you want to change, and I will send your request to a local backend that uses real OpenAI embeddings to recommend actions like changing your email, updating your phone number, enabling 2FA, deleting your account, or logging out.',
         timestamp: new Date(),
         userResponseCallback: () => {
           const lastSelfMessage = [...getMessages()]
@@ -406,7 +305,7 @@ export function App(): React.JSX.Element {
         },
       },
     ],
-    [getMessages, isOpenAIConfigured, settingsRecommendationFlow]
+    [getMessages, settingsRecommendationFlow]
   );
 
   return (

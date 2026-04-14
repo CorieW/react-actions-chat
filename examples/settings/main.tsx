@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import 'react-actions-chat/styles';
-import { App } from './App';
+import { App } from './client/App';
 import './index.css';
 
 const STALE_TIME_MS = 1000 * 60 * 5; // 5 minutes

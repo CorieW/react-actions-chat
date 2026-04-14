@@ -11,6 +11,8 @@ npm install react-actions-chat react-actions-chat-recommended-actions
 ## What It Adds
 
 - `createQueryRecommendedActionsFlow`
+- `createRemoteRecommendedActionsFlow`
+- `createRemoteRecommendedActionsHandler`
 - `createVectorSearchQueryRecommendedActionsFlow`
 - `createOpenAITextEmbedder`
 - `createCohereTextEmbedder`
@@ -32,13 +34,23 @@ Use the core package alone when your flows are already fully scripted and you kn
 
 Use `createQueryRecommendedActionsFlow(...)` when you already have a resolver, search system, or backend endpoint that can decide which actions to recommend.
 
+Use `createRemoteRecommendedActionsFlow(...)` when the frontend should call a
+backend endpoint directly and you want the package to handle the request shape,
+response parsing, and action hydration.
+
 ### Vector-search recommendations
 
 Use `createVectorSearchQueryRecommendedActionsFlow(...)` when you want semantic matching over button definitions, with either in-memory embeddings or a hosted vector-search adapter.
 
+### Backend handler
+
+Use `createRemoteRecommendedActionsHandler(...)` on the backend when you want a
+small JSON handler that matches the shared request and response format used by
+the client helper.
+
 ## Production Note
 
-The `settings` example in this repo uses a browser-side OpenAI API key to stay self-contained. That is fine for a demo, but production apps should call embedding providers from a trusted backend.
+The `settings` example in this repo routes recommendation requests through a local backend so the OpenAI API key stays on the server. Production apps should follow the same pattern with their own trusted backend.
 
 ## Read Next
 

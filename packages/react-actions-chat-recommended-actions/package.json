@@ -6,16 +6,22 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "files": [
+    "src/client.ts",
     "src/embedders",
     "src/index.ts",
     "src/queryRecommendedActionsFlow.ts",
+    "src/server.ts",
+    "src/shared.ts",
     "src/vectorSearchButtonDefinition.ts",
     "src/vectorSearchQueryRecommendedActionsFlow.ts",
     "README.md"
   ],
   "exports": {
     ".": "./src/index.ts",
-    "./embedders": "./src/embedders/index.ts"
+    "./client": "./src/client.ts",
+    "./embedders": "./src/embedders/index.ts",
+    "./server": "./src/server.ts",
+    "./shared": "./src/shared.ts"
   },
   "scripts": {
     "build": "tsc --noEmit -p ../../config/tsconfig.json",

@@ -59,8 +59,8 @@ Live demo: not published because this example requires an API key.
 Use this example for:
 
 - `react-actions-chat-recommended-actions`
-- `createVectorSearchQueryRecommendedActionsFlow`
-- `VectorSearchButtonDefinition`
+- `createRemoteRecommendedActionsFlow`
+- `createRemoteRecommendedActionsHandler`
 - `createOpenAITextEmbedder`
 
 Docs:
@@ -77,7 +77,7 @@ pnpm --filter settings-example dev
 If you want to run the `settings` demo with real embeddings, create `examples/settings/.env.local` with:
 
 ```bash
-VITE_OPENAI_API_KEY=your_openai_api_key
+OPENAI_API_KEY=your_openai_api_key
 ```
 
-That keeps the example easy to run locally, but production apps should move embedding calls behind a backend service.
+The example uses a local backend endpoint so the API key stays on the server while the browser talks to `/api/recommendations`.

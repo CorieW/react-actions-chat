@@ -29,6 +29,31 @@ Important config fields:
 - `placeholder`
 - `inputDescription`
 
+### `createRemoteRecommendedActionsFlow(config)`
+
+Creates a query flow that posts recommendation lookups to a backend endpoint
+and hydrates the returned action ids into real chat buttons.
+
+Returned API:
+
+- `button: MessageButton`
+- `start(): void`
+- `recommend(query: string): Promise<void>`
+
+Important config fields:
+
+- `endpoint`
+- `actions`
+- `createAction`
+- `buildRequestBody`
+- `parseResponse`
+- `headers`
+
+### `createRemoteRecommendedActionsResolver(config)`
+
+Creates the backend-powered resolver used by
+`createRemoteRecommendedActionsFlow(...)`.
+
 ### `createVectorSearchQueryRecommendedActionsFlow(config)`
 
 Creates a semantic recommendation flow over button definitions.
@@ -50,6 +75,25 @@ Important config fields:
 - `minScore`
 - `maxResults`
 
+## Backend Helpers
+
+### `createRemoteRecommendedActionsHandler(config)`
+
+Creates a backend helper that validates the shared request shape and returns
+JSON responses for remote recommendation lookups.
+
+Returned API:
+
+- `handle(request): Promise<RemoteRecommendedActionsResponse>`
+- `handleRequest(request: Request): Promise<Response>`
+
+Important config fields:
+
+- `recommend`
+- `errorMessage`
+- `headers`
+- `onError`
+
 ## Core Types
 
 ### `VectorSearchButtonDefinition`
@@ -68,6 +112,29 @@ Resolver context with:
 ### `QueryRecommendedActionsFlow`
 
 Public object returned by `createQueryRecommendedActionsFlow(...)`.
+
+### `RemoteRecommendedActionsRequest`
+
+Shared request payload with:
+
+- `query`
+- `messages`
+
+### `RemoteRecommendedActionsResponse`
+
+Shared response payload with:
+
+- `responseMessage`
+- `recommendedActions`
+
+### `RemoteRecommendedAction`
+
+Serializable action reference with:
+
+- `id`
+- `label`
+- `variant`
+- `data`
 
 ### `VectorSearchButtonMatch`
 
@@ -108,3 +175,8 @@ Builds the search text used to represent a button definition.
 ### `embedTexts(...)`
 
 Shared utility used by the vector-search flow and the exported embedder layer.
+
+### `serializeRecommendedActionsMessages(messages)`
+
+Converts chat store messages into the shared serializable wire format used by
+the remote client and server helpers.

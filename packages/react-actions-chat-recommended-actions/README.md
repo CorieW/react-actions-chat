@@ -11,10 +11,22 @@ npm install react-actions-chat react-actions-chat-recommended-actions
 ## What It Includes
 
 - `createQueryRecommendedActionsFlow`
+- `createRemoteRecommendedActionsFlow`
+- `createRemoteRecommendedActionsHandler`
 - `createVectorSearchQueryRecommendedActionsFlow`
 - `createOpenAITextEmbedder`
 - `createCohereTextEmbedder`
 - `createVoyageTextEmbedder`
+
+## Frontend And Backend Helpers
+
+The package now includes a higher-level remote recommendation workflow:
+
+- `react-actions-chat-recommended-actions/client` exports `createRemoteRecommendedActionsFlow(...)`
+- `react-actions-chat-recommended-actions/server` exports `createRemoteRecommendedActionsHandler(...)`
+- `react-actions-chat-recommended-actions/shared` exports the shared request and response types
+
+That setup lets the frontend point at an endpoint and map returned action ids to local buttons, while the backend returns a serializable recommendation payload.
 
 ## Shared Docs
 
@@ -29,4 +41,4 @@ The runnable `settings` example lives at [examples/settings](../../examples/sett
 
 ## Production Note
 
-The `settings` example uses a browser-side OpenAI API key to stay self-contained. For production, call embedding providers from your own backend instead of exposing the key to the client.
+The `settings` example now routes recommendation requests through a local backend so the OpenAI API key stays on the server. Production apps should use the same pattern with their own trusted backend.
