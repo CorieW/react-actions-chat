@@ -59,6 +59,27 @@ describe('Chat Component Integration Tests', () => {
     expect(screen.getByText('Hi there!')).toBeInTheDocument();
   });
 
+  it('should allow long unbroken message content to wrap inside the bubble', () => {
+    const longWord = 'a'.repeat(200);
+
+    render(
+      <Chat
+        initialMessages={[
+          {
+            id: 1,
+            type: 'other',
+            content: longWord,
+            timestamp: new Date(),
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText(longWord)).toHaveStyle({
+      overflowWrap: 'anywhere',
+    });
+  });
+
   it('should auto-scroll the message list without scrolling the page', () => {
     const scrollIntoViewSpy = vi.spyOn(Element.prototype, 'scrollIntoView');
     const scrollToSpy = vi.spyOn(HTMLElement.prototype, 'scrollTo');
