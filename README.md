@@ -21,16 +21,16 @@ npm install react-actions-chat react-actions-chat-recommended-actions
 ## Quick Start
 
 ```tsx
-import { Chat } from "react-actions-chat";
-import "react-actions-chat/styles";
+import { Chat } from 'react-actions-chat';
+import 'react-actions-chat/styles';
 
 export function App() {
   return (
     <Chat
       initialMessages={[
         {
-          type: "other",
-          content: "Hello! How can I help you today?",
+          type: 'other',
+          content: 'Hello! How can I help you today?',
         },
       ]}
     />
