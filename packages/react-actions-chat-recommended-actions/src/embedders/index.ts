@@ -3,6 +3,10 @@ export {
   type CohereTextEmbedderConfig,
 } from './cohere';
 export {
+  createGeminiTextEmbedder,
+  type GeminiTextEmbedderConfig,
+} from './gemini';
+export {
   createOpenAITextEmbedder,
   type OpenAITextEmbedderConfig,
 } from './openai';

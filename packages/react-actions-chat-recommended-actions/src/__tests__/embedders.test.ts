@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   createCohereTextEmbedder,
+  createGeminiTextEmbedder,
   createOpenAITextEmbedder,
   createVoyageTextEmbedder,
   embedTexts,
@@ -19,6 +20,17 @@ interface CohereEmbeddingsRequestBody {
 
 interface VoyageEmbeddingsRequestBody {
   readonly input_type: string;
+}
+
+interface GeminiEmbeddingsRequestBody {
+  readonly model: string;
+  readonly taskType: string;
+  readonly output_dimensionality?: number;
+  readonly content: {
+    readonly parts: readonly {
+      readonly text: string;
+    }[];
+  };
 }
 
 type FetchMock = (
@@ -479,5 +491,155 @@ describe('Built-in Embedders', () => {
     await expect(
       missingEmbeddingEmbedder.embedText('document text')
     ).rejects.toThrow('Voyage did not return an embedding for the input text.');
+  });
+
+  it('creates Gemini embeddings with retrieval-aware task types', async () => {
+    const fetchMock = vi.fn<FetchMock>(
+      (_input: RequestInfo | URL, init?: RequestInit) => {
+        const parsedBody = parseRequestBody<GeminiEmbeddingsRequestBody>(init);
+        expect(parsedBody.model).toBe('models/gemini-embedding-001');
+        expect(parsedBody.taskType).toBe('RETRIEVAL_QUERY');
+        expect(parsedBody.output_dimensionality).toBe(768);
+        expect(parsedBody.content.parts).toEqual([{ text: 'hello world' }]);
+
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              embeddings: [
+                {
+                  values: [0.5, 0.6, 0.7],
+                },
+              ],
+            }),
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        );
+      }
+    );
+    const embedder = createGeminiTextEmbedder({
+      apiKey: 'test-key',
+      fetch: fetchMock,
+      outputDimensionality: 768,
+    });
+
+    await expect(
+      embedder.embedText('hello world', {
+        inputType: 'query',
+      })
+    ).resolves.toEqual([0.5, 0.6, 0.7]);
+    expect(fetchMock.mock.calls[0]?.[0]).toBe(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent'
+    );
+    const [, requestInit] = fetchMock.mock.calls[0] as [
+      RequestInfo | URL,
+      RequestInit | undefined,
+    ];
+    expect(new Headers(requestInit?.headers).get('x-goog-api-key')).toBe(
+      'test-key'
+    );
+  });
+
+  it('supports Gemini single-embedding responses and surfaces provider errors', async () => {
+    const singleResponseFetchMock = vi.fn<FetchMock>(() =>
+      Promise.resolve(
+        new Response(
+          JSON.stringify({
+            embedding: {
+              values: [0.8, 0.7, 0.6],
+            },
+          }),
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      )
+    );
+    const errorFetchMock = vi.fn<FetchMock>(() =>
+      Promise.resolve(
+        new Response(
+          JSON.stringify({
+            error: {
+              message: 'Gemini request was rejected',
+            },
+          }),
+          {
+            status: 403,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      )
+    );
+    const mismatchFetchMock = vi.fn<FetchMock>(() =>
+      Promise.resolve(
+        new Response(
+          JSON.stringify({
+            embeddings: [],
+          }),
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      )
+    );
+    const missingEmbeddingFetchMock = vi.fn<FetchMock>(() =>
+      Promise.resolve(
+        new Response(
+          JSON.stringify({
+            embeddings: [{}],
+          }),
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      )
+    );
+
+    const singleResponseEmbedder = createGeminiTextEmbedder({
+      apiKey: 'test-key',
+      fetch: singleResponseFetchMock,
+    });
+    const errorEmbedder = createGeminiTextEmbedder({
+      apiKey: 'test-key',
+      fetch: errorFetchMock,
+    });
+    const mismatchEmbedder = createGeminiTextEmbedder({
+      apiKey: 'test-key',
+      fetch: mismatchFetchMock,
+    });
+    const missingEmbeddingEmbedder = createGeminiTextEmbedder({
+      apiKey: 'test-key',
+      fetch: missingEmbeddingFetchMock,
+    });
+
+    await expect(
+      singleResponseEmbedder.embedText('hello world')
+    ).resolves.toEqual([0.8, 0.7, 0.6]);
+    await expect(errorEmbedder.embedText('hello world')).rejects.toThrow(
+      'Gemini request was rejected'
+    );
+    await expect(
+      mismatchEmbedder.embedTexts?.(['hello world', 'bye world'])
+    ).rejects.toThrow(
+      'Gemini embeddings response did not include one embedding per input text.'
+    );
+    await expect(
+      missingEmbeddingEmbedder.embedText('hello world')
+    ).rejects.toThrow('Gemini did not return an embedding for the input text.');
   });
 });

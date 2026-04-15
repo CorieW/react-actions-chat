@@ -49,6 +49,7 @@ export {
 } from './shared';
 export {
   createCohereTextEmbedder,
+  createGeminiTextEmbedder,
   createOpenAITextEmbedder,
   createVoyageTextEmbedder,
   type CohereTextEmbedderConfig,
@@ -56,6 +57,7 @@ export {
   type EmbeddingInputType,
   type EmbeddingVector,
   type FetchLike,
+  type GeminiTextEmbedderConfig,
   type OpenAITextEmbedderConfig,
   type TextEmbedder,
   type VoyageTextEmbedderConfig,
