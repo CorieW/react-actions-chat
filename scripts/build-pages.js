@@ -28,9 +28,6 @@ const liveExamples = [
   {
     packageName: 'settings-example',
     directoryName: 'settings',
-    env: {
-      VITE_SETTINGS_RECOMMENDATION_MODE: 'static',
-    },
   },
 ];
 

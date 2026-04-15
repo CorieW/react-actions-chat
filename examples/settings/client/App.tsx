@@ -1,110 +1,108 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Chat,
   createButton,
   createRequestConfirmationButtonDef,
   createRequestInputButtonDef,
   useChatStore,
+  useInputFieldStore,
 } from 'react-actions-chat';
-import type { InputMessage } from 'react-actions-chat';
+import type { CreatedButton, InputMessage } from 'react-actions-chat';
 import {
   createQueryRecommendedActionsFlow,
-  createRemoteRecommendedActionsFlow,
+  createVectorSearchQueryRecommendedActionsFlow,
 } from 'react-actions-chat-recommended-actions';
+import {
+  SETTINGS_RECOMMENDATION_DOCUMENTS,
+  type SettingsRecommendationActionId,
+} from '../server/settingsRecommendationCatalog';
+import {
+  createSettingsClientEmbedder,
+  getSettingsEmbedderProvider,
+  normalizeEmbedderApiKey,
+  SETTINGS_EMBEDDER_PROVIDERS,
+  type SettingsEmbedderProviderId,
+} from './settingsClientEmbedder';
 
-type SettingsClientActionId =
-  | 'email'
-  | 'password'
-  | 'display-name'
-  | 'phone-number'
-  | 'two-factor-auth'
-  | 'logout'
-  | 'delete-account'
-  | 'help';
+type SettingsClientActionId = SettingsRecommendationActionId | 'help';
 
-const SETTINGS_DEMO_MODE = 'static';
-function normalizeRecommendationQuery(query: string): string {
-  return query.trim().toLowerCase();
+interface SettingsRecommendationRuntimeFlow {
+  readonly recommend: (query: string) => Promise<void>;
 }
 
-function getDemoRecommendedActionIds(
-  query: string
-): readonly SettingsClientActionId[] {
-  const normalizedQuery = normalizeRecommendationQuery(query);
-
-  if (
-    normalizedQuery.includes('email') ||
-    normalizedQuery.includes('verification')
-  ) {
-    return ['email'];
-  }
-
-  if (
-    normalizedQuery.includes('password') ||
-    normalizedQuery.includes('login') ||
-    normalizedQuery.includes('sign in')
-  ) {
-    return ['password'];
-  }
-
-  if (
-    normalizedQuery.includes('display name') ||
-    normalizedQuery.includes('profile name') ||
-    normalizedQuery.includes('rename')
-  ) {
-    return ['display-name'];
-  }
-
-  if (
-    normalizedQuery.includes('phone') ||
-    normalizedQuery.includes('mobile') ||
-    normalizedQuery.includes('recovery number')
-  ) {
-    return ['phone-number'];
-  }
-
-  if (
-    normalizedQuery.includes('two-factor') ||
-    normalizedQuery.includes('2fa') ||
-    normalizedQuery.includes('secure')
-  ) {
-    return ['two-factor-auth'];
-  }
-
-  if (
-    normalizedQuery.includes('logout') ||
-    normalizedQuery.includes('log out') ||
-    normalizedQuery.includes('sign out') ||
-    normalizedQuery.includes('session')
-  ) {
-    return ['logout'];
-  }
-
-  if (
-    normalizedQuery.includes('delete') ||
-    normalizedQuery.includes('close account') ||
-    normalizedQuery.includes('remove account')
-  ) {
-    return ['delete-account'];
-  }
-
-  return ['help'];
-}
+const PROVIDER_SELECTION_PLACEHOLDER = 'Choose an embedder provider first.';
 
 /**
  * Settings Example
  *
  * This example demonstrates a settings page with:
  * - Automatic query-based recommendations for the right settings action
- * - The companion recommended-actions package with a backend recommendation API
+ * - The companion recommended-actions package with browser-side embeddings
  *
- * The browser sends recommendation queries to a local API endpoint and the
- * server uses a real OpenAI embedder. That keeps the API key off the client.
+ * The transcript starts by asking which embedder provider to use, then asks for
+ * that provider's API key before recommending settings actions.
  */
 export function App(): React.JSX.Element {
   const { addMessage, getMessages, setMessages } = useChatStore();
-  const isStaticDemoMode =
-    import.meta.env.VITE_SETTINGS_RECOMMENDATION_MODE === SETTINGS_DEMO_MODE;
+  const initialMessagesRef = useRef<readonly InputMessage[] | null>(null);
+  const settingsRecommendationFlowRef =
+    useRef<SettingsRecommendationRuntimeFlow | null>(null);
+  const [selectedProviderId, setSelectedProviderId] =
+    useState<SettingsEmbedderProviderId | null>(null);
+  const [loadedClientApiKeys, setLoadedClientApiKeys] = useState<
+    Record<SettingsEmbedderProviderId, string>
+  >({
+    openai: '',
+    cohere: '',
+    gemini: '',
+    voyage: '',
+  });
+  const lockedProviderId =
+    selectedProviderId !== null &&
+    loadedClientApiKeys[selectedProviderId] !== ''
+      ? selectedProviderId
+      : null;
+  const selectedLoadedClientApiKey =
+    selectedProviderId === null ? '' : loadedClientApiKeys[selectedProviderId];
+
+  const clientEmbedder = useMemo(() => {
+    if (selectedProviderId === null) {
+      return null;
+    }
+
+    return createSettingsClientEmbedder({
+      providerId: selectedProviderId,
+      apiKey: selectedLoadedClientApiKey,
+    });
+  }, [selectedLoadedClientApiKey, selectedProviderId]);
+
+  const resetInputForProviderSelection = (): void => {
+    const inputFieldStore = useInputFieldStore.getState();
+    inputFieldStore.setInputFieldValue('');
+    inputFieldStore.resetInputFieldDescription();
+    inputFieldStore.resetInputFieldType();
+    inputFieldStore.setInputFieldPlaceholder(PROVIDER_SELECTION_PLACEHOLDER);
+    inputFieldStore.resetInputFieldValidator();
+    inputFieldStore.setInputFieldDisabled(true);
+  };
+
+  const recommendLatestSettingsQuery = (): void => {
+    const lastSelfMessage = [...useChatStore.getState().getMessages()]
+      .reverse()
+      .find(message => message.type === 'self');
+
+    if (lastSelfMessage) {
+      void settingsRecommendationFlowRef.current?.recommend(
+        lastSelfMessage.rawContent
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (selectedProviderId === null) {
+      resetInputForProviderSelection();
+    }
+  }, [selectedProviderId]);
 
   const CHANGE_EMAIL_BUTTON_DEF = createRequestInputButtonDef({
     id: 'email',
@@ -263,24 +261,109 @@ export function App(): React.JSX.Element {
     },
   });
 
+  const createProviderSelectionButtons = (): readonly CreatedButton[] => {
+    return SETTINGS_EMBEDDER_PROVIDERS.map(provider =>
+      createButton({
+        label: provider.label,
+        onClick: () => {
+          if (lockedProviderId !== null && provider.id !== lockedProviderId) {
+            const lockedProvider =
+              getSettingsEmbedderProvider(lockedProviderId);
+
+            addMessage({
+              type: 'other',
+              content: `${lockedProvider.label} is already configured for this session. Switching embedders is disabled once setup is complete.`,
+              buttons: createClientEmbedderSetupButtons(lockedProviderId),
+            });
+            return;
+          }
+
+          useInputFieldStore.getState().setInputFieldDisabled(false);
+          setSelectedProviderId(provider.id);
+          createProviderApiKeyButton(provider.id).onClick?.();
+        },
+      })
+    );
+  };
+
+  const createProviderApiKeyButton = (
+    providerId: SettingsEmbedderProviderId
+  ): CreatedButton => {
+    const provider = getSettingsEmbedderProvider(providerId);
+
+    return createButton(
+      createRequestInputButtonDef({
+        id: `${provider.id}-api-key`,
+        initialLabel: provider.label,
+        inputPromptMessage: `Enter your ${provider.label} API key to turn on live recommendations.`,
+        inputType: 'password',
+        placeholder: provider.apiKeyPlaceholder,
+        inputDescription: provider.description,
+        validator: (value: string) => {
+          if (normalizeEmbedderApiKey(value) === '') {
+            return `Enter your ${provider.label} API key.`;
+          }
+
+          return true;
+        },
+      }),
+      {
+        abortCallback: () => {
+          setSelectedProviderId(null);
+          resetInputForProviderSelection();
+          addMessage({
+            type: 'other',
+            content:
+              'No problem. Choose an embedder provider when you are ready to continue.',
+            buttons: createProviderSelectionButtons(),
+          });
+        },
+        onValidInput: (apiKey: string) => {
+          const normalizedApiKey = normalizeEmbedderApiKey(apiKey);
+
+          setSelectedProviderId(providerId);
+          setLoadedClientApiKeys(currentKeys => ({
+            ...currentKeys,
+            [providerId]: normalizedApiKey,
+          }));
+          addMessage({
+            type: 'other',
+            content: `${provider.label} API key loaded. Tell me what setting you want to change, and I will recommend the best action.`,
+            userResponseCallback: recommendLatestSettingsQuery,
+            buttons: createClientEmbedderSetupButtons(providerId),
+          });
+        },
+      }
+    );
+  };
+
+  const createClientEmbedderSetupButtons = (
+    providerId: SettingsEmbedderProviderId | null
+  ): readonly CreatedButton[] => {
+    if (providerId === null) {
+      return createProviderSelectionButtons();
+    }
+
+    return [];
+  };
+
   const HELP_BUTTON = {
     label: 'Help',
     variant: 'info' as const,
     onClick: (): void => {
+      const helpContent =
+        lockedProviderId === null
+          ? 'Try asking about changing your email or password, updating your display name or phone number, enabling two-factor authentication, deleting your account, or logging out. Choose an embedder provider below to get started.'
+          : 'Try asking about changing your email or password, updating your display name or phone number, enabling two-factor authentication, deleting your account, or logging out.';
+
       addMessage({
         type: 'other',
-        content:
-          'Try asking about changing your email or password, updating your display name or phone number, enabling two-factor authentication, deleting your account, or logging out.',
+        content: helpContent,
+        buttons: createClientEmbedderSetupButtons(
+          lockedProviderId ?? selectedProviderId
+        ),
         userResponseCallback: () => {
-          const lastSelfMessage = [...useChatStore.getState().getMessages()]
-            .reverse()
-            .find(message => message.type === 'self');
-
-          if (lastSelfMessage) {
-            void settingsRecommendationFlow.recommend(
-              lastSelfMessage.rawContent
-            );
-          }
+          recommendLatestSettingsQuery();
         },
       });
     },
@@ -301,48 +384,58 @@ export function App(): React.JSX.Element {
       ReturnType<typeof createButton> | (() => ReturnType<typeof createButton>)
     >;
 
+    const getAction = (actionId: SettingsClientActionId) => {
+      const action = actions[actionId];
+      return typeof action === 'function' ? action() : action;
+    };
+
     const sharedFlowConfig = {
       placeholder:
         'Try "update my phone number", "enable 2fa", or "delete my account"',
       inputDescription:
         'Describe what you want to change and I will recommend the best settings action.',
       loadingMessage: '',
-      minimumLoadingDurationMs: 2000,
+      minimumLoadingDurationMs: clientEmbedder ? 2000 : 0,
       onError: (query: string, error: unknown) => {
         addMessage({
           type: 'other',
           content: `Error recommending settings action for "${query}": ${error instanceof Error ? error.message : String(error)}`,
+          buttons: createClientEmbedderSetupButtons(selectedProviderId),
         });
       },
     };
 
-    const recommendationFlow = isStaticDemoMode
-      ? createQueryRecommendedActionsFlow({
+    const recommendationFlow = clientEmbedder
+      ? createVectorSearchQueryRecommendedActionsFlow({
           ...sharedFlowConfig,
-          getRecommendedActions: query => {
-            const actionIds = getDemoRecommendedActionIds(query);
-            const recommendedActions = actionIds.map(actionId => {
-              const action = actions[actionId];
-              return typeof action === 'function' ? action() : action;
-            });
-
-            if (actionIds.includes('help')) {
+          buttons: SETTINGS_RECOMMENDATION_DOCUMENTS,
+          embedder: clientEmbedder,
+          maxResults: 5,
+          minScore: 0.2,
+          createAction: ({ match }) => getAction(match.button.id),
+          buildResult: ({ matches, query }) => {
+            if (matches.length === 0) {
               return {
                 responseMessage: `I couldn't find any recommended actions for "${query}".`,
-                recommendedActions,
+                recommendedActions: [getAction('help')],
               };
             }
 
             return {
               responseMessage: `Here are the best settings actions I found for "${query}".`,
-              recommendedActions,
+              recommendedActions: matches.map(match =>
+                getAction(match.button.id)
+              ),
             };
           },
         })
-      : createRemoteRecommendedActionsFlow({
+      : createQueryRecommendedActionsFlow({
           ...sharedFlowConfig,
-          endpoint: '/api/recommendations',
-          actions,
+          getRecommendedActions: () => ({
+            responseMessage:
+              "Choose an embedder provider and load that provider's API key before asking me to recommend a settings action.",
+            recommendedActions: [getAction('help')],
+          }),
         });
 
     const continueListeningForPrompts = (): void => {
@@ -386,40 +479,33 @@ export function App(): React.JSX.Element {
     };
   }, [
     addMessage,
+    clientEmbedder,
     getMessages,
-    isStaticDemoMode,
+    lockedProviderId,
+    selectedProviderId,
     setMessages,
   ]);
 
-  const INITIAL_MESSAGES: readonly InputMessage[] = useMemo(
-    () => [
+  useEffect(() => {
+    settingsRecommendationFlowRef.current = settingsRecommendationFlow;
+  }, [settingsRecommendationFlow]);
+
+  if (!initialMessagesRef.current) {
+    initialMessagesRef.current = [
       {
         id: 1,
         type: 'other',
-        content: isStaticDemoMode
-          ? 'Welcome to Settings. This published demo uses a built-in recommendation mode so you can try the flow directly in the browser.'
-          : 'Welcome to Settings. Tell me what you want to change, and I will send your request to a local backend that uses real OpenAI embeddings to recommend actions like changing your email, updating your phone number, enabling 2FA, deleting your account, or logging out.',
-        timestamp: new Date(),
-        userResponseCallback: () => {
-          const lastSelfMessage = [...getMessages()]
-            .reverse()
-            .find(message => message.type === 'self');
-
-          if (lastSelfMessage) {
-            void settingsRecommendationFlow.recommend(
-              lastSelfMessage.rawContent
-            );
-          }
-        },
+        content:
+          "Welcome to Settings. First choose which embedder provider you want to use, then I will ask for that provider's API key before we start recommending settings actions.",
+        buttons: createProviderSelectionButtons(),
       },
-    ],
-    [getMessages, isStaticDemoMode, settingsRecommendationFlow]
-  );
+    ];
+  }
 
   return (
     <div className='bg-background min-h-screen'>
       <Chat
-        initialMessages={INITIAL_MESSAGES}
+        initialMessages={initialMessagesRef.current ?? []}
         theme='dark'
       />
     </div>
