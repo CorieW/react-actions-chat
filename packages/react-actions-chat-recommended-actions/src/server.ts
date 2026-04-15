@@ -210,7 +210,7 @@ export function createRemoteRecommendedActionsHandler<TData = unknown>(
     let parsedRequest: RemoteRecommendedActionsRequest | null = null;
 
     try {
-      const json = await request.json();
+      const json: unknown = await request.json();
       assertRemoteRequest(json);
       parsedRequest = json;
 

@@ -16,7 +16,7 @@ export const SETTINGS_EMBEDDER_PROVIDER_IDS = [
 export type SettingsEmbedderProviderId =
   (typeof SETTINGS_EMBEDDER_PROVIDER_IDS)[number];
 
-export interface SettingsEmbedderProviderDefinition {
+interface SettingsEmbedderProviderDefinition {
   readonly id: SettingsEmbedderProviderId;
   readonly label: string;
   readonly description: string;
@@ -58,7 +58,7 @@ export const SETTINGS_EMBEDDER_PROVIDERS: readonly SettingsEmbedderProviderDefin
     },
   ];
 
-export const DEFAULT_SETTINGS_EMBEDDER_PROVIDER_ID: SettingsEmbedderProviderId =
+const DEFAULT_SETTINGS_EMBEDDER_PROVIDER_ID: SettingsEmbedderProviderId =
   'openai';
 
 const PROVIDER_MAP = new Map(
@@ -75,29 +75,6 @@ export function getSettingsEmbedderProvider(
     PROVIDER_MAP.get(providerId) ??
     PROVIDER_MAP.get(DEFAULT_SETTINGS_EMBEDDER_PROVIDER_ID)!
   );
-}
-
-/**
- * Normalizes provider ids coming from UI state.
- */
-export function resolveSettingsEmbedderProvider(
-  rawProviderId?: string
-): SettingsEmbedderProviderId {
-  const normalizedProviderId = rawProviderId?.trim().toLowerCase();
-
-  if (normalizedProviderId === 'cohere') {
-    return 'cohere';
-  }
-
-  if (normalizedProviderId === 'voyage') {
-    return 'voyage';
-  }
-
-  if (normalizedProviderId === 'gemini') {
-    return 'gemini';
-  }
-
-  return DEFAULT_SETTINGS_EMBEDDER_PROVIDER_ID;
 }
 
 /**

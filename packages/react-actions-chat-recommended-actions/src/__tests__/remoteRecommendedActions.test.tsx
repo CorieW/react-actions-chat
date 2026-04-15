@@ -44,10 +44,14 @@ describe('Remote Recommended Actions Helpers', () => {
   it('posts serialized chat messages to a backend and hydrates returned actions', async () => {
     const user = userEvent.setup();
     const handleResetPassword = vi.fn();
-    const fetchSpy = vi.fn<typeof fetch>(async (_input, init) => {
+    const fetchSpy = vi.fn<typeof fetch>((_input, init) => {
       expect(init?.method).toBe('POST');
 
-      const requestBody = JSON.parse(String(init?.body)) as {
+      const requestBodySource =
+        typeof init?.body === 'string' ? init.body : undefined;
+      expect(requestBodySource).toBeDefined();
+
+      const requestBody = JSON.parse(requestBodySource ?? '{}') as {
         query: string;
         messages: Array<Record<string, unknown>>;
       };
@@ -64,22 +68,24 @@ describe('Remote Recommended Actions Helpers', () => {
         requestBody.messages.every(message => !('buttons' in message))
       ).toBe(true);
 
-      return new Response(
-        JSON.stringify({
-          responseMessage: 'Here is the best next step.',
-          recommendedActions: [
-            {
-              id: 'reset-password',
-              label: 'Reset it for me',
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            responseMessage: 'Here is the best next step.',
+            recommendedActions: [
+              {
+                id: 'reset-password',
+                label: 'Reset it for me',
+              },
+            ],
+          }),
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
             },
-          ],
-        }),
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+          }
+        )
       );
     });
     const flow = createRemoteRecommendedActionsFlow({
