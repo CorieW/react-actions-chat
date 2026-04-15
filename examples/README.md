@@ -6,10 +6,10 @@ This folder contains runnable workspace examples demonstrating different use cas
 
 - **qa-bot** - A simple question and answer bot that responds to user queries
 - **login** - A login flow using email and password inputs
-- **settings** - A settings page that uses the companion recommended-actions package and a local backend with a real OpenAI embedder to recommend settings actions from a user query
+- **settings** - A settings page that uses the companion recommended-actions package and starts by asking for an embedder provider plus API key inside the chat
 
-The published GitHub Pages version of `settings` uses a static fallback
-recommendation mode because GitHub Pages cannot run serverless functions.
+The `settings` example now always asks for an embedder provider and API key in
+the chat itself before it starts recommending actions.
 
 You can also build reusable recommended-action flows with the companion `react-actions-chat-recommended-actions` package, including embedding-based search backed by your own search or vector search service.
 
@@ -55,14 +55,8 @@ Make sure you have Node.js and `pnpm` available. If needed, run `corepack enable
    pnpm install
    ```
 
-5. If you are running the `settings` example, create `examples/settings/.env.local` with a real OpenAI API key:
-
-   ```bash
-   OPENAI_API_KEY=your_openai_api_key
-   ```
-
-The example's local API route keeps the key on the server instead of exposing it to the browser bundle.
-
+5. If you are running the `settings` example, just open it and follow the chat
+   prompts to choose an embedder provider and enter that provider's API key.
 
 6. Start the development server:
 

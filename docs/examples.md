@@ -59,9 +59,11 @@ Live demo: [settings](https://coriew.github.io/react-actions-chat/examples/setti
 Use this example for:
 
 - `react-actions-chat-recommended-actions`
-- `createRemoteRecommendedActionsFlow`
-- `createRemoteRecommendedActionsHandler`
-- `createOpenAITextEmbedder`
+- `createVectorSearchQueryRecommendedActionsFlow`
+- `createOpenAITextEmbedder`, `createCohereTextEmbedder`,
+  `createGeminiTextEmbedder`, and
+  `createVoyageTextEmbedder`
+- browser-side embedder selection and API key collection in the transcript
 
 Docs:
 
@@ -74,14 +76,5 @@ Run it:
 pnpm --filter settings-example dev
 ```
 
-If you want to run the `settings` demo with real embeddings, create `examples/settings/.env.local` with:
-
-```bash
-OPENAI_API_KEY=your_openai_api_key
-```
-
-The example uses a local backend endpoint so the API key stays on the server while the browser talks to `/api/recommendations`.
-
-The published GitHub Pages demo uses a static fallback recommendation mode
-because GitHub Pages cannot run serverless functions.
-
+The demo always starts by asking which embedder provider to use, then asks for
+that provider's API key inside the chat flow. No local `.env` setup is needed.

@@ -153,6 +153,10 @@ Builds a `TextEmbedder` backed by OpenAI embeddings.
 
 Builds a `TextEmbedder` backed by Cohere embeddings.
 
+### `createGeminiTextEmbedder(config)`
+
+Builds a `TextEmbedder` backed by Gemini embeddings.
+
 ### `createVoyageTextEmbedder(config)`
 
 Builds a `TextEmbedder` backed by Voyage embeddings.
@@ -164,7 +168,7 @@ Builds a `TextEmbedder` backed by Voyage embeddings.
 - `EmbeddingInputType`
 - `EmbedTextOptions`
 - `FetchLike`
-- provider config types for OpenAI, Cohere, and Voyage
+- provider config types for OpenAI, Cohere, Gemini, and Voyage
 
 ## Helper Utilities
 

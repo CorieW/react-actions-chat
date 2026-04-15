@@ -16,6 +16,7 @@ npm install react-actions-chat react-actions-chat-recommended-actions
 - `createVectorSearchQueryRecommendedActionsFlow`
 - `createOpenAITextEmbedder`
 - `createCohereTextEmbedder`
+- `createGeminiTextEmbedder`
 - `createVoyageTextEmbedder`
 
 ## Frontend And Backend Helpers
@@ -41,4 +42,6 @@ The runnable `settings` example lives at [examples/settings](../../examples/sett
 
 ## Production Note
 
-The `settings` example now routes recommendation requests through a local backend so the OpenAI API key stays on the server. Production apps should use the same pattern with their own trusted backend.
+The `settings` example now keeps the demo simple by collecting the embedder
+provider and API key in the browser. Production apps should still prefer their
+own trusted backend so provider keys stay off the client.

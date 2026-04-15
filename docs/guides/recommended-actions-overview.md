@@ -81,7 +81,10 @@ The returned object exposes:
 
 ## Production Guidance
 
-The `examples/settings` app routes recommendation requests through a local backend that uses a real OpenAI embedder. Production apps should follow the same pattern so provider keys stay on a trusted backend instead of in the browser.
+The `examples/settings` app in this repo keeps the demo simple by collecting the
+embedder provider and API key in the browser. Production apps should usually
+follow a backend-driven pattern instead so provider keys stay on a trusted
+backend instead of in the browser.
 
 For backend-driven recommendations, the package also exports:
 

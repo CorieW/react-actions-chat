@@ -88,6 +88,7 @@ The package exports ready-made embedders for:
 
 - OpenAI via `createOpenAITextEmbedder`
 - Cohere via `createCohereTextEmbedder`
+- Gemini via `createGeminiTextEmbedder`
 - Voyage via `createVoyageTextEmbedder`
 
 All three are convenient for demos and app integrations, but production apps should usually call them from backend code rather than the browser.
