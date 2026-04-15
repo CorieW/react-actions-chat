@@ -10,6 +10,7 @@ describe('Input Field Store Unit Tests', () => {
     store.resetInputFieldDescription();
     store.resetInputFieldType();
     store.resetInputFieldPlaceholder();
+    store.resetInputFieldDisabled();
     store.resetInputFieldValidator();
     store.resetInputFieldValue();
   });
@@ -82,6 +83,32 @@ describe('Input Field Store Unit Tests', () => {
     it('should have empty description by default', () => {
       const store = useInputFieldStore.getState();
       expect(store.getInputFieldDescription()).toBe('');
+    });
+  });
+
+  describe('setInputFieldDisabled and getInputFieldDisabled', () => {
+    it('should set and get disabled state', () => {
+      const store = useInputFieldStore.getState();
+
+      store.setInputFieldDisabled(true);
+      expect(store.getInputFieldDisabled()).toBe(true);
+
+      store.setInputFieldDisabled(false);
+      expect(store.getInputFieldDisabled()).toBe(false);
+    });
+
+    it('should be enabled by default', () => {
+      const store = useInputFieldStore.getState();
+      expect(store.getInputFieldDisabled()).toBe(false);
+    });
+
+    it('should reset disabled state back to enabled', () => {
+      const store = useInputFieldStore.getState();
+
+      store.setInputFieldDisabled(true);
+      store.resetInputFieldDisabled();
+
+      expect(store.getInputFieldDisabled()).toBe(false);
     });
   });
 

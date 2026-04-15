@@ -35,19 +35,21 @@ export function ChatInput({
     getInputFieldDescription,
     getInputFieldType,
     getInputFieldPlaceholder,
+    getInputFieldDisabled,
   } = useInputFieldStore();
 
   const inputType = getInputFieldType();
   const inputPlaceholder = getInputFieldPlaceholder();
+  const inputDisabled = getInputFieldDisabled();
 
   const handleSend = useCallback((): void => {
-    if (getInputFieldValue().trim() === '') return;
+    if (inputDisabled || getInputFieldValue().trim() === '') return;
 
     // Note: Validation is handled in the userResponseCallback of the requesting message
     // We allow sending here to enable error messages to be displayed when validation fails
     onSend(getInputFieldValue());
     setInputFieldValue('');
-  }, [getInputFieldValue, onSend, setInputFieldValue]);
+  }, [getInputFieldValue, inputDisabled, onSend, setInputFieldValue]);
   handleSendRef.current = handleSend;
 
   const submitInput = useCallback((): void => {
@@ -115,6 +117,7 @@ export function ChatInput({
           onChange={e => setInputFieldValue(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder={inputPlaceholder}
+          disabled={inputDisabled}
           className='placeholder:text-opacity-50 flex-1 rounded-lg px-4 py-3 focus:ring-1 focus:outline-none'
           style={{
             backgroundColor: `${theme.inputBackgroundColor}80`,
@@ -125,7 +128,7 @@ export function ChatInput({
         />
         <Button
           onClick={handleSend}
-          disabled={getInputFieldValue().trim() === ''}
+          disabled={inputDisabled || getInputFieldValue().trim() === ''}
           className='h-auto shrink-0 rounded-lg px-4 py-3 disabled:opacity-40'
           style={{
             backgroundColor: theme.buttonColor,

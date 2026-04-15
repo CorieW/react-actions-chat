@@ -16,6 +16,7 @@ describe('request button definitions', () => {
     useInputFieldStore.getState().resetInputFieldDescription();
     useInputFieldStore.getState().resetInputFieldType();
     useInputFieldStore.getState().resetInputFieldPlaceholder();
+    useInputFieldStore.getState().resetInputFieldDisabled();
     useInputFieldStore.getState().resetInputFieldValidator();
   });
 
@@ -46,6 +47,7 @@ describe('request button definitions', () => {
     expect(useInputFieldStore.getState().getInputFieldDescription()).toBe(
       'We will send a verification link to this address.'
     );
+    expect(useInputFieldStore.getState().getInputFieldDisabled()).toBe(false);
     expect(usePersistentButtonStore.getState().getButtons()).toHaveLength(1);
   });
 
@@ -76,6 +78,35 @@ describe('request button definitions', () => {
 
     expect(onSuccess).toHaveBeenCalledWith('new@example.com');
     expect(onValidInput).toHaveBeenCalledWith('new@example.com');
+  });
+
+  it('still resets the shared input state before running a custom abort callback', () => {
+    const abortCallback = vi.fn();
+    const button = createButton(
+      createRequestInputButtonDef({
+        initialLabel: 'Change Email',
+        inputPromptMessage: 'Enter your new email address.',
+        inputType: 'email',
+        placeholder: 'email@example.com',
+        inputDescription: 'We will send a verification link to this address.',
+      }),
+      {
+        abortCallback,
+      }
+    );
+
+    button.onClick?.();
+
+    const [abortButton] = usePersistentButtonStore.getState().getButtons();
+    abortButton?.onClick?.();
+
+    expect(abortCallback).toHaveBeenCalledTimes(1);
+    expect(useInputFieldStore.getState().getInputFieldType()).toBe('text');
+    expect(useInputFieldStore.getState().getInputFieldPlaceholder()).toBe(
+      'Type your message...'
+    );
+    expect(useInputFieldStore.getState().getInputFieldDescription()).toBe('');
+    expect(usePersistentButtonStore.getState().getButtons()).toHaveLength(0);
   });
 
   it('creates a confirmation button from a reusable definition', () => {

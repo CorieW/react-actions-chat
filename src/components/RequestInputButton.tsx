@@ -140,10 +140,12 @@ export function createRequestInputButton(
         setInputFieldType,
         setInputFieldPlaceholder,
         setInputFieldDescription,
+        setInputFieldDisabled,
         setInputFieldValidator,
         resetInputFieldType,
         resetInputFieldPlaceholder,
         resetInputFieldDescription,
+        resetInputFieldDisabled,
         resetInputFieldValidator,
       } = useInputFieldStore.getState();
       const { addButton, removeButton } = usePersistentButtonStore.getState();
@@ -151,6 +153,7 @@ export function createRequestInputButton(
       // Configure the input field
       setInputFieldType(inputType);
       setInputFieldPlaceholder(placeholder);
+      setInputFieldDisabled(false);
       if (inputDescription) {
         setInputFieldDescription(inputDescription);
       }
@@ -167,6 +170,7 @@ export function createRequestInputButton(
         resetInputFieldType();
         resetInputFieldPlaceholder();
         resetInputFieldDescription();
+        resetInputFieldDisabled();
         resetInputFieldValidator();
       };
 
@@ -178,13 +182,10 @@ export function createRequestInputButton(
         clearPreviousMessageCallback();
       };
 
-      // Use custom abort callback if provided, otherwise use default
+      // Always reset the shared input flow before running custom abort logic.
       const handleAbort = (): void => {
-        if (abortCallback) {
-          abortCallback();
-        } else {
-          handleDefaultAbort();
-        }
+        handleDefaultAbort();
+        abortCallback?.();
       };
 
       // Create a reusable validation callback that can be attached to error messages

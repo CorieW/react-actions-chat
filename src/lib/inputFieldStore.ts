@@ -39,6 +39,7 @@ export type InputValidator = (value: string) => InputValidationResult;
  * @property inputFieldDescription Helper text shown above the input field.
  * @property inputFieldType Current HTML input type.
  * @property inputFieldPlaceholder Current placeholder text.
+ * @property inputFieldDisabled Whether the input field is disabled.
  * @property inputFieldValidator Current validator applied to submitted input.
  * @property getInputFieldElement Returns the registered input element instance.
  * @property getInputFieldValue Returns the current input field value.
@@ -46,6 +47,7 @@ export type InputValidator = (value: string) => InputValidationResult;
  * @property getInputFieldDescription Returns the helper text shown above the input field.
  * @property getInputFieldType Returns the current HTML input type.
  * @property getInputFieldPlaceholder Returns the current placeholder text.
+ * @property getInputFieldDisabled Returns whether the input field is disabled.
  * @property getInputFieldValidator Returns the current validator.
  * @property setInputFieldElement Registers the input element instance.
  * @property setInputFieldValue Updates the current input field value.
@@ -53,12 +55,14 @@ export type InputValidator = (value: string) => InputValidationResult;
  * @property setInputFieldDescription Updates the helper text shown above the input field.
  * @property setInputFieldType Updates the current HTML input type.
  * @property setInputFieldPlaceholder Updates the current placeholder text.
+ * @property setInputFieldDisabled Updates whether the input field is disabled.
  * @property setInputFieldValidator Updates the current validator.
  * @property resetInputField Clears the registered element and submit callback.
  * @property resetInputFieldValue Clears the current input field value.
  * @property resetInputFieldDescription Clears the helper text.
  * @property resetInputFieldType Resets the input type to `text`.
  * @property resetInputFieldPlaceholder Resets the placeholder text.
+ * @property resetInputFieldDisabled Re-enables the input field.
  * @property resetInputFieldValidator Clears the validator.
  */
 interface InputFieldState {
@@ -68,6 +72,7 @@ interface InputFieldState {
   readonly inputFieldDescription: string;
   readonly inputFieldType: InputType;
   readonly inputFieldPlaceholder: string;
+  readonly inputFieldDisabled: boolean;
   readonly inputFieldValidator: InputValidator | null;
 
   readonly getInputFieldElement: () => HTMLInputElement | null;
@@ -76,6 +81,7 @@ interface InputFieldState {
   readonly getInputFieldDescription: () => string;
   readonly getInputFieldType: () => InputType;
   readonly getInputFieldPlaceholder: () => string;
+  readonly getInputFieldDisabled: () => boolean;
   readonly getInputFieldValidator: () => InputValidator | null;
 
   readonly setInputFieldElement: (element: HTMLInputElement | null) => void;
@@ -84,6 +90,7 @@ interface InputFieldState {
   readonly setInputFieldDescription: (description: string) => void;
   readonly setInputFieldType: (type: InputType) => void;
   readonly setInputFieldPlaceholder: (placeholder: string) => void;
+  readonly setInputFieldDisabled: (disabled: boolean) => void;
   readonly setInputFieldValidator: (validator: InputValidator | null) => void;
 
   readonly resetInputField: () => void;
@@ -91,6 +98,7 @@ interface InputFieldState {
   readonly resetInputFieldDescription: () => void;
   readonly resetInputFieldType: () => void;
   readonly resetInputFieldPlaceholder: () => void;
+  readonly resetInputFieldDisabled: () => void;
   readonly resetInputFieldValidator: () => void;
 }
 
@@ -104,6 +112,7 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
   inputFieldDescription: '',
   inputFieldType: 'text',
   inputFieldPlaceholder: 'Type your message...',
+  inputFieldDisabled: false,
   inputFieldValidator: null,
 
   getInputFieldElement: () => {
@@ -128,6 +137,10 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
 
   getInputFieldPlaceholder: () => {
     return get().inputFieldPlaceholder;
+  },
+
+  getInputFieldDisabled: () => {
+    return get().inputFieldDisabled;
   },
 
   getInputFieldValidator: () => {
@@ -163,6 +176,10 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
     set({ inputFieldPlaceholder: placeholder });
   },
 
+  setInputFieldDisabled: disabled => {
+    set({ inputFieldDisabled: disabled });
+  },
+
   setInputFieldValidator: validator => {
     set({ inputFieldValidator: validator });
   },
@@ -192,6 +209,10 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
 
   resetInputFieldPlaceholder: () => {
     set({ inputFieldPlaceholder: 'Type your message...' });
+  },
+
+  resetInputFieldDisabled: () => {
+    set({ inputFieldDisabled: false });
   },
 
   resetInputFieldValidator: () => {
