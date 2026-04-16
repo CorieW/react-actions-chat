@@ -2,7 +2,9 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Chat } from '../components/Chat';
+import { createButton, createRequestInputButtonDef } from '../index';
 import { useChatStore } from '../lib/chatStore';
+import { useInputFieldStore } from '../lib/inputFieldStore';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
 import type { InputMessage } from '../js/types';
 
@@ -26,6 +28,13 @@ describe('Chat Component Integration Tests', () => {
     // Clear stores before each test
     useChatStore.getState().clearMessages();
     usePersistentButtonStore.getState().clearButtons();
+    useInputFieldStore.getState().resetInputFieldValue();
+    useInputFieldStore.getState().resetInputFieldDescription();
+    useInputFieldStore.getState().resetInputFieldType();
+    useInputFieldStore.getState().resetInputFieldPlaceholder();
+    useInputFieldStore.getState().resetInputFieldValidator();
+    useInputFieldStore.getState().resetInputFieldSubmitGuard();
+    useInputFieldStore.getState().resetInputFieldDisabled();
   });
 
   it('should render empty chat', () => {
@@ -134,6 +143,186 @@ describe('Chat Component Integration Tests', () => {
 
     // Input should be cleared
     expect(input).toHaveValue('');
+  });
+
+  it('should keep the input disabled while waiting for an async response', async () => {
+    const user = userEvent.setup();
+    let resolveInput: (() => void) | undefined;
+    const onValidInput = vi.fn(
+      () =>
+        new Promise<void>(resolve => {
+          resolveInput = resolve;
+        })
+    );
+
+    render(
+      <Chat
+        initialMessages={[
+          {
+            type: 'other',
+            content: 'Start the async flow.',
+            buttons: [
+              createButton(
+                createRequestInputButtonDef({
+                  initialLabel: 'Begin',
+                  inputPromptMessage: 'Tell me what changed.',
+                  shouldWaitForTurn: true,
+                }),
+                {
+                  onValidInput,
+                }
+              ),
+            ],
+          },
+        ]}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Begin' }));
+
+    const input = screen.getByPlaceholderText('Type your message...');
+    await user.type(input, 'Change email');
+    await user.keyboard('{Enter}');
+
+    expect(onValidInput).toHaveBeenCalledWith('Change email');
+    expect(input).toBeDisabled();
+    expect(useInputFieldStore.getState().getInputFieldDisabled()).toBe(true);
+
+    resolveInput?.();
+
+    await waitFor(() => {
+      expect(input).not.toBeDisabled();
+      expect(useInputFieldStore.getState().getInputFieldDisabled()).toBe(false);
+    });
+  });
+
+  it('should block an over-limit message before adding it to the transcript', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <Chat
+        initialMessages={[
+          {
+            type: 'other',
+            content: 'Open the guarded flow.',
+            buttons: [
+              createButton(
+                createRequestInputButtonDef({
+                  initialLabel: 'Guard input',
+                  inputPromptMessage: 'Share a short update.',
+                  rateLimit: {
+                    maxMessages: 2,
+                    windowMs: 10_000,
+                    maxMessageLength: 5,
+                    tooLongMessageMessage: 'Keep it under six characters.',
+                  },
+                })
+              ),
+            ],
+          },
+        ]}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Guard input' }));
+
+    const input = screen.getByPlaceholderText('Type your message...');
+    await user.type(input, 'Too long');
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByText('Keep it under six characters.')
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Too long')).not.toBeInTheDocument();
+    expect(input).toHaveValue('Too long');
+  });
+
+  it('should block a message that is shorter than the configured minimum length', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <Chat
+        initialMessages={[
+          {
+            type: 'other',
+            content: 'Open the guarded flow.',
+            buttons: [
+              createButton(
+                createRequestInputButtonDef({
+                  initialLabel: 'Require detail',
+                  inputPromptMessage: 'Share a fuller update.',
+                  minMessageLength: 5,
+                  minMessageLengthMessage:
+                    'Please enter at least five characters.',
+                })
+              ),
+            ],
+          },
+        ]}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Require detail' }));
+
+    const input = screen.getByPlaceholderText('Type your message...');
+    await user.type(input, 'hey');
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByText('Please enter at least five characters.')
+    ).toBeInTheDocument();
+    expect(screen.queryByText('hey')).not.toBeInTheDocument();
+    expect(input).toHaveValue('hey');
+  });
+
+  it('should enforce a cooldown between retry attempts in the same input flow', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <Chat
+        initialMessages={[
+          {
+            type: 'other',
+            content: 'Open the guarded flow.',
+            buttons: [
+              createButton(
+                createRequestInputButtonDef({
+                  initialLabel: 'Throttle retries',
+                  inputPromptMessage: 'Try a short code.',
+                  cooldownMs: 10_000,
+                  cooldownMessage: 'Please wait before trying again.',
+                  validator: () => 'That code did not match.',
+                })
+              ),
+            ],
+          },
+        ]}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Throttle retries' }));
+
+    const input = screen.getByPlaceholderText('Type your message...');
+    await user.type(input, 'alpha');
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByText('That code did not match.')
+    ).toBeInTheDocument();
+
+    await user.type(input, 'beta');
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByText('Please wait before trying again.')
+    ).toBeInTheDocument();
+    expect(
+      useChatStore
+        .getState()
+        .getMessages()
+        .filter(message => message.type === 'self')
+    ).toHaveLength(1);
+    expect(input).toHaveValue('beta');
   });
 
   it('should apply light theme', () => {

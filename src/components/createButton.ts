@@ -115,9 +115,9 @@ export function createButton(
     } = definition;
     const { id: _runtimeId, ...restRuntime } =
       runtimeConfig as RequestInputButtonRuntimeConfig;
-    const handleValidInput = (inputValue: string): void => {
-      onSuccess?.(inputValue);
-      restRuntime.onValidInput?.(inputValue);
+    const handleValidInput = async (inputValue: string): Promise<void> => {
+      await onSuccess?.(inputValue);
+      await restRuntime.onValidInput?.(inputValue);
     };
     const buttonConfig: RequestInputButtonConfig = {
       ...restDefinition,

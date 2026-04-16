@@ -31,6 +31,15 @@ export type InputValidationResult = boolean | string;
 export type InputValidator = (value: string) => InputValidationResult;
 
 /**
+ * Runs before a message is sent and returns whether the submission should be
+ * allowed.
+ *
+ * @param value The input value about to be submitted.
+ * @returns `true` when the send should continue, or `false` to block it.
+ */
+export type InputSubmitGuard = (value: string) => boolean;
+
+/**
  * Internal input field store shape.
  *
  * @property inputFieldElement Registered input element instance.
@@ -40,6 +49,8 @@ export type InputValidator = (value: string) => InputValidationResult;
  * @property inputFieldType Current HTML input type.
  * @property inputFieldPlaceholder Current placeholder text.
  * @property inputFieldValidator Current validator applied to submitted input.
+ * @property inputFieldSubmitGuard Current pre-submit guard used to block sends.
+ * @property inputFieldDisabled Whether the shared input is currently disabled.
  * @property getInputFieldElement Returns the registered input element instance.
  * @property getInputFieldValue Returns the current input field value.
  * @property getInputFieldSubmitFunc Returns the registered submit callback.
@@ -47,6 +58,8 @@ export type InputValidator = (value: string) => InputValidationResult;
  * @property getInputFieldType Returns the current HTML input type.
  * @property getInputFieldPlaceholder Returns the current placeholder text.
  * @property getInputFieldValidator Returns the current validator.
+ * @property getInputFieldSubmitGuard Returns the current pre-submit guard.
+ * @property getInputFieldDisabled Returns whether the shared input is disabled.
  * @property setInputFieldElement Registers the input element instance.
  * @property setInputFieldValue Updates the current input field value.
  * @property setInputFieldSubmitFunc Registers the submit callback.
@@ -54,12 +67,16 @@ export type InputValidator = (value: string) => InputValidationResult;
  * @property setInputFieldType Updates the current HTML input type.
  * @property setInputFieldPlaceholder Updates the current placeholder text.
  * @property setInputFieldValidator Updates the current validator.
+ * @property setInputFieldSubmitGuard Updates the current pre-submit guard.
+ * @property setInputFieldDisabled Enables or disables the shared input.
  * @property resetInputField Clears the registered element and submit callback.
  * @property resetInputFieldValue Clears the current input field value.
  * @property resetInputFieldDescription Clears the helper text.
  * @property resetInputFieldType Resets the input type to `text`.
  * @property resetInputFieldPlaceholder Resets the placeholder text.
  * @property resetInputFieldValidator Clears the validator.
+ * @property resetInputFieldSubmitGuard Clears the pre-submit guard.
+ * @property resetInputFieldDisabled Re-enables the shared input.
  */
 interface InputFieldState {
   readonly inputFieldElement: HTMLInputElement | null;
@@ -69,6 +86,8 @@ interface InputFieldState {
   readonly inputFieldType: InputType;
   readonly inputFieldPlaceholder: string;
   readonly inputFieldValidator: InputValidator | null;
+  readonly inputFieldSubmitGuard: InputSubmitGuard | null;
+  readonly inputFieldDisabled: boolean;
 
   readonly getInputFieldElement: () => HTMLInputElement | null;
   readonly getInputFieldValue: () => string;
@@ -77,6 +96,8 @@ interface InputFieldState {
   readonly getInputFieldType: () => InputType;
   readonly getInputFieldPlaceholder: () => string;
   readonly getInputFieldValidator: () => InputValidator | null;
+  readonly getInputFieldSubmitGuard: () => InputSubmitGuard | null;
+  readonly getInputFieldDisabled: () => boolean;
 
   readonly setInputFieldElement: (element: HTMLInputElement | null) => void;
   readonly setInputFieldValue: (value: string) => void;
@@ -85,6 +106,8 @@ interface InputFieldState {
   readonly setInputFieldType: (type: InputType) => void;
   readonly setInputFieldPlaceholder: (placeholder: string) => void;
   readonly setInputFieldValidator: (validator: InputValidator | null) => void;
+  readonly setInputFieldSubmitGuard: (guard: InputSubmitGuard | null) => void;
+  readonly setInputFieldDisabled: (disabled: boolean) => void;
 
   readonly resetInputField: () => void;
   readonly resetInputFieldValue: () => void;
@@ -92,6 +115,8 @@ interface InputFieldState {
   readonly resetInputFieldType: () => void;
   readonly resetInputFieldPlaceholder: () => void;
   readonly resetInputFieldValidator: () => void;
+  readonly resetInputFieldSubmitGuard: () => void;
+  readonly resetInputFieldDisabled: () => void;
 }
 
 /**
@@ -105,6 +130,8 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
   inputFieldType: 'text',
   inputFieldPlaceholder: 'Type your message...',
   inputFieldValidator: null,
+  inputFieldSubmitGuard: null,
+  inputFieldDisabled: false,
 
   getInputFieldElement: () => {
     return get().inputFieldElement;
@@ -132,6 +159,14 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
 
   getInputFieldValidator: () => {
     return get().inputFieldValidator;
+  },
+
+  getInputFieldSubmitGuard: () => {
+    return get().inputFieldSubmitGuard;
+  },
+
+  getInputFieldDisabled: () => {
+    return get().inputFieldDisabled;
   },
 
   setInputFieldElement: element => {
@@ -167,6 +202,14 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
     set({ inputFieldValidator: validator });
   },
 
+  setInputFieldSubmitGuard: guard => {
+    set({ inputFieldSubmitGuard: guard });
+  },
+
+  setInputFieldDisabled: disabled => {
+    set({ inputFieldDisabled: disabled });
+  },
+
   resetInputField: () => {
     set({
       inputFieldElement: null,
@@ -196,5 +239,13 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
 
   resetInputFieldValidator: () => {
     set({ inputFieldValidator: null });
+  },
+
+  resetInputFieldSubmitGuard: () => {
+    set({ inputFieldSubmitGuard: null });
+  },
+
+  resetInputFieldDisabled: () => {
+    set({ inputFieldDisabled: false });
   },
 }));

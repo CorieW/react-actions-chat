@@ -52,6 +52,11 @@ export type QueryRecommendedActionsResolver = (
 type FlowMessageResolver = (query: string) => string;
 type FlowErrorMessageResolver = (query: string, error: unknown) => string;
 type FlowLoadingMessageResolver = (query: string) => string;
+type QueuedRecommendationResolver = {
+  readonly query: string;
+  readonly resolve: () => void;
+  readonly reject: (error: unknown) => void;
+};
 
 function wait(durationMs: number): Promise<void> {
   return new Promise(resolve => {
@@ -68,11 +73,19 @@ export interface QueryRecommendedActionsFlowConfig
       RequestInputButtonDefinition,
       | 'abortLabel'
       | 'className'
+      | 'cooldownMessage'
+      | 'cooldownMs'
       | 'id'
       | 'inputDescription'
+      | 'inputTimeoutMessage'
+      | 'inputTimeoutMs'
       | 'inputType'
+      | 'minMessageLength'
+      | 'minMessageLengthMessage'
       | 'placeholder'
+      | 'rateLimit'
       | 'showAbort'
+      | 'shouldWaitForTurn'
       | 'style'
       | 'suppressValidationFailureMessage'
       | 'validator'
@@ -127,6 +140,18 @@ export interface QueryRecommendedActionsFlowConfig
    * milliseconds. Defaults to 0.
    */
   readonly minimumLoadingDurationMs?: number | undefined;
+
+  /**
+   * When true, a new query immediately supersedes the current in-flight lookup.
+   * Older results are ignored if they finish later.
+   */
+  readonly cancelInFlightOnNewInput?: boolean | undefined;
+
+  /**
+   * When true, additional queries wait their turn instead of running in
+   * parallel while a lookup is already in flight.
+   */
+  readonly queueWhileWaiting?: boolean | undefined;
 
   /**
    * Optional error callback for custom logging or recovery behavior.
@@ -243,14 +268,21 @@ export function createQueryRecommendedActionsFlow(
     abortCallback,
     abortLabel,
     buildRecommendationsMessage,
+    cancelInFlightOnNewInput = false,
     className,
+    cooldownMessage,
+    cooldownMs,
     emptyStateMessage,
     errorMessage,
     getRecommendedActions,
     id,
     initialLabel = 'Find help',
     inputDescription,
+    inputTimeoutMessage,
+    inputTimeoutMs,
     inputType = 'search',
+    minMessageLength,
+    minMessageLengthMessage,
     normalizeQuery = query => query.trim(),
     onError,
     onInvalidInput,
@@ -258,14 +290,43 @@ export function createQueryRecommendedActionsFlow(
     minimumLoadingDurationMs = 0,
     placeholder = 'Search for help topics...',
     queryPromptMessage = 'What would you like help with?',
+    queueWhileWaiting = false,
+    rateLimit,
     showAbort = true,
+    shouldWaitForTurn,
     style,
     suppressValidationFailureMessage = false,
     validator,
     variant,
   } = config;
+  const queuedRecommendations: QueuedRecommendationResolver[] = [];
+  let activeCoordinatedOperationId: number | undefined;
+  let activeCoordinatedLoadingMessageId: number | undefined;
+  let nextCoordinatedOperationId = 0;
 
-  const runFlow = async (submittedQuery: string): Promise<void> => {
+  const shouldCoordinateRequests =
+    cancelInFlightOnNewInput || queueWhileWaiting;
+
+  const removeMessageById = (messageId: number | undefined): void => {
+    if (messageId === undefined) {
+      return;
+    }
+
+    const { getMessages, setMessages } = useChatStore.getState();
+    setMessages(getMessages().filter(message => message.id !== messageId));
+  };
+
+  const clearQueuedRecommendations = (): void => {
+    const droppedRecommendations = queuedRecommendations.splice(0);
+    droppedRecommendations.forEach(recommendation => {
+      recommendation.resolve();
+    });
+  };
+
+  const runFlow = async (
+    submittedQuery: string,
+    coordinatedOperationId?: number
+  ): Promise<void> => {
     const query = normalizeQuery(submittedQuery);
     const { addMessage, getMessages, getPreviousMessage, setMessages } =
       useChatStore.getState();
@@ -278,7 +339,16 @@ export function createQueryRecommendedActionsFlow(
           readonly buttons?: readonly QueryRecommendedAction[] | undefined;
         }
       | undefined;
-    let loadingMessageId: number | undefined;
+    let loadingMessageId = coordinatedOperationId
+      ? activeCoordinatedLoadingMessageId
+      : undefined;
+
+    const isStaleCoordinatedRun = (): boolean => {
+      return (
+        coordinatedOperationId !== undefined &&
+        activeCoordinatedOperationId !== coordinatedOperationId
+      );
+    };
 
     try {
       addMessage({
@@ -288,11 +358,18 @@ export function createQueryRecommendedActionsFlow(
         loadingLabel: loadingLabel,
       });
       loadingMessageId = getPreviousMessage()?.id;
+      if (coordinatedOperationId !== undefined) {
+        activeCoordinatedLoadingMessageId = loadingMessageId;
+      }
 
       const resolverResult = await getRecommendedActions(
         query,
         createContext(query)
       );
+      if (isStaleCoordinatedRun()) {
+        return;
+      }
+
       const normalizedResult = normalizeResolverResult(resolverResult);
       const recommendedActions = normalizedResult.recommendedActions ?? [];
 
@@ -317,6 +394,10 @@ export function createQueryRecommendedActionsFlow(
         };
       }
     } catch (error) {
+      if (isStaleCoordinatedRun()) {
+        return;
+      }
+
       const context = createContext(query);
       onError?.(query, error, context);
       pendingMessage = {
@@ -332,6 +413,10 @@ export function createQueryRecommendedActionsFlow(
       }
     }
 
+    if (isStaleCoordinatedRun()) {
+      return;
+    }
+
     if (pendingMessage) {
       if (loadingMessageId === undefined) {
         addMessage({
@@ -341,34 +426,76 @@ export function createQueryRecommendedActionsFlow(
             ? { buttons: pendingMessage.buttons }
             : {}),
         });
-        return;
+      } else {
+        setMessages(
+          getMessages().map(message => {
+            if (message.id !== loadingMessageId) {
+              return message;
+            }
+
+            const {
+              isLoading: _isLoading,
+              loadingLabel: _loadingLabel,
+              ...resolvedMessage
+            } = message;
+
+            return {
+              ...resolvedMessage,
+              type: 'other',
+              content: pendingMessage.content,
+              rawContent: pendingMessage.content,
+              isLoading: false,
+              ...(pendingMessage.buttons
+                ? { buttons: pendingMessage.buttons }
+                : { buttons: [] }),
+            };
+          })
+        );
       }
-
-      setMessages(
-        getMessages().map(message => {
-          if (message.id !== loadingMessageId) {
-            return message;
-          }
-
-          const {
-            isLoading: _isLoading,
-            loadingLabel: _loadingLabel,
-            ...resolvedMessage
-          } = message;
-
-          return {
-            ...resolvedMessage,
-            type: 'other',
-            content: pendingMessage.content,
-            rawContent: pendingMessage.content,
-            isLoading: false,
-            ...(pendingMessage.buttons
-              ? { buttons: pendingMessage.buttons }
-              : { buttons: [] }),
-          };
-        })
-      );
     }
+
+    if (
+      coordinatedOperationId !== undefined &&
+      activeCoordinatedOperationId === coordinatedOperationId
+    ) {
+      activeCoordinatedOperationId = undefined;
+      activeCoordinatedLoadingMessageId = undefined;
+
+      const nextQueuedRecommendation = queuedRecommendations.shift();
+      if (nextQueuedRecommendation) {
+        void recommend(nextQueuedRecommendation.query).then(
+          nextQueuedRecommendation.resolve,
+          nextQueuedRecommendation.reject
+        );
+      }
+    }
+  };
+
+  const recommend = (submittedQuery: string): Promise<void> => {
+    if (!shouldCoordinateRequests) {
+      return runFlow(submittedQuery);
+    }
+
+    if (activeCoordinatedOperationId !== undefined) {
+      if (cancelInFlightOnNewInput) {
+        removeMessageById(activeCoordinatedLoadingMessageId);
+        activeCoordinatedLoadingMessageId = undefined;
+        clearQueuedRecommendations();
+      } else if (queueWhileWaiting) {
+        return new Promise<void>((resolve, reject) => {
+          queuedRecommendations.push({
+            query: submittedQuery,
+            resolve,
+            reject,
+          });
+        });
+      }
+    }
+
+    const coordinatedOperationId = ++nextCoordinatedOperationId;
+    activeCoordinatedOperationId = coordinatedOperationId;
+
+    return runFlow(submittedQuery, coordinatedOperationId);
   };
 
   const buttonConfig: Omit<RequestInputButtonDefinition, 'kind'> = {
@@ -377,11 +504,19 @@ export function createQueryRecommendedActionsFlow(
     inputPromptMessage: queryPromptMessage,
     inputType,
     placeholder,
+    ...(cooldownMessage ? { cooldownMessage } : {}),
+    ...(cooldownMs !== undefined ? { cooldownMs } : {}),
+    ...(inputTimeoutMessage ? { inputTimeoutMessage } : {}),
+    ...(inputTimeoutMs !== undefined ? { inputTimeoutMs } : {}),
+    ...(minMessageLength !== undefined ? { minMessageLength } : {}),
+    ...(minMessageLengthMessage ? { minMessageLengthMessage } : {}),
+    ...(rateLimit ? { rateLimit } : {}),
     suppressValidationFailureMessage,
     ...(abortLabel ? { abortLabel } : {}),
     ...(className ? { className } : {}),
     ...(inputDescription ? { inputDescription } : {}),
     ...(showAbort !== undefined ? { showAbort } : {}),
+    ...(shouldWaitForTurn !== undefined ? { shouldWaitForTurn } : {}),
     ...(style ? { style } : {}),
     ...(validator ? { validator } : {}),
     ...(variant ? { variant } : {}),
@@ -392,9 +527,7 @@ export function createQueryRecommendedActionsFlow(
     ...(abortCallback ? { abortCallback } : {}),
     ...(id ? { id } : {}),
     ...(onInvalidInput ? { onInvalidInput } : {}),
-    onValidInput: query => {
-      void runFlow(query);
-    },
+    onValidInput: recommend,
   });
 
   return {
@@ -402,6 +535,6 @@ export function createQueryRecommendedActionsFlow(
     start: () => {
       button.onClick?.();
     },
-    recommend: runFlow,
+    recommend,
   };
 }

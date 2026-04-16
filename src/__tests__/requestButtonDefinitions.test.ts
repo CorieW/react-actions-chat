@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { waitFor } from '@testing-library/react';
 import {
   createButton,
   createRequestConfirmationButtonDef,
@@ -17,6 +18,8 @@ describe('request button definitions', () => {
     useInputFieldStore.getState().resetInputFieldType();
     useInputFieldStore.getState().resetInputFieldPlaceholder();
     useInputFieldStore.getState().resetInputFieldValidator();
+    useInputFieldStore.getState().resetInputFieldSubmitGuard();
+    useInputFieldStore.getState().resetInputFieldDisabled();
   });
 
   it('creates an input button from a reusable definition', () => {
@@ -49,7 +52,7 @@ describe('request button definitions', () => {
     expect(usePersistentButtonStore.getState().getButtons()).toHaveLength(1);
   });
 
-  it('runs input success callbacks defined on the button definition', () => {
+  it('runs input success callbacks defined on the button definition', async () => {
     const onSuccess = vi.fn();
     const onValidInput = vi.fn();
     const definition = createRequestInputButtonDef({
@@ -74,8 +77,10 @@ describe('request button definitions', () => {
     const promptMessage = messages.find(message => message.type === 'other');
     promptMessage?.userResponseCallback?.();
 
-    expect(onSuccess).toHaveBeenCalledWith('new@example.com');
-    expect(onValidInput).toHaveBeenCalledWith('new@example.com');
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledWith('new@example.com');
+      expect(onValidInput).toHaveBeenCalledWith('new@example.com');
+    });
   });
 
   it('creates a confirmation button from a reusable definition', () => {
@@ -106,6 +111,36 @@ describe('request button definitions', () => {
       'Yes, Logout',
       'Cancel',
     ]);
+  });
+
+  it('times out an active input request and resets the shared input', async () => {
+    vi.useFakeTimers();
+
+    const button = createButton(
+      createRequestInputButtonDef({
+        initialLabel: 'Enter code',
+        inputPromptMessage: 'Enter the verification code.',
+        inputTimeoutMs: 1_000,
+        inputTimeoutMessage: 'This request timed out.',
+      })
+    );
+
+    button.onClick?.();
+
+    await vi.advanceTimersByTimeAsync(1_000);
+
+    expect(useChatStore.getState().getPreviousMessage()?.content).toBe(
+      'This request timed out.'
+    );
+    expect(
+      useChatStore.getState().getPreviousMessage()?.userResponseCallback
+    ).toBeUndefined();
+    expect(useInputFieldStore.getState().getInputFieldPlaceholder()).toBe(
+      'Type your message...'
+    );
+    expect(usePersistentButtonStore.getState().getButtons()).toHaveLength(0);
+
+    vi.useRealTimers();
   });
 
   it('runs confirmation success callbacks defined on the button definition', () => {

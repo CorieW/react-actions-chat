@@ -51,6 +51,11 @@ Important definition fields:
 - `placeholder`
 - `inputDescription`
 - `validator`
+- `minMessageLength`
+- `cooldownMs`
+- `inputTimeoutMs`
+- `shouldWaitForTurn`
+- `rateLimit`
 - `abortLabel`
 - `showAbort`
 - `onSuccess`

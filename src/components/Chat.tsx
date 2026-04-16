@@ -25,7 +25,8 @@ export function Chat({
     getPreviousMessage,
     clearMessages,
   } = useChatStore();
-  const { getInputFieldType } = useInputFieldStore();
+  const { getInputFieldDisabled, getInputFieldSubmitGuard, getInputFieldType } =
+    useInputFieldStore();
 
   // Resolved theme based on string or object or undefined
   const mergedTheme = getResolvedTheme(theme);
@@ -38,7 +39,16 @@ export function Chat({
     }
   }, [initialMessages, addMessages, clearMessages]);
 
-  const handleSend = (messageContent: string): void => {
+  const handleSend = (messageContent: string): boolean => {
+    if (getInputFieldDisabled()) {
+      return false;
+    }
+
+    const submitGuard = getInputFieldSubmitGuard();
+    if (submitGuard && !submitGuard(messageContent)) {
+      return false;
+    }
+
     // Get the previous message (before sending the self message)
     const previousMessage = getPreviousMessage();
 
@@ -60,6 +70,8 @@ export function Chat({
     if (isPreviousMessageOther && hasUserResponseCallback) {
       previousMessage.userResponseCallback();
     }
+
+    return true;
   };
 
   return (

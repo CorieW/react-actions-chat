@@ -20,5 +20,6 @@ export {
 export {
   createRequestInputButtonDef,
   type RequestInputButtonDefinition,
+  type RequestInputRateLimit,
   type RequestInputButtonRuntimeConfig,
 } from './RequestInputButton';

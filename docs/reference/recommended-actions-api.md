@@ -28,6 +28,13 @@ Important config fields:
 - `validator`
 - `placeholder`
 - `inputDescription`
+- `minMessageLength`
+- `cooldownMs`
+- `inputTimeoutMs`
+- `shouldWaitForTurn`
+- `rateLimit`
+- `cancelInFlightOnNewInput`
+- `queueWhileWaiting`
 
 ### `createVectorSearchQueryRecommendedActionsFlow(config)`
 

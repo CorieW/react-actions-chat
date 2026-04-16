@@ -82,6 +82,11 @@ Common config fields:
 - `placeholder`
 - `inputDescription`
 - `validator`
+- `minMessageLength`
+- `cooldownMs`
+- `inputTimeoutMs`
+- `shouldWaitForTurn`
+- `rateLimit`
 - `variant`
 - `abortLabel`
 - `showAbort`

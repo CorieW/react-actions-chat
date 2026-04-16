@@ -63,6 +63,8 @@ describe('Query Recommended Actions Flow', () => {
     useInputFieldStore.getState().resetInputFieldPlaceholder();
     useInputFieldStore.getState().resetInputFieldType();
     useInputFieldStore.getState().resetInputFieldValidator();
+    useInputFieldStore.getState().resetInputFieldSubmitGuard();
+    useInputFieldStore.getState().resetInputFieldDisabled();
   });
 
   it('collects a query and renders recommended action buttons', async () => {
@@ -221,6 +223,43 @@ describe('Query Recommended Actions Flow', () => {
     expect(Array.isArray(recommendationContext.messages)).toBe(true);
   });
 
+  it('blocks a query that is shorter than the configured minimum length', async () => {
+    const user = userEvent.setup();
+    const getRecommendedActions = vi.fn<QueryRecommendedActionsResolver>(
+      () => []
+    );
+    const flow = createQueryRecommendedActionsFlow({
+      initialLabel: 'Search actions',
+      queryPromptMessage: 'Describe what you want to do.',
+      minMessageLength: 5,
+      minMessageLengthMessage: 'Please enter at least five characters.',
+      getRecommendedActions,
+    });
+
+    render(
+      <Chat
+        initialMessages={[
+          {
+            type: 'other',
+            content: 'Let us find the right action.',
+            buttons: [flow.button],
+          },
+        ]}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Search actions' }));
+
+    const input = screen.getByPlaceholderText('Search for help topics...');
+    await user.type(input, 'help');
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByText('Please enter at least five characters.')
+    ).toBeInTheDocument();
+    expect(getRecommendedActions).not.toHaveBeenCalled();
+  });
+
   it('shows a loading indicator while recommendations are resolving', async () => {
     const user = userEvent.setup();
     let resolveRecommendations:
@@ -278,6 +317,50 @@ describe('Query Recommended Actions Flow', () => {
           name: 'Loading',
         })
       ).not.toBeInTheDocument();
+    });
+  });
+
+  it('disables the shared input until recommendations resolve when configured to wait for turn', async () => {
+    const user = userEvent.setup();
+    let resolveRecommendations:
+      | ((value: readonly QueryRecommendedAction[]) => void)
+      | undefined;
+    const flow = createQueryRecommendedActionsFlow({
+      initialLabel: 'Find help',
+      queryPromptMessage: 'What would you like help with?',
+      shouldWaitForTurn: true,
+      getRecommendedActions: async () =>
+        new Promise(resolve => {
+          resolveRecommendations = resolve;
+        }),
+    });
+
+    render(
+      <Chat
+        initialMessages={[
+          {
+            type: 'other',
+            content: 'Need something specific?',
+            buttons: [flow.button],
+          },
+        ]}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Find help' }));
+
+    const input = screen.getByPlaceholderText('Search for help topics...');
+    await user.type(input, 'change email');
+    await user.keyboard('{Enter}');
+
+    expect(input).toBeDisabled();
+    expect(useInputFieldStore.getState().getInputFieldDisabled()).toBe(true);
+
+    resolveRecommendations?.([{ label: 'Change Email' }]);
+
+    await waitFor(() => {
+      expect(input).not.toBeDisabled();
+      expect(useInputFieldStore.getState().getInputFieldDisabled()).toBe(false);
     });
   });
 
@@ -353,6 +436,183 @@ describe('Query Recommended Actions Flow', () => {
     ).toBe(true);
 
     vi.useRealTimers();
+  });
+
+  it('cancels stale recommendation results when a newer query arrives', async () => {
+    let resolveFirstRecommendation:
+      | ((value: readonly QueryRecommendedAction[]) => void)
+      | undefined;
+    let resolveSecondRecommendation:
+      | ((value: readonly QueryRecommendedAction[]) => void)
+      | undefined;
+    const flow = createQueryRecommendedActionsFlow({
+      cancelInFlightOnNewInput: true,
+      getRecommendedActions: query =>
+        new Promise(resolve => {
+          if (query === 'first query') {
+            resolveFirstRecommendation = resolve;
+            return;
+          }
+
+          resolveSecondRecommendation = resolve;
+        }),
+    });
+
+    const firstPromise = flow.recommend('first query');
+
+    expect(
+      useChatStore
+        .getState()
+        .getMessages()
+        .filter(message => message.isLoading)
+    ).toHaveLength(1);
+
+    const secondPromise = flow.recommend('second query');
+
+    expect(
+      useChatStore
+        .getState()
+        .getMessages()
+        .filter(message => message.isLoading)
+    ).toHaveLength(1);
+
+    resolveSecondRecommendation?.([{ label: 'Second Result' }]);
+    await secondPromise;
+
+    expect(
+      useChatStore
+        .getState()
+        .getMessages()
+        .some(message => message.content.includes('"second query"'))
+    ).toBe(true);
+
+    resolveFirstRecommendation?.([{ label: 'First Result' }]);
+    await firstPromise;
+
+    expect(
+      useChatStore
+        .getState()
+        .getMessages()
+        .some(message => message.content.includes('"first query"'))
+    ).toBe(false);
+    expect(
+      useChatStore
+        .getState()
+        .getMessages()
+        .some(message =>
+          message.buttons?.some(button => button.label === 'First Result')
+        )
+    ).toBe(false);
+  });
+
+  it('queues recommendation lookups when configured to wait their turn', async () => {
+    let resolveFirstRecommendation:
+      | ((value: readonly QueryRecommendedAction[]) => void)
+      | undefined;
+    let resolveSecondRecommendation:
+      | ((value: readonly QueryRecommendedAction[]) => void)
+      | undefined;
+    const getRecommendedActions = vi.fn<QueryRecommendedActionsResolver>(
+      query =>
+        new Promise(resolve => {
+          if (query === 'first query') {
+            resolveFirstRecommendation = resolve;
+            return;
+          }
+
+          resolveSecondRecommendation = resolve;
+        })
+    );
+    const flow = createQueryRecommendedActionsFlow({
+      queueWhileWaiting: true,
+      getRecommendedActions,
+    });
+
+    const firstPromise = flow.recommend('first query');
+    const secondPromise = flow.recommend('second query');
+
+    expect(getRecommendedActions).toHaveBeenCalledTimes(1);
+    expect(getRecommendedActions.mock.calls[0]?.[0]).toBe('first query');
+
+    resolveFirstRecommendation?.([{ label: 'First Result' }]);
+
+    await waitFor(() => {
+      expect(getRecommendedActions).toHaveBeenCalledTimes(2);
+    });
+    expect(getRecommendedActions.mock.calls[1]?.[0]).toBe('second query');
+
+    resolveSecondRecommendation?.([{ label: 'Second Result' }]);
+
+    await Promise.all([firstPromise, secondPromise]);
+
+    expect(
+      useChatStore
+        .getState()
+        .getMessages()
+        .some(message => message.content.includes('"first query"'))
+    ).toBe(true);
+    expect(
+      useChatStore
+        .getState()
+        .getMessages()
+        .some(message => message.content.includes('"second query"'))
+    ).toBe(true);
+  });
+
+  it('blocks an extra query when the flow rate limit is reached', async () => {
+    const user = userEvent.setup();
+    const getRecommendedActions = vi.fn<QueryRecommendedActionsResolver>(
+      () => []
+    );
+    const flow = createQueryRecommendedActionsFlow({
+      initialLabel: 'Search actions',
+      queryPromptMessage: 'Describe what you want to do.',
+      validator: () => 'Try a different search.',
+      rateLimit: {
+        maxMessages: 1,
+        windowMs: 10_000,
+        tooManyMessagesMessage: 'Please wait before trying another search.',
+      },
+      getRecommendedActions,
+    });
+
+    render(
+      <Chat
+        initialMessages={[
+          {
+            type: 'other',
+            content: 'Let us find the right action.',
+            buttons: [flow.button],
+          },
+        ]}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Search actions' }));
+
+    const input = screen.getByPlaceholderText('Search for help topics...');
+    await user.type(input, 'refund');
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByText('Try a different search.')
+    ).toBeInTheDocument();
+    expect(getRecommendedActions).not.toHaveBeenCalled();
+
+    await user.clear(input);
+    await user.type(input, 'billing');
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByText('Please wait before trying another search.')
+    ).toBeInTheDocument();
+    expect(getRecommendedActions).not.toHaveBeenCalled();
+    expect(
+      useChatStore
+        .getState()
+        .getMessages()
+        .filter(message => message.type === 'self')
+    ).toHaveLength(1);
   });
 
   it('can be invoked directly from a user prompt without showing a trigger button', async () => {

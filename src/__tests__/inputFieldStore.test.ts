@@ -11,6 +11,8 @@ describe('Input Field Store Unit Tests', () => {
     store.resetInputFieldType();
     store.resetInputFieldPlaceholder();
     store.resetInputFieldValidator();
+    store.resetInputFieldSubmitGuard();
+    store.resetInputFieldDisabled();
     store.resetInputFieldValue();
   });
 
@@ -120,6 +122,41 @@ describe('Input Field Store Unit Tests', () => {
     it('should be null by default', () => {
       const store = useInputFieldStore.getState();
       expect(store.getInputFieldValidator()).toBeNull();
+    });
+  });
+
+  describe('setInputFieldSubmitGuard and getInputFieldSubmitGuard', () => {
+    it('should set and get a submit guard', () => {
+      const store = useInputFieldStore.getState();
+      const guard = vi.fn(() => true);
+
+      store.setInputFieldSubmitGuard(guard);
+
+      expect(store.getInputFieldSubmitGuard()).toBe(guard);
+    });
+
+    it('should be null by default', () => {
+      const store = useInputFieldStore.getState();
+
+      expect(store.getInputFieldSubmitGuard()).toBeNull();
+    });
+  });
+
+  describe('setInputFieldDisabled and getInputFieldDisabled', () => {
+    it('should set and get the disabled state', () => {
+      const store = useInputFieldStore.getState();
+
+      store.setInputFieldDisabled(true);
+      expect(store.getInputFieldDisabled()).toBe(true);
+
+      store.setInputFieldDisabled(false);
+      expect(store.getInputFieldDisabled()).toBe(false);
+    });
+
+    it('should be false by default', () => {
+      const store = useInputFieldStore.getState();
+
+      expect(store.getInputFieldDisabled()).toBe(false);
     });
   });
 
