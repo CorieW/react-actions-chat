@@ -1,4 +1,4 @@
-# src/__tests__
+# src/**tests**
 
 Vitest coverage for the package's public behavior, stores, theming, and representative example flows.
 

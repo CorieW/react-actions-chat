@@ -1,4 +1,4 @@
-# packages/react-actions-chat-recommended-actions/src/__tests__
+# packages/react-actions-chat-recommended-actions/src/**tests**
 
 Automated tests for the recommended-actions companion package.
 
