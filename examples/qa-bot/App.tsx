@@ -8,6 +8,7 @@ import {
   Chat,
   createButton,
   createRequestInputButtonDef,
+  createTextPart,
   useChatStore,
 } from 'react-actions-chat';
 
@@ -80,15 +81,26 @@ function createConversationCallback(): () => void {
  * Adds an assistant message and keeps the example ready for the next question.
  */
 function addAssistantMessage(
-  content: string,
+  text: string,
   buttons: readonly MessageButton[] = createPrimaryButtons()
 ): void {
   useChatStore.getState().addMessage({
     type: 'other',
-    content,
+    parts: [createTextPart(text)],
     buttons,
     userResponseCallback: createConversationCallback(),
   });
+}
+
+/**
+ * Adds a cancellation message so request-input flows never leave the demo
+ * without a next action.
+ */
+function addAbortRecoveryMessage(
+  text: string,
+  buttons: readonly MessageButton[]
+): void {
+  addAssistantMessage(text, buttons);
 }
 
 /**
@@ -184,6 +196,32 @@ const HUMAN_SUPPORT_BUTTON_DEF = createRequestInputButtonDef({
   },
 });
 
+function createOrderLookupButton(
+  getFallbackButtons: () => readonly MessageButton[]
+): MessageButton {
+  return createButton(ORDER_LOOKUP_BUTTON_DEF, {
+    abortCallback: () => {
+      addAbortRecoveryMessage(
+        'Order lookup cancelled. You can try another demo order number whenever you are ready.',
+        getFallbackButtons()
+      );
+    },
+  });
+}
+
+function createHumanSupportButton(
+  getFallbackButtons: () => readonly MessageButton[]
+): MessageButton {
+  return createButton(HUMAN_SUPPORT_BUTTON_DEF, {
+    abortCallback: () => {
+      addAbortRecoveryMessage(
+        'Support handoff cancelled. You can keep exploring answers here or request a follow-up again any time.',
+        getFallbackButtons()
+      );
+    },
+  });
+}
+
 /**
  * Creates the reusable quick actions shown throughout the demo.
  */
@@ -193,7 +231,9 @@ function createPrimaryButtons(
   const buttons: MessageButton[] = [];
 
   if (activeTopic !== 'tracking') {
-    buttons.push(createButton(ORDER_LOOKUP_BUTTON_DEF));
+    buttons.push(
+      createOrderLookupButton(() => createPrimaryButtons(activeTopic))
+    );
   }
 
   if (activeTopic !== 'refund') {
@@ -239,7 +279,9 @@ function createPrimaryButtons(
   }
 
   if (activeTopic !== 'human') {
-    buttons.push(createButton(HUMAN_SUPPORT_BUTTON_DEF));
+    buttons.push(
+      createHumanSupportButton(() => createPrimaryButtons(activeTopic))
+    );
   }
 
   return buttons;
@@ -307,8 +349,32 @@ function handleQuestion(question: string): void {
             );
           },
         }),
-        createButton(HUMAN_SUPPORT_BUTTON_DEF),
-        createButton(ORDER_LOOKUP_BUTTON_DEF),
+        createHumanSupportButton(() => [
+          createButton({
+            label: 'Show policy',
+            onClick: () => {
+              addAssistantMessage(
+                'Refunds are typically processed within 2 business days after approval, and banks can take another 5 to 10 business days to post the credit.',
+                createPrimaryButtons('refund')
+              );
+            },
+          }),
+          createHumanSupportButton(() => createPrimaryButtons()),
+          createOrderLookupButton(() => createPrimaryButtons()),
+        ]),
+        createOrderLookupButton(() => [
+          createButton({
+            label: 'Show policy',
+            onClick: () => {
+              addAssistantMessage(
+                'Refunds are typically processed within 2 business days after approval, and banks can take another 5 to 10 business days to post the credit.',
+                createPrimaryButtons('refund')
+              );
+            },
+          }),
+          createHumanSupportButton(() => createPrimaryButtons()),
+          createOrderLookupButton(() => createPrimaryButtons()),
+        ]),
       ]
     );
     return;
@@ -349,8 +415,14 @@ function handleQuestion(question: string): void {
     addAssistantMessage(
       'I can collect a follow-up email and simulate a support handoff for you.',
       [
-        createButton(HUMAN_SUPPORT_BUTTON_DEF),
-        createButton(ORDER_LOOKUP_BUTTON_DEF),
+        createHumanSupportButton(() => [
+          createHumanSupportButton(() => createPrimaryButtons()),
+          createOrderLookupButton(() => createPrimaryButtons()),
+        ]),
+        createOrderLookupButton(() => [
+          createHumanSupportButton(() => createPrimaryButtons()),
+          createOrderLookupButton(() => createPrimaryButtons()),
+        ]),
       ]
     );
     return;
@@ -370,8 +442,11 @@ function createInitialMessages(): readonly InputMessage[] {
     {
       id: 1,
       type: 'other',
-      content:
-        'Welcome to the upgraded Q&A bot demo. It still runs entirely in the browser, but now it behaves more like a lightweight support assistant with quick actions and follow-up flows.',
+      parts: [
+        createTextPart(
+          'Welcome to the upgraded Q&A bot demo. It still runs entirely in the browser, but now it behaves more like a lightweight support assistant with quick actions and follow-up flows.'
+        ),
+      ],
       timestamp: new Date(),
       buttons: createPrimaryButtons(),
       userResponseCallback: createConversationCallback(),
@@ -405,6 +480,7 @@ export function App(): React.JSX.Element {
 
         <div className='qa-demo__chat-frame'>
           <Chat
+            allowFreeTextInput
             initialMessages={initialMessages}
             theme={SUPPORT_THEME}
           />

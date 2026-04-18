@@ -6,7 +6,7 @@
 
 - `id?`
 - `type: 'self' | 'other'`
-- `content`
+- `parts: readonly MessagePart[]`
 - `rawContent?`
 - `timestamp?`
 - `isLoading?`
@@ -16,19 +16,20 @@
 
 ## Usage
 
-```tsx
-import type { InputMessage } from 'react-actions-chat';
+```tsx typecheck
+import { createTextPart, type InputMessage } from 'react-actions-chat';
 
 const initialMessages: readonly InputMessage[] = [
   {
     type: 'other',
-    content: 'Hello! How can I help you today?',
+    parts: [createTextPart('Hello! How can I help you today?')],
   },
 ];
 ```
 
 ## Notes
 
+- `parts` is the primary content surface for every message
 - `rawContent` is useful when the visible transcript content is transformed, such as password masking
 - `buttons` attaches actions under the message
 - `userResponseCallback` lets the message react to the next user submission

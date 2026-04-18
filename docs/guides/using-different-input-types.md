@@ -2,6 +2,8 @@
 
 Use `createRequestInputButtonDef(...)` when you want the shared chat input to temporarily behave like a specific kind of field.
 
+This is the default guided-input pattern, because `Chat` keeps the shared input disabled until an input-request flow enables it.
+
 This guide focuses on choosing the right `inputType`, adding validation, and handling the submitted value correctly.
 
 The best runnable references in this repo are:
@@ -24,7 +26,7 @@ The shared chat input supports the following [`InputType`](../types/input-type.m
 
 ## Basic Pattern
 
-```tsx
+```tsx typecheck
 import { createButton, createRequestInputButtonDef } from 'react-actions-chat';
 
 const emailButtonDef = createRequestInputButtonDef({

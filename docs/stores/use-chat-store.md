@@ -15,7 +15,7 @@ It is the main store to use when you need to read history or add assistant messa
 
 ### Read Transcript History
 
-```tsx
+```tsx typecheck
 import { useChatStore } from 'react-actions-chat';
 
 const messages = useChatStore.getState().getMessages();
@@ -41,22 +41,23 @@ const lastSelfMessage = [...messages]
 
 This pattern is used by the example apps when an assistant message needs to react to what the user just typed.
 
-## `content` vs `rawContent`
+## `parts` vs `rawContent`
 
 Use `rawContent` when you need the actual submitted value.
 
 That matters most for password flows:
 
-- `content` may be masked in the transcript
+- `parts` may contain masked visible text in the transcript
 - `rawContent` still keeps the real submitted string
 
-For ordinary text flows, `content` and `rawContent` are usually the same.
+For ordinary text flows, `rawContent` usually matches the text shown by the first text part.
 
 ## Read Message Metadata
 
 Each stored `Message` includes:
 
 - `id`
+- `parts`
 - `timestamp`
 - `type`
 - `buttons`

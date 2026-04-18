@@ -9,7 +9,9 @@
 
 ## Example
 
-```ts
+```ts typecheck
+const value = 'user@example.com';
+
 const result: boolean | string = value.includes('@')
   ? true
   : 'Please enter a valid email address.';

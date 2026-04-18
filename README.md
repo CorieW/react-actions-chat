@@ -21,22 +21,25 @@ npm install react-actions-chat react-actions-chat-recommended-actions
 ## Quick Start
 
 ```tsx
-import { Chat } from 'react-actions-chat';
+import { Chat, createTextPart } from 'react-actions-chat';
 import 'react-actions-chat/styles';
 
 export function App() {
   return (
     <Chat
+      allowFreeTextInput
       initialMessages={[
         {
           type: 'other',
-          content: 'Hello! How can I help you today?',
+          parts: [createTextPart('Hello! How can I help you today?')],
         },
       ]}
     />
   );
 }
 ```
+
+`Chat` keeps the shared input disabled by default. Use `createRequestInputButtonDef(...)` for guided collection steps, or set `allowFreeTextInput` when you want an always-on free-form chat box.
 
 ## Documentation
 

@@ -1,35 +1,33 @@
 # Core API Reference
 
-Concise reference for the public exports from `react-actions-chat`.
+Concise reference for the main public exports from `react-actions-chat`.
 
 ## Components
 
 ### `Chat`
 
-Primary React component for rendering the transcript, persistent buttons, and shared input field.
+The composition root for the chat UI. It renders the transcript, persistent actions, and shared input bar.
 
 Props:
 
 - `initialMessages?: readonly InputMessage[]`
+- `allowFreeTextInput?: boolean`
+- `globals?: ChatGlobals`
 - `theme?: 'light' | 'dark' | ChatTheme`
 
-## Core Types
+### `MessageList`
 
-### `ChatTheme`
+Transcript component that renders stored messages.
 
-Theme token object for the chat UI.
+### `Message`
 
-Fields:
+Bubble component that renders message chrome plus plain text content.
 
-- `primaryColor`
-- `secondaryColor`
-- `backgroundColor`
-- `textColor`
-- `borderColor`
-- `inputBackgroundColor`
-- `inputTextColor`
-- `buttonColor`
-- `buttonTextColor`
+### `InputBar`
+
+Shared input component used by free-form chat and input-request flows.
+
+## Message Model
 
 ### `InputMessage`
 
@@ -37,8 +35,9 @@ Message shape accepted by `initialMessages` and `useChatStore().addMessage(...)`
 
 Key fields:
 
+- `id?: number`
 - `type: 'self' | 'other'`
-- `content: string`
+- `parts: readonly MessagePart[]`
 - `rawContent?: string`
 - `timestamp?: Date`
 - `isLoading?: boolean`
@@ -46,17 +45,24 @@ Key fields:
 - `userResponseCallback?: () => void`
 - `buttons?: readonly MessageButton[]`
 
-### `MessageButton`
+### `Message`
 
-Button displayed under a message.
+Normalized message shape stored in chat state. It always has:
 
-Key fields:
+- `id`
+- `parts`
+- `rawContent`
+- `timestamp`
 
-- `label: string`
-- `onClick?: () => void`
-- `variant?: 'default' | 'success' | 'error' | 'warning' | 'info' | 'dull'`
-- `className?: string`
-- `style?: React.CSSProperties`
+### `MessagePart`
+
+Built-in content parts:
+
+- `text`
+
+### `createTextPart(text)`
+
+Creates a text part for a message.
 
 ## Button Helpers
 
@@ -74,96 +80,34 @@ Supported definition shapes:
 
 Creates a reusable input-request definition.
 
-Common config fields:
-
-- `initialLabel`
-- `inputPromptMessage`
-- `inputType`
-- `placeholder`
-- `inputDescription`
-- `validator`
-- `minMessageLength`
-- `cooldownMs`
-- `inputTimeoutMs`
-- `shouldWaitForTurn`
-- `rateLimit`
-- `variant`
-- `abortLabel`
-- `showAbort`
-- `onSuccess`
-
 ### `createRequestConfirmationButtonDef(config)`
 
 Creates a reusable confirmation definition.
 
-Common config fields:
+## Input Bar Types
 
-- `initialLabel`
-- `confirmationMessage`
-- `confirmLabel`
-- `rejectLabel`
-- `variant`
-- `onSuccess`
+### `InputBarModeConfig`
 
-## Theme Helpers
+Public mode settings for the shared input bar:
 
-### `LIGHT_THEME`
+- `type`
+- `placeholder?`
+- `description?`
 
-Built-in light preset.
+### `InputBarValidationConfig`
 
-### `DARK_THEME`
+Public validation settings for the shared input bar:
 
-Built-in dark preset.
+- `validator?`
+- `submitGuard?`
 
-### `getResolvedTheme(theme)`
+### `InputBarBehaviorConfig`
 
-Normalizes `'light'`, `'dark'`, `undefined`, or a custom theme object into a complete `ChatTheme`.
+Public behavior settings for the shared input bar:
 
-### `getThemeStyles(theme)`
-
-Converts a theme into CSS custom properties that match the chat component.
-
-## Stores
-
-### `useChatStore`
-
-Advanced shared state for the transcript and loading state.
-
-Common methods:
-
-- `getMessages()`
-- `getPreviousMessage()`
-- `addMessage(message)`
-- `addMessages(messages)`
-- `setMessages(messages)`
-- `setLoading(isLoading)`
-- `clearLoading()`
-- `clearMessages()`
-
-### `useInputFieldStore`
-
-Advanced shared state for the single input field used by input-request flows.
-
-Useful fields and methods:
-
-- `getInputFieldType()`
-- `getInputFieldPlaceholder()`
-- `getInputFieldDescription()`
-- `getInputFieldValidator()`
-- `setInputFieldType(type)`
-- `setInputFieldPlaceholder(text)`
-- `setInputFieldDescription(text)`
-- `setInputFieldValidator(validator)`
-- reset helpers for returning to the default text field
-
-### `usePersistentButtonStore`
-
-Shared state for buttons shown above the input field.
-
-Common methods:
-
-- `getButtons()`
-- `addButton(button)`
-- `removeButton(id)`
-- `setButtons(buttons)`
-- `clearButtons()`
+- `disabled?`
+- `disabledPlaceholder?`
+- `shouldWaitForTurn?`
+- `cooldownMs?`
+- `timeoutMs?`
+- `showAbort?`

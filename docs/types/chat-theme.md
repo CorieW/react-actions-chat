@@ -18,7 +18,7 @@
 
 Pass a `ChatTheme` object to the `theme` prop on `Chat`:
 
-```tsx
+```tsx typecheck
 import { Chat, type ChatTheme } from 'react-actions-chat';
 
 const supportTheme: ChatTheme = {

@@ -29,7 +29,7 @@ If you pass a custom object, it is merged over the built-in dark theme so omitte
 
 ## Custom Theme Example
 
-```tsx
+```tsx typecheck
 import { Chat, type ChatTheme } from 'react-actions-chat';
 
 const supportTheme: ChatTheme = {
@@ -66,7 +66,7 @@ These are useful when you want to build matching custom UI outside the chat comp
 
 If you use the package in a Vite app and hit duplicate React issues such as `resolveDispatcher() is null`, add the exported Vite plugin:
 
-```ts
+```ts typecheck
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { reactActionsChatVitePlugin } from 'react-actions-chat/vite-plugin';

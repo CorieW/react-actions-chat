@@ -7,6 +7,7 @@ import type {
 import {
   Chat,
   createButton,
+  createTextPart,
   createRequestConfirmationButtonDef,
   createRequestInputButtonDef,
   useChatStore,
@@ -84,6 +85,9 @@ interface LoginFlowState {
   readonly passwordAttempts: number;
 }
 
+type FollowUpInputType = 'password' | 'text';
+type FollowUpInputValidator = (value: string) => true | string;
+
 /**
  * Returns the raw value from the latest user-authored message so password and
  * one-time code steps can read the real submission instead of the masked text
@@ -110,11 +114,13 @@ export function App(): React.JSX.Element {
 
   function resetSharedInputField(): void {
     const inputFieldStore = useInputFieldStore.getState();
-    inputFieldStore.resetInputFieldType();
-    inputFieldStore.resetInputFieldPlaceholder();
-    inputFieldStore.resetInputFieldDescription();
-    inputFieldStore.resetInputFieldValidator();
-    inputFieldStore.resetInputFieldValue();
+    inputFieldStore.resetInputFieldParams({
+      type: true,
+      placeholder: true,
+      description: true,
+      validator: true,
+      value: true,
+    });
   }
 
   function clearFlowState(): void {
@@ -125,12 +131,52 @@ export function App(): React.JSX.Element {
     resetSharedInputField();
   }
 
+  /**
+   * Locks the shared input while the session is active so follow-up actions are
+   * driven by the authenticated button set instead of free-form replies.
+   */
+  function disableAuthenticatedInput(): void {
+    const inputFieldStore = useInputFieldStore.getState();
+    inputFieldStore.resetInputFieldParams({
+      value: true,
+      description: true,
+      placeholder: true,
+      validator: true,
+    });
+    inputFieldStore.setInputFieldParams({
+      disabledPlaceholder: 'You are signed in. Use the actions buttons.',
+      disabled: true,
+    });
+  }
+
+  /**
+   * Reconfigures the shared chat input for the next credential step after the
+   * initial request-input button hands control back to the example flow.
+   */
+  function configureFollowUpInput(
+    inputType: FollowUpInputType,
+    placeholder: string,
+    description: string,
+    validator: FollowUpInputValidator
+  ): void {
+    const inputFieldStore = useInputFieldStore.getState();
+    inputFieldStore.setInputFieldParams({
+      type: inputType,
+      placeholder,
+      description,
+      validator,
+      disabled: false,
+    });
+  }
+
   function createPrimaryButtons(): readonly MessageButton[] {
     return [
       createButton(EMAIL_SIGN_IN_BUTTON_DEF, {
+        abortCallback: handleEmailSignInAbort,
         onValidInput: beginEmailSignIn,
       }),
       createButton(RESET_PASSWORD_BUTTON_DEF, {
+        abortCallback: handlePasswordResetAbort,
         onValidInput: handlePasswordReset,
       }),
     ];
@@ -139,6 +185,7 @@ export function App(): React.JSX.Element {
   function createRecoveryButtons(): readonly MessageButton[] {
     return [
       createButton(RESET_PASSWORD_BUTTON_DEF, {
+        abortCallback: handlePasswordResetAbort,
         onValidInput: handlePasswordReset,
       }),
     ];
@@ -153,7 +200,11 @@ export function App(): React.JSX.Element {
         onClick: () => {
           useChatStore.getState().addMessage({
             type: 'other',
-            content: `${account.fullName} is signed in as ${account.role}. The active workspace is ${account.workspace}, and this device is recorded as ${account.trustedDeviceLabel}.`,
+            parts: [
+              createTextPart(
+                `${account.fullName} is signed in as ${account.role}. The active workspace is ${account.workspace}, and this device is recorded as ${account.trustedDeviceLabel}.`
+              ),
+            ],
             buttons: createAuthenticatedButtons(account),
           });
         },
@@ -163,8 +214,11 @@ export function App(): React.JSX.Element {
         onClick: () => {
           useChatStore.getState().addMessage({
             type: 'other',
-            content:
-              'This example reuses one shared chat input for email, password, recovery, and challenge codes. In a production app, those steps would call secure backend APIs instead of local demo helpers.',
+            parts: [
+              createTextPart(
+                'This example reuses one shared chat input for email, password, recovery, and challenge codes. In a production app, those steps would call secure backend APIs instead of local demo helpers.'
+              ),
+            ],
             buttons: createAuthenticatedButtons(account),
           });
         },
@@ -174,7 +228,9 @@ export function App(): React.JSX.Element {
         onReject: () => {
           useChatStore.getState().addMessage({
             type: 'other',
-            content: 'No problem. Your demo session is still active.',
+            parts: [
+              createTextPart('No problem. Your demo session is still active.'),
+            ],
             buttons: createAuthenticatedButtons(account),
           });
         },
@@ -187,7 +243,39 @@ export function App(): React.JSX.Element {
 
     useChatStore.getState().addMessage({
       type: 'other',
-      content: `I could not find a demo workspace for ${normalizeEmail(email)}. Try one of the sample accounts or start a password reset flow.`,
+      parts: [
+        createTextPart(
+          `I could not find a demo workspace for ${normalizeEmail(email)}. Try one of the sample accounts or start a password reset flow.`
+        ),
+      ],
+      buttons: createPrimaryButtons(),
+    });
+  }
+
+  function handleEmailSignInAbort(): void {
+    clearFlowState();
+
+    useChatStore.getState().addMessage({
+      type: 'other',
+      parts: [
+        createTextPart(
+          'Sign-in cancelled. Start again when you are ready, or try password recovery instead.'
+        ),
+      ],
+      buttons: createPrimaryButtons(),
+    });
+  }
+
+  function handlePasswordResetAbort(): void {
+    clearFlowState();
+
+    useChatStore.getState().addMessage({
+      type: 'other',
+      parts: [
+        createTextPart(
+          'Password recovery cancelled. You can restart sign-in or open recovery again whenever you need it.'
+        ),
+      ],
       buttons: createPrimaryButtons(),
     });
   }
@@ -205,25 +293,28 @@ export function App(): React.JSX.Element {
       passwordAttempts: 0,
     };
 
-    const inputFieldStore = useInputFieldStore.getState();
-    inputFieldStore.setInputFieldType('password');
-    inputFieldStore.setInputFieldPlaceholder('Enter your password');
-    inputFieldStore.setInputFieldDescription(
-      `Use ${account.password} for the ${account.workspace} demo account.`
-    );
-    inputFieldStore.setInputFieldValidator(value => {
-      if (value.trim() === '') {
-        return 'Enter your password to continue.';
-      }
+    configureFollowUpInput(
+      'password',
+      'Enter your password',
+      `Use ${account.password} for the ${account.workspace} demo account.`,
+      value => {
+        if (value.trim() === '') {
+          return 'Enter your password to continue.';
+        }
 
-      return true;
-    });
+        return true;
+      }
+    );
 
     useChatStore.getState().addMessage({
       type: 'other',
-      content: account.oneTimeCode
-        ? `Welcome back, ${account.fullName}. Enter the password for ${account.workspace}. I will ask for a one-time code after that step.`
-        : `Welcome back, ${account.fullName}. Enter the password for ${account.workspace} to continue.`,
+      parts: [
+        createTextPart(
+          account.oneTimeCode
+            ? `Welcome back, ${account.fullName}. Enter the password for ${account.workspace}. I will ask for a one-time code after that step.`
+            : `Welcome back, ${account.fullName}. Enter the password for ${account.workspace} to continue.`
+        ),
+      ],
       userResponseCallback: handlePasswordReply,
       buttons: createRecoveryButtons(),
     });
@@ -239,25 +330,28 @@ export function App(): React.JSX.Element {
       passwordAttempts: 0,
     };
 
-    const inputFieldStore = useInputFieldStore.getState();
-    inputFieldStore.setInputFieldType('text');
-    inputFieldStore.setInputFieldPlaceholder('246810');
-    inputFieldStore.setInputFieldDescription(
-      `Enter the 6-digit challenge code for ${maskEmailAddress(account.email)}.`
-    );
-    inputFieldStore.setInputFieldValidator(value => {
-      if (!/^\d{6}$/.test(value.trim())) {
-        return 'Enter the 6-digit verification code.';
-      }
+    configureFollowUpInput(
+      'text',
+      '246810',
+      `Enter the 6-digit challenge code for ${maskEmailAddress(account.email)}.`,
+      value => {
+        if (!/^\d{6}$/.test(value.trim())) {
+          return 'Enter the 6-digit verification code.';
+        }
 
-      return true;
-    });
+        return true;
+      }
+    );
 
     useChatStore.getState().addMessage({
       type: 'other',
-      content: isResend
-        ? `I sent a fresh code to ${maskEmailAddress(account.email)}. For this demo, enter ${account.oneTimeCode}.`
-        : `Password verified. Enter the 6-digit code sent to ${maskEmailAddress(account.email)}. For this demo, use ${account.oneTimeCode}.`,
+      parts: [
+        createTextPart(
+          isResend
+            ? `I sent a fresh code to ${maskEmailAddress(account.email)}. For this demo, enter ${account.oneTimeCode}.`
+            : `Password verified. Enter the 6-digit code sent to ${maskEmailAddress(account.email)}. For this demo, use ${account.oneTimeCode}.`
+        ),
+      ],
       userResponseCallback: handleOneTimeCodeReply,
       buttons: [
         createButton({
@@ -272,10 +366,15 @@ export function App(): React.JSX.Element {
 
   function completeLogin(account: DemoAccount): void {
     clearFlowState();
+    disableAuthenticatedInput();
 
     useChatStore.getState().addMessage({
       type: 'other',
-      content: `You are in. ${account.workspace} is ready for ${account.fullName}, and ${account.trustedDeviceLabel} is now marked as trusted for the next 30 days.`,
+      parts: [
+        createTextPart(
+          `You are in. ${account.workspace} is ready for ${account.fullName}, and ${account.trustedDeviceLabel} is now marked as trusted for the next 30 days.`
+        ),
+      ],
       buttons: createAuthenticatedButtons(account),
     });
   }
@@ -311,10 +410,13 @@ export function App(): React.JSX.Element {
 
       useChatStore.getState().addMessage({
         type: 'other',
-        content:
-          nextAttemptCount === 1
-            ? `That password did not match ${loginResult.account.email}. For this demo, use ${loginResult.account.password}.`
-            : `Still no match. Use ${loginResult.account.password}, switch accounts, or trigger a password reset.`,
+        parts: [
+          createTextPart(
+            nextAttemptCount === 1
+              ? `That password did not match ${loginResult.account.email}. For this demo, use ${loginResult.account.password}.`
+              : `Still no match. Use ${loginResult.account.password}, switch accounts, or trigger a password reset.`
+          ),
+        ],
         userResponseCallback: handlePasswordReply,
         buttons: createRecoveryButtons(),
       });
@@ -346,7 +448,11 @@ export function App(): React.JSX.Element {
     if (!verifyOneTimeCode(account.email, submittedCode)) {
       useChatStore.getState().addMessage({
         type: 'other',
-        content: `That code did not match. Re-enter ${account.oneTimeCode} for the demo or resend the challenge.`,
+        parts: [
+          createTextPart(
+            `That code did not match. Re-enter ${account.oneTimeCode} for the demo or resend the challenge.`
+          ),
+        ],
         userResponseCallback: handleOneTimeCodeReply,
         buttons: [
           createButton({
@@ -371,9 +477,13 @@ export function App(): React.JSX.Element {
 
     useChatStore.getState().addMessage({
       type: 'other',
-      content: account
-        ? `Password recovery started for ${normalizedEmail}. No real email is sent in this demo, but this is where you would deliver a secure reset link. When you are ready, sign in with ${account.password}.`
-        : `If ${normalizedEmail} belongs to a workspace, a password reset email is on the way. Since this is a local demo, you can use one of the sample accounts to keep exploring.`,
+      parts: [
+        createTextPart(
+          account
+            ? `Password recovery started for ${normalizedEmail}. No real email is sent in this demo, but this is where you would deliver a secure reset link. When you are ready, sign in with ${account.password}.`
+            : `If ${normalizedEmail} belongs to a workspace, a password reset email is on the way. Since this is a local demo, you can use one of the sample accounts to keep exploring.`
+        ),
+      ],
       buttons: createPrimaryButtons(),
     });
   }
@@ -383,8 +493,11 @@ export function App(): React.JSX.Element {
 
     useChatStore.getState().addMessage({
       type: 'other',
-      content:
-        'You are signed out. Start another sign-in flow, try a different demo account, or test password recovery.',
+      parts: [
+        createTextPart(
+          'You are signed out. Start another sign-in flow, try a different demo account, or test password recovery.'
+        ),
+      ],
       buttons: createPrimaryButtons(),
     });
   }
@@ -394,8 +507,11 @@ export function App(): React.JSX.Element {
       {
         id: 1,
         type: 'other',
-        content:
-          'Welcome to Northstar Secure. This example walks through email sign-in, password handling, password recovery, and an optional verification-code challenge using the shared chat input.',
+        parts: [
+          createTextPart(
+            'Welcome to Northstar Secure. This example walks through email sign-in, password handling, password recovery, and an optional verification-code challenge using the shared chat input.'
+          ),
+        ],
         timestamp: new Date(),
         buttons: createPrimaryButtons(),
       },

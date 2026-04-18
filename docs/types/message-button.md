@@ -9,6 +9,7 @@
 - `variant?`
 - `className?`
 - `style?`
+- `blocksInputWhileVisible?`
 
 ## Variants
 

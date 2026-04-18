@@ -7,6 +7,7 @@ These pages describe the main data shapes used by `react-actions-chat`.
 - [`ChatTheme`](./chat-theme.md)
 - [`InputMessage`](./input-message.md)
 - [`Message`](./message.md)
+- `MessagePart`
 - [`MessageButton`](./message-button.md)
 - [`InputType`](./input-type.md)
 - [`InputValidationResult`](./input-validation-result.md)

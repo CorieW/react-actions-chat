@@ -6,7 +6,7 @@ Use it when an action should stay visible across multiple steps instead of livin
 
 ## Common Reads
 
-```tsx
+```tsx typecheck
 import { usePersistentButtonStore } from 'react-actions-chat';
 
 const buttons = usePersistentButtonStore.getState().getButtons();
@@ -18,7 +18,7 @@ Useful method:
 
 ## Common Writes
 
-```tsx
+```tsx typecheck
 import { usePersistentButtonStore } from 'react-actions-chat';
 
 usePersistentButtonStore.getState().addButton({
