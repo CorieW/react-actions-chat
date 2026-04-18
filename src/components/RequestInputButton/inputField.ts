@@ -19,9 +19,7 @@ import {
 } from './messageFormatter';
 import type { RequestInputRateLimit } from './types';
 
-export type RequestInputFieldStore = ReturnType<
-  typeof useInputFieldStore.getState
->;
+type RequestInputFieldStore = ReturnType<typeof useInputFieldStore.getState>;
 
 interface RequestInputSubmitGuardOptions {
   readonly cooldownMessage?: string | undefined;

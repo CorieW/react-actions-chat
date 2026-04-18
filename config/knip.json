@@ -14,15 +14,12 @@
       "project": ["src/**/*.{ts,tsx}"]
     },
     "examples/qa-bot": {
-      "entry": ["main.tsx", "vite.config.ts"],
       "project": ["**/*.{ts,tsx}"]
     },
     "examples/login": {
-      "entry": ["main.tsx", "vite.config.ts"],
       "project": ["**/*.{ts,tsx}"]
     },
     "examples/settings": {
-      "entry": ["main.tsx", "vite.config.ts"],
       "project": ["**/*.{ts,tsx}"]
     }
   }
