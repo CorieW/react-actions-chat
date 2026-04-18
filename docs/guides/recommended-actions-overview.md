@@ -42,7 +42,7 @@ Choose this when:
 
 ## Basic Query Flow Example
 
-```tsx
+```tsx typecheck
 import { useMemo } from 'react';
 import { createButton } from 'react-actions-chat';
 import { createQueryRecommendedActionsFlow } from 'react-actions-chat-recommended-actions';

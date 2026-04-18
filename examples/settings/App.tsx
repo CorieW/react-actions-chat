@@ -4,14 +4,70 @@ import {
   createButton,
   createRequestInputButtonDef,
   createRequestConfirmationButtonDef,
+  createTextPart,
   useChatStore,
+  useInputFieldStore,
 } from 'react-actions-chat';
-import type { InputMessage } from 'react-actions-chat';
+import type { InputMessage, MessageButton } from 'react-actions-chat';
 import {
   createOpenAITextEmbedder,
   createVectorSearchQueryRecommendedActionsFlow,
   type VectorSearchButtonDefinition,
 } from 'react-actions-chat-recommended-actions';
+
+type SettingsExampleMode = 'auto' | 'fallback' | 'live';
+
+const MINIMUM_FALLBACK_LOADING_DURATION_MS = 150;
+const RECOMMENDATION_WAIT_PLACEHOLDER = 'Finding the best settings action...';
+
+function resolveSettingsExampleMode(
+  rawMode: string | undefined
+): SettingsExampleMode {
+  if (rawMode === 'fallback' || rawMode === 'live' || rawMode === 'auto') {
+    return rawMode;
+  }
+
+  return 'auto';
+}
+
+function getMissingConfigurationMessage(
+  settingsExampleMode: SettingsExampleMode
+): string {
+  switch (settingsExampleMode) {
+    case 'fallback':
+      return 'This build is running in fallback mode, so live settings recommendations stay disabled. Switch VITE_SETTINGS_EXAMPLE_MODE back to auto or live to re-enable the real OpenAI embedder.';
+    case 'live':
+      return 'Live mode requires VITE_OPENAI_API_KEY before this example can request real OpenAI embeddings.';
+    case 'auto':
+    default:
+      return 'Set VITE_OPENAI_API_KEY in examples/settings/.env.local to use the real OpenAI embedder in this example.';
+  }
+}
+
+function getWelcomeMessage(
+  settingsExampleMode: SettingsExampleMode,
+  isOpenAIConfigured: boolean
+): string {
+  if (settingsExampleMode === 'fallback') {
+    return 'Welcome to Settings. This build is running in fallback mode, so recommendation requests stay local until you switch VITE_SETTINGS_EXAMPLE_MODE back to auto or live.';
+  }
+
+  if (isOpenAIConfigured) {
+    return 'Welcome to Settings. Tell me what you want to change, and I will use real OpenAI embeddings to recommend actions like changing your email, updating your phone number, enabling 2FA, deleting your account, or logging out.';
+  }
+
+  if (settingsExampleMode === 'live') {
+    return 'Welcome to Settings. Live mode requires VITE_OPENAI_API_KEY before this example can request real OpenAI embeddings. Once the key is available, you can ask about changing your email, updating your phone number, enabling 2FA, deleting your account, or logging out.';
+  }
+
+  return 'Welcome to Settings. Add VITE_OPENAI_API_KEY to examples/settings/.env.local before sending a request. This example uses real OpenAI embeddings to recommend actions like changing your email, updating your phone number, enabling 2FA, deleting your account, or logging out.';
+}
+
+function waitForMs(durationMs: number): Promise<void> {
+  return new Promise(resolve => {
+    globalThis.setTimeout(resolve, durationMs);
+  });
+}
 
 /**
  * Settings Example
@@ -26,8 +82,12 @@ import {
  */
 export function App(): React.JSX.Element {
   const { addMessage, getMessages, setMessages } = useChatStore();
-  const openAIApiKey = import.meta.env.VITE_OPENAI_API_KEY?.trim();
-  const isOpenAIConfigured = openAIApiKey !== undefined && openAIApiKey !== '';
+  const settingsExampleMode = resolveSettingsExampleMode(
+    import.meta.env.VITE_SETTINGS_EXAMPLE_MODE
+  );
+  const openAIApiKey = import.meta.env.VITE_OPENAI_API_KEY?.trim() ?? '';
+  const isOpenAIConfigured =
+    settingsExampleMode !== 'fallback' && openAIApiKey !== '';
 
   const CHANGE_EMAIL_BUTTON_DEF = createRequestInputButtonDef({
     id: 'email',
@@ -44,11 +104,9 @@ export function App(): React.JSX.Element {
       return true;
     },
     onSuccess: (newEmail: string): void => {
-      // In a real app, this would call an API to update the email
-      addMessage({
-        type: 'other',
-        content: `Email updated successfully! We sent a verification email to ${newEmail}.`,
-      });
+      addContinuingMessage(
+        `Email updated successfully! We sent a verification email to ${newEmail}.`
+      );
     },
   });
 
@@ -58,6 +116,7 @@ export function App(): React.JSX.Element {
     inputPromptMessage: 'Please enter your new password:',
     inputType: 'password',
     placeholder: 'Enter password',
+    shouldWaitForTurn: true,
     inputDescription:
       'Password must be at least 8 characters long and contain uppercase, lowercase, and a number',
     validator: (value: string) => {
@@ -76,10 +135,7 @@ export function App(): React.JSX.Element {
       return true;
     },
     onSuccess: (): void => {
-      addMessage({
-        type: 'other',
-        content: 'Password changed successfully!',
-      });
+      addContinuingMessage('Password changed successfully!');
     },
   });
 
@@ -105,10 +161,7 @@ export function App(): React.JSX.Element {
       return true;
     },
     onSuccess: (displayName: string): void => {
-      addMessage({
-        type: 'other',
-        content: `Display name updated to "${displayName.trim()}".`,
-      });
+      addContinuingMessage(`Display name updated to "${displayName.trim()}".`);
     },
   });
 
@@ -130,10 +183,7 @@ export function App(): React.JSX.Element {
       return true;
     },
     onSuccess: (phoneNumber: string): void => {
-      addMessage({
-        type: 'other',
-        content: `Phone number updated to ${phoneNumber}.`,
-      });
+      addContinuingMessage(`Phone number updated to ${phoneNumber}.`);
     },
   });
 
@@ -146,10 +196,9 @@ export function App(): React.JSX.Element {
     confirmLabel: 'Enable 2FA',
     rejectLabel: 'Not Now',
     onSuccess: (): void => {
-      addMessage({
-        type: 'other',
-        content: 'Two-factor authentication is now enabled for your account.',
-      });
+      addContinuingMessage(
+        'Two-factor authentication is now enabled for your account.'
+      );
     },
   });
 
@@ -162,13 +211,29 @@ export function App(): React.JSX.Element {
     confirmLabel: 'Yes, Logout',
     rejectLabel: 'Cancel',
     onSuccess: (): void => {
-      addMessage({
-        type: 'other',
-        content:
-          'You have been logged out successfully. Thank you for using our service!',
-      });
+      addContinuingMessage(
+        'You have been logged out successfully. Thank you for using our service!'
+      );
     },
   });
+
+  const handleTwoFactorCanceled = (): void => {
+    addContinuingMessage(
+      'Two-factor authentication stays off for now. You can enable it any time from settings.'
+    );
+  };
+
+  const handleLogoutCanceled = (): void => {
+    addContinuingMessage(
+      'Stayed signed in. You can keep managing your settings.'
+    );
+  };
+
+  const handleDeleteAccountCanceled = (): void => {
+    addContinuingMessage(
+      'Account kept. You can continue using your current settings without deleting anything.'
+    );
+  };
 
   const DELETE_ACCOUNT_BUTTON_DEF = createRequestConfirmationButtonDef({
     id: 'delete-account',
@@ -179,11 +244,9 @@ export function App(): React.JSX.Element {
     confirmLabel: 'Delete Account',
     rejectLabel: 'Keep Account',
     onSuccess: (): void => {
-      addMessage({
-        type: 'other',
-        content:
-          'Your account deletion request has been submitted. You will receive a confirmation email shortly.',
-      });
+      addContinuingMessage(
+        'Your account deletion request has been submitted. You will receive a confirmation email shortly.'
+      );
     },
   });
 
@@ -191,23 +254,45 @@ export function App(): React.JSX.Element {
     label: 'Help',
     variant: 'info' as const,
     onClick: (): void => {
-      addMessage({
-        type: 'other',
-        content:
-          'Try asking about changing your email or password, updating your display name or phone number, enabling two-factor authentication, deleting your account, or logging out.',
-        userResponseCallback: () => {
-          const lastSelfMessage = [...useChatStore.getState().getMessages()]
-            .reverse()
-            .find(message => message.type === 'self');
-
-          if (lastSelfMessage) {
-            void settingsRecommendationFlow.recommend(
-              lastSelfMessage.rawContent
-            );
-          }
-        },
-      });
+      addContinuingMessage(
+        'Try asking about changing your email or password, updating your display name or phone number, enabling two-factor authentication, deleting your account, or logging out.'
+      );
     },
+  };
+
+  function ensureHelpButton(
+    buttons: readonly MessageButton[] | undefined
+  ): readonly MessageButton[] {
+    const resolvedButtons = buttons ?? [];
+
+    if (resolvedButtons.some(button => button.label === HELP_BUTTON.label)) {
+      return resolvedButtons;
+    }
+
+    return [...resolvedButtons, HELP_BUTTON];
+  }
+
+  function addContinuingMessage(text: string): void {
+    addMessage({
+      type: 'other',
+      parts: [createTextPart(text)],
+      buttons: [HELP_BUTTON],
+      userResponseCallback: () => {
+        const lastSelfMessage = [...getMessages()]
+          .reverse()
+          .find(message => message.type === 'self');
+
+        if (lastSelfMessage) {
+          void settingsRecommendationFlow.recommend(lastSelfMessage.rawContent);
+        }
+      },
+    });
+  }
+
+  const handleInputRequestAborted = (): void => {
+    addContinuingMessage(
+      'Stopped that update. You can pick another settings action or describe something else to change.'
+    );
   };
 
   const SETTING_BUTTON_DEFINITIONS: readonly VectorSearchButtonDefinition[] = [
@@ -303,6 +388,8 @@ export function App(): React.JSX.Element {
         'Try "update my phone number", "enable 2fa", or "delete my account"',
       inputDescription:
         'Describe what you want to change and I will recommend the best settings action.',
+      abortCallback: handleInputRequestAborted,
+      shouldWaitForTurn: true,
       buildResult: ({ query, matches }) => {
         if (matches.length === 0) {
           return {
@@ -312,7 +399,25 @@ export function App(): React.JSX.Element {
         }
 
         return {
-          recommendedActions: matches.map(match => createButton(match.button)),
+          recommendedActions: matches.map(match =>
+            'kind' in match.button && match.button.kind === 'request-input'
+              ? createButton(match.button, {
+                  abortCallback: handleInputRequestAborted,
+                })
+              : match.button.id === 'two-factor-auth'
+                ? createButton(match.button, {
+                    onReject: handleTwoFactorCanceled,
+                  })
+                : match.button.id === 'logout'
+                  ? createButton(match.button, {
+                      onReject: handleLogoutCanceled,
+                    })
+                  : match.button.id === 'delete-account'
+                    ? createButton(match.button, {
+                        onReject: handleDeleteAccountCanceled,
+                      })
+                    : createButton(match.button)
+          ),
         };
       },
       buildRecommendationsMessage: query =>
@@ -320,21 +425,56 @@ export function App(): React.JSX.Element {
       loadingMessage: '',
       minimumLoadingDurationMs: 2000,
       embedder: createOpenAITextEmbedder({
-        apiKey: openAIApiKey ?? '',
+        apiKey: openAIApiKey,
         model: 'text-embedding-3-large',
       }),
       buttons: SETTING_BUTTON_DEFINITIONS,
       maxResults: 5,
       onError: (query, error) => {
-        addMessage({
-          type: 'other',
-          content: `Error recommending settings action for "${query}": ${error}`,
-        });
+        addContinuingMessage(
+          `Error recommending settings action for "${query}": ${error}`
+        );
       },
       minScore: 0.2,
     });
 
-    const continueListeningForPrompts = (): void => {
+    const runRecommendationCycle = async (query: string): Promise<void> => {
+      const inputFieldStore = useInputFieldStore.getState();
+      inputFieldStore.setInputFieldParams({
+        disabledPlaceholder: RECOMMENDATION_WAIT_PLACEHOLDER,
+        disabled: true,
+      });
+
+      if (!isOpenAIConfigured) {
+        // Keep the waiting placeholder visible briefly so the example feels
+        // like a real product flow instead of an ignored submission.
+        await waitForMs(MINIMUM_FALLBACK_LOADING_DURATION_MS);
+        addContinuingMessage(
+          getMissingConfigurationMessage(settingsExampleMode)
+        );
+        inputFieldStore.resetInputFieldDisabled();
+        return;
+      }
+
+      try {
+        await recommendationFlow.recommend(query);
+        addFindHelpButtonToLatestMessage();
+      } finally {
+        inputFieldStore.resetInputFieldDisabled();
+      }
+    };
+
+    const handleNextTypedPrompt = (): void => {
+      const lastSelfMessage = [...useChatStore.getState().getMessages()]
+        .reverse()
+        .find(candidate => candidate.type === 'self');
+
+      if (lastSelfMessage) {
+        void runRecommendationCycle(lastSelfMessage.rawContent);
+      }
+    };
+
+    const addFindHelpButtonToLatestMessage = (): void => {
       const messages = getMessages();
       const latestMessage = messages[messages.length - 1];
 
@@ -350,49 +490,37 @@ export function App(): React.JSX.Element {
 
           return {
             ...message,
-            userResponseCallback: () => {
-              const lastSelfMessage = [...useChatStore.getState().getMessages()]
-                .reverse()
-                .find(candidate => candidate.type === 'self');
-
-              if (lastSelfMessage) {
-                void runRecommendationCycle(lastSelfMessage.rawContent);
-              }
-            },
+            buttons: ensureHelpButton(message.buttons),
+            userResponseCallback: handleNextTypedPrompt,
           };
         })
       );
-    };
-
-    const runRecommendationCycle = async (query: string): Promise<void> => {
-      if (!isOpenAIConfigured) {
-        addMessage({
-          type: 'other',
-          content:
-            'Set VITE_OPENAI_API_KEY in examples/settings/.env.local to use the real OpenAI embedder in this example.',
-        });
-        return;
-      }
-
-      await recommendationFlow.recommend(query);
-      continueListeningForPrompts();
     };
 
     return {
       ...recommendationFlow,
       recommend: runRecommendationCycle,
     };
-  }, [addMessage, getMessages, isOpenAIConfigured, openAIApiKey, setMessages]);
+  }, [
+    getMessages,
+    isOpenAIConfigured,
+    openAIApiKey,
+    setMessages,
+    settingsExampleMode,
+  ]);
 
   const INITIAL_MESSAGES: readonly InputMessage[] = useMemo(
     () => [
       {
         id: 1,
         type: 'other',
-        content: isOpenAIConfigured
-          ? 'Welcome to Settings. Tell me what you want to change, and I will use real OpenAI embeddings to recommend actions like changing your email, updating your phone number, enabling 2FA, deleting your account, or logging out.'
-          : 'Welcome to Settings. Add VITE_OPENAI_API_KEY to examples/settings/.env.local before sending a request. This example uses real OpenAI embeddings to recommend actions like changing your email, updating your phone number, enabling 2FA, deleting your account, or logging out.',
+        parts: [
+          createTextPart(
+            getWelcomeMessage(settingsExampleMode, isOpenAIConfigured)
+          ),
+        ],
         timestamp: new Date(),
+        buttons: [HELP_BUTTON],
         userResponseCallback: () => {
           const lastSelfMessage = [...getMessages()]
             .reverse()
@@ -406,12 +534,18 @@ export function App(): React.JSX.Element {
         },
       },
     ],
-    [getMessages, isOpenAIConfigured, settingsRecommendationFlow]
+    [
+      getMessages,
+      isOpenAIConfigured,
+      settingsExampleMode,
+      settingsRecommendationFlow,
+    ]
   );
 
   return (
     <div className='bg-background min-h-screen'>
       <Chat
+        allowFreeTextInput
         initialMessages={INITIAL_MESSAGES}
         theme='dark'
       />
