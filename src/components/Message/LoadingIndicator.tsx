@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { ChatTheme } from '../js/types';
+import type { ChatTheme } from '../../js/types';
 
 /**
  * Props for the loading indicator.
@@ -32,19 +32,17 @@ export function LoadingIndicator({
     };
   }, []);
 
-  const dots = (
+  return (
     <div
       role='status'
       aria-live='polite'
       aria-label='Loading'
-      className='flex items-center text-sm leading-relaxed'
+      className='flex items-center gap-2 text-sm leading-relaxed'
     >
       <span
         aria-hidden='true'
         className='inline-flex min-w-[1.8rem] font-mono text-base font-semibold'
-        style={{
-          color: theme.textColor,
-        }}
+        style={{ color: theme.textColor }}
       >
         {[0, 1, 2].map(index => (
           <span
@@ -59,6 +57,4 @@ export function LoadingIndicator({
       </span>
     </div>
   );
-
-  return dots;
 }

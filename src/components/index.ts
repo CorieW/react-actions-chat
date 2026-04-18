@@ -1,10 +1,7 @@
 export { Chat } from './Chat';
-export { MessageBubble } from './MessageBubble';
-export { MessageButtons } from './MessageButtons';
-export { MessagesList } from './MessagesList';
-export { LoadingIndicator } from './LoadingIndicator';
-export { ChatInput } from './ChatInput';
-export { PersistentButtons } from './PersistentButtons';
+export { Message } from './Message';
+export { MessageList } from './MessageList';
+export { InputBar } from './InputBar';
 export {
   createButton,
   type AnyButtonDefinition,
