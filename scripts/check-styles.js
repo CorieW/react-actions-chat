@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * CI check to ensure styles.css is in sync with Tailwind source
- * Fails if styles.css is out of date
+ * Verifies that the committed standalone stylesheet matches the current
+ * Tailwind source.
+ *
+ * Steps:
+ * 1. Read the committed `src/styles.css` contents into memory.
+ * 2. Rebuild styles with the canonical generator used by the package.
+ * 3. Compare the regenerated file with the committed one and fail with
+ *    regeneration instructions when they differ.
  */
 
 import { execSync } from 'child_process';

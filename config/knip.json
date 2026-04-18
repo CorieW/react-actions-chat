@@ -7,11 +7,7 @@
         "scripts/**/*.{js,ts}",
         "src/**/*.{js,jsx,ts,tsx}"
       ],
-      "ignore": [
-        "config/tailwind.config.js",
-        "scripts/build-styles-simple.js",
-        "scripts/build-styles.js"
-      ],
+      "ignore": ["config/tailwind.config.js", "scripts/build-styles-simple.js"],
       "ignoreDependencies": ["prettier-plugin-tailwindcss"]
     },
     "packages/react-actions-chat-recommended-actions": {

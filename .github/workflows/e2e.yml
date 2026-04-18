@@ -1,0 +1,91 @@
+name: E2E
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-matrix:
+    name: Deterministic Matrix
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps
+
+      - name: Run deterministic browser matrix
+        run: pnpm test:e2e:matrix
+
+      - name: Upload deterministic Playwright artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-deterministic
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+
+  live-settings:
+    name: Live Settings
+    runs-on: ubuntu-latest
+    if: ${{ secrets.E2E_SETTINGS_OPENAI_API_KEY != '' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run live settings E2E
+        env:
+          VITE_OPENAI_API_KEY: ${{ secrets.E2E_SETTINGS_OPENAI_API_KEY }}
+        run: pnpm test:e2e:live
+
+      - name: Upload live Playwright artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-live
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore

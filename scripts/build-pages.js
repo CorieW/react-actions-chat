@@ -1,7 +1,13 @@
 /**
- * @fileoverview
  * Builds the GitHub Pages site by combining the VitePress docs with selected
  * live example apps under a single static output directory.
+ *
+ * Steps:
+ * 1. Resolve the deploy base path from env so local and GitHub Pages builds
+ *    use compatible asset URLs.
+ * 2. Build the docs site and each live example with matching base-path env.
+ * 3. Recreate the docs examples output folder and copy each example's built
+ *    assets into the final Pages directory structure.
  */
 
 import { spawnSync } from 'node:child_process';

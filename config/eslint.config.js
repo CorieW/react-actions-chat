@@ -30,13 +30,18 @@ export default defineConfig([
     },
   },
   {
-    files: [
-      'src/**/*.{js,jsx,ts,tsx}',
-      'packages/**/*.{js,jsx,ts,tsx}',
-      'e2e/**/*.ts',
-    ],
+    files: ['src/**/*.{js,jsx,ts,tsx}', 'packages/**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
       globals: globals.browser,
+    },
+  },
+  {
+    files: ['e2e/**/*.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
     },
   },
   {
@@ -45,6 +50,10 @@ export default defineConfig([
       globals: globals.node,
     },
   },
+  ...tseslint.configs.recommended.map(config => ({
+    ...config,
+    files: ['e2e/**/*.ts'],
+  })),
   ...tseslint.configs.recommendedTypeChecked.map(config => ({
     ...config,
     files: ['src/**/*.{ts,tsx}', 'packages/**/*.{ts,tsx}'],
