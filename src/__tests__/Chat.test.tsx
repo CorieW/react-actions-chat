@@ -1,12 +1,18 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Chat } from '../components/Chat';
-import { createButton, createRequestInputButtonDef } from '../index';
+import {
+  Chat,
+  createButton,
+  createRequestConfirmationButtonDef,
+  createRequestInputButtonDef,
+  createTextPart,
+  useChatGlobalsStore,
+  type InputMessage,
+} from '../index';
 import { useChatStore } from '../lib/chatStore';
 import { useInputFieldStore } from '../lib/inputFieldStore';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
-import type { InputMessage } from '../js/types';
 
 function getScrollToOptions(
   value: unknown[] | undefined
@@ -23,46 +29,63 @@ function getScrollToOptions(
   return firstArg as Record<string, unknown>;
 }
 
+function createInputMessage(
+  text: string,
+  message: Omit<InputMessage, 'parts'>
+): InputMessage {
+  return {
+    ...message,
+    parts: [createTextPart(text)],
+  };
+}
+
 describe('Chat Component Integration Tests', () => {
   beforeEach(() => {
     // Clear stores before each test
     useChatStore.getState().clearMessages();
     usePersistentButtonStore.getState().clearButtons();
+    useChatGlobalsStore.getState().resetChatGlobals();
     useInputFieldStore.getState().resetInputFieldValue();
     useInputFieldStore.getState().resetInputFieldDescription();
     useInputFieldStore.getState().resetInputFieldType();
     useInputFieldStore.getState().resetInputFieldPlaceholder();
+    useInputFieldStore.getState().resetInputFieldDisabledPlaceholder();
     useInputFieldStore.getState().resetInputFieldValidator();
     useInputFieldStore.getState().resetInputFieldSubmitGuard();
+    useInputFieldStore.getState().resetInputFieldDisabledDefault();
+    useInputFieldStore.getState().resetInputFieldDisabledPlaceholderDefault();
     useInputFieldStore.getState().resetInputFieldDisabled();
   });
 
   it('should render empty chat', () => {
     render(<Chat />);
 
-    // Should have input field
-    expect(
-      screen.getByPlaceholderText('Type your message...')
-    ).toBeInTheDocument();
+    const input = screen.getByRole('textbox');
+
+    expect(input).toBeDisabled();
+    expect(input).toHaveAttribute('placeholder', 'Input disabled.');
   });
 
   it('should render with initial messages', () => {
     const initialMessages: InputMessage[] = [
-      {
+      createInputMessage('Hello!', {
         id: 1,
         type: 'other',
-        content: 'Hello!',
         timestamp: new Date(),
-      },
-      {
+      }),
+      createInputMessage('Hi there!', {
         id: 2,
         type: 'self',
-        content: 'Hi there!',
         timestamp: new Date(),
-      },
+      }),
     ];
 
-    render(<Chat initialMessages={initialMessages} />);
+    render(
+      <Chat
+        initialMessages={initialMessages}
+        allowFreeTextInput
+      />
+    );
 
     expect(screen.getByText('Hello!')).toBeInTheDocument();
     expect(screen.getByText('Hi there!')).toBeInTheDocument();
@@ -74,12 +97,11 @@ describe('Chat Component Integration Tests', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage(longWord, {
             id: 1,
             type: 'other',
-            content: longWord,
             timestamp: new Date(),
-          },
+          }),
         ]}
       />
     );
@@ -96,12 +118,11 @@ describe('Chat Component Integration Tests', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('Welcome to the chat', {
             id: 1,
             type: 'other',
-            content: 'Welcome to the chat',
             timestamp: new Date(),
-          },
+          }),
         ]}
       />
     );
@@ -129,9 +150,9 @@ describe('Chat Component Integration Tests', () => {
     scrollToSpy.mockRestore();
   });
 
-  it('should send message via ChatInput', async () => {
+  it('should send message via InputBar', async () => {
     const user = userEvent.setup();
-    render(<Chat />);
+    render(<Chat allowFreeTextInput />);
 
     const input = screen.getByPlaceholderText('Type your message...');
     await user.type(input, 'Test message');
@@ -143,6 +164,103 @@ describe('Chat Component Integration Tests', () => {
 
     // Input should be cleared
     expect(input).toHaveValue('');
+  });
+
+  it('should disable the input while confirmation buttons are visible', async () => {
+    const user = userEvent.setup();
+    const onReject = vi.fn();
+
+    render(
+      <Chat
+        allowFreeTextInput
+        initialMessages={[
+          createInputMessage('Choose an action.', {
+            type: 'other',
+            buttons: [
+              createButton(
+                createRequestConfirmationButtonDef({
+                  initialLabel: 'Delete draft',
+                  confirmationMessage: 'Delete this draft?',
+                  confirmLabel: 'Delete',
+                  rejectLabel: 'Keep it',
+                }),
+                {
+                  onReject,
+                }
+              ),
+            ],
+          }),
+        ]}
+      />
+    );
+
+    const input = screen.getByPlaceholderText('Type your message...');
+    expect(input).toBeEnabled();
+
+    await user.click(screen.getByRole('button', { name: 'Delete draft' }));
+
+    expect(await screen.findByText('Delete this draft?')).toBeInTheDocument();
+    expect(input).toBeDisabled();
+    expect(input).toHaveAttribute(
+      'placeholder',
+      'Choose a confirmation option to continue.'
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Keep it' }));
+
+    expect(onReject).toHaveBeenCalledTimes(1);
+
+    await waitFor(() => {
+      expect(input).toBeEnabled();
+      expect(
+        screen.queryByRole('button', { name: 'Keep it' })
+      ).not.toBeInTheDocument();
+    });
+
+    expect(input).toHaveAttribute('placeholder', 'Type your message...');
+  });
+
+  it('should keep the input available by default while an async response is pending', async () => {
+    const user = userEvent.setup();
+    const onValidInput = vi.fn(
+      () =>
+        new Promise<void>(() => {
+          // Keep the async turn pending so the test can assert the default input state.
+        })
+    );
+
+    render(
+      <Chat
+        allowFreeTextInput
+        initialMessages={[
+          createInputMessage('Start the async flow.', {
+            type: 'other',
+            buttons: [
+              createButton(
+                createRequestInputButtonDef({
+                  initialLabel: 'Begin',
+                  inputPromptMessage: 'Tell me what changed.',
+                }),
+                {
+                  onValidInput,
+                }
+              ),
+            ],
+          }),
+        ]}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Begin' }));
+
+    const input = screen.getByPlaceholderText('Type your message...');
+    await user.type(input, 'Change email');
+    await user.keyboard('{Enter}');
+
+    expect(onValidInput).toHaveBeenCalledWith('Change email');
+    expect(input).toBeEnabled();
+    expect(useInputFieldStore.getState().getInputFieldDisabled()).toBe(false);
+    expect(input).toHaveAttribute('placeholder', 'Type your message...');
   });
 
   it('should keep the input disabled while waiting for an async response', async () => {
@@ -158,9 +276,8 @@ describe('Chat Component Integration Tests', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('Start the async flow.', {
             type: 'other',
-            content: 'Start the async flow.',
             buttons: [
               createButton(
                 createRequestInputButtonDef({
@@ -173,7 +290,7 @@ describe('Chat Component Integration Tests', () => {
                 }
               ),
             ],
-          },
+          }),
         ]}
       />
     );
@@ -187,13 +304,113 @@ describe('Chat Component Integration Tests', () => {
     expect(onValidInput).toHaveBeenCalledWith('Change email');
     expect(input).toBeDisabled();
     expect(useInputFieldStore.getState().getInputFieldDisabled()).toBe(true);
+    expect(input).toHaveAttribute('placeholder', 'Waiting for a response...');
 
     resolveInput?.();
 
     await waitFor(() => {
-      expect(input).not.toBeDisabled();
-      expect(useInputFieldStore.getState().getInputFieldDisabled()).toBe(false);
+      expect(input).toBeDisabled();
+      expect(useInputFieldStore.getState().getInputFieldDisabled()).toBe(true);
+      expect(input).toHaveAttribute('placeholder', 'Input disabled.');
     });
+  });
+
+  it('should apply global request-input defaults for shouldWaitForTurn', async () => {
+    const user = userEvent.setup();
+    let resolveInput: (() => void) | undefined;
+    const onValidInput = vi.fn(
+      () =>
+        new Promise<void>(resolve => {
+          resolveInput = resolve;
+        })
+    );
+
+    render(
+      <Chat
+        globals={{
+          requestInputDefaults: {
+            shouldWaitForTurn: true,
+          },
+        }}
+        initialMessages={[
+          createInputMessage('Open the global flow.', {
+            type: 'other',
+            buttons: [
+              createButton(
+                createRequestInputButtonDef({
+                  initialLabel: 'Begin',
+                  inputPromptMessage: 'Tell me what changed.',
+                }),
+                {
+                  onValidInput,
+                }
+              ),
+            ],
+          }),
+        ]}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Begin' }));
+
+    const input = screen.getByPlaceholderText('Type your message...');
+    await user.type(input, 'Change email');
+    await user.keyboard('{Enter}');
+
+    expect(onValidInput).toHaveBeenCalledWith('Change email');
+    expect(input).toBeDisabled();
+    expect(input).toHaveAttribute('placeholder', 'Waiting for a response...');
+
+    resolveInput?.();
+
+    await waitFor(() => {
+      expect(input).toBeDisabled();
+      expect(input).toHaveAttribute('placeholder', 'Input disabled.');
+    });
+  });
+
+  it('should apply global request-input rate limits', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <Chat
+        globals={{
+          requestInputDefaults: {
+            rateLimit: {
+              maxMessages: 1,
+              windowMs: 10_000,
+              maxMessageLength: 5,
+              tooLongMessageMessage: 'Global limit reached.',
+            },
+          },
+        }}
+        initialMessages={[
+          createInputMessage('Open the global flow.', {
+            type: 'other',
+            buttons: [
+              createButton(
+                createRequestInputButtonDef({
+                  initialLabel: 'Guard input',
+                  inputPromptMessage: 'Share a short update.',
+                })
+              ),
+            ],
+          }),
+        ]}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Guard input' }));
+
+    const input = screen.getByPlaceholderText('Type your message...');
+    await user.type(input, 'Too long');
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByText('Global limit reached.')
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Too long')).not.toBeInTheDocument();
+    expect(input).toHaveValue('Too long');
   });
 
   it('should block an over-limit message before adding it to the transcript', async () => {
@@ -202,9 +419,8 @@ describe('Chat Component Integration Tests', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('Open the guarded flow.', {
             type: 'other',
-            content: 'Open the guarded flow.',
             buttons: [
               createButton(
                 createRequestInputButtonDef({
@@ -219,7 +435,7 @@ describe('Chat Component Integration Tests', () => {
                 })
               ),
             ],
-          },
+          }),
         ]}
       />
     );
@@ -243,9 +459,8 @@ describe('Chat Component Integration Tests', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('Open the guarded flow.', {
             type: 'other',
-            content: 'Open the guarded flow.',
             buttons: [
               createButton(
                 createRequestInputButtonDef({
@@ -257,7 +472,7 @@ describe('Chat Component Integration Tests', () => {
                 })
               ),
             ],
-          },
+          }),
         ]}
       />
     );
@@ -281,9 +496,8 @@ describe('Chat Component Integration Tests', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('Open the guarded flow.', {
             type: 'other',
-            content: 'Open the guarded flow.',
             buttons: [
               createButton(
                 createRequestInputButtonDef({
@@ -295,7 +509,7 @@ describe('Chat Component Integration Tests', () => {
                 })
               ),
             ],
-          },
+          }),
         ]}
       />
     );
@@ -326,7 +540,12 @@ describe('Chat Component Integration Tests', () => {
   });
 
   it('should apply light theme', () => {
-    const { container } = render(<Chat theme='light' />);
+    const { container } = render(
+      <Chat
+        theme='light'
+        allowFreeTextInput
+      />
+    );
 
     // The styles are applied to the inner div, not the wrapper
     const chatContainer = container.querySelector(
@@ -339,7 +558,12 @@ describe('Chat Component Integration Tests', () => {
   });
 
   it('should apply dark theme', () => {
-    const { container } = render(<Chat theme='dark' />);
+    const { container } = render(
+      <Chat
+        theme='dark'
+        allowFreeTextInput
+      />
+    );
 
     // The styles are applied to the inner div, not the wrapper
     const chatContainer = container.querySelector(
@@ -358,7 +582,12 @@ describe('Chat Component Integration Tests', () => {
       primaryColor: '#0000ff',
     };
 
-    const { container } = render(<Chat theme={customTheme} />);
+    const { container } = render(
+      <Chat
+        theme={customTheme}
+        allowFreeTextInput
+      />
+    );
 
     // The styles are applied to the inner div, not the wrapper
     const chatContainer = container.querySelector(
@@ -375,16 +604,20 @@ describe('Chat Component Integration Tests', () => {
     const callback = vi.fn();
 
     const initialMessages: InputMessage[] = [
-      {
+      createInputMessage('Please respond', {
         id: 1,
         type: 'other',
-        content: 'Please respond',
         timestamp: new Date(),
         userResponseCallback: callback,
-      },
+      }),
     ];
 
-    render(<Chat initialMessages={initialMessages} />);
+    render(
+      <Chat
+        initialMessages={initialMessages}
+        allowFreeTextInput
+      />
+    );
 
     const input = screen.getByPlaceholderText('Type your message...');
     await user.type(input, 'My response');
@@ -400,16 +633,20 @@ describe('Chat Component Integration Tests', () => {
     const callback = vi.fn();
 
     const initialMessages: InputMessage[] = [
-      {
+      createInputMessage('My message', {
         id: 1,
         type: 'self',
-        content: 'My message',
         timestamp: new Date(),
         userResponseCallback: callback,
-      },
+      }),
     ];
 
-    render(<Chat initialMessages={initialMessages} />);
+    render(
+      <Chat
+        initialMessages={initialMessages}
+        allowFreeTextInput
+      />
+    );
 
     const input = screen.getByPlaceholderText('Type your message...');
     await user.type(input, 'Another message');
@@ -425,19 +662,23 @@ describe('Chat Component Integration Tests', () => {
 
   it('should display message buttons', () => {
     const initialMessages: InputMessage[] = [
-      {
+      createInputMessage('Choose an option', {
         id: 1,
         type: 'other',
-        content: 'Choose an option',
         timestamp: new Date(),
         buttons: [
           { label: 'Option 1', onClick: () => {} },
           { label: 'Option 2', onClick: () => {} },
         ],
-      },
+      }),
     ];
 
-    render(<Chat initialMessages={initialMessages} />);
+    render(
+      <Chat
+        initialMessages={initialMessages}
+        allowFreeTextInput
+      />
+    );
 
     expect(screen.getByText('Option 1')).toBeInTheDocument();
     expect(screen.getByText('Option 2')).toBeInTheDocument();
@@ -446,7 +687,7 @@ describe('Chat Component Integration Tests', () => {
   it('should display a loading indicator from the chat store', () => {
     useChatStore.getState().setLoading(true);
 
-    render(<Chat />);
+    render(<Chat allowFreeTextInput />);
 
     expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
   });
@@ -457,7 +698,7 @@ describe('Chat Component Integration Tests', () => {
         initialMessages={[
           {
             type: 'other',
-            content: '',
+            parts: [],
             isLoading: true,
           },
         ]}
@@ -472,16 +713,20 @@ describe('Chat Component Integration Tests', () => {
     const onClick = vi.fn();
 
     const initialMessages: InputMessage[] = [
-      {
+      createInputMessage('Click the button', {
         id: 1,
         type: 'other',
-        content: 'Click the button',
         timestamp: new Date(),
         buttons: [{ label: 'Click Me', onClick }],
-      },
+      }),
     ];
 
-    render(<Chat initialMessages={initialMessages} />);
+    render(
+      <Chat
+        initialMessages={initialMessages}
+        allowFreeTextInput
+      />
+    );
 
     const button = screen.getByText('Click Me');
     await user.click(button);
@@ -493,16 +738,20 @@ describe('Chat Component Integration Tests', () => {
     const user = userEvent.setup();
 
     const initialMessages: InputMessage[] = [
-      {
+      createInputMessage('Message with buttons', {
         id: 1,
         type: 'other',
-        content: 'Message with buttons',
         timestamp: new Date(),
         buttons: [{ label: 'Button 1' }],
-      },
+      }),
     ];
 
-    render(<Chat initialMessages={initialMessages} />);
+    render(
+      <Chat
+        initialMessages={initialMessages}
+        allowFreeTextInput
+      />
+    );
 
     expect(screen.getByText('Button 1')).toBeInTheDocument();
 
@@ -517,7 +766,7 @@ describe('Chat Component Integration Tests', () => {
 
   it('should not send empty messages', async () => {
     const user = userEvent.setup();
-    render(<Chat />);
+    render(<Chat allowFreeTextInput />);
 
     const input = screen.getByPlaceholderText('Type your message...');
     await user.type(input, '   ');

@@ -10,8 +10,11 @@ describe('Input Field Store Unit Tests', () => {
     store.resetInputFieldDescription();
     store.resetInputFieldType();
     store.resetInputFieldPlaceholder();
+    store.resetInputFieldDisabledPlaceholder();
     store.resetInputFieldValidator();
     store.resetInputFieldSubmitGuard();
+    store.resetInputFieldDisabledDefault();
+    store.resetInputFieldDisabledPlaceholderDefault();
     store.resetInputFieldDisabled();
     store.resetInputFieldValue();
   });
@@ -68,6 +71,22 @@ describe('Input Field Store Unit Tests', () => {
     it('should have default placeholder', () => {
       const store = useInputFieldStore.getState();
       expect(store.getInputFieldPlaceholder()).toBe('Type your message...');
+    });
+  });
+
+  describe('setInputFieldDisabledPlaceholder and getInputFieldDisabledPlaceholder', () => {
+    it('should set and get the disabled placeholder', () => {
+      const store = useInputFieldStore.getState();
+
+      store.setInputFieldDisabledPlaceholder('Choose a suggested action');
+      expect(store.getInputFieldDisabledPlaceholder()).toBe(
+        'Choose a suggested action'
+      );
+    });
+
+    it('should have a helpful disabled placeholder by default', () => {
+      const store = useInputFieldStore.getState();
+      expect(store.getInputFieldDisabledPlaceholder()).toBe('Input disabled.');
     });
   });
 
@@ -153,10 +172,173 @@ describe('Input Field Store Unit Tests', () => {
       expect(store.getInputFieldDisabled()).toBe(false);
     });
 
-    it('should be false by default', () => {
+    it('should be true by default', () => {
       const store = useInputFieldStore.getState();
 
+      expect(store.getInputFieldDisabled()).toBe(true);
+    });
+  });
+
+  describe('setInputFieldParams', () => {
+    it('should update multiple input field params in one call', () => {
+      const store = useInputFieldStore.getState();
+      const mockElement = document.createElement('input');
+      const validator: InputValidator = value =>
+        value.includes('@') || 'Must include @';
+      const submitFunc = vi.fn();
+
+      store.setInputFieldParams({
+        element: mockElement,
+        type: 'email',
+        placeholder: 'Enter your email',
+        description: 'We need your work email.',
+        validator,
+        submitFunc,
+        value: 'alex@example.com',
+        disabled: false,
+      });
+
+      expect(store.getInputFieldElement()).toBe(mockElement);
+      expect(store.getInputFieldType()).toBe('email');
+      expect(store.getInputFieldPlaceholder()).toBe('Enter your email');
+      expect(store.getInputFieldDescription()).toBe('We need your work email.');
+      expect(store.getInputFieldValidator()).toBe(validator);
+      expect(store.getInputFieldSubmitFunc()).toBe(submitFunc);
+      expect(store.getInputFieldValue()).toBe('alex@example.com');
       expect(store.getInputFieldDisabled()).toBe(false);
+      expect(mockElement.type).toBe('email');
+    });
+
+    it('should only change the provided params', () => {
+      const store = useInputFieldStore.getState();
+      const validator: InputValidator = value => value.length > 0;
+
+      store.setInputFieldType('password');
+      store.setInputFieldPlaceholder('Enter password');
+      store.setInputFieldDescription('Minimum eight characters');
+      store.setInputFieldValidator(validator);
+
+      store.setInputFieldParams({
+        disabled: false,
+      });
+
+      expect(store.getInputFieldType()).toBe('password');
+      expect(store.getInputFieldPlaceholder()).toBe('Enter password');
+      expect(store.getInputFieldDescription()).toBe('Minimum eight characters');
+      expect(store.getInputFieldValidator()).toBe(validator);
+      expect(store.getInputFieldDisabled()).toBe(false);
+    });
+  });
+
+  describe('setInputFieldDisabledDefault and getInputFieldDisabledDefault', () => {
+    it('should set and get the default disabled state', () => {
+      const store = useInputFieldStore.getState();
+
+      store.setInputFieldDisabledDefault(false);
+      expect(store.getInputFieldDisabledDefault()).toBe(false);
+
+      store.setInputFieldDisabledDefault(true);
+      expect(store.getInputFieldDisabledDefault()).toBe(true);
+    });
+
+    it('should reset the current disabled state back to the configured default', () => {
+      const store = useInputFieldStore.getState();
+
+      store.setInputFieldDisabledDefault(false);
+      store.setInputFieldDisabled(true);
+      store.setInputFieldDisabledPlaceholder('Waiting for a response...');
+      store.resetInputFieldDisabled();
+
+      expect(store.getInputFieldDisabled()).toBe(false);
+      expect(store.getInputFieldDisabledPlaceholder()).toBe('Input disabled.');
+    });
+  });
+
+  describe('resetInputFieldParams', () => {
+    it('should reset multiple input field params in one call', () => {
+      const store = useInputFieldStore.getState();
+      const mockElement = document.createElement('input');
+      const validator: InputValidator = value => value.length > 0;
+      const submitGuard = vi.fn(() => true);
+      const submitFunc = vi.fn();
+
+      store.setInputFieldParams({
+        element: mockElement,
+        type: 'email',
+        placeholder: 'Enter your email',
+        description: 'We need your work email.',
+        validator,
+        submitGuard,
+        submitFunc,
+        value: 'alex@example.com',
+        disabled: false,
+      });
+
+      store.resetInputFieldParams({
+        element: true,
+        type: true,
+        placeholder: true,
+        description: true,
+        validator: true,
+        submitGuard: true,
+        submitFunc: true,
+        value: true,
+        disabled: true,
+      });
+
+      expect(store.getInputFieldElement()).toBeNull();
+      expect(store.getInputFieldType()).toBe('text');
+      expect(store.getInputFieldPlaceholder()).toBe('Type your message...');
+      expect(store.getInputFieldDescription()).toBe('');
+      expect(store.getInputFieldValidator()).toBeNull();
+      expect(store.getInputFieldSubmitGuard()).toBeNull();
+      expect(store.getInputFieldSubmitFunc()).toBeNull();
+      expect(store.getInputFieldValue()).toBe('');
+      expect(store.getInputFieldDisabled()).toBe(true);
+    });
+
+    it('should only reset the provided params', () => {
+      const store = useInputFieldStore.getState();
+      const validator: InputValidator = value => value.length > 0;
+
+      store.setInputFieldType('password');
+      store.setInputFieldPlaceholder('Enter password');
+      store.setInputFieldDescription('Minimum eight characters');
+      store.setInputFieldValidator(validator);
+      store.setInputFieldValue('secret');
+
+      store.resetInputFieldParams({
+        value: true,
+        description: true,
+      });
+
+      expect(store.getInputFieldValue()).toBe('');
+      expect(store.getInputFieldDescription()).toBe('');
+      expect(store.getInputFieldType()).toBe('password');
+      expect(store.getInputFieldPlaceholder()).toBe('Enter password');
+      expect(store.getInputFieldValidator()).toBe(validator);
+    });
+
+    it('should apply reset defaults consistently when resetting disabled state and its defaults together', () => {
+      const store = useInputFieldStore.getState();
+
+      store.setInputFieldDisabledDefault(false);
+      store.setInputFieldDisabledPlaceholderDefault('Waiting...');
+      store.setInputFieldDisabled(true);
+      store.setInputFieldDisabledPlaceholder('Custom');
+
+      store.resetInputFieldParams({
+        disabledDefault: true,
+        disabledPlaceholderDefault: true,
+        disabled: true,
+      });
+
+      expect(store.getInputFieldDisabledDefault()).toBe(true);
+      expect(store.getInputFieldDisabledPlaceholderDefault()).toBe(
+        'Input disabled.'
+      );
+      expect(store.getInputFieldDisabled()).toBe(true);
+      expect(store.getInputFieldDisabledPlaceholder()).toBe('Input disabled.');
     });
   });
 

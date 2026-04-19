@@ -5,9 +5,25 @@
 
 import { create } from 'zustand';
 import type { InputMessage, Message } from '../js/types';
+import { getMessageRawText } from './messageParts';
 import { usePersistentButtonStore } from './persistentButtonStore';
 
 const ABORT_BUTTON_ID = 'input-request-abort';
+
+/**
+ * Partial chat store updates applied in one store call.
+ *
+ * Only the provided properties are changed.
+ */
+export interface ChatStateParams {
+  readonly isLoading?: boolean | undefined;
+  readonly messages?: readonly Message[] | undefined;
+}
+
+type ChatStatePatch = {
+  isLoading?: boolean;
+  messages?: readonly Message[];
+};
 
 /**
  * Internal chat store shape.
@@ -20,6 +36,7 @@ const ABORT_BUTTON_ID = 'input-request-abort';
  * @property addMessages Adds multiple messages to the transcript.
  * @property setMessages Replaces the transcript with a new message list.
  * @property setLoading Sets the loading state.
+ * @property setChatState Applies multiple chat state updates in one call.
  * @property clearLoading Clears the loading state.
  * @property clearMessages Clears the transcript and loading state.
  * @property clearButtons Removes buttons from all messages.
@@ -35,6 +52,7 @@ interface ChatState {
   readonly addMessages: (messages: readonly InputMessage[]) => void;
   readonly setMessages: (messages: readonly Message[]) => void;
   readonly setLoading: (isLoading: boolean) => void;
+  readonly setChatState: (params: ChatStateParams) => void;
   readonly clearLoading: () => void;
   readonly clearMessages: () => void;
   readonly clearButtons: () => void;
@@ -63,7 +81,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const newMessage: Message = {
       id: currentMessages.length + 1,
       timestamp: new Date(),
-      rawContent: messageData.rawContent ?? messageData.content,
+      rawContent:
+        messageData.rawContent ?? getMessageRawText(messageData.parts),
       ...messageData,
     };
 
@@ -89,7 +108,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
         const msg: Message = {
           id: nextId++,
           timestamp: now,
-          rawContent: messageData.rawContent ?? messageData.content ?? '',
+          rawContent:
+            messageData.rawContent ?? getMessageRawText(messageData.parts),
           ...messageData,
         };
         return msg;
@@ -101,23 +121,33 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   setMessages: newMessages => {
-    set({ messages: newMessages });
+    get().setChatState({ messages: newMessages });
   },
 
   setLoading: isLoading => {
-    set({
-      isLoading,
-    });
+    get().setChatState({ isLoading });
+  },
+
+  setChatState: params => {
+    const nextState: ChatStatePatch = {};
+
+    if (params.messages !== undefined) {
+      nextState.messages = params.messages;
+    }
+
+    if (params.isLoading !== undefined) {
+      nextState.isLoading = params.isLoading;
+    }
+
+    set(nextState);
   },
 
   clearLoading: () => {
-    set({
-      isLoading: false,
-    });
+    get().setChatState({ isLoading: false });
   },
 
   clearMessages: () => {
-    set({
+    get().setChatState({
       messages: [],
       isLoading: false,
     });

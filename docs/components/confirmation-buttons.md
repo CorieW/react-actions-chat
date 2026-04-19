@@ -6,7 +6,7 @@ Use them for destructive or high-friction actions such as sign-out, deletion, or
 
 ## Example
 
-```tsx
+```tsx typecheck
 import {
   createButton,
   createRequestConfirmationButtonDef,

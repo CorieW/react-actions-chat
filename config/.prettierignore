@@ -17,6 +17,10 @@
 ../*.min.css
 ../src/styles.css
 
+# Repository instructions
+../AGENTS.md
+../**/AGENTS.md
+
 # IDE files
 ../.vscode/
 ../.idea/

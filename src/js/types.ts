@@ -1,7 +1,37 @@
+import type {
+  InputSubmitGuard,
+  InputType,
+  InputValidator,
+} from '../lib/inputFieldStore';
+import type { ChatGlobals } from '../lib/chatGlobalsStore';
+
 /**
  * Indicates whether a message is from the local user or the assistant side.
  */
 export type MessageType = 'self' | 'other';
+
+/**
+ * Base shape shared by all message parts.
+ */
+interface BaseMessagePart {
+  readonly id?: string | undefined;
+  readonly type: 'text';
+}
+
+/**
+ * Text content rendered inside a message bubble.
+ *
+ * @property text The textual content to render.
+ */
+export interface TextMessagePart extends BaseMessagePart {
+  readonly type: 'text';
+  readonly text: string;
+}
+
+/**
+ * All built-in content part variants supported by a message.
+ */
+export type MessagePart = TextMessagePart;
 
 /**
  * Theme configuration for the chat component.
@@ -47,6 +77,7 @@ export type MessageButtonVariant =
  * @property variant Visual variant used to style the button.
  * @property className Optional CSS classes applied to the button.
  * @property style Optional inline styles that override the variant styles.
+ * @property blocksInputWhileVisible When true, disables the shared input until the button is removed from the transcript.
  */
 export interface MessageButton {
   readonly label: string;
@@ -54,6 +85,72 @@ export interface MessageButton {
   readonly variant?: MessageButtonVariant | undefined;
   readonly className?: string | undefined;
   readonly style?: React.CSSProperties | undefined;
+  readonly blocksInputWhileVisible?: boolean | undefined;
+}
+
+/**
+ * Props passed to a part renderer.
+ *
+ * @property part The part being rendered.
+ * @property message The parent message that owns the part.
+ * @property theme Theme tokens used for styling.
+ */
+export interface MessagePartRendererProps<
+  TPart extends MessagePart = MessagePart,
+> {
+  readonly part: TPart;
+  readonly message: Message;
+  readonly theme: ChatTheme;
+}
+
+/**
+ * Contract for rendering a message part.
+ */
+export type MessagePartRenderer<TPart extends MessagePart = MessagePart> = (
+  props: MessagePartRendererProps<TPart>
+) => React.JSX.Element | null;
+
+/**
+ * Public mode configuration for the shared input bar.
+ *
+ * @property type Active HTML input type.
+ * @property placeholder Placeholder text shown in the input.
+ * @property description Helper text shown above the input.
+ */
+export interface InputBarModeConfig {
+  readonly type: InputType;
+  readonly placeholder?: string | undefined;
+  readonly description?: string | undefined;
+}
+
+/**
+ * Public validation configuration for the shared input bar.
+ *
+ * @property validator Optional validator applied after the user submits.
+ * @property submitGuard Optional guard used to block submission before a message is added.
+ */
+export interface InputBarValidationConfig {
+  readonly validator?: InputValidator | null | undefined;
+  readonly submitGuard?: InputSubmitGuard | null | undefined;
+}
+
+/**
+ * Public behavior configuration for the shared input bar.
+ *
+ * @property disabled Whether the input is currently disabled.
+ * @property disabledPlaceholder Optional placeholder shown while the input is disabled.
+ * @property shouldWaitForTurn Whether the input remains disabled until async work finishes.
+ * @property cooldownMs Optional cooldown window between accepted submissions.
+ * @property timeoutMs Optional timeout used by input-request flows.
+ * @property showAbort Whether input-request flows should expose an abort action.
+ */
+export interface InputBarBehaviorConfig {
+  readonly disabled?: boolean | undefined;
+  readonly disabledPlaceholder?: string | undefined;
+  readonly shouldWaitForTurn?: boolean | undefined;
+  readonly cooldownMs?: number | undefined;
+  readonly timeoutMs?: number | undefined;
+  readonly showAbort?: boolean | undefined;
 }
 
 /**
@@ -61,7 +158,7 @@ export interface MessageButton {
  *
  * @property id Optional id used when seeding messages into the chat.
  * @property type Which side of the conversation the message belongs to.
- * @property content Text shown to the user in the chat transcript.
+ * @property parts Structured content shown in the chat transcript.
  * @property rawContent Raw value preserved for follow-up logic such as validation.
  * @property timestamp Optional timestamp to use instead of the current time.
  * @property isLoading Marks the message as a loading placeholder.
@@ -72,7 +169,7 @@ export interface MessageButton {
 export interface InputMessage {
   readonly id?: number;
   readonly type: MessageType;
-  readonly content: string;
+  readonly parts: readonly MessagePart[];
   readonly rawContent?: string;
   readonly timestamp?: Date;
   readonly isLoading?: boolean;
@@ -101,10 +198,14 @@ export interface Message extends Omit<
  * Props for the Chat component.
  *
  * @property initialMessages Optional messages shown when the chat first renders.
+ * @property allowFreeTextInput When true, keeps the shared input enabled outside input-request flows.
+ * @property globals Optional Chat-level defaults applied to helper flows such as request-input buttons.
  * @property theme Optional theme configuration for the chat UI.
  */
 export interface ChatProps {
   readonly initialMessages?: readonly InputMessage[];
+  readonly allowFreeTextInput?: boolean | undefined;
+  readonly globals?: ChatGlobals | undefined;
   readonly theme?: ChatTheme;
 }
 
@@ -117,3 +218,15 @@ export interface ChatProps {
 export type ChatPropsWithFlexibleTheme = Omit<ChatProps, 'theme'> & {
   readonly theme?: 'light' | 'dark' | ChatTheme | undefined;
 };
+
+/**
+ * Creates a text part.
+ *
+ * @param text Text shown in the transcript.
+ */
+export function createTextPart(text: string): TextMessagePart {
+  return {
+    type: 'text',
+    text,
+  };
+}

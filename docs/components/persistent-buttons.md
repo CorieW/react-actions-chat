@@ -14,7 +14,7 @@ Use persistent buttons when:
 
 ## Read the Current Buttons
 
-```tsx
+```tsx typecheck
 import { usePersistentButtonStore } from 'react-actions-chat';
 
 const buttons = usePersistentButtonStore.getState().getButtons();
@@ -22,7 +22,7 @@ const buttons = usePersistentButtonStore.getState().getButtons();
 
 ## Add or Remove Buttons
 
-```tsx
+```tsx typecheck
 import { usePersistentButtonStore } from 'react-actions-chat';
 
 usePersistentButtonStore.getState().addButton({

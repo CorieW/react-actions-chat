@@ -1,8 +1,15 @@
 #!/usr/bin/env node
 
 /**
- * Build script for Tailwind CSS v4
- * Tailwind v4 uses @tailwindcss/vite, so we create a temporary entry point
+ * Generates standalone package CSS with the Tailwind v4 Vite plugin.
+ *
+ * Steps:
+ * 1. Create temporary entry files that import the source CSS and reference the
+ *    component tree so Tailwind scans the right files.
+ * 2. Run a Vite build with `@tailwindcss/vite` to emit the compiled CSS.
+ * 3. Read the generated CSS, prepend the generated-file header, and write the
+ *    result to `src/styles.css`.
+ * 4. Remove the temporary build directory even when the build fails.
  */
 
 import { build } from 'vite';
@@ -124,7 +131,8 @@ async function buildStyles() {
 }
 
 /**
- * Recursively get all files in a directory
+ * Recursively collects all files in a directory tree for the temporary
+ * Tailwind scan manifest.
  */
 function getAllFiles(dir) {
   const files = [];

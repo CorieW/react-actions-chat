@@ -2,6 +2,8 @@
 
 Input-request buttons prompt the user for a follow-up value through the shared chat input.
 
+The shared chat input stays disabled until an input-request flow enables it, so these buttons are the default way to collect follow-up text in guided experiences.
+
 This is the pattern to use for collecting things like:
 
 - email addresses
@@ -11,7 +13,7 @@ This is the pattern to use for collecting things like:
 
 ## Create a Reusable Definition
 
-```tsx
+```tsx typecheck
 import { createButton, createRequestInputButtonDef } from 'react-actions-chat';
 
 const emailButtonDef = createRequestInputButtonDef({

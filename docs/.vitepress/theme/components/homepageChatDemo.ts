@@ -1,31 +1,32 @@
-import React, { createElement, useEffect, useRef } from 'react';
-import { createRoot, type Root } from 'react-dom/client';
+import React, { createElement, useEffect, useRef } from "react";
+import { createRoot, type Root } from "react-dom/client";
 import type {
   ChatTheme,
   InputMessage,
   MessageButton,
-} from 'react-actions-chat';
+} from "react-actions-chat";
 import {
   Chat,
   createButton,
   createRequestConfirmationButtonDef,
   createRequestInputButtonDef,
+  createTextPart,
   useChatStore,
   useInputFieldStore,
   usePersistentButtonStore,
-} from 'react-actions-chat';
-import chatStyles from '../../../../src/styles.css?inline';
+} from "react-actions-chat";
+import chatStyles from "../../../../src/styles.css?inline";
 
 const HOMEPAGE_CHAT_THEME: ChatTheme = {
-  primaryColor: 'var(--vp-c-brand-3, #5672cd)',
-  secondaryColor: 'var(--vp-c-bg-soft, #f6f6f7)',
-  backgroundColor: 'var(--vp-c-bg, #ffffff)',
-  textColor: 'var(--vp-c-text-1, #242424)',
-  borderColor: 'var(--vp-c-divider, #d0d0d7)',
-  inputBackgroundColor: 'var(--vp-c-bg, #ffffff)',
-  inputTextColor: 'var(--vp-c-text-1, #242424)',
-  buttonColor: 'var(--vp-c-brand-3, #5672cd)',
-  buttonTextColor: 'var(--vp-button-brand-text, #ffffff)',
+  primaryColor: "var(--vp-c-brand-3, #5672cd)",
+  secondaryColor: "var(--vp-c-bg-soft, #f6f6f7)",
+  backgroundColor: "var(--vp-c-bg, #ffffff)",
+  textColor: "var(--vp-c-text-1, #242424)",
+  borderColor: "var(--vp-c-divider, #d0d0d7)",
+  inputBackgroundColor: "var(--vp-c-bg, #ffffff)",
+  inputTextColor: "var(--vp-c-text-1, #242424)",
+  buttonColor: "var(--vp-c-brand-3, #5672cd)",
+  buttonTextColor: "var(--vp-button-brand-text, #ffffff)",
 };
 
 const EMBEDDED_CHAT_OVERRIDES = `
@@ -114,36 +115,36 @@ const EMBEDDED_CHAT_OVERRIDES = `
 `;
 
 const EMAIL_CAPTURE_BUTTON_DEF = createRequestInputButtonDef({
-  initialLabel: 'Collect an email',
+  initialLabel: "Collect an email",
   inputPromptMessage:
-    'Drop in an email address and the demo will validate it with the package input helper.',
-  inputType: 'email',
-  placeholder: 'you@example.com',
-  inputDescription: 'This stays local to the docs demo. Try hello@example.com.',
-  validator: value => {
+    "Drop in an email address and the demo will validate it with the package input helper.",
+  inputType: "email",
+  placeholder: "you@example.com",
+  inputDescription: "This stays local to the docs demo. Try hello@example.com.",
+  validator: (value) => {
     const trimmedValue = value.trim();
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedValue)) {
-      return 'Enter a valid email address to continue.';
+      return "Enter a valid email address to continue.";
     }
 
     return true;
   },
-  onSuccess: emailAddress => {
+  onSuccess: (emailAddress) => {
     addAssistantMessage(
       `Nice. ${emailAddress.trim()} passed validation, and the chat input switched into an email-specific flow without leaving the shared composer.`,
-      createPrimaryButtons('input')
+      createPrimaryButtons("input"),
     );
   },
 });
 
 const RESET_DEMO_BUTTON_DEF = createRequestConfirmationButtonDef({
-  initialLabel: 'Reset demo',
+  initialLabel: "Reset demo",
   confirmationMessage:
-    'Reset the embedded transcript and start the homepage preview from the beginning?',
-  confirmLabel: 'Reset',
-  rejectLabel: 'Keep going',
-  variant: 'dull',
+    "Reset the embedded transcript and start the homepage preview from the beginning?",
+  confirmLabel: "Reset",
+  rejectLabel: "Keep going",
+  variant: "dull",
   onSuccess: () => {
     replaceTranscriptWithInitialState();
   },
@@ -175,7 +176,7 @@ function getLatestUserMessage(): string | undefined {
   const messages = useChatStore.getState().getMessages();
   const latestSelfMessage = [...messages]
     .reverse()
-    .find(message => message.type === 'self');
+    .find((message) => message.type === "self");
 
   return latestSelfMessage?.rawContent;
 }
@@ -198,11 +199,11 @@ function createConversationCallback(): () => void {
  */
 function addAssistantMessage(
   content: string,
-  buttons: readonly MessageButton[] = createPrimaryButtons()
+  buttons: readonly MessageButton[] = createPrimaryButtons(),
 ): void {
   useChatStore.getState().addMessage({
-    type: 'other',
-    content,
+    type: "other",
+    parts: [createTextPart(content)],
     buttons,
     userResponseCallback: createConversationCallback(),
   });
@@ -214,9 +215,12 @@ function addAssistantMessage(
 function createInitialMessages(): readonly InputMessage[] {
   return [
     {
-      type: 'other',
-      content:
-        'Hi! I am the docs homepage demo. Ask about theming, guided actions, or input validation, or tap a quick action to explore the package.',
+      type: "other",
+      parts: [
+        createTextPart(
+          "Hi! I am the docs homepage demo. Ask about theming, guided actions, or input validation, or tap a quick action to explore the package.",
+        ),
+      ],
       buttons: createPrimaryButtons(),
       userResponseCallback: createConversationCallback(),
     },
@@ -235,39 +239,39 @@ function replaceTranscriptWithInitialState(): void {
  * Creates the main quick actions shown throughout the homepage demo.
  */
 function createPrimaryButtons(
-  activeTopic?: 'actions' | 'input' | 'theme'
+  activeTopic?: "actions" | "input" | "theme",
 ): readonly MessageButton[] {
   const buttons: MessageButton[] = [];
 
-  if (activeTopic !== 'actions') {
+  if (activeTopic !== "actions") {
     buttons.push(
       createButton({
-        label: 'Guided actions',
+        label: "Guided actions",
         onClick: () => {
           addAssistantMessage(
-            'Each assistant reply can offer follow-up buttons, so the chat can branch into support flows without making the UI feel like a form wizard.',
-            createPrimaryButtons('actions')
+            "Each assistant reply can offer follow-up buttons, so the chat can branch into support flows without making the UI feel like a form wizard.",
+            createPrimaryButtons("actions"),
           );
         },
-      })
+      }),
     );
   }
 
-  if (activeTopic !== 'input') {
+  if (activeTopic !== "input") {
     buttons.push(createButton(EMAIL_CAPTURE_BUTTON_DEF));
   }
 
-  if (activeTopic !== 'theme') {
+  if (activeTopic !== "theme") {
     buttons.push(
       createButton({
-        label: 'Docs-matched theme',
+        label: "Docs-matched theme",
         onClick: () => {
           addAssistantMessage(
-            'This embed maps the chat theme to VitePress tokens like --vp-c-brand-1, --vp-c-bg-alt, and --vp-c-text-1, so it stays aligned with the docs palette in both light and dark modes.',
-            createPrimaryButtons('theme')
+            "This embed maps the chat theme to VitePress tokens like --vp-c-brand-1, --vp-c-bg-alt, and --vp-c-text-1, so it stays aligned with the docs palette in both light and dark modes.",
+            createPrimaryButtons("theme"),
           );
         },
-      })
+      }),
     );
   }
 
@@ -275,11 +279,11 @@ function createPrimaryButtons(
     createButton(RESET_DEMO_BUTTON_DEF, {
       onReject: () => {
         addAssistantMessage(
-          'Sounds good. I will keep the current demo conversation right where it is.',
-          createPrimaryButtons(activeTopic)
+          "Sounds good. I will keep the current demo conversation right where it is.",
+          createPrimaryButtons(activeTopic),
         );
       },
-    })
+    }),
   );
 
   return buttons;
@@ -291,49 +295,49 @@ function createPrimaryButtons(
 function respondToFreeformMessage(message: string): void {
   const normalizedMessage = message.trim().toLowerCase();
 
-  if (normalizedMessage === '') {
+  if (normalizedMessage === "") {
     addAssistantMessage(
-      'Type a question or use one of the quick actions below to explore the component.',
-      createPrimaryButtons()
+      "Type a question or use one of the quick actions below to explore the component.",
+      createPrimaryButtons(),
     );
     return;
   }
 
   if (/(hello|hi|hey)/.test(normalizedMessage)) {
     addAssistantMessage(
-      'Hello! This preview is powered by the actual chat component, not a static mock. You can ask about the theme, buttons, or validation helpers.',
-      createPrimaryButtons()
+      "Hello! This preview is powered by the actual chat component, not a static mock. You can ask about the theme, buttons, or validation helpers.",
+      createPrimaryButtons(),
     );
     return;
   }
 
   if (/(theme|color|brand|docs|dark|light)/.test(normalizedMessage)) {
     addAssistantMessage(
-      'The homepage embed uses docs theme variables directly, which keeps the chat colors synchronized with VitePress instead of duplicating a second palette.',
-      createPrimaryButtons('theme')
+      "The homepage embed uses docs theme variables directly, which keeps the chat colors synchronized with VitePress instead of duplicating a second palette.",
+      createPrimaryButtons("theme"),
     );
     return;
   }
 
   if (/(input|email|validate|validation)/.test(normalizedMessage)) {
     addAssistantMessage(
-      'The shared input field can switch types and validators on demand. Try the Collect an email action to see the input-request helper in motion.',
-      createPrimaryButtons('input')
+      "The shared input field can switch types and validators on demand. Try the Collect an email action to see the input-request helper in motion.",
+      createPrimaryButtons("input"),
     );
     return;
   }
 
   if (/(button|action|flow|guided)/.test(normalizedMessage)) {
     addAssistantMessage(
-      'Guided actions let you offer next-step buttons in context, which is especially useful for support flows like refunds, order tracking, and account recovery.',
-      createPrimaryButtons('actions')
+      "Guided actions let you offer next-step buttons in context, which is especially useful for support flows like refunds, order tracking, and account recovery.",
+      createPrimaryButtons("actions"),
     );
     return;
   }
 
   addAssistantMessage(
-    'This homepage demo keeps the logic local and deterministic, but it uses the same chat primitives you would wire to real support workflows in an app.',
-    createPrimaryButtons()
+    "This homepage demo keeps the logic local and deterministic, but it uses the same chat primitives you would wire to real support workflows in an app.",
+    createPrimaryButtons(),
   );
 }
 
@@ -354,12 +358,13 @@ function HomepageChatDemoApp(): React.JSX.Element {
   }, []);
 
   return createElement(
-    'div',
-    { className: 'asc-homepage-chat' },
+    "div",
+    { className: "asc-homepage-chat" },
     createElement(Chat, {
+      allowFreeTextInput: true,
       initialMessages: initialMessagesRef.current,
       theme: HOMEPAGE_CHAT_THEME,
-    })
+    }),
   );
 }
 
@@ -370,13 +375,13 @@ function HomepageChatDemoApp(): React.JSX.Element {
  * docs shell and the embedded demo from affecting each other.
  */
 export function mountHomepageChatDemo(hostElement: HTMLDivElement): () => void {
-  const shadowRoot = hostElement.attachShadow({ mode: 'open' });
-  const styleElement = document.createElement('style');
-  const mountPoint = document.createElement('div');
+  const shadowRoot = hostElement.attachShadow({ mode: "open" });
+  const styleElement = document.createElement("style");
+  const mountPoint = document.createElement("div");
   let root: Root | undefined;
 
   styleElement.textContent = `${chatStyles}\n${EMBEDDED_CHAT_OVERRIDES}`;
-  mountPoint.style.height = '100%';
+  mountPoint.style.height = "100%";
 
   shadowRoot.append(styleElement, mountPoint);
   root = createRoot(mountPoint);

@@ -5,12 +5,12 @@
 ## Shape
 
 ```ts
-type InputValidator = (value: string) => boolean | string;
+type InputValidator = (value: string) => InputValidationResult;
 ```
 
 ## Example
 
-```tsx
+```tsx typecheck
 const emailValidator = (value: string) => {
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   return isValidEmail || 'Please enter a valid email address.';

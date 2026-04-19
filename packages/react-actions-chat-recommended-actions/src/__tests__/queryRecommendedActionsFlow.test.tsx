@@ -5,11 +5,13 @@ import {
   Chat,
   createRequestConfirmationButtonDef,
   createRequestInputButtonDef,
-  type InputMessage,
+  createTextPart,
+  useChatGlobalsStore,
   useChatStore,
   useInputFieldStore,
   usePersistentButtonStore,
 } from 'react-actions-chat';
+import type { InputMessage, Message } from 'react-actions-chat';
 import {
   buildVectorSearchButtonText,
   createQueryRecommendedActionsFlow,
@@ -54,16 +56,39 @@ function createTestEmbedder(embedTexts: EmbedTexts): TextEmbedder {
   };
 }
 
+function createInputMessage(
+  text: string,
+  message: Omit<InputMessage, 'parts'>
+): InputMessage {
+  return {
+    ...message,
+    parts: [createTextPart(text)],
+  };
+}
+
+function getMessageText(message: Message | undefined): string {
+  const firstPart = message?.parts[0];
+  if (!firstPart || firstPart.type !== 'text') {
+    return '';
+  }
+
+  return firstPart.text;
+}
+
 describe('Query Recommended Actions Flow', () => {
   beforeEach(() => {
+    useChatGlobalsStore.getState().resetChatGlobals();
     useChatStore.getState().clearMessages();
     usePersistentButtonStore.getState().clearButtons();
     useInputFieldStore.getState().setInputFieldValue('');
     useInputFieldStore.getState().resetInputFieldDescription();
     useInputFieldStore.getState().resetInputFieldPlaceholder();
+    useInputFieldStore.getState().resetInputFieldDisabledPlaceholder();
     useInputFieldStore.getState().resetInputFieldType();
     useInputFieldStore.getState().resetInputFieldValidator();
     useInputFieldStore.getState().resetInputFieldSubmitGuard();
+    useInputFieldStore.getState().resetInputFieldDisabledDefault();
+    useInputFieldStore.getState().resetInputFieldDisabledPlaceholderDefault();
     useInputFieldStore.getState().resetInputFieldDisabled();
   });
 
@@ -88,13 +113,12 @@ describe('Query Recommended Actions Flow', () => {
       getRecommendedActions,
     });
     const initialMessages: InputMessage[] = [
-      {
+      createInputMessage('Need something specific?', {
         id: 1,
         type: 'other',
-        content: 'Need something specific?',
         timestamp: new Date(),
         buttons: [flow.button],
-      },
+      }),
     ];
 
     render(<Chat initialMessages={initialMessages} />);
@@ -144,11 +168,10 @@ describe('Query Recommended Actions Flow', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('Let us find the right action.', {
             type: 'other',
-            content: 'Let us find the right action.',
             buttons: [flow.button],
-          },
+          }),
         ]}
       />
     );
@@ -190,11 +213,10 @@ describe('Query Recommended Actions Flow', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('I can suggest what to do next.', {
             type: 'other',
-            content: 'I can suggest what to do next.',
             buttons: [flow.button],
-          },
+          }),
         ]}
       />
     );
@@ -239,11 +261,10 @@ describe('Query Recommended Actions Flow', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('Let us find the right action.', {
             type: 'other',
-            content: 'Let us find the right action.',
             buttons: [flow.button],
-          },
+          }),
         ]}
       />
     );
@@ -278,11 +299,10 @@ describe('Query Recommended Actions Flow', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('Need something specific?', {
             type: 'other',
-            content: 'Need something specific?',
             buttons: [flow.button],
-          },
+          }),
         ]}
       />
     );
@@ -338,11 +358,10 @@ describe('Query Recommended Actions Flow', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('Need something specific?', {
             type: 'other',
-            content: 'Need something specific?',
             buttons: [flow.button],
-          },
+          }),
         ]}
       />
     );
@@ -359,8 +378,8 @@ describe('Query Recommended Actions Flow', () => {
     resolveRecommendations?.([{ label: 'Change Email' }]);
 
     await waitFor(() => {
-      expect(input).not.toBeDisabled();
-      expect(useInputFieldStore.getState().getInputFieldDisabled()).toBe(false);
+      expect(input).toBeDisabled();
+      expect(useInputFieldStore.getState().getInputFieldDisabled()).toBe(true);
     });
   });
 
@@ -378,7 +397,7 @@ describe('Query Recommended Actions Flow', () => {
     expect(useChatStore.getState().getMessages()).toHaveLength(1);
     expect(useChatStore.getState().getMessages()[0]).toMatchObject({
       type: 'other',
-      content: '',
+      parts: [],
       isLoading: true,
       loadingLabel: 'Looking up the best next action...',
     });
@@ -417,7 +436,9 @@ describe('Query Recommended Actions Flow', () => {
       useChatStore
         .getState()
         .getMessages()
-        .some(message => message.content.includes('recommended next steps'))
+        .some(message =>
+          getMessageText(message).includes('recommended next steps')
+        )
     ).toBe(false);
 
     await vi.advanceTimersByTimeAsync(499);
@@ -432,7 +453,9 @@ describe('Query Recommended Actions Flow', () => {
       useChatStore
         .getState()
         .getMessages()
-        .some(message => message.content.includes('recommended next steps'))
+        .some(message =>
+          getMessageText(message).includes('recommended next steps')
+        )
     ).toBe(true);
 
     vi.useRealTimers();
@@ -483,7 +506,7 @@ describe('Query Recommended Actions Flow', () => {
       useChatStore
         .getState()
         .getMessages()
-        .some(message => message.content.includes('"second query"'))
+        .some(message => getMessageText(message).includes('"second query"'))
     ).toBe(true);
 
     resolveFirstRecommendation?.([{ label: 'First Result' }]);
@@ -493,7 +516,7 @@ describe('Query Recommended Actions Flow', () => {
       useChatStore
         .getState()
         .getMessages()
-        .some(message => message.content.includes('"first query"'))
+        .some(message => getMessageText(message).includes('"first query"'))
     ).toBe(false);
     expect(
       useChatStore
@@ -549,13 +572,13 @@ describe('Query Recommended Actions Flow', () => {
       useChatStore
         .getState()
         .getMessages()
-        .some(message => message.content.includes('"first query"'))
+        .some(message => getMessageText(message).includes('"first query"'))
     ).toBe(true);
     expect(
       useChatStore
         .getState()
         .getMessages()
-        .some(message => message.content.includes('"second query"'))
+        .some(message => getMessageText(message).includes('"second query"'))
     ).toBe(true);
   });
 
@@ -579,11 +602,10 @@ describe('Query Recommended Actions Flow', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('Let us find the right action.', {
             type: 'other',
-            content: 'Let us find the right action.',
             buttons: [flow.button],
-          },
+          }),
         ]}
       />
     );
@@ -631,10 +653,10 @@ describe('Query Recommended Actions Flow', () => {
 
     render(
       <Chat
+        allowFreeTextInput
         initialMessages={[
-          {
+          createInputMessage('Tell me what you want to change.', {
             type: 'other',
-            content: 'Tell me what you want to change.',
             userResponseCallback: () => {
               const lastSelfMessage = [...useChatStore.getState().getMessages()]
                 .reverse()
@@ -644,7 +666,7 @@ describe('Query Recommended Actions Flow', () => {
                 void flow.recommend(lastSelfMessage.rawContent);
               }
             },
-          },
+          }),
         ]}
       />
     );
@@ -687,7 +709,7 @@ describe('Query Recommended Actions Flow', () => {
     expect(useChatStore.getState().getMessages()).toContainEqual(
       expect.objectContaining({
         type: 'other',
-        content: 'Suggestions for change email',
+        parts: [createTextPart('Suggestions for change email')],
         buttons: [
           expect.objectContaining({
             label: 'Change Email',
@@ -706,11 +728,10 @@ describe('Query Recommended Actions Flow', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('Need something specific?', {
             type: 'other',
-            content: 'Need something specific?',
             buttons: [flow.button],
-          },
+          }),
         ]}
       />
     );
@@ -747,7 +768,11 @@ describe('Query Recommended Actions Flow', () => {
 
     expect(useChatStore.getState().getMessages()).toContainEqual(
       expect.objectContaining({
-        content: 'Here are the recommended next steps for "change email".',
+        parts: [
+          createTextPart(
+            'Here are the recommended next steps for "change email".'
+          ),
+        ],
         buttons: [
           expect.objectContaining({
             label: 'Change Email',
@@ -787,11 +812,10 @@ describe('Query Recommended Actions Flow', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('Use vector search to find the right option.', {
             type: 'other',
-            content: 'Use vector search to find the right option.',
             buttons: [flow.button],
-          },
+          }),
         ]}
       />
     );
@@ -840,11 +864,10 @@ describe('Query Recommended Actions Flow', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('Describe what you want to do.', {
             type: 'other',
-            content: 'Describe what you want to do.',
             buttons: [flow.button],
-          },
+          }),
         ]}
       />
     );
@@ -871,61 +894,6 @@ describe('Query Recommended Actions Flow', () => {
         })
       );
     });
-  });
-
-  it('keeps legacy document-shaped configs working at runtime', async () => {
-    const user = userEvent.setup();
-    const embedTextsSpy = createEmbedTextsSpy();
-    const embedder = createTestEmbedder(embedTextsSpy);
-    const flow = createVectorSearchQueryRecommendedActionsFlow({
-      initialLabel: 'Legacy search',
-      queryPromptMessage: 'What should I help you do?',
-      documents: [
-        {
-          label: 'Change Email',
-          searchText: 'Change Email update email verification address',
-        },
-        {
-          label: 'Logout',
-          searchText:
-            'Logout sign out leave the account get out of my account end session',
-        },
-      ],
-      embedder,
-      getDocumentText: (document: { searchText: string }) =>
-        document.searchText,
-      maxResults: 1,
-      toAction: ({
-        match,
-      }: {
-        match: { document: { label: string } } | { button: { label: string } };
-      }) => ({
-        label: 'document' in match ? match.document.label : match.button.label,
-      }),
-    } as never);
-
-    render(
-      <Chat
-        initialMessages={[
-          {
-            type: 'other',
-            content: 'Describe what you want to do.',
-            buttons: [flow.button],
-          },
-        ]}
-      />
-    );
-
-    await user.click(screen.getByRole('button', { name: 'Legacy search' }));
-    await user.type(
-      screen.getByPlaceholderText('Search for help topics...'),
-      'I want to leave my account'
-    );
-    await user.keyboard('{Enter}');
-
-    expect(
-      await screen.findByRole('button', { name: 'Logout' })
-    ).toBeInTheDocument();
   });
 
   it('automatically builds document text for vector search button definitions', async () => {
@@ -963,11 +931,10 @@ describe('Query Recommended Actions Flow', () => {
     render(
       <Chat
         initialMessages={[
-          {
+          createInputMessage('Describe what you want to do.', {
             type: 'other',
-            content: 'Describe what you want to do.',
             buttons: [flow.button],
-          },
+          }),
         ]}
       />
     );
@@ -1023,11 +990,13 @@ describe('Query Recommended Actions Flow', () => {
     render(
       <Chat
         initialMessages={[
-          {
-            type: 'other',
-            content: 'Ask a question and I will search the vector index.',
-            buttons: [flow.button],
-          },
+          createInputMessage(
+            'Ask a question and I will search the vector index.',
+            {
+              type: 'other',
+              buttons: [flow.button],
+            }
+          ),
         ]}
       />
     );
@@ -1077,7 +1046,7 @@ describe('Query Recommended Actions Flow', () => {
 
     expect(useChatStore.getState().getMessages()).toContainEqual(
       expect.objectContaining({
-        content: 'Best result for change email',
+        parts: [createTextPart('Best result for change email')],
         buttons: [
           expect.objectContaining({
             label: 'Change Email',
@@ -1114,8 +1083,11 @@ describe('Query Recommended Actions Flow', () => {
     );
     expect(useChatStore.getState().getMessages()).toContainEqual(
       expect.objectContaining({
-        content:
-          'I hit a problem while looking up recommendations for "change email". Please try again.',
+        parts: [
+          createTextPart(
+            'I hit a problem while looking up recommendations for "change email". Please try again.'
+          ),
+        ],
       })
     );
   });
@@ -1133,7 +1105,11 @@ describe('Query Recommended Actions Flow', () => {
 
     expect(useChatStore.getState().getMessages()).toContainEqual(
       expect.objectContaining({
-        content: 'Could not load actions for change email: Lookup failed',
+        parts: [
+          createTextPart(
+            'Could not load actions for change email: Lookup failed'
+          ),
+        ],
       })
     );
   });

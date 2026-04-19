@@ -1,12 +1,19 @@
 import React, { useEffect } from 'react';
-import type { ChatPropsWithFlexibleTheme } from '../js/types';
 import {
-  useChatStore,
+  createTextPart,
+  type ChatPropsWithFlexibleTheme,
+} from '../../js/types';
+import {
   getResolvedTheme,
   getThemeStyles,
+  useChatStore,
+  useChatGlobalsStore,
   useInputFieldStore,
-} from '../lib';
-import { MessagesList, ChatInput, PersistentButtons } from './';
+} from '../../lib';
+import { hasInputBlockingButtons } from '../../lib/messageButtons';
+import { InputBar } from '../InputBar/InputBar';
+import { MessageList } from '../MessageList/MessageList';
+import { PersistentButtons } from './PersistentButtons';
 
 /**
  * Renders the chat UI and wires user input into the shared chat state.
@@ -14,24 +21,47 @@ import { MessagesList, ChatInput, PersistentButtons } from './';
  * @param props The `ChatPropsWithFlexibleTheme` object.
  */
 export function Chat({
+  allowFreeTextInput = false,
+  globals = {},
   initialMessages = [],
   theme,
 }: ChatPropsWithFlexibleTheme): React.JSX.Element {
   const {
-    messages,
-    isLoading,
     addMessage,
     addMessages,
-    getPreviousMessage,
     clearMessages,
+    getPreviousMessage,
+    isLoading,
+    messages,
   } = useChatStore();
   const { getInputFieldDisabled, getInputFieldSubmitGuard, getInputFieldType } =
     useInputFieldStore();
 
-  // Resolved theme based on string or object or undefined
   const mergedTheme = getResolvedTheme(theme);
+  const inputBlockedByVisibleButtons = hasInputBlockingButtons(messages);
 
-  // Initialize messages with initialMessages if provided (only once)
+  useEffect(() => {
+    const inputFieldStore = useInputFieldStore.getState();
+    inputFieldStore.setInputFieldParams({
+      disabledDefault: !allowFreeTextInput,
+    });
+    inputFieldStore.resetInputFieldDisabled();
+
+    return () => {
+      inputFieldStore.resetInputFieldDisabledDefault();
+      inputFieldStore.resetInputFieldDisabled();
+    };
+  }, [allowFreeTextInput]);
+
+  useEffect(() => {
+    const chatGlobalsStore = useChatGlobalsStore.getState();
+    chatGlobalsStore.setChatGlobals(globals);
+
+    return () => {
+      chatGlobalsStore.resetChatGlobals();
+    };
+  }, [globals]);
+
   useEffect(() => {
     if (initialMessages.length > 0) {
       clearMessages();
@@ -40,7 +70,7 @@ export function Chat({
   }, [initialMessages, addMessages, clearMessages]);
 
   const handleSend = (messageContent: string): boolean => {
-    if (getInputFieldDisabled()) {
+    if (getInputFieldDisabled() || inputBlockedByVisibleButtons) {
       return false;
     }
 
@@ -49,22 +79,19 @@ export function Chat({
       return false;
     }
 
-    // Get the previous message (before sending the self message)
     const previousMessage = getPreviousMessage();
+    const inputType = getInputFieldType();
+    const displayedContent =
+      inputType === 'password'
+        ? '•'.repeat(messageContent.length)
+        : messageContent;
 
-    let displayedContent = messageContent;
-    if (getInputFieldType() === 'password') {
-      displayedContent = '•'.repeat(messageContent.length);
-    }
-
-    // Add the self message
     addMessage({
       type: 'self',
-      content: displayedContent,
+      parts: [createTextPart(displayedContent)],
       rawContent: messageContent,
     });
 
-    // If the previous message is an other message and has a userResponseCallback, call it
     const isPreviousMessageOther = previousMessage?.type === 'other';
     const hasUserResponseCallback = previousMessage?.userResponseCallback;
     if (isPreviousMessageOther && hasUserResponseCallback) {
@@ -84,15 +111,16 @@ export function Chat({
           color: mergedTheme.textColor,
         }}
       >
-        <MessagesList
+        <MessageList
           messages={messages}
           isLoading={isLoading}
           theme={mergedTheme}
         />
         <PersistentButtons theme={mergedTheme} />
-        <ChatInput
+        <InputBar
           onSend={handleSend}
           theme={mergedTheme}
+          isInputBlocked={inputBlockedByVisibleButtons}
         />
       </div>
     </div>

@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * Simpler build script using Tailwind CLI directly
- * This is an alternative to the Vite-based build-styles.js
+ * Generates standalone package CSS with the Tailwind CLI as a simpler
+ * alternative to the Vite-based stylesheet builders.
+ *
+ * Steps:
+ * 1. Run the Tailwind CLI against `src/index.css` to produce `src/styles.css`.
+ * 2. Prepend the generated-file header when the output does not already have
+ *    one.
+ * 3. Print the CLI output and exit non-zero if the build fails.
  */
 
 import { exec } from 'child_process';

@@ -34,7 +34,7 @@ Pass `search(args)` when your vector database already handles retrieval and scor
 
 ## Example Shape
 
-```tsx
+```tsx typecheck
 import {
   createOpenAITextEmbedder,
   createVectorSearchQueryRecommendedActionsFlow,
@@ -53,7 +53,7 @@ const buttons: readonly VectorSearchButtonDefinition[] = [
 ];
 
 const embedder = createOpenAITextEmbedder({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY ?? '',
 });
 
 const flow = createVectorSearchQueryRecommendedActionsFlow({

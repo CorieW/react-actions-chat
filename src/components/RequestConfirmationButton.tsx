@@ -1,4 +1,8 @@
-import type { MessageButton, MessageButtonVariant } from '../js/types';
+import {
+  createTextPart,
+  type MessageButton,
+  type MessageButtonVariant,
+} from '../js/types';
 import { useChatStore } from '../lib';
 
 /**
@@ -101,27 +105,37 @@ export function createRequestConfirmationButton(
     className,
     style,
     onClick: () => {
-      const { addMessage } = useChatStore.getState();
+      const { addMessage, clearPreviousMessageButtons } =
+        useChatStore.getState();
+
+      const runConfirmationAction = (callback: () => void): void => {
+        clearPreviousMessageButtons();
+        callback();
+      };
 
       // Add a followup message with the confirmation message and buttons
       addMessage({
         type: 'other',
-        content: confirmationMessage ?? 'Are you sure you want to do this?',
+        parts: [
+          createTextPart(
+            confirmationMessage ?? 'Are you sure you want to do this?'
+          ),
+        ],
         buttons: [
           {
             label: confirmLabel,
             variant: 'success',
+            blocksInputWhileVisible: true,
             onClick: () => {
-              onConfirm();
+              runConfirmationAction(onConfirm);
             },
           },
           {
             label: rejectLabel,
             variant: 'dull',
+            blocksInputWhileVisible: true,
             onClick: () => {
-              if (onReject) {
-                onReject();
-              }
+              runConfirmationAction(onReject);
             },
           },
         ],

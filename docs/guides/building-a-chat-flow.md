@@ -2,51 +2,61 @@
 
 This guide covers the core conversation model behind `react-actions-chat`.
 
-The best runnable reference in this repo is [examples/qa-bot/App.tsx](https://github.com/CorieW/react-actions-chat/blob/main/examples/qa-bot/App.tsx).
-
 ## Core Pieces
 
-- [`Chat`](../components/chat.md) renders the transcript, persistent buttons, and shared input field.
-- [`InputMessage`](../types/input-message.md) is the shape you pass into `initialMessages` or `useChatStore().addMessage(...)`.
-- [`MessageButton`](../types/message-button.md) describes an action shown under an assistant message.
-- `userResponseCallback` lets an assistant message react to the next user submission.
+- [`Chat`](../components/chat.md) renders the transcript and shared input experience
+- [`InputMessage`](../types/input-message.md) is the shape you pass into `initialMessages` or `useChatStore().addMessage(...)`
+- `MessagePart` makes message content explicit and extensible
+- `userResponseCallback` lets an assistant message react to the next user submission
 
 ## Start With Seed Messages
 
-```tsx
-import { Chat, type InputMessage } from 'react-actions-chat';
+```tsx typecheck
+import { Chat, createTextPart, type InputMessage } from 'react-actions-chat';
 import 'react-actions-chat/styles';
 
 const initialMessages: readonly InputMessage[] = [
   {
     type: 'other',
-    content: 'Hello! I can help with orders, billing, or shipping.',
+    parts: [
+      createTextPart('Hello! I can help with orders, billing, or shipping.'),
+    ],
   },
 ];
 
 export function App() {
-  return <Chat initialMessages={initialMessages} />;
+  return (
+    <Chat
+      initialMessages={initialMessages}
+      allowFreeTextInput
+    />
+  );
 }
 ```
 
-Use `type: 'other'` for assistant-side messages and `type: 'self'` for user-side messages. For the full message shape, see [`InputMessage`](../types/input-message.md). In most apps you add assistant messages yourself and let the component add user messages when the shared input is submitted.
-
 ## Add Action Buttons
 
-```tsx
-import { Chat, createButton, useChatStore } from 'react-actions-chat';
+```tsx typecheck
+import {
+  Chat,
+  createButton,
+  createTextPart,
+  useChatStore,
+} from 'react-actions-chat';
 
 function addWelcomeMessage() {
   useChatStore.getState().addMessage({
     type: 'other',
-    content: 'What do you need help with?',
+    parts: [createTextPart('What do you need help with?')],
     buttons: [
       createButton({
         label: 'Billing help',
         onClick: () => {
           useChatStore.getState().addMessage({
             type: 'other',
-            content: 'I can explain charges, invoices, or renewals.',
+            parts: [
+              createTextPart('I can explain charges, invoices, or renewals.'),
+            ],
           });
         },
       }),
@@ -55,16 +65,14 @@ function addWelcomeMessage() {
 }
 ```
 
-Each new message clears buttons from older messages, which keeps the active step focused on the current part of the conversation.
-
 ## Handle Free-Form Follow-Ups
 
-`userResponseCallback` is the hook that turns the shared input into a simple conversation loop.
+Use `allowFreeTextInput` when your flow should keep the chat box available between assistant turns. For guided steps where the assistant should explicitly request the next value, prefer `createRequestInputButtonDef(...)` instead.
 
 ```tsx
 useChatStore.getState().addMessage({
   type: 'other',
-  content: 'Ask me a question about your order.',
+  parts: [createTextPart('Ask me a question about your order.')],
   userResponseCallback: () => {
     const messages = useChatStore.getState().getMessages();
     const lastSelfMessage = [...messages]
@@ -77,21 +85,10 @@ useChatStore.getState().addMessage({
 
     useChatStore.getState().addMessage({
       type: 'other',
-      content: `You asked: ${lastSelfMessage.rawContent}`,
+      parts: [createTextPart(`You asked: ${lastSelfMessage.rawContent}`)],
     });
   },
 });
 ```
 
-Use `rawContent` when you need the real submitted value. That matters for flows such as password inputs, where the visible transcript may be masked. See [Message](../types/message.md) and [`useChatStore`](../stores/use-chat-store.md) for the stored message shape and common retrieval patterns.
-
-## Advanced State Access
-
-`useChatStore` is exported for advanced flows:
-
-- `addMessage` and `addMessages` append assistant or seeded messages
-- `getMessages` and `getPreviousMessage` inspect the current transcript
-- `setLoading` and `clearLoading` drive async loading states
-- `clearMessages`, `clearButtons`, and related helpers reset or trim the conversation
-
-Reach for the store when you need app-driven branching or async coordination. For straightforward static UIs, `initialMessages` plus `createButton` is often enough.
+Use `rawContent` when you need the real submitted value. That matters for flows such as password inputs, where the visible transcript may be masked.

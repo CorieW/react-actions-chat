@@ -1,7 +1,14 @@
 /**
- * @fileoverview
  * Refreshes local build outputs and Vite caches across the repo so the next
  * build or dev session starts from a clean state.
+ *
+ * Steps:
+ * 1. Collect the workspace root plus package and example directories that have
+ *    their own `package.json`.
+ * 2. Remove known build and Vite cache directories from each project.
+ * 3. Remove the temporary Tailwind v4 build folder left by stylesheet
+ *    generation.
+ * 4. Log each removal and print a summary of the refreshed projects.
  */
 
 import { readdirSync, existsSync, rmSync } from 'node:fs';

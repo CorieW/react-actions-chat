@@ -1,11 +1,15 @@
 import {
   createButton,
   createRequestInputButtonDef,
-  type Message,
-  type MessageButton,
+  createTextPart,
   type RequestInputButtonDefinition,
   type RequestInputButtonRuntimeConfig,
   useChatStore,
+} from 'react-actions-chat';
+import type {
+  Message as ChatMessage,
+  MessageButton,
+  MessagePart,
 } from 'react-actions-chat';
 
 /**
@@ -13,7 +17,7 @@ import {
  */
 export interface QueryRecommendedActionsContext {
   readonly query: string;
-  readonly messages: readonly Message[];
+  readonly messages: readonly ChatMessage[];
 }
 
 /**
@@ -335,7 +339,7 @@ export function createQueryRecommendedActionsFlow(
     let pendingMessage:
       | {
           readonly type: 'other';
-          readonly content: string;
+          readonly parts: readonly MessagePart[];
           readonly buttons?: readonly QueryRecommendedAction[] | undefined;
         }
       | undefined;
@@ -353,7 +357,7 @@ export function createQueryRecommendedActionsFlow(
     try {
       addMessage({
         type: 'other',
-        content: '',
+        parts: [],
         isLoading: true,
         loadingLabel: loadingLabel,
       });
@@ -376,20 +380,28 @@ export function createQueryRecommendedActionsFlow(
       if (recommendedActions.length === 0) {
         pendingMessage = {
           type: 'other',
-          content: resolveMessage(
-            query,
-            normalizedResult.responseMessage ?? emptyStateMessage,
-            `I couldn't find any recommended actions for "${query}" yet.`
-          ),
+          parts: [
+            createTextPart(
+              resolveMessage(
+                query,
+                normalizedResult.responseMessage ?? emptyStateMessage,
+                `I couldn't find any recommended actions for "${query}" yet.`
+              )
+            ),
+          ],
         };
       } else {
         pendingMessage = {
           type: 'other',
-          content: resolveMessage(
-            query,
-            normalizedResult.responseMessage ?? buildRecommendationsMessage,
-            `Here are the recommended next steps for "${query}".`
-          ),
+          parts: [
+            createTextPart(
+              resolveMessage(
+                query,
+                normalizedResult.responseMessage ?? buildRecommendationsMessage,
+                `Here are the recommended next steps for "${query}".`
+              )
+            ),
+          ],
           buttons: recommendedActions,
         };
       }
@@ -402,7 +414,9 @@ export function createQueryRecommendedActionsFlow(
       onError?.(query, error, context);
       pendingMessage = {
         type: 'other',
-        content: resolveErrorMessage(query, error, errorMessage),
+        parts: [
+          createTextPart(resolveErrorMessage(query, error, errorMessage)),
+        ],
       };
     } finally {
       const elapsedMs = Date.now() - loadingStartedAt;
@@ -421,7 +435,7 @@ export function createQueryRecommendedActionsFlow(
       if (loadingMessageId === undefined) {
         addMessage({
           type: 'other',
-          content: pendingMessage.content,
+          parts: pendingMessage.parts,
           ...(pendingMessage.buttons
             ? { buttons: pendingMessage.buttons }
             : {}),
@@ -442,8 +456,11 @@ export function createQueryRecommendedActionsFlow(
             return {
               ...resolvedMessage,
               type: 'other',
-              content: pendingMessage.content,
-              rawContent: pendingMessage.content,
+              parts: pendingMessage.parts,
+              rawContent: pendingMessage.parts
+                .map(part => part.text)
+                .filter(value => value.length > 0)
+                .join('\n'),
               isLoading: false,
               ...(pendingMessage.buttons
                 ? { buttons: pendingMessage.buttons }

@@ -179,30 +179,6 @@ export type VectorSearchQueryRecommendedActionsFlowConfig<
   | TextButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
   | SearchButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
 
-interface LegacyVectorSearchButtonMatch<
-  TButtonDefinition extends VectorSearchButtonDefinition =
-    VectorSearchButtonDefinition,
-> {
-  readonly document: TButtonDefinition;
-  readonly score: number;
-}
-
-interface LegacyVectorSearchQueryRecommendedActionsFlowConfig<
-  TButtonDefinition extends VectorSearchButtonDefinition =
-    VectorSearchButtonDefinition,
-> {
-  readonly documents?: readonly TButtonDefinition[] | undefined;
-  readonly getDocumentEmbedding?:
-    | ((button: TButtonDefinition) => EmbeddingVector)
-    | undefined;
-  readonly getDocumentText?:
-    | ((button: TButtonDefinition) => string)
-    | undefined;
-  readonly toAction?:
-    | VectorSearchButtonActionResolver<TButtonDefinition>
-    | undefined;
-}
-
 function cosineSimilarity(
   left: EmbeddingVector,
   right: EmbeddingVector
@@ -244,14 +220,7 @@ function usesEmbeddedButtons<
 >(
   config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
 ): config is EmbeddedButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition> {
-  const legacyConfig =
-    config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
-
-  return (
-    ('getButtonEmbedding' in config &&
-      typeof config.getButtonEmbedding === 'function') ||
-    typeof legacyConfig.getDocumentEmbedding === 'function'
-  );
+  return typeof config.getButtonEmbedding === 'function';
 }
 
 function getConfiguredButtons<
@@ -259,10 +228,7 @@ function getConfiguredButtons<
 >(
   config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
 ): readonly TButtonDefinition[] {
-  const legacyConfig =
-    config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
-
-  return config.buttons ?? legacyConfig.documents ?? [];
+  return config.buttons ?? [];
 }
 
 function getButtonTextResolver<
@@ -270,10 +236,7 @@ function getButtonTextResolver<
 >(
   config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
 ): ((button: TButtonDefinition) => string) | undefined {
-  const legacyConfig =
-    config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
-
-  return config.getButtonText ?? legacyConfig.getDocumentText;
+  return config.getButtonText;
 }
 
 function getButtonEmbeddingResolver<
@@ -281,28 +244,7 @@ function getButtonEmbeddingResolver<
 >(
   config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
 ): ((button: TButtonDefinition) => EmbeddingVector) | undefined {
-  const legacyConfig =
-    config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
-
-  return config.getButtonEmbedding ?? legacyConfig.getDocumentEmbedding;
-}
-
-function normalizeMatches<
-  TButtonDefinition extends VectorSearchButtonDefinition,
->(
-  matches: readonly (
-    | VectorSearchButtonMatch<TButtonDefinition>
-    | LegacyVectorSearchButtonMatch<TButtonDefinition>
-  )[]
-): readonly VectorSearchButtonMatch<TButtonDefinition>[] {
-  return matches.map(match =>
-    'button' in match
-      ? match
-      : {
-          button: match.document,
-          score: match.score,
-        }
-  );
+  return config.getButtonEmbedding;
 }
 
 function runInMemoryVectorSearch<
@@ -361,11 +303,9 @@ function createVectorSearchResolver<
 >(
   config: VectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
 ): QueryRecommendedActionsResolver {
-  const legacyConfig =
-    config as LegacyVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
   const {
     buildResult,
-    createAction = legacyConfig.toAction ?? createDefaultAction,
+    createAction = createDefaultAction,
     maxResults = 3,
     minScore = 0,
   } = config;
@@ -434,14 +374,12 @@ function createVectorSearchResolver<
   return async (query, context) => {
     const queryEmbedding = await embedQuery(query, context);
     const rawMatches = usesSearchAdapter(config)
-      ? normalizeMatches(
-          await config.search({
-            query,
-            context,
-            queryEmbedding,
-            maxResults,
-          })
-        )
+      ? await config.search({
+          query,
+          context,
+          queryEmbedding,
+          maxResults,
+        })
       : runInMemoryVectorSearch(queryEmbedding, await getEmbeddedButtons());
 
     const matches = [...rawMatches]

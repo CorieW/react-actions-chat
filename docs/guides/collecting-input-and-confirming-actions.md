@@ -61,7 +61,7 @@ By default, invalid input adds a new assistant message with the validation error
 
 If the shared input field is configured as `password`, the visible user message is masked in the transcript. The original value is still preserved in `rawContent`.
 
-That is why the login demo reads the latest user message from `rawContent` instead of `content`. See [Message](../types/message.md) and [`useChatStore`](../stores/use-chat-store.md) for the stored message shape and retrieval patterns.
+That is why the login demo reads the latest user message from `rawContent` instead of relying on the visible text parts in the transcript. See [Message](../types/message.md) and [`useChatStore`](../stores/use-chat-store.md) for the stored message shape and retrieval patterns.
 
 ## Confirm and Decline Actions
 
