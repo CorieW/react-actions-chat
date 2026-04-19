@@ -13,6 +13,14 @@ export default defineConfig({
         replacement: resolve(__dirname, '..', 'src/components/index.ts'),
       },
       {
+        find: 'react-actions-chat-llms',
+        replacement: resolve(
+          __dirname,
+          '..',
+          'packages/react-actions-chat-llms/src/index.ts'
+        ),
+      },
+      {
         find: 'react-actions-chat/lib',
         replacement: resolve(__dirname, '..', 'src/lib/index.ts'),
       },
@@ -34,6 +42,14 @@ export default defineConfig({
           __dirname,
           '..',
           'packages/react-actions-chat-recommended-actions/src/index.ts'
+        ),
+      },
+      {
+        find: 'react-actions-chat-support',
+        replacement: resolve(
+          __dirname,
+          '..',
+          'packages/react-actions-chat-support/src/index.ts'
         ),
       },
       {

@@ -20,6 +20,9 @@
     "paths": {
       "react-actions-chat": ["../src/index.ts"],
       "react-actions-chat/components": ["../src/components/index.ts"],
+      "react-actions-chat-llms": [
+        "../packages/react-actions-chat-llms/src/index.ts"
+      ],
       "react-actions-chat/lib": ["../src/lib/index.ts"],
       "react-actions-chat/types": ["../src/js/types.ts"],
       "react-actions-chat-recommended-actions": [
@@ -27,6 +30,9 @@
       ],
       "react-actions-chat-recommended-actions/embedders": [
         "../packages/react-actions-chat-recommended-actions/src/embedders/index.ts"
+      ],
+      "react-actions-chat-support": [
+        "../packages/react-actions-chat-support/src/index.ts"
       ]
     },
 

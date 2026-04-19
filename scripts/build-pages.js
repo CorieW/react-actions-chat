@@ -24,12 +24,28 @@ const pagesBasePath = normalizeBasePath(
 const docsOutputDirectory = join(rootDir, 'docs', '.vitepress', 'dist');
 const liveExamples = [
   {
+    packageName: 'coding-example',
+    directoryName: 'coding',
+  },
+  {
+    packageName: 'settings-example',
+    directoryName: 'settings',
+  },
+  {
+    packageName: 'llm-support-example',
+    directoryName: 'llm-support',
+  },
+  {
     packageName: 'qa-bot-example',
     directoryName: 'qa-bot',
   },
   {
     packageName: 'login-example',
     directoryName: 'login',
+  },
+  {
+    packageName: 'support-desk-example',
+    directoryName: 'support-desk',
   },
 ];
 

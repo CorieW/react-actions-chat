@@ -18,6 +18,18 @@ If you want query-driven or vector-search-backed action recommendations, install
 npm install react-actions-chat react-actions-chat-recommended-actions
 ```
 
+If you want reusable support-desk flows with ticketing, live-chat handoff, and admin queue management, install:
+
+```bash
+npm install react-actions-chat react-actions-chat-support
+```
+
+If you want backend-routed text generation on top of the chat UI, install the LLM companion package:
+
+```bash
+npm install react-actions-chat react-actions-chat-llms
+```
+
 ## Quick Start
 
 ```tsx
@@ -53,21 +65,30 @@ If you're contributing to this repo, the docs source lives in [docs](docs/index.
 
 Runnable workspace examples live in [examples](examples/README.md):
 
+- `coding`: multiline coding-assistant flow with markdown-rendered replies
 - `qa-bot`: basic support assistant flow
 - `login`: input and confirmation flows
+- `llm-support`: companion LLM package with a local backend route and an in-chat startup API-key step
 - `settings`: companion recommended-actions package with a real OpenAI embedder
+- `support-desk`: companion support package with customer and admin ticket workflows
 
 Live demos:
 
+- `coding`: https://coriew.github.io/react-actions-chat/examples/coding/
 - `qa-bot`: https://coriew.github.io/react-actions-chat/examples/qa-bot/
 - `login`: https://coriew.github.io/react-actions-chat/examples/login/
+- `support-desk`: https://coriew.github.io/react-actions-chat/examples/support-desk/
+- `llm-support`: source only for now because the live version would require an API key
 - `settings`: source only for now because the live version would require exposing an API key
 
 Start one from the repo root after `pnpm install`:
 
 ```bash
+pnpm --filter coding-example dev
 pnpm --filter qa-bot-example dev
 pnpm --filter login-example dev
+pnpm --filter support-desk-example dev
+pnpm --filter llm-support-example dev
 pnpm --filter settings-example dev
 ```
 

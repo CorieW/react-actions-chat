@@ -1,11 +1,20 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
-export type ExampleName = 'login' | 'qa-bot' | 'settings';
+export type ExampleName =
+  | 'coding'
+  | 'llm-support'
+  | 'login'
+  | 'qa-bot'
+  | 'settings'
+  | 'support-desk';
 
 const exampleUrls: Record<ExampleName, string> = {
+  coding: 'http://127.0.0.1:4176',
+  'llm-support': 'http://127.0.0.1:4177',
   login: 'http://127.0.0.1:4173',
   'qa-bot': 'http://127.0.0.1:4174',
   settings: 'http://127.0.0.1:4175',
+  'support-desk': 'http://127.0.0.1:4178',
 };
 
 /**

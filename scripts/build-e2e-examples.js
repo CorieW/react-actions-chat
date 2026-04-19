@@ -4,8 +4,9 @@
  * Steps:
  * 1. Read the requested settings-example mode from CLI args or env.
  * 2. Validate the mode and require an API key when the live lane is selected.
- * 3. Build the login, QA bot, and settings examples with pnpm, passing the
- *    resolved mode through to the settings example when needed.
+ * 3. Build the coding, LLM support, login, QA bot, support-desk, and settings
+ *    examples with pnpm, passing the resolved mode through to the settings
+ *    example when needed.
  */
 
 import { spawnSync } from 'node:child_process';
@@ -34,8 +35,13 @@ if (settingsMode === 'live' && !process.env.VITE_OPENAI_API_KEY?.trim()) {
 
 console.log(`Building E2E examples with settings mode "${settingsMode}".`);
 
+runPnpm(['--filter', 'coding-example', 'build']);
+runPnpm(['--filter', 'llm-support-example', 'build'], {
+  VITE_LLM_SUPPORT_EXAMPLE_MODE: 'fallback',
+});
 runPnpm(['--filter', 'login-example', 'build']);
 runPnpm(['--filter', 'qa-bot-example', 'build']);
+runPnpm(['--filter', 'support-desk-example', 'build']);
 runPnpm(
   ['--filter', 'settings-example', 'build'],
   settingsMode === 'auto'

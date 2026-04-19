@@ -13,7 +13,13 @@
     "packages/react-actions-chat-recommended-actions": {
       "project": ["src/**/*.{ts,tsx}"]
     },
+    "packages/react-actions-chat-support": {
+      "project": ["src/**/*.{ts,tsx}"]
+    },
     "examples/qa-bot": {
+      "project": ["**/*.{ts,tsx}"]
+    },
+    "examples/coding": {
       "project": ["**/*.{ts,tsx}"]
     },
     "examples/login": {
