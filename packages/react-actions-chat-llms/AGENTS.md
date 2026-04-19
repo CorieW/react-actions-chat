@@ -1,0 +1,17 @@
+# packages/react-actions-chat-llms
+
+Companion package that adds backend-routed text-generation helpers on top of `react-actions-chat`.
+
+## Directories
+
+- `src/`: Source code and tests for the companion package.
+
+## Files
+
+- `README.md`: Overview and usage notes for the LLM companion package.
+- `package.json`: Package manifest for the LLM companion package.
+
+## Writing Rules
+
+- No additional local writing rules.
+- Follow inherited AGENTS.md guidance when applicable.
