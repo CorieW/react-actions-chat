@@ -44,6 +44,7 @@ describe('Input Field Store Unit Tests', () => {
     it('should handle all input types', () => {
       const store = useInputFieldStore.getState();
       const types: InputType[] = [
+        'textarea',
         'text',
         'password',
         'email',
@@ -287,7 +288,7 @@ describe('Input Field Store Unit Tests', () => {
       });
 
       expect(store.getInputFieldElement()).toBeNull();
-      expect(store.getInputFieldType()).toBe('text');
+      expect(store.getInputFieldType()).toBe('textarea');
       expect(store.getInputFieldPlaceholder()).toBe('Type your message...');
       expect(store.getInputFieldDescription()).toBe('');
       expect(store.getInputFieldValidator()).toBeNull();
@@ -528,14 +529,14 @@ describe('Input Field Store Unit Tests', () => {
   });
 
   describe('resetInputFieldType', () => {
-    it('should reset type to text', () => {
+    it('should reset type to textarea', () => {
       const store = useInputFieldStore.getState();
 
       store.setInputFieldType('email');
       expect(store.getInputFieldType()).toBe('email');
 
       store.resetInputFieldType();
-      expect(store.getInputFieldType()).toBe('text');
+      expect(store.getInputFieldType()).toBe('textarea');
     });
 
     it('should update DOM element type when reset', () => {
@@ -627,7 +628,7 @@ describe('Input Field Store Unit Tests', () => {
       store.resetInputFieldValidator();
 
       expect(store.getInputFieldElement()).toBeNull();
-      expect(store.getInputFieldType()).toBe('text');
+      expect(store.getInputFieldType()).toBe('textarea');
       expect(store.getInputFieldPlaceholder()).toBe('Type your message...');
       expect(store.getInputFieldDescription()).toBe('');
       expect(store.getInputFieldValidator()).toBeNull();
@@ -696,8 +697,8 @@ describe('Input Field Store Unit Tests', () => {
       expect(mockElement.type).toBe('password');
       expect(store.getInputFieldValue()).toBe('mypassword');
 
-      // Change to text type
-      store.setInputFieldType('text');
+      // Change back to the default textarea-friendly mode.
+      store.setInputFieldType('textarea');
 
       expect(mockElement.type).toBe('text');
       expect(store.getInputFieldValue()).toBe('mypassword'); // Value preserved

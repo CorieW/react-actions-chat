@@ -19,13 +19,29 @@ interface BaseMessagePart {
 }
 
 /**
+ * Formatting modes supported by text message parts.
+ */
+export type TextMessageFormat = 'plain' | 'markdown';
+
+/**
+ * Optional markdown-specific rendering settings for a text part.
+ */
+export interface MarkdownTextPartOptions {
+  readonly syntaxHighlighting?: boolean | undefined;
+}
+
+/**
  * Text content rendered inside a message bubble.
  *
  * @property text The textual content to render.
+ * @property format Optional formatting mode applied when the part is rendered.
+ * @property markdownOptions Optional markdown-only rendering settings.
  */
 export interface TextMessagePart extends BaseMessagePart {
   readonly type: 'text';
   readonly text: string;
+  readonly format?: TextMessageFormat | undefined;
+  readonly markdownOptions?: MarkdownTextPartOptions | undefined;
 }
 
 /**
@@ -228,5 +244,24 @@ export function createTextPart(text: string): TextMessagePart {
   return {
     type: 'text',
     text,
+    format: 'plain',
+  };
+}
+
+/**
+ * Creates a markdown text part.
+ *
+ * @param text Markdown shown in the transcript.
+ * @param markdownOptions Optional markdown-only rendering settings.
+ */
+export function createMarkdownTextPart(
+  text: string,
+  markdownOptions?: MarkdownTextPartOptions
+): TextMessagePart {
+  return {
+    type: 'text',
+    text,
+    format: 'markdown',
+    markdownOptions,
   };
 }

@@ -18,7 +18,7 @@ import type {
   RequestInputButtonRuntimeConfig,
   RequestInputRateLimit,
 } from './components';
-import { createTextPart } from './js/types';
+import { createMarkdownTextPart, createTextPart } from './js/types';
 import type {
   ChatProps,
   ChatPropsWithFlexibleTheme,
@@ -34,6 +34,8 @@ import type {
   MessagePartRenderer,
   MessagePartRendererProps,
   MessageType,
+  MarkdownTextPartOptions,
+  TextMessageFormat,
   TextMessagePart,
 } from './js/types';
 import type { ChatGlobals, RequestInputGlobalDefaults } from './lib';
@@ -46,6 +48,7 @@ export {
   createButton,
   createRequestConfirmationButtonDef,
   createRequestInputButtonDef,
+  createMarkdownTextPart,
   createTextPart,
 };
 export type {
@@ -67,12 +70,14 @@ export type {
   MessagePartRenderer,
   MessagePartRendererProps,
   MessageType,
+  MarkdownTextPartOptions,
   RequestConfirmationButtonDefinition,
   RequestConfirmationButtonRuntimeConfig,
   RequestInputButtonDefinition,
   RequestInputGlobalDefaults,
   RequestInputButtonRuntimeConfig,
   RequestInputRateLimit,
+  TextMessageFormat,
   TextMessagePart,
 };
 export type Message = MessageData;

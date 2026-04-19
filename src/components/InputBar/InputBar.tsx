@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useId, useRef } from 'react';
 import type { KeyboardEvent } from 'react';
 import { Send } from 'lucide-react';
 import type { ChatTheme } from '../../js/types';
-import { useInputFieldStore } from '../../lib/inputFieldStore';
+import { useInputFieldStore, type InputType } from '../../lib/inputFieldStore';
 import { Button } from '../ui/button';
 
 const CONFIRMATION_PENDING_PLACEHOLDER =
@@ -21,6 +21,22 @@ interface InputBarProps {
   readonly isInputBlocked: boolean;
 }
 
+type ChatInputElement = HTMLInputElement | HTMLTextAreaElement;
+
+function isMultilineInputType(inputType: InputType): boolean {
+  return inputType === 'textarea';
+}
+
+function syncTextareaHeight(element: ChatInputElement | null): void {
+  if (!element || element.tagName !== 'TEXTAREA') {
+    return;
+  }
+
+  element.style.height = '0px';
+  element.style.height = `${Math.min(element.scrollHeight, 160)}px`;
+  element.style.overflowY = element.scrollHeight > 160 ? 'auto' : 'hidden';
+}
+
 /**
  * Renders the shared chat input bar and submit button.
  *
@@ -31,7 +47,7 @@ export function InputBar({
   theme,
   isInputBlocked,
 }: InputBarProps): React.JSX.Element {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<ChatInputElement>(null);
   const handleSendRef = useRef<() => void>(() => {});
   const inputDescriptionId = useId();
   const {
@@ -52,6 +68,7 @@ export function InputBar({
   const inputValue = getInputFieldValue();
   const inputDescription = getInputFieldDescription();
   const inputIsDisabled = inputDisabled || isInputBlocked;
+  const usesMultilineInput = isMultilineInputType(inputType);
   const displayedPlaceholder = inputDisabled
     ? inputDisabledPlaceholder
     : isInputBlocked
@@ -79,8 +96,7 @@ export function InputBar({
       setInputFieldParams({
         element: inputRef.current,
       });
-      inputRef.current.type = inputType;
-      inputRef.current.placeholder = displayedPlaceholder;
+      syncTextareaHeight(inputRef.current);
     }
 
     setInputFieldParams({
@@ -96,18 +112,10 @@ export function InputBar({
   }, [displayedPlaceholder, inputType, setInputFieldParams, submitInput]);
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.type = inputType;
-    }
-  }, [inputType]);
+    syncTextareaHeight(inputRef.current);
+  }, [inputValue, inputType]);
 
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.placeholder = displayedPlaceholder;
-    }
-  }, [displayedPlaceholder]);
-
-  const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>): void => {
+  const handleKeyPress = (event: KeyboardEvent<ChatInputElement>): void => {
     if (inputIsDisabled) {
       return;
     }
@@ -136,25 +144,47 @@ export function InputBar({
         </div>
       ) : null}
       <div className='flex items-stretch gap-3'>
-        <input
-          ref={inputRef}
-          type={inputType}
-          value={inputValue}
-          onChange={event => setInputFieldValue(event.target.value)}
-          onKeyDown={handleKeyPress}
-          placeholder={displayedPlaceholder}
-          disabled={inputIsDisabled}
-          aria-label='Chat input'
-          aria-describedby={inputDescription ? inputDescriptionId : undefined}
-          data-asc-role='chat-input'
-          className='placeholder:text-opacity-50 flex-1 rounded-lg px-4 py-3 focus:ring-1 focus:outline-none'
-          style={{
-            backgroundColor: `${theme.inputBackgroundColor}80`,
-            borderColor: 'transparent',
-            border: 'none',
-            color: theme.inputTextColor,
-          }}
-        />
+        {usesMultilineInput ? (
+          <textarea
+            ref={inputRef as React.Ref<HTMLTextAreaElement>}
+            value={inputValue}
+            onChange={event => setInputFieldValue(event.target.value)}
+            onKeyDown={handleKeyPress}
+            placeholder={displayedPlaceholder}
+            disabled={inputIsDisabled}
+            rows={1}
+            aria-label='Chat input'
+            aria-describedby={inputDescription ? inputDescriptionId : undefined}
+            data-asc-role='chat-input'
+            className='placeholder:text-opacity-50 min-h-[52px] flex-1 resize-none rounded-lg px-4 py-3 focus:ring-1 focus:outline-none'
+            style={{
+              backgroundColor: `${theme.inputBackgroundColor}80`,
+              borderColor: 'transparent',
+              border: 'none',
+              color: theme.inputTextColor,
+            }}
+          />
+        ) : (
+          <input
+            ref={inputRef as React.Ref<HTMLInputElement>}
+            type={inputType}
+            value={inputValue}
+            onChange={event => setInputFieldValue(event.target.value)}
+            onKeyDown={handleKeyPress}
+            placeholder={displayedPlaceholder}
+            disabled={inputIsDisabled}
+            aria-label='Chat input'
+            aria-describedby={inputDescription ? inputDescriptionId : undefined}
+            data-asc-role='chat-input'
+            className='placeholder:text-opacity-50 flex-1 rounded-lg px-4 py-3 focus:ring-1 focus:outline-none'
+            style={{
+              backgroundColor: `${theme.inputBackgroundColor}80`,
+              borderColor: 'transparent',
+              border: 'none',
+              color: theme.inputTextColor,
+            }}
+          />
+        )}
         <Button
           onClick={handleSend}
           disabled={inputIsDisabled || inputValue.trim() === ''}

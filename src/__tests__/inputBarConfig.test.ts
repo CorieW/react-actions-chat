@@ -45,7 +45,7 @@ describe('input bar configuration modules', () => {
 
     resetInputBarMode(store);
 
-    expect(store.getInputFieldType()).toBe('text');
+    expect(store.getInputFieldType()).toBe('textarea');
     expect(store.getInputFieldPlaceholder()).toBe('Type your message...');
     expect(store.getInputFieldDescription()).toBe('');
   });

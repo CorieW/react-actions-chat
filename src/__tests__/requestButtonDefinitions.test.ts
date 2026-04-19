@@ -210,7 +210,9 @@ describe('request button definitions', () => {
 
   it('cleans up the shared input before running a custom abort callback', () => {
     const abortCallback = vi.fn(() => {
-      expect(useInputFieldStore.getState().getInputFieldType()).toBe('text');
+      expect(useInputFieldStore.getState().getInputFieldType()).toBe(
+        'textarea'
+      );
       expect(useInputFieldStore.getState().getInputFieldPlaceholder()).toBe(
         'Type your message...'
       );

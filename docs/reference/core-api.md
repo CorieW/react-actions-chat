@@ -21,7 +21,7 @@ Transcript component that renders stored messages.
 
 ### `Message`
 
-Bubble component that renders message chrome plus plain text content.
+Bubble component that renders message chrome plus plain text or markdown text content.
 
 ### `InputBar`
 
@@ -63,6 +63,14 @@ Built-in content parts:
 ### `createTextPart(text)`
 
 Creates a text part for a message.
+
+### `createMarkdownTextPart(text, markdownOptions?)`
+
+Creates a markdown-rendered text part for a message.
+
+Useful option:
+
+- `syntaxHighlighting?: boolean` to colorize fenced code blocks when a language like `ts`, `tsx`, or `js` is present
 
 ## Button Helpers
 

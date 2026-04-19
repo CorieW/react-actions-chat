@@ -1,5 +1,6 @@
 import React from 'react';
 import type { ChatTheme, TextMessagePart } from '../../../js/types';
+import { MarkdownTextFormatter } from './MarkdownTextFormatter';
 import { PlainTextFormatter } from './PlainTextFormatter';
 
 /**
@@ -19,6 +20,15 @@ export function FormattedTextPart({
   part,
   theme,
 }: FormattedTextPartProps): React.JSX.Element {
+  if (part.format === 'markdown') {
+    return (
+      <MarkdownTextFormatter
+        part={part}
+        theme={theme}
+      />
+    );
+  }
+
   return (
     <PlainTextFormatter
       part={part}

@@ -7,11 +7,13 @@ import { create } from 'zustand';
 
 const DEFAULT_INPUT_PLACEHOLDER = 'Type your message...';
 const DEFAULT_DISABLED_INPUT_PLACEHOLDER = 'Input disabled.';
+const DEFAULT_INPUT_TYPE: InputType = 'textarea';
 
 /**
- * Supported HTML input types for the shared chat input field.
+ * Supported shared input modes for the chat input field.
  */
 export type InputType =
+  | 'textarea'
   | 'text'
   | 'password'
   | 'email'
@@ -19,6 +21,20 @@ export type InputType =
   | 'tel'
   | 'url'
   | 'search';
+
+type RegisteredInputElement = HTMLInputElement | HTMLTextAreaElement;
+
+function applyInputElementType(
+  element: RegisteredInputElement | null,
+  type: InputType
+): void {
+  if (!element || element.tagName !== 'INPUT') {
+    return;
+  }
+
+  const inputElement = element as HTMLInputElement;
+  inputElement.type = type === 'textarea' ? 'text' : type;
+}
 
 /**
  * Result returned by an input validator.
@@ -53,7 +69,7 @@ export interface InputFieldParams {
   readonly disabledPlaceholder?: string | undefined;
   readonly disabledPlaceholderDefault?: string | undefined;
   readonly description?: string | undefined;
-  readonly element?: HTMLInputElement | null | undefined;
+  readonly element?: RegisteredInputElement | null | undefined;
   readonly placeholder?: string | undefined;
   readonly submitFunc?: (() => void) | null | undefined;
   readonly submitGuard?: InputSubmitGuard | null | undefined;
@@ -88,7 +104,7 @@ type InputFieldStatePatch = {
   inputFieldDisabledDefault?: boolean;
   inputFieldDisabledPlaceholder?: string;
   inputFieldDisabledPlaceholderDefault?: string;
-  inputFieldElement?: HTMLInputElement | null;
+  inputFieldElement?: RegisteredInputElement | null;
   inputFieldPlaceholder?: string;
   inputFieldSubmitFunc?: (() => void) | null;
   inputFieldSubmitGuard?: InputSubmitGuard | null;
@@ -104,7 +120,7 @@ type InputFieldStatePatch = {
  * @property inputFieldValue Current input field value.
  * @property inputFieldSubmitFunc Registered submit callback for the input field.
  * @property inputFieldDescription Helper text shown above the input field.
- * @property inputFieldType Current HTML input type.
+ * @property inputFieldType Current shared input mode.
  * @property inputFieldPlaceholder Current placeholder text.
  * @property inputFieldDisabledPlaceholder Placeholder text shown while the shared input is disabled.
  * @property inputFieldValidator Current validator applied to submitted input.
@@ -116,7 +132,7 @@ type InputFieldStatePatch = {
  * @property getInputFieldValue Returns the current input field value.
  * @property getInputFieldSubmitFunc Returns the registered submit callback.
  * @property getInputFieldDescription Returns the helper text shown above the input field.
- * @property getInputFieldType Returns the current HTML input type.
+ * @property getInputFieldType Returns the current shared input mode.
  * @property getInputFieldPlaceholder Returns the current placeholder text.
  * @property getInputFieldDisabledPlaceholder Returns the placeholder text shown while disabled.
  * @property getInputFieldValidator Returns the current validator.
@@ -128,7 +144,7 @@ type InputFieldStatePatch = {
  * @property setInputFieldValue Updates the current input field value.
  * @property setInputFieldSubmitFunc Registers the submit callback.
  * @property setInputFieldDescription Updates the helper text shown above the input field.
- * @property setInputFieldType Updates the current HTML input type.
+ * @property setInputFieldType Updates the current shared input mode.
  * @property setInputFieldPlaceholder Updates the current placeholder text.
  * @property setInputFieldDisabledPlaceholder Updates the placeholder text shown while disabled.
  * @property setInputFieldValidator Updates the current validator.
@@ -141,7 +157,7 @@ type InputFieldStatePatch = {
  * @property resetInputField Clears the registered element and submit callback.
  * @property resetInputFieldValue Clears the current input field value.
  * @property resetInputFieldDescription Clears the helper text.
- * @property resetInputFieldType Resets the input type to `text`.
+ * @property resetInputFieldType Resets the input type to its default mode.
  * @property resetInputFieldPlaceholder Resets the placeholder text.
  * @property resetInputFieldDisabledPlaceholder Resets the disabled placeholder text.
  * @property resetInputFieldValidator Clears the validator.
@@ -151,7 +167,7 @@ type InputFieldStatePatch = {
  * @property resetInputFieldDisabled Resets the shared input to the default disabled state.
  */
 interface InputFieldState {
-  readonly inputFieldElement: HTMLInputElement | null;
+  readonly inputFieldElement: RegisteredInputElement | null;
   readonly inputFieldValue: string;
   readonly inputFieldSubmitFunc: (() => void) | null;
   readonly inputFieldDescription: string;
@@ -164,7 +180,7 @@ interface InputFieldState {
   readonly inputFieldDisabledPlaceholderDefault: string;
   readonly inputFieldDisabled: boolean;
 
-  readonly getInputFieldElement: () => HTMLInputElement | null;
+  readonly getInputFieldElement: () => RegisteredInputElement | null;
   readonly getInputFieldValue: () => string;
   readonly getInputFieldSubmitFunc: () => (() => void) | null;
   readonly getInputFieldDescription: () => string;
@@ -177,7 +193,9 @@ interface InputFieldState {
   readonly getInputFieldDisabledPlaceholderDefault: () => string;
   readonly getInputFieldDisabled: () => boolean;
 
-  readonly setInputFieldElement: (element: HTMLInputElement | null) => void;
+  readonly setInputFieldElement: (
+    element: RegisteredInputElement | null
+  ) => void;
   readonly setInputFieldValue: (value: string) => void;
   readonly setInputFieldSubmitFunc: (submitFunc: (() => void) | null) => void;
   readonly setInputFieldDescription: (description: string) => void;
@@ -215,7 +233,7 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
   inputFieldValue: '',
   inputFieldSubmitFunc: null,
   inputFieldDescription: '',
-  inputFieldType: 'text',
+  inputFieldType: DEFAULT_INPUT_TYPE,
   inputFieldPlaceholder: DEFAULT_INPUT_PLACEHOLDER,
   inputFieldDisabledPlaceholder: DEFAULT_DISABLED_INPUT_PLACEHOLDER,
   inputFieldValidator: null,
@@ -290,11 +308,7 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
 
   setInputFieldType: type => {
     set({ inputFieldType: type });
-    // Update the actual input element if it exists
-    const element = get().inputFieldElement;
-    if (element) {
-      element.type = type;
-    }
+    applyInputElementType(get().inputFieldElement, type);
   },
 
   setInputFieldPlaceholder: placeholder => {
@@ -381,9 +395,7 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
 
     if (params.type !== undefined) {
       const element = params.element ?? get().inputFieldElement;
-      if (element) {
-        element.type = params.type;
-      }
+      applyInputElementType(element, params.type);
     }
   },
 
@@ -413,7 +425,7 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
     }
 
     if (params.type) {
-      nextState.inputFieldType = 'text';
+      nextState.inputFieldType = DEFAULT_INPUT_TYPE;
     }
 
     if (params.placeholder) {
@@ -449,10 +461,7 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
     set(nextState);
 
     if (params.type) {
-      const element = get().inputFieldElement;
-      if (element) {
-        element.type = 'text';
-      }
+      applyInputElementType(get().inputFieldElement, DEFAULT_INPUT_TYPE);
     }
   },
 
@@ -472,11 +481,8 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
   },
 
   resetInputFieldType: () => {
-    set({ inputFieldType: 'text' });
-    const element = get().inputFieldElement;
-    if (element) {
-      element.type = 'text';
-    }
+    set({ inputFieldType: DEFAULT_INPUT_TYPE });
+    applyInputElementType(get().inputFieldElement, DEFAULT_INPUT_TYPE);
   },
 
   resetInputFieldPlaceholder: () => {

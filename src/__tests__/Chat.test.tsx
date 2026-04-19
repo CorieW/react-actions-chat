@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   Chat,
   createButton,
+  createMarkdownTextPart,
   createRequestConfirmationButtonDef,
   createRequestInputButtonDef,
   createTextPart,
@@ -111,6 +112,37 @@ describe('Chat Component Integration Tests', () => {
     });
   });
 
+  it('should render markdown text parts inside the chat transcript', () => {
+    render(
+      <Chat
+        initialMessages={[
+          {
+            id: 1,
+            type: 'other',
+            parts: [
+              createMarkdownTextPart(
+                [
+                  '## Suggested fix',
+                  '',
+                  '- Add a null guard',
+                  '',
+                  '`npm test`',
+                ].join('\n')
+              ),
+            ],
+            timestamp: new Date(),
+          },
+        ]}
+      />
+    );
+
+    expect(
+      screen.getByRole('heading', { name: 'Suggested fix' })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('list')).toBeInTheDocument();
+    expect(screen.getByText('npm test')).toHaveProperty('tagName', 'CODE');
+  });
+
   it('should auto-scroll the message list without scrolling the page', () => {
     const scrollIntoViewSpy = vi.spyOn(Element.prototype, 'scrollIntoView');
     const scrollToSpy = vi.spyOn(HTMLElement.prototype, 'scrollTo');
@@ -155,6 +187,7 @@ describe('Chat Component Integration Tests', () => {
     render(<Chat allowFreeTextInput />);
 
     const input = screen.getByPlaceholderText('Type your message...');
+    expect(input.tagName).toBe('TEXTAREA');
     await user.type(input, 'Test message');
     await user.keyboard('{Enter}');
 
@@ -163,6 +196,35 @@ describe('Chat Component Integration Tests', () => {
     });
 
     // Input should be cleared
+    expect(input).toHaveValue('');
+  });
+
+  it('should keep shift-enter as a newline in multiline input and submit on enter', async () => {
+    const user = userEvent.setup();
+
+    render(<Chat allowFreeTextInput />);
+
+    const input = screen.getByRole('textbox', { name: 'Chat input' });
+    const transcript = screen.getByRole('log', { name: 'Chat transcript' });
+    await user.type(input, 'const value = 1;');
+    await user.keyboard('{Shift>}{Enter}{/Shift}');
+    await user.type(input, 'console.log(value);');
+
+    expect(input).toHaveValue('const value = 1;\nconsole.log(value);');
+
+    await user.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(
+        within(transcript).getByText((_, element) => {
+          return (
+            element?.tagName === 'P' &&
+            element.textContent === 'const value = 1;\nconsole.log(value);'
+          );
+        })
+      ).toBeInTheDocument();
+    });
+
     expect(input).toHaveValue('');
   });
 
@@ -403,13 +465,14 @@ describe('Chat Component Integration Tests', () => {
     await user.click(screen.getByRole('button', { name: 'Guard input' }));
 
     const input = screen.getByPlaceholderText('Type your message...');
+    const transcript = screen.getByRole('log', { name: 'Chat transcript' });
     await user.type(input, 'Too long');
     await user.keyboard('{Enter}');
 
     expect(
       await screen.findByText('Global limit reached.')
     ).toBeInTheDocument();
-    expect(screen.queryByText('Too long')).not.toBeInTheDocument();
+    expect(within(transcript).queryByText('Too long')).not.toBeInTheDocument();
     expect(input).toHaveValue('Too long');
   });
 
@@ -443,13 +506,14 @@ describe('Chat Component Integration Tests', () => {
     await user.click(screen.getByRole('button', { name: 'Guard input' }));
 
     const input = screen.getByPlaceholderText('Type your message...');
+    const transcript = screen.getByRole('log', { name: 'Chat transcript' });
     await user.type(input, 'Too long');
     await user.keyboard('{Enter}');
 
     expect(
       await screen.findByText('Keep it under six characters.')
     ).toBeInTheDocument();
-    expect(screen.queryByText('Too long')).not.toBeInTheDocument();
+    expect(within(transcript).queryByText('Too long')).not.toBeInTheDocument();
     expect(input).toHaveValue('Too long');
   });
 
@@ -480,13 +544,14 @@ describe('Chat Component Integration Tests', () => {
     await user.click(screen.getByRole('button', { name: 'Require detail' }));
 
     const input = screen.getByPlaceholderText('Type your message...');
+    const transcript = screen.getByRole('log', { name: 'Chat transcript' });
     await user.type(input, 'hey');
     await user.keyboard('{Enter}');
 
     expect(
       await screen.findByText('Please enter at least five characters.')
     ).toBeInTheDocument();
-    expect(screen.queryByText('hey')).not.toBeInTheDocument();
+    expect(within(transcript).queryByText('hey')).not.toBeInTheDocument();
     expect(input).toHaveValue('hey');
   });
 

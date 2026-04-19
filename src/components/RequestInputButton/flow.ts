@@ -56,7 +56,7 @@ export function createRequestInputButton(
         inputPromptMessage,
         placeholder = 'Type your message...',
         inputDescription,
-        inputType = 'text',
+        inputType = 'textarea',
         validator,
         minMessageLength,
         minMessageLengthMessage,
