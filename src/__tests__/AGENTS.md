@@ -22,5 +22,6 @@ Vitest coverage for the package's public behavior, stores, theming, and represen
 
 ## Writing Rules
 
-- No additional local writing rules.
+- Reset the shared chat, input-field, globals, and persistent-button stores in `beforeEach` for tests that touch singleton state.
+- Prefer small file-local helpers for message builders or text extraction when they are only used by one spec file.
 - Follow inherited AGENTS.md guidance when applicable.

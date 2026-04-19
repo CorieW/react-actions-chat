@@ -16,5 +16,6 @@ Provider-specific text embedder implementations and shared helpers for vector-se
 
 ## Writing Rules
 
-- No additional local writing rules.
+- New provider adapters should accept optional `fetch`, `baseUrl`, and `headers` overrides, and should reuse the parsing and error helpers from `shared.ts`.
+- Implement provider batch requests first and have `embedText` delegate to that path while validating that one embedding is returned per input text.
 - Follow inherited AGENTS.md guidance when applicable.

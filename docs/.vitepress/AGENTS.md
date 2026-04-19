@@ -12,5 +12,5 @@ VitePress site configuration and theme overrides for the documentation site.
 
 ## Writing Rules
 
-- No additional local writing rules.
+- When adding, removing, or renaming docs pages or sections, update `config.ts` navigation and sidebar entries in the same change so the site keeps every page discoverable.
 - Follow inherited AGENTS.md guidance when applicable.

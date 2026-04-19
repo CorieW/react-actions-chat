@@ -1,6 +1,6 @@
 # docs/.vitepress/theme/components
 
-[TODO: Add a brief overview of what this directory contains and how it fits into the repo.]
+Bridge components that mount the interactive React homepage chat demo inside the VitePress Vue theme.
 
 ## Directories
 
@@ -9,9 +9,9 @@
 ## Files
 
 - `HomepageChatDemo.vue`: Vue wrapper that mounts the interactive homepage chat demo.
-- `homepageChatDemo.ts`: React-based homepage demo logic and embedded chat styling for the docs site.
+- `homepageChatDemo.ts`: React-based homepage demo logic, embedded chat styling, and shared-store reset helpers for the docs site.
 
 ## Writing Rules
 
-- No additional local writing rules.
+- Keep `HomepageChatDemo.vue` as a thin mount-and-cleanup wrapper, and keep transcript logic, embedded styling, and demo state resets in `homepageChatDemo.ts`.
 - Follow inherited AGENTS.md guidance when applicable.

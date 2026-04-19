@@ -19,5 +19,6 @@ Modules that implement reusable request-input button definitions and the runtime
 
 ## Writing Rules
 
-- No additional local writing rules.
+- Keep `flow.ts` focused on orchestration across stores, timers, and button wiring; move pure config merging, input-store mutations, message text builders, and transcript helpers into the sibling modules.
+- When adding a new user-facing request-input status message, add the text resolver in `messageFormatter.ts` and the transcript-writing helper in `messageList.ts` so wording and side effects stay separated.
 - Follow inherited AGENTS.md guidance when applicable.

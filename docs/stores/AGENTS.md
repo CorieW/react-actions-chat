@@ -15,5 +15,5 @@ Reference pages for the exported chat-related Zustand stores.
 
 ## Writing Rules
 
-- No additional local writing rules.
+- When adding, removing, or renaming a store page in this directory, update `index.md` so the local overview continues to link every sibling page.
 - Follow inherited AGENTS.md guidance when applicable.

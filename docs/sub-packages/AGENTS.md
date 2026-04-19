@@ -13,5 +13,5 @@ Docs pages for published companion packages and how they extend the main library
 
 ## Writing Rules
 
-- No additional local writing rules.
+- When adding, removing, or renaming a sub-package page in this directory, update `index.md` so the local overview continues to link every sibling page.
 - Follow inherited AGENTS.md guidance when applicable.

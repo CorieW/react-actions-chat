@@ -19,5 +19,5 @@ Reference pages for exported TypeScript types and related contracts.
 
 ## Writing Rules
 
-- No additional local writing rules.
+- When adding, removing, or renaming a type page in this directory, update `index.md` so the local overview continues to link every sibling page.
 - Follow inherited AGENTS.md guidance when applicable.

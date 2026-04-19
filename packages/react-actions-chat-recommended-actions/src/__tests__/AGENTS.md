@@ -13,5 +13,6 @@ Automated tests for the recommended-actions companion package.
 
 ## Writing Rules
 
-- No additional local writing rules.
+- Reset the shared chat, input-field, globals, and persistent-button stores in `beforeEach` for tests that touch singleton state.
+- Stub provider fetches in the test file instead of calling live embedding APIs.
 - Follow inherited AGENTS.md guidance when applicable.

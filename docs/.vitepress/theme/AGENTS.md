@@ -14,5 +14,5 @@ Custom VitePress theme assets that adapt the docs site branding, layout, and hom
 
 ## Writing Rules
 
-- No additional local writing rules.
+- Keep theme registration and layout composition in `index.ts` and `Layout.vue`, and keep docs-wide visual overrides in `custom.css` instead of scattering them through feature components.
 - Follow inherited AGENTS.md guidance when applicable.

@@ -20,5 +20,6 @@ Shared state stores, theme helpers, and non-visual utilities exported by the mai
 
 ## Writing Rules
 
-- No additional local writing rules.
+- When adding or removing public store, theme, or utility helpers in this directory, update `index.ts` in the same change so the published barrel stays aligned.
+- Keep store modules exposing explicit `get*`, `set*`, and `reset*` helpers instead of pushing ad-hoc state mutation logic into callers.
 - Follow inherited AGENTS.md guidance when applicable.

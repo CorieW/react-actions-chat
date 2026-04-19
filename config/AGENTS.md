@@ -20,5 +20,5 @@ Centralized workspace tool configuration for linting, formatting, TypeScript, Vi
 
 ## Writing Rules
 
-- No additional local writing rules.
+- When adding or renaming a workspace import alias or source root, update `tsconfig.json`, `vite.config.ts`, `eslint.config.js`, and `knip.json` together so typechecking, tests, linting, and unused-code checks stay aligned.
 - Follow inherited AGENTS.md guidance when applicable.

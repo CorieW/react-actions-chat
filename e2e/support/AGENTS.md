@@ -8,9 +8,9 @@ Shared Playwright utilities for opening example apps and interacting with the co
 
 ## Files
 
-- `chat.ts`: Helper functions for navigation, locating transcript regions, submitting input, and clicking chat actions.
+- `chat.ts`: Helper functions for navigation, locating transcript regions, submitting input, and clicking chat actions across all runnable examples.
 
 ## Writing Rules
 
-- No additional local writing rules.
+- Keep selectors role- and label-based, and return reusable `Locator` objects so specs can compose assertions without re-querying the DOM structure.
 - Follow inherited AGENTS.md guidance when applicable.

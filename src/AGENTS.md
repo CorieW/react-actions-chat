@@ -21,5 +21,5 @@ Published source for the `react-actions-chat` package, including public exports,
 
 ## Writing Rules
 
-- No additional local writing rules.
+- When adding or removing a public API under `src`, update `src/index.ts` and any affected nested barrels in the same change so the package export surface stays synchronized.
 - Follow inherited AGENTS.md guidance when applicable.

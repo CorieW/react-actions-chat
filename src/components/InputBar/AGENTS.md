@@ -15,5 +15,6 @@ Shared chat input component and helper modules for behavior, mode, and validatio
 
 ## Writing Rules
 
-- No additional local writing rules.
+- Keep the behavior, mode, and validation helpers slice-specific: each helper should only update its own subset of `useInputFieldStore` state and should keep a paired reset helper beside the configure helper.
+- Preserve the accessible labels and `data-asc-role` hooks used by the shared Playwright helpers when editing `InputBar.tsx`.
 - Follow inherited AGENTS.md guidance when applicable.
