@@ -1,0 +1,17 @@
+# packages/react-actions-chat-support
+
+Companion package that adds reusable support-desk flows, shared support types, and an in-memory adapter on top of `react-actions-chat`.
+
+## Directories
+
+- `src/`: Published source for the support companion package, including customer/admin flow builders and tests.
+
+## Files
+
+- `README.md`: Overview and installation notes for the support companion package.
+- `package.json`: Package manifest for the support companion package.
+
+## Writing Rules
+
+- When adding or removing a public module from `src`, update `README.md`, `package.json`, and `src/index.ts` in the same change so the package surface stays synchronized.
+- Follow inherited AGENTS.md guidance when applicable.
