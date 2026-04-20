@@ -18,6 +18,22 @@ interface MarkdownTextFormatterProps {
   readonly theme: ChatTheme;
 }
 
+function getTextContent(children: React.ReactNode): string {
+  if (typeof children === 'string' || typeof children === 'number') {
+    return String(children);
+  }
+
+  if (Array.isArray(children)) {
+    return children.map(getTextContent).join('');
+  }
+
+  if (React.isValidElement<{ children?: React.ReactNode }>(children)) {
+    return getTextContent(children.props.children);
+  }
+
+  return '';
+}
+
 /**
  * Renders markdown text parts with lightweight built-in styling.
  *
@@ -54,7 +70,7 @@ export function MarkdownTextFormatter({
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          a: ({ children, ...props }) => (
+          a: ({ children, node: _node, ...props }) => (
             <a
               {...props}
               className='underline underline-offset-2'
@@ -91,7 +107,7 @@ export function MarkdownTextFormatter({
                     },
                   }}
                 >
-                  {String(children).replace(/\n$/, '')}
+                  {getTextContent(children).replace(/\n$/, '')}
                 </SyntaxHighlighter>
               );
             }
@@ -120,7 +136,7 @@ export function MarkdownTextFormatter({
               </code>
             );
           },
-          ol: ({ children, ...props }) => (
+          ol: ({ children, node: _node, ...props }) => (
             <ol
               {...props}
               className='my-3 list-decimal pl-5'
@@ -128,7 +144,7 @@ export function MarkdownTextFormatter({
               {children}
             </ol>
           ),
-          p: ({ children, ...props }) => (
+          p: ({ children, node: _node, ...props }) => (
             <p
               {...props}
               className='my-0 whitespace-pre-wrap'
@@ -160,7 +176,7 @@ export function MarkdownTextFormatter({
               wrapCodeBlock(children, props)
             );
           },
-          ul: ({ children, ...props }) => (
+          ul: ({ children, node: _node, ...props }) => (
             <ul
               {...props}
               className='my-3 list-disc pl-5'

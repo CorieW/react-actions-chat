@@ -1,4 +1,4 @@
-# packages/react-actions-chat-support/src/**tests**
+# packages/react-actions-chat-support/src/__tests__
 
 Automated tests for the support companion package.
 

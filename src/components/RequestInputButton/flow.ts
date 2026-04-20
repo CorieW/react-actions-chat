@@ -101,10 +101,24 @@ export function createRequestInputButton(
         }
       };
 
-      const removeAbortButtonAndReset = (): void => {
+      const clearRequestInputControls = (): void => {
         clearInputTimeout();
         removeButton(ABORT_BUTTON_ID);
+      };
+
+      const removeAbortButtonAndReset = (): void => {
+        clearRequestInputControls();
         resetRequestInputField(inputFieldStore);
+      };
+
+      const removeAbortButtonAndPrepareForPendingResponse = (): void => {
+        clearRequestInputControls();
+        inputFieldStore.resetInputFieldParams({
+          value: true,
+          description: true,
+          validator: true,
+          submitGuard: true,
+        });
       };
 
       const handleDefaultAbort = (): void => {
@@ -195,10 +209,11 @@ export function createRequestInputButton(
             }
 
             clearInputTimeout();
-            removeAbortButtonAndReset();
-
             if (shouldWaitForTurn) {
+              removeAbortButtonAndPrepareForPendingResponse();
               disableRequestInputWhileWaiting(inputFieldStore, behaviorConfig);
+            } else {
+              removeAbortButtonAndReset();
             }
 
             try {
