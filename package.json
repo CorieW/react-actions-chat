@@ -81,7 +81,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
-    "@changesets/cli": "2.30.0",
+    "@changesets/cli": "2.31.0",
     "@eslint/js": "^9.36.0",
     "@playwright/test": "^1.59.1",
     "@tailwindcss/vite": "^4.1.16",
@@ -97,15 +97,15 @@
     "agentsmd-hierarchy": "1.0.0",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.22",
+    "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^16.4.0",
     "jsdom": "^27.0.1",
     "knip": "^6.3.1",
-    "prettier": "^3.6.2",
+    "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.58.1",
+    "typescript-eslint": "^8.58.2",
     "vite": "^7.1.7",
     "vitepress": "^1.6.4",
     "vitest": "^3.2.4"
