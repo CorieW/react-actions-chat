@@ -85,6 +85,32 @@ jobs:
       - name: Check if styles.css is up to date
         run: pnpm check:styles
 
+  docs-assistant-corpus-check:
+    name: Docs Assistant Corpus Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check if docs assistant corpus is up to date
+        run: pnpm docs:assistant:corpus:check
+
   lint:
     name: Linter Check
     runs-on: ubuntu-latest
