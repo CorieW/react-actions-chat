@@ -5,7 +5,10 @@
 ## Shape
 
 ```ts
-type InputValidator = (value: string) => InputValidationResult;
+type InputValidator = (
+  value: string,
+  submission?: InputSubmission
+) => InputValidationResult;
 ```
 
 ## Example
@@ -18,3 +21,6 @@ const emailValidator = (value: string) => {
 ```
 
 Use it with `createRequestInputButtonDef(...)` or directly with `useInputFieldStore()`.
+
+When uploads are enabled for a request-input flow, `submission.files` lets the
+validator check whether the user attached any files alongside the text value.

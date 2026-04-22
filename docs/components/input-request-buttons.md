@@ -10,6 +10,7 @@ This is the pattern to use for collecting things like:
 - passwords
 - phone numbers
 - search queries
+- upload-assisted submissions that can include files and text together
 
 ## Create a Reusable Definition
 
@@ -50,6 +51,8 @@ Important definition fields:
 - `initialLabel`
 - `inputPromptMessage`
 - `inputType`
+- `allowFileUpload`
+- `fileValidator`
 - `placeholder`
 - `inputDescription`
 - `validator`
@@ -60,6 +63,7 @@ Important definition fields:
 - `rateLimit`
 - `abortLabel`
 - `showAbort`
+- `suppressValidationFailureMessage`
 - `onSuccess`
 
 Important runtime fields:
@@ -77,6 +81,14 @@ Important runtime fields:
 
 By default, invalid input adds a retry message and keeps the flow active.
 
+If the flow also collects files, use:
+
+- `allowFileUpload` to show the upload button while the flow is active
+- `fileValidator` to accept or reject each selected file
+- the `submission.files` argument in `validator`, `onSuccess`, or runtime callbacks to inspect the full payload
+
 ## Password Flows
 
 If `inputType` is `password`, the visible transcript message is masked. Use `rawContent` from the stored message when you need the real submitted value.
+
+For a full walkthrough of text, password, email, search, and upload-aware flows, see [Using different input types](../guides/using-different-input-types.md).

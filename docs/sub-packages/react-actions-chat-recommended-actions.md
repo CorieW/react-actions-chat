@@ -42,6 +42,7 @@ The `settings` example in this repo uses a browser-side OpenAI API key to stay s
 
 ## Read Next
 
+- [Sub-packages overview](./index.md)
 - [Recommended actions overview](../guides/recommended-actions-overview.md)
 - [Recommended actions with vector search](../guides/recommended-actions-vector-search.md)
 - [Recommended actions API reference](../reference/recommended-actions-api.md)

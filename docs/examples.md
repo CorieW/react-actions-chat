@@ -1,6 +1,6 @@
 # Examples Guide
 
-This repo includes six runnable example apps. Each one maps cleanly to a section of the docs.
+This repo includes seven runnable example apps. Each one maps cleanly to a section of the docs.
 
 ## `coding`
 
@@ -49,6 +49,31 @@ Run it:
 pnpm --filter qa-bot-example dev
 ```
 
+## `uploads`
+
+Path: [examples/uploads](https://github.com/CorieW/react-actions-chat/tree/main/examples/uploads)
+
+Live demo: [uploads](https://coriew.github.io/react-actions-chat/examples/uploads/)
+
+Use this example for:
+
+- optional file uploads that stay disabled by default
+- `fileValidator`
+- built-in `image` and `file` message parts
+- upload-focused request-input flows
+
+Docs:
+
+- [Core API reference](reference/core-api.md)
+- [Input-request buttons](components/input-request-buttons.md)
+- [Using different input types](guides/using-different-input-types.md)
+
+Run it:
+
+```bash
+pnpm --filter uploads-example dev
+```
+
 ## `login`
 
 Path: [examples/login](https://github.com/CorieW/react-actions-chat/tree/main/examples/login)
@@ -77,7 +102,7 @@ pnpm --filter login-example dev
 
 Path: [examples/llm-support](https://github.com/CorieW/react-actions-chat/tree/main/examples/llm-support)
 
-Live demo: not published because this example depends on an API key.
+Live demo: [llm-support](https://coriew.github.io/react-actions-chat/examples/llm-support/)
 
 Use this example for:
 
@@ -86,6 +111,12 @@ Use this example for:
 - `createTextGenerationBackend`
 - a local backend route wired through `react-actions-chat-llms`
 - an in-chat startup API-key step that keeps the key in memory for the current tab
+
+Docs:
+
+- [react-actions-chat-llms](sub-packages/react-actions-chat-llms.md)
+- [Connect to an LLM backend](guides/connect-to-an-llm-backend.md)
+- [LLMs API reference](reference/llms-api.md)
 
 Run it:
 
@@ -101,7 +132,7 @@ You can optionally set `OPENAI_MODEL` and `VITE_LLM_SUPPORT_EXAMPLE_MODE` in you
 
 Path: [examples/settings](https://github.com/CorieW/react-actions-chat/tree/main/examples/settings)
 
-Live demo: not published because this example requires an API key.
+Live demo: [settings](https://coriew.github.io/react-actions-chat/examples/settings/)
 
 Use this example for:
 
@@ -112,8 +143,10 @@ Use this example for:
 
 Docs:
 
+- [react-actions-chat-recommended-actions](sub-packages/react-actions-chat-recommended-actions.md)
 - [Recommended actions overview](guides/recommended-actions-overview.md)
 - [Recommended actions with vector search](guides/recommended-actions-vector-search.md)
+- [Recommended Actions API reference](reference/recommended-actions-api.md)
 
 Run it:
 
@@ -121,7 +154,9 @@ Run it:
 pnpm --filter settings-example dev
 ```
 
-If you want to run the `settings` demo with real embeddings, create `examples/settings/.env.local` with:
+The public demo is published without `VITE_OPENAI_API_KEY`, so the page is available but real embedding-backed recommendations stay disabled there.
+
+If you want to run the `settings` demo with real embeddings locally, create `examples/settings/.env.local` with:
 
 ```bash
 VITE_OPENAI_API_KEY=your_openai_api_key
@@ -142,6 +177,12 @@ Use this example for:
 - `createSupportAdminFlow`
 - `createInMemorySupportFlowAdapter`
 - sharing a ticket queue between customer and admin views in one demo workspace
+
+Docs:
+
+- [react-actions-chat-support](sub-packages/react-actions-chat-support.md)
+- [Build a support desk](guides/build-a-support-desk.md)
+- [Support API reference](reference/support-api.md)
 
 Run it:
 

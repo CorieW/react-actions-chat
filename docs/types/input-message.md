@@ -30,6 +30,7 @@ const initialMessages: readonly InputMessage[] = [
 ## Notes
 
 - `parts` is the primary content surface for every message
+- built-in parts can now render text, inline images, and downloadable files
 - `rawContent` is useful when the visible transcript content is transformed, such as password masking
 - `buttons` attaches actions under the message
 - `userResponseCallback` lets the message react to the next user submission

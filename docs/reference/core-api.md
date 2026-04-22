@@ -21,7 +21,7 @@ Transcript component that renders stored messages.
 
 ### `Message`
 
-Bubble component that renders message chrome plus plain text or markdown text content.
+Bubble component that renders message chrome plus built-in message parts such as plain text, markdown text, inline images, and downloadable files.
 
 ### `InputBar`
 
@@ -42,7 +42,7 @@ Key fields:
 - `timestamp?: Date`
 - `isLoading?: boolean`
 - `loadingLabel?: string`
-- `userResponseCallback?: () => void`
+- `userResponseCallback?: (submission?: InputSubmission) => void`
 - `buttons?: readonly MessageButton[]`
 
 ### `Message`
@@ -59,6 +59,8 @@ Normalized message shape stored in chat state. It always has:
 Built-in content parts:
 
 - `text`
+- `image`
+- `file`
 
 ### `createTextPart(text)`
 
@@ -71,6 +73,29 @@ Creates a markdown-rendered text part for a message.
 Useful option:
 
 - `syntaxHighlighting?: boolean` to colorize fenced code blocks when a language like `ts`, `tsx`, or `js` is present
+
+### `createImagePart(url, options?)`
+
+Creates an inline image part for a message.
+
+Useful options:
+
+- `alt?: string` to describe the image for assistive technology
+- `fileName?: string` to show the original filename in the transcript
+- `mimeType?: string` to store the image content type
+- `maxWidthPx?: number` to cap the preview width in the transcript
+- `maxHeightPx?: number` to cap the preview height in the transcript
+- `sizeBytes?: number` to show file-size metadata in the transcript
+
+### `createFilePart(url, options?)`
+
+Creates a downloadable file part for a message.
+
+Useful options:
+
+- `fileName?: string` to show the original filename in the transcript
+- `mimeType?: string` to store the file content type
+- `sizeBytes?: number` to show file-size metadata in the transcript
 
 ## Button Helpers
 
@@ -87,6 +112,11 @@ Supported definition shapes:
 ### `createRequestInputButtonDef(config)`
 
 Creates a reusable input-request definition.
+
+Useful upload-related config:
+
+- `allowFileUpload?: boolean` to show the optional upload button during the flow
+- `fileValidator?: (file, submission?) => InputValidationResult` to accept or reject uploaded files
 
 ### `createRequestConfirmationButtonDef(config)`
 
@@ -106,6 +136,7 @@ Public mode settings for the shared input bar:
 
 Public validation settings for the shared input bar:
 
+- `fileValidator?`
 - `validator?`
 - `submitGuard?`
 
@@ -119,3 +150,4 @@ Public behavior settings for the shared input bar:
 - `cooldownMs?`
 - `timeoutMs?`
 - `showAbort?`
+- `allowFileUpload?`

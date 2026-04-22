@@ -9,8 +9,13 @@ Input-request flows use this store to switch the field into email, password, sea
 - the current input value
 - the current input type
 - the current placeholder text
+- the current disabled placeholder text
 - the helper description shown above the input
+- the currently selected files
+- whether the optional upload button is visible
+- the active file validator
 - the active validator
+- the active submit guard
 - the default and current disabled state
 - the registered input element and submit function
 
@@ -21,8 +26,13 @@ Useful getters:
 - `getInputFieldValue()`
 - `getInputFieldType()`
 - `getInputFieldPlaceholder()`
+- `getInputFieldDisabledPlaceholder()`
 - `getInputFieldDescription()`
+- `getInputFieldFiles()`
+- `getInputFieldFileUploadEnabled()`
+- `getInputFieldFileValidator()`
 - `getInputFieldValidator()`
+- `getInputFieldSubmitGuard()`
 - `getInputFieldDisabled()`
 - `getInputFieldDisabledDefault()`
 - `getInputFieldSubmitFunc()`
@@ -37,9 +47,10 @@ const inputFieldStore = useInputFieldStore.getState();
 const currentValue = inputFieldStore.getInputFieldValue();
 const currentType = inputFieldStore.getInputFieldType();
 const helpText = inputFieldStore.getInputFieldDescription();
+const selectedFiles = inputFieldStore.getInputFieldFiles();
 ```
 
-This is useful when your app needs to inspect whether the user is currently in a password step, email step, or search step.
+This is useful when your app needs to inspect whether the user is currently in a password step, email step, search step, or upload-enabled request flow.
 
 ## Common Writes
 
@@ -48,8 +59,13 @@ Useful setters:
 - `setInputFieldValue(value)`
 - `setInputFieldType(type)`
 - `setInputFieldPlaceholder(text)`
+- `setInputFieldDisabledPlaceholder(text)`
 - `setInputFieldDescription(text)`
+- `setInputFieldFiles(files)`
+- `setInputFieldFileUploadEnabled(enabled)`
+- `setInputFieldFileValidator(validator)`
 - `setInputFieldValidator(validator)`
+- `setInputFieldSubmitGuard(guard)`
 - `setInputFieldDisabled(disabled)`
 - `setInputFieldDisabledDefault(disabled)`
 - `setInputFieldSubmitFunc(fn)`
@@ -61,8 +77,13 @@ Reset helpers:
 - `resetInputFieldValue()`
 - `resetInputFieldType()`
 - `resetInputFieldPlaceholder()`
+- `resetInputFieldDisabledPlaceholder()`
 - `resetInputFieldDescription()`
+- `resetInputFieldFiles()`
+- `resetInputFieldFileUploadEnabled()`
+- `resetInputFieldFileValidator()`
 - `resetInputFieldValidator()`
+- `resetInputFieldSubmitGuard()`
 - `resetInputFieldDisabled()`
 - `resetInputFieldDisabledDefault()`
 
@@ -70,6 +91,7 @@ Reset helpers:
 
 - configuring input-request buttons
 - checking whether the current step is a password flow
+- enabling upload-aware request-input flows
 - reading the current input state in advanced multi-step flows
 - resetting the shared field after a custom flow completes
 

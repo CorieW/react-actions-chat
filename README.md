@@ -10,7 +10,7 @@ Interactive React chat UI for support flows, guided actions, confirmations, and 
 npm install react-actions-chat
 ```
 
-This package targets Node.js `22.13.0+`.
+This package targets Node.js `^22.13.0 || >=24.0.0`.
 
 If you want query-driven or vector-search-backed action recommendations, install the companion package too:
 
@@ -67,6 +67,7 @@ Runnable workspace examples live in [examples](examples/README.md):
 
 - `coding`: multiline coding-assistant flow with markdown-rendered replies
 - `qa-bot`: basic support assistant flow
+- `uploads`: dedicated file-upload example with image and file parts
 - `login`: input and confirmation flows
 - `llm-support`: companion LLM package with a local backend route and an in-chat startup API-key step
 - `settings`: companion recommended-actions package with a real OpenAI embedder
@@ -76,16 +77,18 @@ Live demos:
 
 - `coding`: https://coriew.github.io/react-actions-chat/examples/coding/
 - `qa-bot`: https://coriew.github.io/react-actions-chat/examples/qa-bot/
+- `uploads`: https://coriew.github.io/react-actions-chat/examples/uploads/
 - `login`: https://coriew.github.io/react-actions-chat/examples/login/
 - `support-desk`: https://coriew.github.io/react-actions-chat/examples/support-desk/
-- `llm-support`: source only for now because the live version would require an API key
-- `settings`: source only for now because the live version would require exposing an API key
+- `llm-support`: https://coriew.github.io/react-actions-chat/examples/llm-support/ (starts locked until you enter an API key in chat)
+- `settings`: https://coriew.github.io/react-actions-chat/examples/settings/ (published without `VITE_OPENAI_API_KEY`, so live recommendations stay disabled there)
 
 Start one from the repo root after `pnpm install`:
 
 ```bash
 pnpm --filter coding-example dev
 pnpm --filter qa-bot-example dev
+pnpm --filter uploads-example dev
 pnpm --filter login-example dev
 pnpm --filter support-desk-example dev
 pnpm --filter llm-support-example dev
@@ -94,7 +97,7 @@ pnpm --filter settings-example dev
 
 ## Development
 
-Use Node.js `22.13.0` or newer with `pnpm`.
+Use Node.js `^22.13.0 || >=24.0.0` with `pnpm`.
 
 ```bash
 corepack enable
@@ -108,15 +111,20 @@ Useful scripts:
 - `pnpm test:coverage`
 - `pnpm typecheck`
 - `pnpm lint`
+- `pnpm format:check`
 - `pnpm changeset`
+- `pnpm agents:check`
 - `pnpm version-packages`
 - `pnpm docs:dev`
 - `pnpm docs:build`
 - `pnpm pages:build`
 - `pnpm run refresh:all`
 
-When a pull request changes a published package, add a changeset with `pnpm changeset` unless the PR is intentionally marked with the `no-changeset` label.
-Merging changesets to `main` opens or updates a release PR, and merging that release PR publishes to npm when the repo has an `NPM_TOKEN` secret configured.
+## Contributing
+
+Contributions are welcome.
+
+If your pull request changes a published package, add a changeset with `pnpm changeset` unless the PR is intentionally marked with the `no-changeset` label.
 
 ## License
 

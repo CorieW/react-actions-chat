@@ -9,7 +9,9 @@ Docs pages for published companion packages and how they extend the main library
 ## Files
 
 - `index.md`: Overview page for published companion packages.
+- `react-actions-chat-llms.md`: Documentation page for the `react-actions-chat-llms` package.
 - `react-actions-chat-recommended-actions.md`: Documentation page for the `react-actions-chat-recommended-actions` package.
+- `react-actions-chat-support.md`: Documentation page for the `react-actions-chat-support` package.
 
 ## Writing Rules
 

@@ -17,7 +17,7 @@ export default defineConfig({
   base: normalizeBasePath(process.env.DOCS_BASE_PATH),
   title: 'React Actions Chat',
   description:
-    'Consumer docs for react-actions-chat and react-actions-chat-recommended-actions.',
+    'Consumer docs for react-actions-chat and its recommended-actions, support, and llms companion packages.',
   lastUpdated: true,
   themeConfig: {
     nav: [
@@ -109,8 +109,16 @@ export default defineConfig({
         items: [
           { text: 'Sub-packages', link: '/sub-packages/index' },
           {
+            text: 'react-actions-chat-llms',
+            link: '/sub-packages/react-actions-chat-llms',
+          },
+          {
             text: 'react-actions-chat-recommended-actions',
             link: '/sub-packages/react-actions-chat-recommended-actions',
+          },
+          {
+            text: 'react-actions-chat-support',
+            link: '/sub-packages/react-actions-chat-support',
           },
         ],
       },
@@ -126,8 +134,20 @@ export default defineConfig({
             link: '/guides/using-different-input-types',
           },
           {
+            text: 'Using Chat Globals and Defaults',
+            link: '/guides/using-chat-globals-and-defaults',
+          },
+          {
             text: 'Collect Input and Confirm Actions',
             link: '/guides/collecting-input-and-confirming-actions',
+          },
+          {
+            text: 'Connect to an LLM Backend',
+            link: '/guides/connect-to-an-llm-backend',
+          },
+          {
+            text: 'Build a Support Desk',
+            link: '/guides/build-a-support-desk',
           },
           {
             text: 'Theming and Styling',
@@ -148,8 +168,16 @@ export default defineConfig({
         items: [
           { text: 'Core API', link: '/reference/core-api' },
           {
+            text: 'LLMs API',
+            link: '/reference/llms-api',
+          },
+          {
             text: 'Recommended Actions API',
             link: '/reference/recommended-actions-api',
+          },
+          {
+            text: 'Support API',
+            link: '/reference/support-api',
           },
         ],
       },
