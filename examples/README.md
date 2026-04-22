@@ -6,6 +6,7 @@ This folder contains runnable workspace examples demonstrating different use cas
 
 - **coding** - A coding assistant demo that highlights multiline prompts and markdown-rendered replies
 - **qa-bot** - A simple question and answer bot that responds to user queries
+- **uploads** - A focused upload demo that showcases optional file uploads, file validators, and image/file message parts
 - **login** - A login flow using email and password inputs
 - **llm-support** - A backend-routed LLM support demo powered by the companion `react-actions-chat-llms` package
   -- **settings** - A settings page that uses the companion recommended-actions package and a real OpenAI embedder to recommend settings actions from a user query
@@ -34,6 +35,8 @@ Make sure you have Node.js and `pnpm` available. If needed, run `corepack enable
    ```bash
    pnpm --filter qa-bot-example dev
    # or
+   pnpm --filter uploads-example dev
+   # or
    pnpm --filter coding-example dev
    # or
    pnpm --filter login-example dev
@@ -49,6 +52,8 @@ Make sure you have Node.js and `pnpm` available. If needed, run `corepack enable
 
    ```bash
    cd examples/qa-bot
+   # or
+   cd examples/uploads
    # or
    cd examples/coding
    # or
@@ -71,9 +76,11 @@ Make sure you have Node.js and `pnpm` available. If needed, run `corepack enable
 
    The key stays in memory for the current tab only so you can try the live backend-routed flow without creating a local `.env` file. In production, keep provider keys on your own backend.
 
-6. If you are running the `support-desk` example, the workspace starts with seeded tickets for both the customer and admin views. Create a new ticket in the customer inbox, then switch to the admin console to work the same issue from the shared in-memory queue.
+6. If you are running the `uploads` example, the chat starts with action buttons that enable the upload control only while an active request-input flow is collecting screenshots or documents.
 
-7. If you are running the `settings` example, create `examples/settings/.env.local` with a real OpenAI API key:
+7. If you are running the `support-desk` example, the workspace starts with seeded tickets for both the customer and admin views. Create a new ticket in the customer inbox, then switch to the admin console to work the same issue from the shared in-memory queue.
+
+8. If you are running the `settings` example, create `examples/settings/.env.local` with a real OpenAI API key:
 
    ```bash
    VITE_OPENAI_API_KEY=your_openai_api_key
@@ -81,13 +88,13 @@ Make sure you have Node.js and `pnpm` available. If needed, run `corepack enable
 
    This keeps the example simple and fully runnable, but it exposes the key to the browser bundle. In a production app, call the embedder from your own backend instead.
 
-8. Start the development server:
+9. Start the development server:
 
    ```bash
    pnpm dev
    ```
 
-9. Open your browser to the URL shown in the terminal (typically `http://localhost:5173`)
+10. Open your browser to the URL shown in the terminal (typically `http://localhost:5173`)
 
 ### Building for Production
 

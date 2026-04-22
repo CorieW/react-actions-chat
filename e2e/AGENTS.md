@@ -14,6 +14,7 @@ Playwright suites that exercise the runnable example apps through real browser i
 - `qa-bot.spec.ts`: End-to-end coverage for the basic question-and-answer example.
 - `settings.spec.ts`: End-to-end coverage for the settings example and its recommended-action flow.
 - `support-desk.spec.ts`: End-to-end coverage for the shared customer/admin support-desk example.
+- `uploads.spec.ts`: End-to-end coverage for the dedicated uploads example and its file-validation flows.
 
 ## Writing Rules
 

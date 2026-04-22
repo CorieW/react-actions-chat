@@ -10,6 +10,7 @@ Runnable workspace demos that show how to compose `react-actions-chat` into real
 - `qa-bot/`: Lightweight support-bot demo that shows a basic free-text assistant flow.
 - `settings/`: Demo that uses the companion recommended-actions package and a real embedder-backed suggestion flow.
 - `support-desk/`: Shared support-package demo that switches between customer and admin ticket workflows.
+- `uploads/`: Upload-focused demo that showcases optional file uploads, file validators, and image/file transcript parts.
 
 ## Files
 

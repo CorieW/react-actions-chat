@@ -5,6 +5,7 @@ export type ExampleName =
   | 'llm-support'
   | 'login'
   | 'qa-bot'
+  | 'uploads'
   | 'settings'
   | 'support-desk';
 
@@ -13,6 +14,7 @@ const exampleUrls: Record<ExampleName, string> = {
   'llm-support': 'http://127.0.0.1:4177',
   login: 'http://127.0.0.1:4173',
   'qa-bot': 'http://127.0.0.1:4174',
+  uploads: 'http://127.0.0.1:4179',
   settings: 'http://127.0.0.1:4175',
   'support-desk': 'http://127.0.0.1:4178',
 };
@@ -41,6 +43,13 @@ export function getTranscript(page: Page): Locator {
  */
 export function getChatInput(page: Page): Locator {
   return page.getByLabel('Chat input');
+}
+
+/**
+ * Returns the hidden file input used by the optional upload button.
+ */
+export function getChatFileInput(page: Page): Locator {
+  return page.locator('[data-asc-role="chat-file-input"]');
 }
 
 /**
@@ -83,6 +92,46 @@ export async function submitChatInput(
     page.getByRole('button', { name: 'Send message' })
   ).toBeEnabled();
   await page.getByRole('button', { name: 'Send message' }).click();
+}
+
+export interface ChatUploadFile {
+  readonly buffer: Buffer;
+  readonly mimeType: string;
+  readonly name: string;
+}
+
+/**
+ * Selects one or more files in the shared chat uploader.
+ */
+export async function uploadChatFiles(
+  page: Page,
+  files: ChatUploadFile | ChatUploadFile[]
+): Promise<void> {
+  await getChatFileInput(page).setInputFiles(files);
+}
+
+/**
+ * Uploads files, optionally fills the text input, and waits for the next
+ * assistant response after sending the submission.
+ */
+export async function submitChatFilesAndWaitForAssistant(
+  page: Page,
+  files: ChatUploadFile | ChatUploadFile[],
+  message = ''
+): Promise<Locator> {
+  const previousAssistantMessageCount = await assistantMessages(page).count();
+
+  if (message.length > 0) {
+    await getChatInput(page).fill(message);
+  }
+
+  await uploadChatFiles(page, files);
+  await expect(
+    page.getByRole('button', { name: 'Send message' })
+  ).toBeEnabled();
+  await page.getByRole('button', { name: 'Send message' }).click();
+
+  return waitForAssistantMessageCount(page, previousAssistantMessageCount + 1);
 }
 
 /**

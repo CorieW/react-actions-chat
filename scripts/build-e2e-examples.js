@@ -4,9 +4,9 @@
  * Steps:
  * 1. Read the requested settings-example mode from CLI args or env.
  * 2. Validate the mode and require an API key when the live lane is selected.
- * 3. Build the coding, LLM support, login, QA bot, support-desk, and settings
- *    examples with pnpm, passing the resolved mode through to the settings
- *    example when needed.
+ * 3. Build the coding, LLM support, login, QA bot, uploads, support-desk, and
+ *    settings examples with pnpm, passing the resolved mode through to the
+ *    settings example when needed.
  */
 
 import { spawnSync } from 'node:child_process';
@@ -41,6 +41,7 @@ runPnpm(['--filter', 'llm-support-example', 'build'], {
 });
 runPnpm(['--filter', 'login-example', 'build']);
 runPnpm(['--filter', 'qa-bot-example', 'build']);
+runPnpm(['--filter', 'uploads-example', 'build']);
 runPnpm(['--filter', 'support-desk-example', 'build']);
 runPnpm(
   ['--filter', 'settings-example', 'build'],

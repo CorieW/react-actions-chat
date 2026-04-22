@@ -40,6 +40,10 @@ const liveExamples = [
     directoryName: 'qa-bot',
   },
   {
+    packageName: 'uploads-example',
+    directoryName: 'uploads',
+  },
+  {
     packageName: 'login-example',
     directoryName: 'login',
   },

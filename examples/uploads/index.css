@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Manrope:wght@400;500;700&display=swap');
+
+:root {
+  color: #2f2216;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(13, 78, 216, 0.12),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(217, 119, 6, 0.18),
+      transparent 32%
+    ),
+    linear-gradient(180deg, #fffaf3 0%, #f5ecde 100%);
+  font-family: 'Manrope', 'Avenir Next', 'Segoe UI', sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.uploads-demo {
+  display: flex;
+  min-height: 100dvh;
+  padding: 1rem;
+}
+
+.uploads-demo__shell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0;
+  width: min(100%, 1100px);
+  height: min(100%, calc(100dvh - 2rem));
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 2rem);
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(118, 82, 42, 0.18);
+  border-radius: 28px;
+  background: rgba(255, 250, 243, 0.84);
+  box-shadow: 0 24px 60px rgba(83, 54, 25, 0.12);
+  backdrop-filter: blur(18px);
+}
+
+.uploads-demo__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.4rem 1.4rem 1.2rem;
+  border-bottom: 1px solid rgba(118, 82, 42, 0.12);
+}
+
+.uploads-demo__eyebrow {
+  margin: 0;
+  color: #9a4d00;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.uploads-demo__title {
+  margin: 0;
+  color: #25180d;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(2rem, 3.6vw, 3.4rem);
+  line-height: 0.94;
+}
+
+.uploads-demo__description {
+  margin: 0;
+  color: rgba(47, 34, 22, 0.78);
+  max-width: 64ch;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.uploads-demo__notes {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: rgba(47, 34, 22, 0.78);
+  display: grid;
+  gap: 0.45rem;
+  line-height: 1.45;
+}
+
+.uploads-demo__notes li::marker {
+  color: #d97706;
+}
+
+.uploads-demo__chat-frame {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.uploads-demo__chat-frame .asc-chat-wrapper,
+.uploads-demo__chat-frame .asc-chat-wrapper > div {
+  min-height: 100%;
+  height: 100%;
+}
+
+@media (max-width: 980px) {
+  .uploads-demo__shell {
+    width: 100%;
+    height: calc(100dvh - 2rem);
+    max-width: calc(100vw - 2rem);
+  }
+
+  .uploads-demo__header {
+    padding: 1.25rem 1.25rem 1.05rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .uploads-demo {
+    padding: 0.75rem;
+  }
+
+  .uploads-demo__shell {
+    height: calc(100dvh - 1.5rem);
+    max-width: calc(100vw - 1.5rem);
+    max-height: calc(100dvh - 1.5rem);
+    border-radius: 22px;
+  }
+
+  .uploads-demo__header {
+    gap: 0.75rem;
+    padding: 1.05rem 1.05rem 0.95rem;
+  }
+
+  .uploads-demo__description {
+    font-size: 0.95rem;
+  }
+
+  .uploads-demo__notes {
+    gap: 0.35rem;
+    font-size: 0.92rem;
+  }
+}
