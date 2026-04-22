@@ -45,9 +45,21 @@ export default defineConfig([
     },
   },
   {
-    files: ['config/**/*.{js,ts}', 'scripts/**/*.js', 'playwright.config.ts'],
+    files: [
+      'config/**/*.{js,ts}',
+      'docs-chat/backend/index.js',
+      'playwright.config.ts',
+      'scripts/**/*.js',
+    ],
     languageOptions: {
       globals: globals.node,
+    },
+  },
+  {
+    files: ['docs-chat/frontend/homepageChatDemo.ts'],
+    languageOptions: {
+      parser: tseslint.parser,
+      globals: globals.browser,
     },
   },
   ...tseslint.configs.recommended.map(config => ({
