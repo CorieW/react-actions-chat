@@ -181,4 +181,24 @@ describe('message part rendering', () => {
     );
     expect(screen.getByText(/application\/pdf/i)).toBeInTheDocument();
   });
+
+  it('adds animation hooks for message entry and loading states', () => {
+    const { container } = render(
+      <MessageList
+        messages={[createMessage([createTextPart('Animated message')])]}
+        isLoading
+        theme={DARK_THEME}
+      />
+    );
+
+    const message = container.querySelector("[data-asc-message-id='1']");
+    const loadingMessage = container.querySelector(
+      "[data-asc-message-loading='true']"
+    );
+
+    expect(message).toHaveClass('asc-message');
+    expect(message?.querySelector('.asc-message-bubble')).not.toBeNull();
+    expect(loadingMessage).toHaveClass('asc-message');
+    expect(container.querySelectorAll('.asc-loading-dot')).toHaveLength(3);
+  });
 });

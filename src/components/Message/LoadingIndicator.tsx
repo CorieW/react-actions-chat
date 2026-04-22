@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import type { ChatTheme } from '../../js/types';
 
 /**
@@ -18,41 +18,23 @@ interface LoadingIndicatorProps {
 export function LoadingIndicator({
   theme,
 }: LoadingIndicatorProps): React.JSX.Element {
-  const [visibleDotCount, setVisibleDotCount] = useState(1);
-
-  useEffect(() => {
-    const intervalId = globalThis.setInterval(() => {
-      setVisibleDotCount(currentCount =>
-        currentCount === 3 ? 1 : currentCount + 1
-      );
-    }, 240);
-
-    return () => {
-      globalThis.clearInterval(intervalId);
-    };
-  }, []);
-
   return (
     <div
       role='status'
       aria-live='polite'
       aria-label='Loading'
-      className='flex items-center gap-2 text-sm leading-relaxed'
+      className='asc-loading-indicator flex items-center gap-2 text-sm leading-relaxed'
+      style={{ color: theme.textColor }}
     >
       <span
         aria-hidden='true'
-        className='inline-flex min-w-[1.8rem] font-mono text-base font-semibold'
-        style={{ color: theme.textColor }}
+        className='inline-flex items-center gap-1'
       >
         {[0, 1, 2].map(index => (
           <span
             key={index}
-            style={{
-              visibility: index < visibleDotCount ? 'visible' : 'hidden',
-            }}
-          >
-            .
-          </span>
+            className='asc-loading-dot inline-block h-2 w-2'
+          />
         ))}
       </span>
     </div>

@@ -35,12 +35,13 @@ export function Message({
   renderPart,
 }: MessageProps): React.JSX.Element {
   const isLoadingMessage = message.isLoading === true;
+  const messageDirectionClass =
+    message.type === 'self' ? 'flex-row-reverse' : 'flex-row';
+  const bubbleAlignmentClass = message.type === 'self' ? 'ml-auto' : 'mr-auto';
 
   return (
     <div
-      className={`mb-1 flex gap-3 ${
-        message.type === 'self' ? 'flex-row-reverse' : 'flex-row'
-      }`}
+      className={`asc-message mb-1 flex gap-3 ${messageDirectionClass}`}
       role='article'
       aria-label={
         message.type === 'self' ? 'User message' : 'Assistant message'
@@ -51,9 +52,7 @@ export function Message({
     >
       <div className='max-w-[85%]'>
         <div
-          className={`rounded-lg px-4 py-3 shadow-sm ${
-            message.type === 'self' ? 'ml-auto' : 'mr-auto'
-          }`}
+          className={`asc-message-bubble rounded-lg px-4 py-3 shadow-sm ${bubbleAlignmentClass}`}
           style={{
             background:
               message.type === 'self'
