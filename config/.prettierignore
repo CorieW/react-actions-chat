@@ -16,6 +16,7 @@
 ../*.min.js
 ../*.min.css
 ../src/styles.css
+../docs-chat/backend/generated/
 
 # Repository instructions
 ../AGENTS.md
