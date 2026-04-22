@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useInputFieldStore } from '../lib/inputFieldStore';
-import type { InputType, InputValidator } from '../lib/inputFieldStore';
+import type {
+  InputFileValidator,
+  InputType,
+  InputValidator,
+} from '../lib/inputFieldStore';
 
 describe('Input Field Store Unit Tests', () => {
   beforeEach(() => {
@@ -11,12 +15,15 @@ describe('Input Field Store Unit Tests', () => {
     store.resetInputFieldType();
     store.resetInputFieldPlaceholder();
     store.resetInputFieldDisabledPlaceholder();
+    store.resetInputFieldFileValidator();
     store.resetInputFieldValidator();
     store.resetInputFieldSubmitGuard();
     store.resetInputFieldDisabledDefault();
     store.resetInputFieldDisabledPlaceholderDefault();
     store.resetInputFieldDisabled();
     store.resetInputFieldValue();
+    store.resetInputFieldFiles();
+    store.resetInputFieldFileUploadEnabled();
   });
 
   describe('setInputFieldType and getInputFieldType', () => {
@@ -180,10 +187,56 @@ describe('Input Field Store Unit Tests', () => {
     });
   });
 
+  describe('file upload state', () => {
+    it('tracks the current file validator', () => {
+      const store = useInputFieldStore.getState();
+      const fileValidator: InputFileValidator = file =>
+        file.type === 'application/pdf' || 'Only PDFs are allowed';
+
+      store.setInputFieldFileValidator(fileValidator);
+
+      expect(store.getInputFieldFileValidator()).toBe(fileValidator);
+
+      store.resetInputFieldFileValidator();
+
+      expect(store.getInputFieldFileValidator()).toBeNull();
+    });
+
+    it('tracks selected files', () => {
+      const store = useInputFieldStore.getState();
+      const firstFile = new File(['alpha'], 'alpha.txt', {
+        type: 'text/plain',
+      });
+      const secondFile = new File(['beta'], 'beta.txt', {
+        type: 'text/plain',
+      });
+
+      store.setInputFieldFiles([firstFile, secondFile]);
+
+      expect(store.getInputFieldFiles()).toEqual([firstFile, secondFile]);
+
+      store.resetInputFieldFiles();
+
+      expect(store.getInputFieldFiles()).toEqual([]);
+    });
+
+    it('tracks whether the upload button is enabled', () => {
+      const store = useInputFieldStore.getState();
+
+      store.setInputFieldFileUploadEnabled(true);
+      expect(store.getInputFieldFileUploadEnabled()).toBe(true);
+
+      store.resetInputFieldFileUploadEnabled();
+      expect(store.getInputFieldFileUploadEnabled()).toBe(false);
+    });
+  });
+
   describe('setInputFieldParams', () => {
     it('should update multiple input field params in one call', () => {
       const store = useInputFieldStore.getState();
       const mockElement = document.createElement('input');
+      const fileValidator: InputFileValidator = file =>
+        file.type === 'application/pdf' || 'Only PDFs are allowed';
       const validator: InputValidator = value =>
         value.includes('@') || 'Must include @';
       const submitFunc = vi.fn();
@@ -193,6 +246,9 @@ describe('Input Field Store Unit Tests', () => {
         type: 'email',
         placeholder: 'Enter your email',
         description: 'We need your work email.',
+        files: [new File(['invoice'], 'invoice.pdf')],
+        fileValidator,
+        fileUploadEnabled: true,
         validator,
         submitFunc,
         value: 'alex@example.com',
@@ -203,6 +259,9 @@ describe('Input Field Store Unit Tests', () => {
       expect(store.getInputFieldType()).toBe('email');
       expect(store.getInputFieldPlaceholder()).toBe('Enter your email');
       expect(store.getInputFieldDescription()).toBe('We need your work email.');
+      expect(store.getInputFieldFiles()).toHaveLength(1);
+      expect(store.getInputFieldFileValidator()).toBe(fileValidator);
+      expect(store.getInputFieldFileUploadEnabled()).toBe(true);
       expect(store.getInputFieldValidator()).toBe(validator);
       expect(store.getInputFieldSubmitFunc()).toBe(submitFunc);
       expect(store.getInputFieldValue()).toBe('alex@example.com');
@@ -259,6 +318,8 @@ describe('Input Field Store Unit Tests', () => {
     it('should reset multiple input field params in one call', () => {
       const store = useInputFieldStore.getState();
       const mockElement = document.createElement('input');
+      const fileValidator: InputFileValidator = file =>
+        file.type === 'application/pdf' || 'Only PDFs are allowed';
       const validator: InputValidator = value => value.length > 0;
       const submitGuard = vi.fn(() => true);
       const submitFunc = vi.fn();
@@ -268,6 +329,7 @@ describe('Input Field Store Unit Tests', () => {
         type: 'email',
         placeholder: 'Enter your email',
         description: 'We need your work email.',
+        fileValidator,
         validator,
         submitGuard,
         submitFunc,
@@ -280,10 +342,13 @@ describe('Input Field Store Unit Tests', () => {
         type: true,
         placeholder: true,
         description: true,
+        fileValidator: true,
         validator: true,
         submitGuard: true,
         submitFunc: true,
         value: true,
+        files: true,
+        fileUploadEnabled: true,
         disabled: true,
       });
 
@@ -291,10 +356,13 @@ describe('Input Field Store Unit Tests', () => {
       expect(store.getInputFieldType()).toBe('textarea');
       expect(store.getInputFieldPlaceholder()).toBe('Type your message...');
       expect(store.getInputFieldDescription()).toBe('');
+      expect(store.getInputFieldFileValidator()).toBeNull();
       expect(store.getInputFieldValidator()).toBeNull();
       expect(store.getInputFieldSubmitGuard()).toBeNull();
       expect(store.getInputFieldSubmitFunc()).toBeNull();
       expect(store.getInputFieldValue()).toBe('');
+      expect(store.getInputFieldFiles()).toEqual([]);
+      expect(store.getInputFieldFileUploadEnabled()).toBe(false);
       expect(store.getInputFieldDisabled()).toBe(true);
     });
 

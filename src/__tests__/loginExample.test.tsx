@@ -19,6 +19,8 @@ describe('login example', () => {
     useInputFieldStore.getState().resetInputFieldDisabledPlaceholder();
     useInputFieldStore.getState().resetInputFieldValidator();
     useInputFieldStore.getState().resetInputFieldSubmitGuard();
+    useInputFieldStore.getState().resetInputFieldFiles();
+    useInputFieldStore.getState().resetInputFieldFileUploadEnabled();
     useInputFieldStore.getState().resetInputFieldDisabledDefault();
     useInputFieldStore.getState().resetInputFieldDisabledPlaceholderDefault();
     useInputFieldStore.getState().resetInputFieldDisabled();

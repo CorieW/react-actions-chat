@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import type { InputMessage, Message } from '../js/types';
-import { getMessageRawText } from './messageParts';
+import { getMessageRawText, revokeMessagePartUploadUrls } from './messageParts';
 import { usePersistentButtonStore } from './persistentButtonStore';
 
 const ABORT_BUTTON_ID = 'input-request-abort';
@@ -132,6 +132,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const nextState: ChatStatePatch = {};
 
     if (params.messages !== undefined) {
+      if (params.messages !== get().messages) {
+        revokeMessagePartUploadUrls(get().messages, params.messages);
+      }
       nextState.messages = params.messages;
     }
 

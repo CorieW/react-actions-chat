@@ -14,6 +14,9 @@ export function configureInputBarBehavior(
   config: InputBarBehaviorConfig
 ): void {
   store.setInputFieldParams({
+    ...(config.allowFileUpload !== undefined
+      ? { fileUploadEnabled: config.allowFileUpload }
+      : {}),
     ...(config.disabledPlaceholder !== undefined
       ? { disabledPlaceholder: config.disabledPlaceholder }
       : {}),
@@ -28,6 +31,7 @@ export function configureInputBarBehavior(
  */
 export function resetInputBarBehavior(store: InputFieldStoreState): void {
   store.resetInputFieldParams({
+    fileUploadEnabled: true,
     disabled: true,
   });
 }

@@ -1,8 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { MessageList, createMarkdownTextPart, createTextPart } from '../index';
+import {
+  MessageList,
+  createFilePart,
+  createImagePart,
+  createMarkdownTextPart,
+  createTextPart,
+} from '../index';
 import { DARK_THEME } from '../lib/themes';
 import type { Message } from '../js/types';
+import { createMessagePartsFromFiles } from '../lib/messageParts';
 
 function createMessage(parts: Message['parts']): Message {
   return {
@@ -105,5 +112,73 @@ describe('message part rendering', () => {
     expect(container.querySelector('pre')).not.toBeNull();
     expect(container.querySelector('pre code')).not.toBeNull();
     expect(container.querySelector('pre .token')).toBeNull();
+  });
+
+  it('renders image parts inline in the transcript', () => {
+    render(
+      <MessageList
+        messages={[
+          createMessage([
+            createImagePart('https://example.com/screenshot.png', {
+              alt: 'Checkout screenshot',
+              fileName: 'checkout.png',
+              maxHeightPx: 320,
+              maxWidthPx: 480,
+              sizeBytes: 32_768,
+            }),
+          ]),
+        ]}
+        theme={DARK_THEME}
+      />
+    );
+
+    expect(
+      screen.getByRole('img', { name: 'Checkout screenshot' })
+    ).toBeInTheDocument();
+    expect(screen.getByText(/checkout\.png/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: 'Checkout screenshot' })
+    ).toHaveStyle({
+      maxHeight: '320px',
+      maxWidth: '480px',
+    });
+  });
+
+  it('caps uploaded image previews to the default attachment size', () => {
+    const [imagePart] = createMessagePartsFromFiles([
+      new File(['image-bytes'], 'checkout.png', {
+        type: 'image/png',
+      }),
+    ]);
+
+    expect(imagePart).toMatchObject({
+      type: 'image',
+      fileName: 'checkout.png',
+      maxHeightPx: 320,
+      maxWidthPx: 480,
+    });
+  });
+
+  it('renders file parts as downloadable links', () => {
+    render(
+      <MessageList
+        messages={[
+          createMessage([
+            createFilePart('https://example.com/invoice.pdf', {
+              fileName: 'invoice.pdf',
+              mimeType: 'application/pdf',
+              sizeBytes: 84_992,
+            }),
+          ]),
+        ]}
+        theme={DARK_THEME}
+      />
+    );
+
+    expect(screen.getByRole('link', { name: /invoice\.pdf/i })).toHaveAttribute(
+      'download',
+      'invoice.pdf'
+    );
+    expect(screen.getByText(/application\/pdf/i)).toBeInTheDocument();
   });
 });

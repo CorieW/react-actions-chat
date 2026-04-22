@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import {
   createTextPart,
   type ChatPropsWithFlexibleTheme,
+  type MessagePart,
 } from '../../js/types';
 import {
   getResolvedTheme,
@@ -10,6 +11,8 @@ import {
   useChatGlobalsStore,
   useInputFieldStore,
 } from '../../lib';
+import { createMessagePartsFromFiles } from '../../lib/messageParts';
+import type { InputSubmission } from '../../lib/inputFieldStore';
 import { hasInputBlockingButtons } from '../../lib/messageButtons';
 import { InputBar } from '../InputBar/InputBar';
 import { MessageList } from '../MessageList/MessageList';
@@ -34,8 +37,12 @@ export function Chat({
     isLoading,
     messages,
   } = useChatStore();
-  const { getInputFieldDisabled, getInputFieldSubmitGuard, getInputFieldType } =
-    useInputFieldStore();
+  const {
+    getInputFieldDisabled,
+    getInputFieldFiles,
+    getInputFieldSubmitGuard,
+    getInputFieldType,
+  } = useInputFieldStore();
 
   const mergedTheme = getResolvedTheme(theme);
   const inputBlockedByVisibleButtons = hasInputBlockingButtons(messages);
@@ -44,10 +51,14 @@ export function Chat({
     const inputFieldStore = useInputFieldStore.getState();
     inputFieldStore.setInputFieldParams({
       disabledDefault: !allowFreeTextInput,
+      fileUploadEnabled: false,
+      files: [],
     });
     inputFieldStore.resetInputFieldDisabled();
 
     return () => {
+      inputFieldStore.resetInputFieldFiles();
+      inputFieldStore.resetInputFieldFileUploadEnabled();
       inputFieldStore.resetInputFieldDisabledDefault();
       inputFieldStore.resetInputFieldDisabled();
     };
@@ -69,13 +80,20 @@ export function Chat({
     }
   }, [initialMessages, addMessages, clearMessages]);
 
-  const handleSend = (messageContent: string): boolean => {
+  const handleSend = (
+    messageContent: string,
+    submission?: InputSubmission
+  ): boolean => {
     if (getInputFieldDisabled() || inputBlockedByVisibleButtons) {
       return false;
     }
 
+    const resolvedSubmission: InputSubmission = submission ?? {
+      text: messageContent,
+      files: getInputFieldFiles(),
+    };
     const submitGuard = getInputFieldSubmitGuard();
-    if (submitGuard && !submitGuard(messageContent)) {
+    if (submitGuard && !submitGuard(messageContent, resolvedSubmission)) {
       return false;
     }
 
@@ -83,19 +101,30 @@ export function Chat({
     const inputType = getInputFieldType();
     const displayedContent =
       inputType === 'password'
-        ? '•'.repeat(messageContent.length)
-        : messageContent;
+        ? '•'.repeat(resolvedSubmission.text.length)
+        : resolvedSubmission.text;
+    const parts: MessagePart[] = [];
+
+    if (displayedContent.length > 0) {
+      parts.push(createTextPart(displayedContent));
+    }
+
+    parts.push(...createMessagePartsFromFiles(resolvedSubmission.files));
+
+    if (parts.length === 0) {
+      return false;
+    }
 
     addMessage({
       type: 'self',
-      parts: [createTextPart(displayedContent)],
-      rawContent: messageContent,
+      parts,
+      rawContent: resolvedSubmission.text,
     });
 
     const isPreviousMessageOther = previousMessage?.type === 'other';
     const hasUserResponseCallback = previousMessage?.userResponseCallback;
     if (isPreviousMessageOther && hasUserResponseCallback) {
-      previousMessage.userResponseCallback();
+      previousMessage.userResponseCallback(resolvedSubmission);
     }
 
     return true;

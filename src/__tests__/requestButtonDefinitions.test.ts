@@ -33,6 +33,8 @@ describe('request button definitions', () => {
     useInputFieldStore.getState().resetInputFieldDisabledPlaceholder();
     useInputFieldStore.getState().resetInputFieldValidator();
     useInputFieldStore.getState().resetInputFieldSubmitGuard();
+    useInputFieldStore.getState().resetInputFieldFiles();
+    useInputFieldStore.getState().resetInputFieldFileUploadEnabled();
     useInputFieldStore.getState().resetInputFieldDisabledDefault();
     useInputFieldStore.getState().resetInputFieldDisabledPlaceholderDefault();
     useInputFieldStore.getState().resetInputFieldDisabled();
@@ -72,6 +74,7 @@ describe('request button definitions', () => {
   it('lets explicit input-request config override chat globals', () => {
     useChatGlobalsStore.getState().setChatGlobals({
       requestInputDefaults: {
+        allowFileUpload: true,
         placeholder: 'Global placeholder',
         shouldWaitForTurn: true,
       },
@@ -81,6 +84,7 @@ describe('request button definitions', () => {
       createRequestInputButtonDef({
         initialLabel: 'Change Email',
         inputPromptMessage: 'Enter your new email address.',
+        allowFileUpload: false,
         placeholder: 'Definition placeholder',
         shouldWaitForTurn: false,
       })
@@ -90,6 +94,9 @@ describe('request button definitions', () => {
 
     expect(useInputFieldStore.getState().getInputFieldPlaceholder()).toBe(
       'Definition placeholder'
+    );
+    expect(useInputFieldStore.getState().getInputFieldFileUploadEnabled()).toBe(
+      false
     );
     expect(useInputFieldStore.getState().getInputFieldDisabled()).toBe(false);
   });
@@ -120,8 +127,14 @@ describe('request button definitions', () => {
     promptMessage?.userResponseCallback?.();
 
     await waitFor(() => {
-      expect(onSuccess).toHaveBeenCalledWith('new@example.com');
-      expect(onValidInput).toHaveBeenCalledWith('new@example.com');
+      expect(onSuccess).toHaveBeenCalledWith('new@example.com', {
+        text: 'new@example.com',
+        files: [],
+      });
+      expect(onValidInput).toHaveBeenCalledWith('new@example.com', {
+        text: 'new@example.com',
+        files: [],
+      });
     });
   });
 

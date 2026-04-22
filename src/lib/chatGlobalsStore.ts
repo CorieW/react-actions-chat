@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import type { RequestInputRateLimit } from '../components/RequestInputButton';
-import type { InputType, InputValidator } from './inputFieldStore';
+import type {
+  InputFileValidator,
+  InputType,
+  InputValidator,
+} from './inputFieldStore';
 
 /**
  * Global defaults applied to input-request flows created inside a Chat.
@@ -11,10 +15,12 @@ export interface RequestInputGlobalDefaults {
   readonly abortLabel?: string | undefined;
   readonly cooldownMessage?: string | undefined;
   readonly cooldownMs?: number | undefined;
+  readonly fileValidator?: InputFileValidator | undefined;
   readonly inputDescription?: string | undefined;
   readonly inputTimeoutMessage?: string | undefined;
   readonly inputTimeoutMs?: number | undefined;
   readonly inputType?: InputType | undefined;
+  readonly allowFileUpload?: boolean | undefined;
   readonly minMessageLength?: number | undefined;
   readonly minMessageLengthMessage?: string | undefined;
   readonly placeholder?: string | undefined;

@@ -9,7 +9,10 @@ import {
   useChatStore,
   usePersistentButtonStore,
 } from '../../lib';
-import { useInputFieldStore } from '../../lib/inputFieldStore';
+import {
+  useInputFieldStore,
+  type InputSubmission,
+} from '../../lib/inputFieldStore';
 import { ABORT_BUTTON_ID } from './constants';
 import { applyRequestInputGlobals } from './config';
 import {
@@ -18,7 +21,10 @@ import {
   configureRequestInputField,
   resetRequestInputField,
 } from './inputField';
-import { resolveInputTimeoutMessage } from './messageFormatter';
+import {
+  resolveInputTimeoutMessage,
+  resolveInvalidFileMessage,
+} from './messageFormatter';
 import {
   addPromptMessage,
   addTimeoutMessage,
@@ -57,6 +63,8 @@ export function createRequestInputButton(
         placeholder = 'Type your message...',
         inputDescription,
         inputType = 'textarea',
+        allowFileUpload = false,
+        fileValidator,
         validator,
         minMessageLength,
         minMessageLengthMessage,
@@ -84,6 +92,7 @@ export function createRequestInputButton(
         ...(inputDescription ? { description: inputDescription } : {}),
       };
       const behaviorConfig: InputBarBehaviorConfig = {
+        allowFileUpload,
         disabled: false,
         shouldWaitForTurn,
         ...(cooldownMs !== undefined ? { cooldownMs } : {}),
@@ -91,6 +100,7 @@ export function createRequestInputButton(
         showAbort,
       };
       const validationConfig: InputBarValidationConfig = {
+        ...(fileValidator ? { fileValidator } : {}),
         ...(validator ? { validator } : {}),
       };
 
@@ -116,6 +126,8 @@ export function createRequestInputButton(
         inputFieldStore.resetInputFieldParams({
           value: true,
           description: true,
+          files: true,
+          fileValidator: true,
           validator: true,
           submitGuard: true,
         });
@@ -177,19 +189,28 @@ export function createRequestInputButton(
         }, inputTimeoutMs);
       };
 
-      const createValidationCallback = (): (() => void) => {
-        return () => {
+      const createValidationCallback = (): ((
+        submission?: InputSubmission
+      ) => void) => {
+        return submission => {
           void (async () => {
             const lastSelfMessage = getLatestSelfMessage();
             if (!lastSelfMessage) {
               return;
             }
 
-            const inputValue = lastSelfMessage.rawContent;
+            const resolvedSubmission: InputSubmission = submission ?? {
+              text: lastSelfMessage.rawContent,
+              files: [],
+            };
+            const inputValue = resolvedSubmission.text;
             let errorMessage: string | undefined;
 
             if (validator) {
-              const validationResult = validator(inputValue);
+              const validationResult = validator(
+                inputValue,
+                resolvedSubmission
+              );
               if (validationResult !== true) {
                 errorMessage =
                   typeof validationResult === 'string'
@@ -198,9 +219,28 @@ export function createRequestInputButton(
               }
             }
 
+            if (!errorMessage && fileValidator) {
+              for (const file of resolvedSubmission.files) {
+                const validationResult = fileValidator(
+                  file,
+                  resolvedSubmission
+                );
+
+                if (validationResult !== true) {
+                  errorMessage =
+                    typeof validationResult === 'string'
+                      ? validationResult
+                      : resolveInvalidFileMessage(
+                          resolvedSubmission.files.length
+                        );
+                  break;
+                }
+              }
+            }
+
             if (errorMessage) {
               scheduleInputTimeout();
-              onInvalidInput?.(inputValue, errorMessage);
+              onInvalidInput?.(inputValue, errorMessage, resolvedSubmission);
               addValidationFailureToMessageList(
                 errorMessage,
                 createValidationCallback()
@@ -217,7 +257,7 @@ export function createRequestInputButton(
             }
 
             try {
-              await onValidInput?.(inputValue);
+              await onValidInput?.(inputValue, resolvedSubmission);
             } finally {
               if (shouldWaitForTurn) {
                 resetRequestInputField(inputFieldStore);
@@ -235,7 +275,10 @@ export function createRequestInputButton(
         minMessageLengthMessage,
         onInvalidInput: (inputValue, errorMessage) => {
           scheduleInputTimeout();
-          onInvalidInput?.(inputValue, errorMessage);
+          onInvalidInput?.(inputValue, errorMessage, {
+            text: inputValue,
+            files: [],
+          });
           addValidationFailureToMessageList(errorMessage, validationCallback);
         },
         rateLimit,

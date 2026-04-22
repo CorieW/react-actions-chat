@@ -53,6 +53,8 @@ describe('Chat Component Integration Tests', () => {
     useInputFieldStore.getState().resetInputFieldDisabledPlaceholder();
     useInputFieldStore.getState().resetInputFieldValidator();
     useInputFieldStore.getState().resetInputFieldSubmitGuard();
+    useInputFieldStore.getState().resetInputFieldFiles();
+    useInputFieldStore.getState().resetInputFieldFileUploadEnabled();
     useInputFieldStore.getState().resetInputFieldDisabledDefault();
     useInputFieldStore.getState().resetInputFieldDisabledPlaceholderDefault();
     useInputFieldStore.getState().resetInputFieldDisabled();
@@ -199,6 +201,94 @@ describe('Chat Component Integration Tests', () => {
     expect(input).toHaveValue('');
   });
 
+  it('keeps file uploads disabled by default', () => {
+    render(<Chat allowFreeTextInput />);
+
+    expect(
+      screen.queryByRole('button', { name: 'Upload files' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('supports upload-enabled request-input flows with file validation', async () => {
+    const user = userEvent.setup();
+    const onValidInput = vi.fn();
+
+    render(
+      <Chat
+        initialMessages={[
+          createInputMessage('Share proof of the issue.', {
+            type: 'other',
+            buttons: [
+              createButton(
+                createRequestInputButtonDef({
+                  initialLabel: 'Upload screenshot',
+                  inputPromptMessage: 'Upload a screenshot for review.',
+                  allowFileUpload: true,
+                  validator: (_value, submission) => {
+                    return (
+                      (submission?.files.length ?? 0) > 0 ||
+                      'Please upload a screenshot.'
+                    );
+                  },
+                  fileValidator: file => {
+                    return (
+                      file.type.startsWith('image/') ||
+                      'Only image files are allowed.'
+                    );
+                  },
+                }),
+                {
+                  onValidInput,
+                }
+              ),
+            ],
+          }),
+        ]}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Upload screenshot' }));
+
+    expect(screen.getByRole('button', { name: 'Upload files' })).toBeVisible();
+
+    const fileInput = screen.getByLabelText('Chat file upload');
+    const invalidFile = new File(['plain text'], 'notes.txt', {
+      type: 'text/plain',
+    });
+
+    await user.upload(fileInput, invalidFile);
+
+    expect(
+      await screen.findByText('Only image files are allowed.')
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Remove notes.txt' })
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled();
+    expect(onValidInput).not.toHaveBeenCalled();
+
+    const validFile = new File(['image data'], 'layout.png', {
+      type: 'image/png',
+    });
+
+    await user.upload(fileInput, validFile);
+    await waitFor(() => {
+      expect(
+        screen.queryByText('Only image files are allowed.')
+      ).not.toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('button', { name: 'Send message' }));
+
+    await waitFor(() => {
+      expect(onValidInput).toHaveBeenCalledWith('', {
+        text: '',
+        files: [validFile],
+      });
+    });
+
+    expect(screen.getByRole('img', { name: 'layout.png' })).toBeInTheDocument();
+  });
+
   it('should keep shift-enter as a newline in multiline input and submit on enter', async () => {
     const user = userEvent.setup();
 
@@ -319,7 +409,10 @@ describe('Chat Component Integration Tests', () => {
     await user.type(input, 'Change email');
     await user.keyboard('{Enter}');
 
-    expect(onValidInput).toHaveBeenCalledWith('Change email');
+    expect(onValidInput).toHaveBeenCalledWith('Change email', {
+      text: 'Change email',
+      files: [],
+    });
     expect(input).toBeEnabled();
     expect(useInputFieldStore.getState().getInputFieldDisabled()).toBe(false);
     expect(input).toHaveAttribute('placeholder', 'Type your message...');
@@ -363,7 +456,10 @@ describe('Chat Component Integration Tests', () => {
     await user.type(input, 'Change email');
     await user.keyboard('{Enter}');
 
-    expect(onValidInput).toHaveBeenCalledWith('Change email');
+    expect(onValidInput).toHaveBeenCalledWith('Change email', {
+      text: 'Change email',
+      files: [],
+    });
     expect(input).toBeDisabled();
     expect(useInputFieldStore.getState().getInputFieldDisabled()).toBe(true);
     expect(input).toHaveAttribute('placeholder', 'Waiting for a response...');
@@ -419,7 +515,10 @@ describe('Chat Component Integration Tests', () => {
     await user.type(input, 'Change email');
     await user.keyboard('{Enter}');
 
-    expect(onValidInput).toHaveBeenCalledWith('Change email');
+    expect(onValidInput).toHaveBeenCalledWith('Change email', {
+      text: 'Change email',
+      files: [],
+    });
     expect(input).toBeDisabled();
     expect(input).toHaveAttribute('placeholder', 'Waiting for a response...');
 
@@ -689,7 +788,10 @@ describe('Chat Component Integration Tests', () => {
     await user.keyboard('{Enter}');
 
     await waitFor(() => {
-      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback).toHaveBeenCalledWith({
+        text: 'My response',
+        files: [],
+      });
     });
   });
 

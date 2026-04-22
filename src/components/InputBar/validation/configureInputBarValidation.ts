@@ -14,6 +14,7 @@ export function configureInputBarValidation(
   config: InputBarValidationConfig
 ): void {
   store.setInputFieldParams({
+    fileValidator: config.fileValidator ?? null,
     validator: config.validator ?? null,
     submitGuard: config.submitGuard ?? null,
   });
@@ -26,6 +27,7 @@ export function configureInputBarValidation(
  */
 export function resetInputBarValidation(store: InputFieldStoreState): void {
   store.resetInputFieldParams({
+    fileValidator: true,
     validator: true,
     submitGuard: true,
   });

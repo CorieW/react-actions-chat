@@ -1,4 +1,6 @@
 import type {
+  InputFileValidator,
+  InputSubmission,
   InputSubmitGuard,
   InputType,
   InputValidator,
@@ -15,7 +17,6 @@ export type MessageType = 'self' | 'other';
  */
 interface BaseMessagePart {
   readonly id?: string | undefined;
-  readonly type: 'text';
 }
 
 /**
@@ -45,9 +46,49 @@ export interface TextMessagePart extends BaseMessagePart {
 }
 
 /**
+ * Non-text file metadata shared by uploaded file and image parts.
+ */
+interface BaseAssetMessagePart extends BaseMessagePart {
+  readonly fileName?: string | undefined;
+  readonly mimeType?: string | undefined;
+  readonly sizeBytes?: number | undefined;
+  readonly url: string;
+}
+
+/**
+ * Image content rendered inline inside a message bubble.
+ *
+ * @property url Resolved image source URL.
+ * @property alt Optional accessible description for the image.
+ * @property fileName Optional original filename shown alongside the image.
+ * @property mimeType Optional media type for the image.
+ * @property sizeBytes Optional file size used for display metadata.
+ * @property maxWidthPx Optional maximum preview width, in CSS pixels.
+ * @property maxHeightPx Optional maximum preview height, in CSS pixels.
+ */
+export interface ImageMessagePart extends BaseAssetMessagePart {
+  readonly type: 'image';
+  readonly alt?: string | undefined;
+  readonly maxWidthPx?: number | undefined;
+  readonly maxHeightPx?: number | undefined;
+}
+
+/**
+ * Generic file attachment rendered as a downloadable link.
+ *
+ * @property url Resolved download URL for the file.
+ * @property fileName Optional original filename shown in the transcript.
+ * @property mimeType Optional media type for the file.
+ * @property sizeBytes Optional file size used for display metadata.
+ */
+export interface FileMessagePart extends BaseAssetMessagePart {
+  readonly type: 'file';
+}
+
+/**
  * All built-in content part variants supported by a message.
  */
-export type MessagePart = TextMessagePart;
+export type MessagePart = TextMessagePart | ImageMessagePart | FileMessagePart;
 
 /**
  * Theme configuration for the chat component.
@@ -142,10 +183,12 @@ export interface InputBarModeConfig {
 /**
  * Public validation configuration for the shared input bar.
  *
+ * @property fileValidator Optional validator applied when files are attached.
  * @property validator Optional validator applied after the user submits.
  * @property submitGuard Optional guard used to block submission before a message is added.
  */
 export interface InputBarValidationConfig {
+  readonly fileValidator?: InputFileValidator | null | undefined;
   readonly validator?: InputValidator | null | undefined;
   readonly submitGuard?: InputSubmitGuard | null | undefined;
 }
@@ -159,6 +202,7 @@ export interface InputBarValidationConfig {
  * @property cooldownMs Optional cooldown window between accepted submissions.
  * @property timeoutMs Optional timeout used by input-request flows.
  * @property showAbort Whether input-request flows should expose an abort action.
+ * @property allowFileUpload Whether the optional upload button is shown beside the shared input.
  */
 export interface InputBarBehaviorConfig {
   readonly disabled?: boolean | undefined;
@@ -167,6 +211,7 @@ export interface InputBarBehaviorConfig {
   readonly cooldownMs?: number | undefined;
   readonly timeoutMs?: number | undefined;
   readonly showAbort?: boolean | undefined;
+  readonly allowFileUpload?: boolean | undefined;
 }
 
 /**
@@ -190,7 +235,7 @@ export interface InputMessage {
   readonly timestamp?: Date;
   readonly isLoading?: boolean;
   readonly loadingLabel?: string;
-  readonly userResponseCallback?: () => void;
+  readonly userResponseCallback?: (submission?: InputSubmission) => void;
   readonly buttons?: readonly MessageButton[];
 }
 
@@ -263,5 +308,50 @@ export function createMarkdownTextPart(
     text,
     format: 'markdown',
     markdownOptions,
+  };
+}
+
+/**
+ * Creates an inline image part.
+ *
+ * @param url Image source URL.
+ * @param options Optional image metadata.
+ */
+export function createImagePart(
+  url: string,
+  options: {
+    alt?: string | undefined;
+    fileName?: string | undefined;
+    mimeType?: string | undefined;
+    maxWidthPx?: number | undefined;
+    maxHeightPx?: number | undefined;
+    sizeBytes?: number | undefined;
+  } = {}
+): ImageMessagePart {
+  return {
+    type: 'image',
+    url,
+    ...options,
+  };
+}
+
+/**
+ * Creates a downloadable file part.
+ *
+ * @param url File download URL.
+ * @param options Optional file metadata.
+ */
+export function createFilePart(
+  url: string,
+  options: {
+    fileName?: string | undefined;
+    mimeType?: string | undefined;
+    sizeBytes?: number | undefined;
+  } = {}
+): FileMessagePart {
+  return {
+    type: 'file',
+    url,
+    ...options,
   };
 }

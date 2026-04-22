@@ -26,6 +26,13 @@ export function resolveTooLongMessageMessage(
 }
 
 /**
+ * Builds the fallback message shown when an uploaded file is rejected.
+ */
+export function resolveInvalidFileMessage(fileCount: number): string {
+  return `Please choose a valid file${fileCount === 1 ? '' : 's'} and try again.`;
+}
+
+/**
  * Builds the message shown when a submitted input is shorter than required.
  */
 export function resolveTooShortMessageMessage(

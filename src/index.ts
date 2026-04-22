@@ -18,11 +18,18 @@ import type {
   RequestInputButtonRuntimeConfig,
   RequestInputRateLimit,
 } from './components';
-import { createMarkdownTextPart, createTextPart } from './js/types';
+import {
+  createFilePart,
+  createImagePart,
+  createMarkdownTextPart,
+  createTextPart,
+} from './js/types';
 import type {
   ChatProps,
   ChatPropsWithFlexibleTheme,
   ChatTheme,
+  FileMessagePart,
+  ImageMessagePart,
   InputBarBehaviorConfig,
   InputBarModeConfig,
   InputBarValidationConfig,
@@ -46,6 +53,8 @@ export {
   MessageComponent as Message,
   MessageList,
   createButton,
+  createFilePart,
+  createImagePart,
   createRequestConfirmationButtonDef,
   createRequestInputButtonDef,
   createMarkdownTextPart,
@@ -64,6 +73,8 @@ export type {
   InputBarModeConfig,
   InputBarValidationConfig,
   InputMessage,
+  FileMessagePart,
+  ImageMessagePart,
   MessageButton,
   MessageButtonVariant,
   MessagePart,

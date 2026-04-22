@@ -1,4 +1,5 @@
 import type { MessageButton } from '../js/types';
+import type { InputSubmission } from '../lib/inputFieldStore';
 import {
   createRequestConfirmationButton,
   type RequestConfirmationButtonConfig,
@@ -115,9 +116,12 @@ export function createButton(
     } = definition;
     const { id: _runtimeId, ...restRuntime } =
       runtimeConfig as RequestInputButtonRuntimeConfig;
-    const handleValidInput = async (inputValue: string): Promise<void> => {
-      await onSuccess?.(inputValue);
-      await restRuntime.onValidInput?.(inputValue);
+    const handleValidInput = async (
+      inputValue: string,
+      submission: InputSubmission
+    ): Promise<void> => {
+      await onSuccess?.(inputValue, submission);
+      await restRuntime.onValidInput?.(inputValue, submission);
     };
     const buttonConfig: RequestInputButtonConfig = {
       ...restDefinition,

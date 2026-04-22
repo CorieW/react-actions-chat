@@ -87,6 +87,8 @@ describe('Query Recommended Actions Flow', () => {
     useInputFieldStore.getState().resetInputFieldType();
     useInputFieldStore.getState().resetInputFieldValidator();
     useInputFieldStore.getState().resetInputFieldSubmitGuard();
+    useInputFieldStore.getState().resetInputFieldFiles();
+    useInputFieldStore.getState().resetInputFieldFileUploadEnabled();
     useInputFieldStore.getState().resetInputFieldDisabledDefault();
     useInputFieldStore.getState().resetInputFieldDisabledPlaceholderDefault();
     useInputFieldStore.getState().resetInputFieldDisabled();

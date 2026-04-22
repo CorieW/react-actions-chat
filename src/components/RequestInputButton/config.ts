@@ -39,6 +39,14 @@ export function applyRequestInputGlobals(
       config.inputType,
       requestInputDefaults.inputType
     ),
+    allowFileUpload: resolveRequestInputGlobalValue(
+      config.allowFileUpload,
+      requestInputDefaults.allowFileUpload
+    ),
+    fileValidator: resolveRequestInputGlobalValue(
+      config.fileValidator,
+      requestInputDefaults.fileValidator
+    ),
     validator: resolveRequestInputGlobalValue(
       config.validator,
       requestInputDefaults.validator

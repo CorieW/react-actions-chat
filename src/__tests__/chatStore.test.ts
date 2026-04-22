@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createTextPart } from '../index';
+import { createFilePart, createTextPart } from '../index';
 import { useChatStore } from '../lib/chatStore';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
 import type { InputMessage, Message } from '../js/types';
@@ -25,6 +25,22 @@ function createStoredMessage(
   };
 }
 
+function createStoredFileMessage(
+  url: string,
+  fileName: string,
+  message: Omit<Message, 'parts' | 'rawContent'>
+): Message {
+  return {
+    ...message,
+    parts: [
+      createFilePart(url, {
+        fileName,
+      }),
+    ],
+    rawContent: fileName,
+  };
+}
+
 function getMessageText(message: Message | undefined): string {
   const firstPart = message?.parts[0];
   if (!firstPart || firstPart.type !== 'text') {
@@ -36,6 +52,8 @@ function getMessageText(message: Message | undefined): string {
 
 describe('Chat Store Unit Tests', () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
+
     // Clear store before each test
     useChatStore.getState().clearMessages();
     usePersistentButtonStore.getState().clearButtons();
@@ -197,6 +215,38 @@ describe('Chat Store Unit Tests', () => {
 
       expect(store.getMessages()).toHaveLength(0);
     });
+
+    it('should preserve blob upload URLs when the same uploaded message stays in the transcript', () => {
+      const store = useChatStore.getState();
+      const revokeSpy = vi
+        .spyOn(URL, 'revokeObjectURL')
+        .mockImplementation(() => {});
+
+      store.setMessages([
+        createStoredFileMessage('blob:upload-1', 'invoice.pdf', {
+          id: 1,
+          type: 'self',
+          timestamp: new Date(),
+          buttons: [{ label: 'Download' }],
+        }),
+      ]);
+
+      revokeSpy.mockClear();
+
+      store.setMessages(
+        store.getMessages().map(message => ({
+          ...message,
+          buttons: [],
+        }))
+      );
+
+      expect(revokeSpy).not.toHaveBeenCalled();
+      const nextMessage = store.getMessages()[0];
+      expect(nextMessage?.parts[0]).toMatchObject({
+        type: 'file',
+        url: 'blob:upload-1',
+      });
+    });
   });
 
   describe('setChatState', () => {
@@ -286,6 +336,28 @@ describe('Chat Store Unit Tests', () => {
       store.clearMessages();
 
       expect(useChatStore.getState().isLoading).toBe(false);
+    });
+
+    it('should revoke blob upload URLs when uploaded messages are removed', () => {
+      const store = useChatStore.getState();
+      const revokeSpy = vi
+        .spyOn(URL, 'revokeObjectURL')
+        .mockImplementation(() => {});
+
+      store.setMessages([
+        createStoredFileMessage('blob:upload-1', 'invoice.pdf', {
+          id: 1,
+          type: 'self',
+          timestamp: new Date(),
+        }),
+      ]);
+
+      revokeSpy.mockClear();
+
+      store.clearMessages();
+
+      expect(revokeSpy).toHaveBeenCalledWith('blob:upload-1');
+      expect(store.getMessages()).toEqual([]);
     });
   });
 

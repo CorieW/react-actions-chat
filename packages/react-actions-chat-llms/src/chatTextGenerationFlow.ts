@@ -1,6 +1,7 @@
 import {
   createMarkdownTextPart,
   createTextPart,
+  getMessageRawText,
   useChatStore,
   type InputMessage,
   type MessagePart,
@@ -69,11 +70,7 @@ function getMessageText(message: ChatTextGenerationFlowMessage): string {
     return rawContent;
   }
 
-  return message.parts
-    .map(part => part.text)
-    .filter(text => text.trim().length > 0)
-    .join('\n')
-    .trim();
+  return getMessageRawText(message.parts).trim();
 }
 
 function toLLMRole(messageType: MessageType): 'assistant' | 'user' {

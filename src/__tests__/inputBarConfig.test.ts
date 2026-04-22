@@ -21,6 +21,9 @@ describe('input bar configuration modules', () => {
       description: true,
       type: true,
       placeholder: true,
+      files: true,
+      fileValidator: true,
+      fileUploadEnabled: true,
       disabledPlaceholder: true,
       validator: true,
       submitGuard: true,
@@ -52,19 +55,23 @@ describe('input bar configuration modules', () => {
 
   it('applies and resets input bar validation settings', () => {
     const store = useInputFieldStore.getState();
+    const fileValidator = vi.fn(() => true);
     const validator = vi.fn((value: string) => value.length > 3 || 'Too short');
     const submitGuard = vi.fn((value: string) => value !== 'blocked');
 
     configureInputBarValidation(store, {
+      fileValidator,
       validator,
       submitGuard,
     });
 
+    expect(store.getInputFieldFileValidator()).toBe(fileValidator);
     expect(store.getInputFieldValidator()).toBe(validator);
     expect(store.getInputFieldSubmitGuard()).toBe(submitGuard);
 
     resetInputBarValidation(store);
 
+    expect(store.getInputFieldFileValidator()).toBeNull();
     expect(store.getInputFieldValidator()).toBeNull();
     expect(store.getInputFieldSubmitGuard()).toBeNull();
   });
@@ -73,6 +80,7 @@ describe('input bar configuration modules', () => {
     const store = useInputFieldStore.getState();
 
     configureInputBarBehavior(store, {
+      allowFileUpload: true,
       disabled: true,
       disabledPlaceholder: 'Waiting for the next step...',
       shouldWaitForTurn: true,
@@ -80,6 +88,7 @@ describe('input bar configuration modules', () => {
     });
 
     expect(store.getInputFieldDisabled()).toBe(true);
+    expect(store.getInputFieldFileUploadEnabled()).toBe(true);
     expect(store.getInputFieldDisabledPlaceholder()).toBe(
       'Waiting for the next step...'
     );
@@ -87,6 +96,7 @@ describe('input bar configuration modules', () => {
     resetInputBarBehavior(store);
 
     expect(store.getInputFieldDisabled()).toBe(true);
+    expect(store.getInputFieldFileUploadEnabled()).toBe(false);
     expect(store.getInputFieldDisabledPlaceholder()).toBe('Input disabled.');
   });
 });

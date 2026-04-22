@@ -60,6 +60,9 @@ export function resetRequestInputField(store: RequestInputFieldStore): void {
     type: true,
     placeholder: true,
     description: true,
+    files: true,
+    fileValidator: true,
+    fileUploadEnabled: true,
     validator: true,
     submitGuard: true,
     disabled: true,
@@ -112,7 +115,7 @@ export function createRequestInputSubmitGuard(
   const recentSubmissionTimestamps: number[] = [];
   let lastSubmissionAt: number | undefined;
 
-  return inputValue => {
+  return (inputValue, _submission) => {
     const now = Date.now();
     const trimmedInputValue = inputValue.trim();
 

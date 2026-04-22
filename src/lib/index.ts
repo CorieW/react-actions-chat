@@ -8,6 +8,12 @@ export {
   useInputFieldStore,
   type InputFieldParams,
   type InputFieldResetParams,
+  type InputFileValidator,
+  type InputSubmission,
+  type InputSubmitGuard,
+  type InputType,
+  type InputValidationResult,
+  type InputValidator,
 } from './inputFieldStore';
 export { getFirstTextPart, getMessageRawText } from './messageParts';
 export { usePersistentButtonStore } from './persistentButtonStore';

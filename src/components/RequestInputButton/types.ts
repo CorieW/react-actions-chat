@@ -1,8 +1,24 @@
 import type React from 'react';
 import type { MessageButtonVariant } from '../../js/types';
-import type { InputType, InputValidator } from '../../lib/inputFieldStore';
+import type {
+  InputFileValidator,
+  InputSubmission,
+  InputType,
+  InputValidator,
+} from '../../lib/inputFieldStore';
 
 type MaybePromise<T> = T | Promise<T>;
+
+type RequestInputInvalidCallback = (
+  inputValue: string,
+  errorMessage: string,
+  submission: InputSubmission
+) => void;
+
+type RequestInputValidCallback = (
+  inputValue: string,
+  submission: InputSubmission
+) => MaybePromise<void>;
 
 /**
  * Limits how frequently the shared input can be submitted while an input
@@ -43,6 +59,8 @@ export interface RequestInputRateLimit {
  * @property placeholder Placeholder text for the input field.
  * @property inputDescription Description text shown above the input field.
  * @property inputType Type of input field used for the request flow.
+ * @property allowFileUpload Whether the shared input should expose the upload button during the flow.
+ * @property fileValidator Validation function used to accept or reject uploaded files.
  * @property validator Validation function used to accept or reject submitted input.
  * @property minMessageLength Minimum trimmed message length required before a send is accepted.
  * @property minMessageLengthMessage Optional custom message shown when the input is too short.
@@ -68,6 +86,8 @@ export interface RequestInputButtonConfig {
   readonly placeholder?: string | undefined;
   readonly inputDescription?: string | undefined;
   readonly inputType?: InputType | undefined;
+  readonly allowFileUpload?: boolean | undefined;
+  readonly fileValidator?: InputFileValidator | undefined;
   readonly validator?: InputValidator | undefined;
   readonly minMessageLength?: number | undefined;
   readonly minMessageLengthMessage?: string | undefined;
@@ -75,12 +95,8 @@ export interface RequestInputButtonConfig {
   readonly cooldownMessage?: string | undefined;
   readonly inputTimeoutMs?: number | undefined;
   readonly inputTimeoutMessage?: string | undefined;
-  readonly onInvalidInput?:
-    | undefined
-    | ((inputValue: string, errorMessage: string) => void);
-  readonly onValidInput?:
-    | undefined
-    | ((inputValue: string) => MaybePromise<void>);
+  readonly onInvalidInput?: RequestInputInvalidCallback | undefined;
+  readonly onValidInput?: RequestInputValidCallback | undefined;
   readonly suppressValidationFailureMessage?: boolean | undefined;
   readonly variant?: MessageButtonVariant | undefined;
   readonly className?: string | undefined;
@@ -103,12 +119,8 @@ export interface RequestInputButtonConfig {
 export interface RequestInputButtonRuntimeConfig {
   readonly id?: string | undefined;
   readonly abortCallback?: () => void | undefined;
-  readonly onInvalidInput?:
-    | undefined
-    | ((inputValue: string, errorMessage: string) => void);
-  readonly onValidInput?:
-    | undefined
-    | ((inputValue: string) => MaybePromise<void>);
+  readonly onInvalidInput?: RequestInputInvalidCallback | undefined;
+  readonly onValidInput?: RequestInputValidCallback | undefined;
 }
 
 /**
@@ -125,5 +137,5 @@ export interface RequestInputButtonDefinition extends Omit<
 > {
   readonly kind: 'request-input';
   readonly id?: string | undefined;
-  readonly onSuccess?: undefined | ((inputValue: string) => MaybePromise<void>);
+  readonly onSuccess?: RequestInputValidCallback | undefined;
 }

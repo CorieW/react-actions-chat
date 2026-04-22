@@ -2,6 +2,7 @@ import {
   createButton,
   createRequestInputButtonDef,
   createTextPart,
+  getMessageRawText,
   type RequestInputButtonDefinition,
   type RequestInputButtonRuntimeConfig,
   useChatStore,
@@ -457,10 +458,7 @@ export function createQueryRecommendedActionsFlow(
               ...resolvedMessage,
               type: 'other',
               parts: pendingMessage.parts,
-              rawContent: pendingMessage.parts
-                .map(part => part.text)
-                .filter(value => value.length > 0)
-                .join('\n'),
+              rawContent: getMessageRawText(pendingMessage.parts),
               isLoading: false,
               ...(pendingMessage.buttons
                 ? { buttons: pendingMessage.buttons }
