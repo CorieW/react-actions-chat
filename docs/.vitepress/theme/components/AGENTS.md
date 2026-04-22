@@ -8,10 +8,10 @@ Bridge components that mount the interactive React homepage chat demo inside the
 
 ## Files
 
-- `HomepageChatDemo.vue`: Vue wrapper that mounts the interactive homepage chat demo.
-- `homepageChatDemo.ts`: React-based homepage demo logic, embedded chat styling, and shared-store reset helpers for the docs site.
+- `HomepageChatDemo.vue`: Thin Vue wrapper that mounts the interactive docs chat.
+- `homepageChatDemo.ts`: Thin re-export that points the Vue wrapper at the shared `docs-chat` implementation.
 
 ## Writing Rules
 
-- Keep `HomepageChatDemo.vue` as a thin mount-and-cleanup wrapper, and keep transcript logic, embedded styling, and demo state resets in `homepageChatDemo.ts`.
+- Keep `HomepageChatDemo.vue` as a thin mount-and-cleanup wrapper, and keep transcript logic, embedded styling, and demo state resets in `docs-chat/frontend/homepageChatDemo.ts`.
 - Follow inherited AGENTS.md guidance when applicable.

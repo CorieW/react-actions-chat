@@ -14,6 +14,7 @@ VitePress source for the public documentation site, including guides, references
 
 ## Files
 
+- `.env.example`: Example local VitePress environment variables for docs-only development.
 - `.gitignore`: Ignore rules for VitePress caches and generated docs output.
 - `examples.md`: Guide to the runnable example apps and what each demo shows.
 - `getting-started.md`: Getting-started guide for installing and rendering the chat component.
