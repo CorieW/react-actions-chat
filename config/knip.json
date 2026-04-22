@@ -2,13 +2,21 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "workspaces": {
     ".": {
+      "entry": ["docs-chat/frontend/homepageChatDemo.ts"],
       "project": [
         "config/**/*.{js,ts}",
+        "docs-chat/frontend/**/*.{ts,tsx}",
         "scripts/**/*.{js,ts}",
         "src/**/*.{js,jsx,ts,tsx}"
       ],
       "ignore": ["config/tailwind.config.js", "scripts/build-styles-simple.js"],
-      "ignoreDependencies": ["prettier-plugin-tailwindcss"]
+      "ignoreDependencies": ["prettier-plugin-tailwindcss", "tailwindcss"]
+    },
+    "docs-chat/backend": {
+      "project": ["**/*.{js,ts}"]
+    },
+    "packages/react-actions-chat-llms": {
+      "project": ["src/**/*.{ts,tsx}"]
     },
     "packages/react-actions-chat-recommended-actions": {
       "project": ["src/**/*.{ts,tsx}"]
@@ -22,10 +30,19 @@
     "examples/coding": {
       "project": ["**/*.{ts,tsx}"]
     },
+    "examples/llm-support": {
+      "project": ["**/*.{ts,tsx}"]
+    },
     "examples/login": {
       "project": ["**/*.{ts,tsx}"]
     },
     "examples/settings": {
+      "project": ["**/*.{ts,tsx}"]
+    },
+    "examples/support-desk": {
+      "project": ["**/*.{ts,tsx}"]
+    },
+    "examples/uploads": {
       "project": ["**/*.{ts,tsx}"]
     }
   }

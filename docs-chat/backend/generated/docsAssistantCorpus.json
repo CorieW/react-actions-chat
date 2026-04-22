@@ -3,9 +3,7 @@
   "chunks": [
     {
       "filePath": "components/chat.md",
-      "headingPath": [
-        "Chat"
-      ],
+      "headingPath": ["Chat"],
       "id": "components/chat:page:1",
       "referenceLabel": "Chat",
       "route": "/components/chat",
@@ -15,10 +13,7 @@
     },
     {
       "filePath": "components/chat.md",
-      "headingPath": [
-        "Chat",
-        "Basic Usage"
-      ],
+      "headingPath": ["Chat", "Basic Usage"],
       "id": "components/chat:basic-usage:1",
       "referenceLabel": "Chat -> Basic Usage",
       "route": "/components/chat#basic-usage",
@@ -28,10 +23,7 @@
     },
     {
       "filePath": "components/chat.md",
-      "headingPath": [
-        "Chat",
-        "What Chat Handles For You"
-      ],
+      "headingPath": ["Chat", "What Chat Handles For You"],
       "id": "components/chat:what-chat-handles-for-you:1",
       "referenceLabel": "Chat -> What Chat Handles For You",
       "route": "/components/chat#what-chat-handles-for-you",
@@ -41,10 +33,7 @@
     },
     {
       "filePath": "components/chat.md",
-      "headingPath": [
-        "Chat",
-        "Conversation Model"
-      ],
+      "headingPath": ["Chat", "Conversation Model"],
       "id": "components/chat:conversation-model:1",
       "referenceLabel": "Chat -> Conversation Model",
       "route": "/components/chat#conversation-model",
@@ -54,9 +43,7 @@
     },
     {
       "filePath": "components/confirmation-buttons.md",
-      "headingPath": [
-        "Confirmation Buttons"
-      ],
+      "headingPath": ["Confirmation Buttons"],
       "id": "components/confirmation-buttons:page:1",
       "referenceLabel": "Confirmation Buttons",
       "route": "/components/confirmation-buttons",
@@ -66,10 +53,7 @@
     },
     {
       "filePath": "components/confirmation-buttons.md",
-      "headingPath": [
-        "Confirmation Buttons",
-        "Example"
-      ],
+      "headingPath": ["Confirmation Buttons", "Example"],
       "id": "components/confirmation-buttons:example:1",
       "referenceLabel": "Confirmation Buttons -> Example",
       "route": "/components/confirmation-buttons#example",
@@ -79,10 +63,7 @@
     },
     {
       "filePath": "components/confirmation-buttons.md",
-      "headingPath": [
-        "Confirmation Buttons",
-        "What Happens When Clicked"
-      ],
+      "headingPath": ["Confirmation Buttons", "What Happens When Clicked"],
       "id": "components/confirmation-buttons:what-happens-when-clicked:1",
       "referenceLabel": "Confirmation Buttons -> What Happens When Clicked",
       "route": "/components/confirmation-buttons#what-happens-when-clicked",
@@ -92,10 +73,7 @@
     },
     {
       "filePath": "components/confirmation-buttons.md",
-      "headingPath": [
-        "Confirmation Buttons",
-        "Common Options"
-      ],
+      "headingPath": ["Confirmation Buttons", "Common Options"],
       "id": "components/confirmation-buttons:common-options:1",
       "referenceLabel": "Confirmation Buttons -> Common Options",
       "route": "/components/confirmation-buttons#common-options",
@@ -105,9 +83,7 @@
     },
     {
       "filePath": "components/index.md",
-      "headingPath": [
-        "Components Overview"
-      ],
+      "headingPath": ["Components Overview"],
       "id": "components/index:page:1",
       "referenceLabel": "Components Overview",
       "route": "/components",
@@ -117,10 +93,7 @@
     },
     {
       "filePath": "components/index.md",
-      "headingPath": [
-        "Components Overview",
-        "Public Components"
-      ],
+      "headingPath": ["Components Overview", "Public Components"],
       "id": "components/index:public-components:1",
       "referenceLabel": "Components Overview -> Public Components",
       "route": "/components#public-components",
@@ -130,10 +103,7 @@
     },
     {
       "filePath": "components/index.md",
-      "headingPath": [
-        "Components Overview",
-        "Action Helpers"
-      ],
+      "headingPath": ["Components Overview", "Action Helpers"],
       "id": "components/index:action-helpers:1",
       "referenceLabel": "Components Overview -> Action Helpers",
       "route": "/components#action-helpers",
@@ -143,9 +113,7 @@
     },
     {
       "filePath": "components/input-request-buttons.md",
-      "headingPath": [
-        "Input-Request Buttons"
-      ],
+      "headingPath": ["Input-Request Buttons"],
       "id": "components/input-request-buttons:page:1",
       "referenceLabel": "Input-Request Buttons",
       "route": "/components/input-request-buttons",
@@ -155,10 +123,7 @@
     },
     {
       "filePath": "components/input-request-buttons.md",
-      "headingPath": [
-        "Input-Request Buttons",
-        "Create a Reusable Definition"
-      ],
+      "headingPath": ["Input-Request Buttons", "Create a Reusable Definition"],
       "id": "components/input-request-buttons:create-a-reusable-definition:1",
       "referenceLabel": "Input-Request Buttons -> Create a Reusable Definition",
       "route": "/components/input-request-buttons#create-a-reusable-definition",
@@ -168,10 +133,7 @@
     },
     {
       "filePath": "components/input-request-buttons.md",
-      "headingPath": [
-        "Input-Request Buttons",
-        "What Happens When Clicked"
-      ],
+      "headingPath": ["Input-Request Buttons", "What Happens When Clicked"],
       "id": "components/input-request-buttons:what-happens-when-clicked:1",
       "referenceLabel": "Input-Request Buttons -> What Happens When Clicked",
       "route": "/components/input-request-buttons#what-happens-when-clicked",
@@ -181,10 +143,7 @@
     },
     {
       "filePath": "components/input-request-buttons.md",
-      "headingPath": [
-        "Input-Request Buttons",
-        "Common Options"
-      ],
+      "headingPath": ["Input-Request Buttons", "Common Options"],
       "id": "components/input-request-buttons:common-options:1",
       "referenceLabel": "Input-Request Buttons -> Common Options",
       "route": "/components/input-request-buttons#common-options",
@@ -194,10 +153,7 @@
     },
     {
       "filePath": "components/input-request-buttons.md",
-      "headingPath": [
-        "Input-Request Buttons",
-        "Validation and Retries"
-      ],
+      "headingPath": ["Input-Request Buttons", "Validation and Retries"],
       "id": "components/input-request-buttons:validation-and-retries:1",
       "referenceLabel": "Input-Request Buttons -> Validation and Retries",
       "route": "/components/input-request-buttons#validation-and-retries",
@@ -207,10 +163,7 @@
     },
     {
       "filePath": "components/input-request-buttons.md",
-      "headingPath": [
-        "Input-Request Buttons",
-        "Password Flows"
-      ],
+      "headingPath": ["Input-Request Buttons", "Password Flows"],
       "id": "components/input-request-buttons:password-flows:1",
       "referenceLabel": "Input-Request Buttons -> Password Flows",
       "route": "/components/input-request-buttons#password-flows",
@@ -220,9 +173,7 @@
     },
     {
       "filePath": "components/persistent-buttons.md",
-      "headingPath": [
-        "Persistent Buttons"
-      ],
+      "headingPath": ["Persistent Buttons"],
       "id": "components/persistent-buttons:page:1",
       "referenceLabel": "Persistent Buttons",
       "route": "/components/persistent-buttons",
@@ -232,10 +183,7 @@
     },
     {
       "filePath": "components/persistent-buttons.md",
-      "headingPath": [
-        "Persistent Buttons",
-        "When To Use Them"
-      ],
+      "headingPath": ["Persistent Buttons", "When To Use Them"],
       "id": "components/persistent-buttons:when-to-use-them:1",
       "referenceLabel": "Persistent Buttons -> When To Use Them",
       "route": "/components/persistent-buttons#when-to-use-them",
@@ -245,10 +193,7 @@
     },
     {
       "filePath": "components/persistent-buttons.md",
-      "headingPath": [
-        "Persistent Buttons",
-        "Read the Current Buttons"
-      ],
+      "headingPath": ["Persistent Buttons", "Read the Current Buttons"],
       "id": "components/persistent-buttons:read-the-current-buttons:1",
       "referenceLabel": "Persistent Buttons -> Read the Current Buttons",
       "route": "/components/persistent-buttons#read-the-current-buttons",
@@ -258,10 +203,7 @@
     },
     {
       "filePath": "components/persistent-buttons.md",
-      "headingPath": [
-        "Persistent Buttons",
-        "Add or Remove Buttons"
-      ],
+      "headingPath": ["Persistent Buttons", "Add or Remove Buttons"],
       "id": "components/persistent-buttons:add-or-remove-buttons:1",
       "referenceLabel": "Persistent Buttons -> Add or Remove Buttons",
       "route": "/components/persistent-buttons#add-or-remove-buttons",
@@ -271,10 +213,7 @@
     },
     {
       "filePath": "components/persistent-buttons.md",
-      "headingPath": [
-        "Persistent Buttons",
-        "Notes"
-      ],
+      "headingPath": ["Persistent Buttons", "Notes"],
       "id": "components/persistent-buttons:notes:1",
       "referenceLabel": "Persistent Buttons -> Notes",
       "route": "/components/persistent-buttons#notes",
@@ -284,9 +223,7 @@
     },
     {
       "filePath": "components/plain-message-buttons.md",
-      "headingPath": [
-        "Plain Message Buttons"
-      ],
+      "headingPath": ["Plain Message Buttons"],
       "id": "components/plain-message-buttons:page:1",
       "referenceLabel": "Plain Message Buttons",
       "route": "/components/plain-message-buttons",
@@ -296,10 +233,7 @@
     },
     {
       "filePath": "components/plain-message-buttons.md",
-      "headingPath": [
-        "Plain Message Buttons",
-        "Example"
-      ],
+      "headingPath": ["Plain Message Buttons", "Example"],
       "id": "components/plain-message-buttons:example:1",
       "referenceLabel": "Plain Message Buttons -> Example",
       "route": "/components/plain-message-buttons#example",
@@ -309,10 +243,7 @@
     },
     {
       "filePath": "components/plain-message-buttons.md",
-      "headingPath": [
-        "Plain Message Buttons",
-        "When To Use Them"
-      ],
+      "headingPath": ["Plain Message Buttons", "When To Use Them"],
       "id": "components/plain-message-buttons:when-to-use-them:1",
       "referenceLabel": "Plain Message Buttons -> When To Use Them",
       "route": "/components/plain-message-buttons#when-to-use-them",
@@ -322,9 +253,7 @@
     },
     {
       "filePath": "examples.md",
-      "headingPath": [
-        "Examples Guide"
-      ],
+      "headingPath": ["Examples Guide"],
       "id": "examples:page:1",
       "referenceLabel": "Examples Guide",
       "route": "/examples",
@@ -334,10 +263,7 @@
     },
     {
       "filePath": "examples.md",
-      "headingPath": [
-        "Examples Guide",
-        "coding"
-      ],
+      "headingPath": ["Examples Guide", "coding"],
       "id": "examples:coding:1",
       "referenceLabel": "Examples Guide -> coding",
       "route": "/examples#coding",
@@ -347,10 +273,7 @@
     },
     {
       "filePath": "examples.md",
-      "headingPath": [
-        "Examples Guide",
-        "qa-bot"
-      ],
+      "headingPath": ["Examples Guide", "qa-bot"],
       "id": "examples:qa-bot:1",
       "referenceLabel": "Examples Guide -> qa-bot",
       "route": "/examples#qa-bot",
@@ -360,10 +283,7 @@
     },
     {
       "filePath": "examples.md",
-      "headingPath": [
-        "Examples Guide",
-        "uploads"
-      ],
+      "headingPath": ["Examples Guide", "uploads"],
       "id": "examples:uploads:1",
       "referenceLabel": "Examples Guide -> uploads",
       "route": "/examples#uploads",
@@ -373,10 +293,7 @@
     },
     {
       "filePath": "examples.md",
-      "headingPath": [
-        "Examples Guide",
-        "login"
-      ],
+      "headingPath": ["Examples Guide", "login"],
       "id": "examples:login:1",
       "referenceLabel": "Examples Guide -> login",
       "route": "/examples#login",
@@ -386,10 +303,7 @@
     },
     {
       "filePath": "examples.md",
-      "headingPath": [
-        "Examples Guide",
-        "llm-support"
-      ],
+      "headingPath": ["Examples Guide", "llm-support"],
       "id": "examples:llm-support:1",
       "referenceLabel": "Examples Guide -> llm-support",
       "route": "/examples#llm-support",
@@ -399,10 +313,7 @@
     },
     {
       "filePath": "examples.md",
-      "headingPath": [
-        "Examples Guide",
-        "settings"
-      ],
+      "headingPath": ["Examples Guide", "settings"],
       "id": "examples:settings:1",
       "referenceLabel": "Examples Guide -> settings",
       "route": "/examples#settings",
@@ -412,10 +323,7 @@
     },
     {
       "filePath": "examples.md",
-      "headingPath": [
-        "Examples Guide",
-        "support-desk"
-      ],
+      "headingPath": ["Examples Guide", "support-desk"],
       "id": "examples:support-desk:1",
       "referenceLabel": "Examples Guide -> support-desk",
       "route": "/examples#support-desk",
@@ -425,9 +333,7 @@
     },
     {
       "filePath": "getting-started.md",
-      "headingPath": [
-        "Getting Started"
-      ],
+      "headingPath": ["Getting Started"],
       "id": "getting-started:page:1",
       "referenceLabel": "Getting Started",
       "route": "/getting-started",
@@ -437,10 +343,7 @@
     },
     {
       "filePath": "getting-started.md",
-      "headingPath": [
-        "Getting Started",
-        "Install"
-      ],
+      "headingPath": ["Getting Started", "Install"],
       "id": "getting-started:install:1",
       "referenceLabel": "Getting Started -> Install",
       "route": "/getting-started#install",
@@ -450,10 +353,7 @@
     },
     {
       "filePath": "getting-started.md",
-      "headingPath": [
-        "Getting Started",
-        "First Chat"
-      ],
+      "headingPath": ["Getting Started", "First Chat"],
       "id": "getting-started:first-chat:1",
       "referenceLabel": "Getting Started -> First Chat",
       "route": "/getting-started#first-chat",
@@ -463,10 +363,7 @@
     },
     {
       "filePath": "getting-started.md",
-      "headingPath": [
-        "Getting Started",
-        "What To Read Next"
-      ],
+      "headingPath": ["Getting Started", "What To Read Next"],
       "id": "getting-started:what-to-read-next:1",
       "referenceLabel": "Getting Started -> What To Read Next",
       "route": "/getting-started#what-to-read-next",
@@ -476,9 +373,7 @@
     },
     {
       "filePath": "guides/build-a-support-desk.md",
-      "headingPath": [
-        "Build a Support Desk"
-      ],
+      "headingPath": ["Build a Support Desk"],
       "id": "guides/build-a-support-desk:page:1",
       "referenceLabel": "Build a Support Desk",
       "route": "/guides/build-a-support-desk",
@@ -488,10 +383,7 @@
     },
     {
       "filePath": "guides/build-a-support-desk.md",
-      "headingPath": [
-        "Build a Support Desk",
-        "The Model"
-      ],
+      "headingPath": ["Build a Support Desk", "The Model"],
       "id": "guides/build-a-support-desk:the-model:1",
       "referenceLabel": "Build a Support Desk -> The Model",
       "route": "/guides/build-a-support-desk#the-model",
@@ -540,10 +432,7 @@
     },
     {
       "filePath": "guides/build-a-support-desk.md",
-      "headingPath": [
-        "Build a Support Desk",
-        "Why The Adapter Lives In State"
-      ],
+      "headingPath": ["Build a Support Desk", "Why The Adapter Lives In State"],
       "id": "guides/build-a-support-desk:why-the-adapter-lives-in-state:1",
       "referenceLabel": "Build a Support Desk -> Why The Adapter Lives In State",
       "route": "/guides/build-a-support-desk#why-the-adapter-lives-in-state",
@@ -553,10 +442,7 @@
     },
     {
       "filePath": "guides/build-a-support-desk.md",
-      "headingPath": [
-        "Build a Support Desk",
-        "Why The Store Reset Matters"
-      ],
+      "headingPath": ["Build a Support Desk", "Why The Store Reset Matters"],
       "id": "guides/build-a-support-desk:why-the-store-reset-matters:1",
       "referenceLabel": "Build a Support Desk -> Why The Store Reset Matters",
       "route": "/guides/build-a-support-desk#why-the-store-reset-matters",
@@ -566,10 +452,7 @@
     },
     {
       "filePath": "guides/build-a-support-desk.md",
-      "headingPath": [
-        "Build a Support Desk",
-        "Seed Tickets And Articles"
-      ],
+      "headingPath": ["Build a Support Desk", "Seed Tickets And Articles"],
       "id": "guides/build-a-support-desk:seed-tickets-and-articles:1",
       "referenceLabel": "Build a Support Desk -> Seed Tickets And Articles",
       "route": "/guides/build-a-support-desk#seed-tickets-and-articles",
@@ -631,10 +514,7 @@
     },
     {
       "filePath": "guides/build-a-support-desk.md",
-      "headingPath": [
-        "Build a Support Desk",
-        "Read Next"
-      ],
+      "headingPath": ["Build a Support Desk", "Read Next"],
       "id": "guides/build-a-support-desk:read-next:1",
       "referenceLabel": "Build a Support Desk -> Read Next",
       "route": "/guides/build-a-support-desk#read-next",
@@ -644,9 +524,7 @@
     },
     {
       "filePath": "guides/building-a-chat-flow.md",
-      "headingPath": [
-        "Build a Chat Flow"
-      ],
+      "headingPath": ["Build a Chat Flow"],
       "id": "guides/building-a-chat-flow:page:1",
       "referenceLabel": "Build a Chat Flow",
       "route": "/guides/building-a-chat-flow",
@@ -656,10 +534,7 @@
     },
     {
       "filePath": "guides/building-a-chat-flow.md",
-      "headingPath": [
-        "Build a Chat Flow",
-        "Core Pieces"
-      ],
+      "headingPath": ["Build a Chat Flow", "Core Pieces"],
       "id": "guides/building-a-chat-flow:core-pieces:1",
       "referenceLabel": "Build a Chat Flow -> Core Pieces",
       "route": "/guides/building-a-chat-flow#core-pieces",
@@ -669,10 +544,7 @@
     },
     {
       "filePath": "guides/building-a-chat-flow.md",
-      "headingPath": [
-        "Build a Chat Flow",
-        "Start With Seed Messages"
-      ],
+      "headingPath": ["Build a Chat Flow", "Start With Seed Messages"],
       "id": "guides/building-a-chat-flow:start-with-seed-messages:1",
       "referenceLabel": "Build a Chat Flow -> Start With Seed Messages",
       "route": "/guides/building-a-chat-flow#start-with-seed-messages",
@@ -682,10 +554,7 @@
     },
     {
       "filePath": "guides/building-a-chat-flow.md",
-      "headingPath": [
-        "Build a Chat Flow",
-        "Add Action Buttons"
-      ],
+      "headingPath": ["Build a Chat Flow", "Add Action Buttons"],
       "id": "guides/building-a-chat-flow:add-action-buttons:1",
       "referenceLabel": "Build a Chat Flow -> Add Action Buttons",
       "route": "/guides/building-a-chat-flow#add-action-buttons",
@@ -695,10 +564,7 @@
     },
     {
       "filePath": "guides/building-a-chat-flow.md",
-      "headingPath": [
-        "Build a Chat Flow",
-        "Handle Free-Form Follow-Ups"
-      ],
+      "headingPath": ["Build a Chat Flow", "Handle Free-Form Follow-Ups"],
       "id": "guides/building-a-chat-flow:handle-free-form-follow-ups:1",
       "referenceLabel": "Build a Chat Flow -> Handle Free-Form Follow-Ups",
       "route": "/guides/building-a-chat-flow#handle-free-form-follow-ups",
@@ -708,9 +574,7 @@
     },
     {
       "filePath": "guides/collecting-input-and-confirming-actions.md",
-      "headingPath": [
-        "Collect Input and Confirm Actions"
-      ],
+      "headingPath": ["Collect Input and Confirm Actions"],
       "id": "guides/collecting-input-and-confirming-actions:page:1",
       "referenceLabel": "Collect Input and Confirm Actions",
       "route": "/guides/collecting-input-and-confirming-actions",
@@ -733,10 +597,7 @@
     },
     {
       "filePath": "guides/collecting-input-and-confirming-actions.md",
-      "headingPath": [
-        "Collect Input and Confirm Actions",
-        "Request Input"
-      ],
+      "headingPath": ["Collect Input and Confirm Actions", "Request Input"],
       "id": "guides/collecting-input-and-confirming-actions:request-input:1",
       "referenceLabel": "Collect Input and Confirm Actions -> Request Input",
       "route": "/guides/collecting-input-and-confirming-actions#request-input",
@@ -785,10 +646,7 @@
     },
     {
       "filePath": "guides/collecting-input-and-confirming-actions.md",
-      "headingPath": [
-        "Collect Input and Confirm Actions",
-        "Related Stores"
-      ],
+      "headingPath": ["Collect Input and Confirm Actions", "Related Stores"],
       "id": "guides/collecting-input-and-confirming-actions:related-stores:1",
       "referenceLabel": "Collect Input and Confirm Actions -> Related Stores",
       "route": "/guides/collecting-input-and-confirming-actions#related-stores",
@@ -798,9 +656,7 @@
     },
     {
       "filePath": "guides/connect-to-an-llm-backend.md",
-      "headingPath": [
-        "Connect to an LLM Backend"
-      ],
+      "headingPath": ["Connect to an LLM Backend"],
       "id": "guides/connect-to-an-llm-backend:page:1",
       "referenceLabel": "Connect to an LLM Backend",
       "route": "/guides/connect-to-an-llm-backend",
@@ -810,10 +666,7 @@
     },
     {
       "filePath": "guides/connect-to-an-llm-backend.md",
-      "headingPath": [
-        "Connect to an LLM Backend",
-        "The Request Shape"
-      ],
+      "headingPath": ["Connect to an LLM Backend", "The Request Shape"],
       "id": "guides/connect-to-an-llm-backend:the-request-shape:1",
       "referenceLabel": "Connect to an LLM Backend -> The Request Shape",
       "route": "/guides/connect-to-an-llm-backend#the-request-shape",
@@ -823,10 +676,7 @@
     },
     {
       "filePath": "guides/connect-to-an-llm-backend.md",
-      "headingPath": [
-        "Connect to an LLM Backend",
-        "Frontend Wiring"
-      ],
+      "headingPath": ["Connect to an LLM Backend", "Frontend Wiring"],
       "id": "guides/connect-to-an-llm-backend:frontend-wiring:1",
       "referenceLabel": "Connect to an LLM Backend -> Frontend Wiring",
       "route": "/guides/connect-to-an-llm-backend#frontend-wiring",
@@ -849,10 +699,7 @@
     },
     {
       "filePath": "guides/connect-to-an-llm-backend.md",
-      "headingPath": [
-        "Connect to an LLM Backend",
-        "Backend Route Example"
-      ],
+      "headingPath": ["Connect to an LLM Backend", "Backend Route Example"],
       "id": "guides/connect-to-an-llm-backend:backend-route-example:1",
       "referenceLabel": "Connect to an LLM Backend -> Backend Route Example",
       "route": "/guides/connect-to-an-llm-backend#backend-route-example",
@@ -862,10 +709,7 @@
     },
     {
       "filePath": "guides/connect-to-an-llm-backend.md",
-      "headingPath": [
-        "Connect to an LLM Backend",
-        "Backend Route Example"
-      ],
+      "headingPath": ["Connect to an LLM Backend", "Backend Route Example"],
       "id": "guides/connect-to-an-llm-backend:backend-route-example:2",
       "referenceLabel": "Connect to an LLM Backend -> Backend Route Example",
       "route": "/guides/connect-to-an-llm-backend#backend-route-example",
@@ -901,10 +745,7 @@
     },
     {
       "filePath": "guides/connect-to-an-llm-backend.md",
-      "headingPath": [
-        "Connect to an LLM Backend",
-        "Read Next"
-      ],
+      "headingPath": ["Connect to an LLM Backend", "Read Next"],
       "id": "guides/connect-to-an-llm-backend:read-next:1",
       "referenceLabel": "Connect to an LLM Backend -> Read Next",
       "route": "/guides/connect-to-an-llm-backend#read-next",
@@ -914,9 +755,7 @@
     },
     {
       "filePath": "guides/recommended-actions-overview.md",
-      "headingPath": [
-        "Recommended Actions Overview"
-      ],
+      "headingPath": ["Recommended Actions Overview"],
       "id": "guides/recommended-actions-overview:page:1",
       "referenceLabel": "Recommended Actions Overview",
       "route": "/guides/recommended-actions-overview",
@@ -926,10 +765,7 @@
     },
     {
       "filePath": "guides/recommended-actions-overview.md",
-      "headingPath": [
-        "Recommended Actions Overview",
-        "When To Use It"
-      ],
+      "headingPath": ["Recommended Actions Overview", "When To Use It"],
       "id": "guides/recommended-actions-overview:when-to-use-it:1",
       "referenceLabel": "Recommended Actions Overview -> When To Use It",
       "route": "/guides/recommended-actions-overview#when-to-use-it",
@@ -980,10 +816,7 @@
     },
     {
       "filePath": "guides/recommended-actions-overview.md",
-      "headingPath": [
-        "Recommended Actions Overview",
-        "Production Guidance"
-      ],
+      "headingPath": ["Recommended Actions Overview", "Production Guidance"],
       "id": "guides/recommended-actions-overview:production-guidance:1",
       "referenceLabel": "Recommended Actions Overview -> Production Guidance",
       "route": "/guides/recommended-actions-overview#production-guidance",
@@ -993,9 +826,7 @@
     },
     {
       "filePath": "guides/recommended-actions-vector-search.md",
-      "headingPath": [
-        "Recommended Actions With Vector Search"
-      ],
+      "headingPath": ["Recommended Actions With Vector Search"],
       "id": "guides/recommended-actions-vector-search:page:1",
       "referenceLabel": "Recommended Actions With Vector Search",
       "route": "/guides/recommended-actions-vector-search",
@@ -1112,9 +943,7 @@
     },
     {
       "filePath": "guides/theming-and-styling.md",
-      "headingPath": [
-        "Theming and Styling"
-      ],
+      "headingPath": ["Theming and Styling"],
       "id": "guides/theming-and-styling:page:1",
       "referenceLabel": "Theming and Styling",
       "route": "/guides/theming-and-styling",
@@ -1124,10 +953,7 @@
     },
     {
       "filePath": "guides/theming-and-styling.md",
-      "headingPath": [
-        "Theming and Styling",
-        "Required Style Import"
-      ],
+      "headingPath": ["Theming and Styling", "Required Style Import"],
       "id": "guides/theming-and-styling:required-style-import:1",
       "referenceLabel": "Theming and Styling -> Required Style Import",
       "route": "/guides/theming-and-styling#required-style-import",
@@ -1137,10 +963,7 @@
     },
     {
       "filePath": "guides/theming-and-styling.md",
-      "headingPath": [
-        "Theming and Styling",
-        "Theme Presets"
-      ],
+      "headingPath": ["Theming and Styling", "Theme Presets"],
       "id": "guides/theming-and-styling:theme-presets:1",
       "referenceLabel": "Theming and Styling -> Theme Presets",
       "route": "/guides/theming-and-styling#theme-presets",
@@ -1150,10 +973,7 @@
     },
     {
       "filePath": "guides/theming-and-styling.md",
-      "headingPath": [
-        "Theming and Styling",
-        "Custom Theme Example"
-      ],
+      "headingPath": ["Theming and Styling", "Custom Theme Example"],
       "id": "guides/theming-and-styling:custom-theme-example:1",
       "referenceLabel": "Theming and Styling -> Custom Theme Example",
       "route": "/guides/theming-and-styling#custom-theme-example",
@@ -1163,10 +983,7 @@
     },
     {
       "filePath": "guides/theming-and-styling.md",
-      "headingPath": [
-        "Theming and Styling",
-        "Theme Helpers"
-      ],
+      "headingPath": ["Theming and Styling", "Theme Helpers"],
       "id": "guides/theming-and-styling:theme-helpers:1",
       "referenceLabel": "Theming and Styling -> Theme Helpers",
       "route": "/guides/theming-and-styling#theme-helpers",
@@ -1176,10 +993,7 @@
     },
     {
       "filePath": "guides/theming-and-styling.md",
-      "headingPath": [
-        "Theming and Styling",
-        "Vite Note"
-      ],
+      "headingPath": ["Theming and Styling", "Vite Note"],
       "id": "guides/theming-and-styling:vite-note:1",
       "referenceLabel": "Theming and Styling -> Vite Note",
       "route": "/guides/theming-and-styling#vite-note",
@@ -1189,9 +1003,7 @@
     },
     {
       "filePath": "guides/using-chat-globals-and-defaults.md",
-      "headingPath": [
-        "Using Chat Globals and Defaults"
-      ],
+      "headingPath": ["Using Chat Globals and Defaults"],
       "id": "guides/using-chat-globals-and-defaults:page:1",
       "referenceLabel": "Using Chat Globals and Defaults",
       "route": "/guides/using-chat-globals-and-defaults",
@@ -1334,10 +1146,7 @@
     },
     {
       "filePath": "guides/using-chat-globals-and-defaults.md",
-      "headingPath": [
-        "Using Chat Globals and Defaults",
-        "Read Next"
-      ],
+      "headingPath": ["Using Chat Globals and Defaults", "Read Next"],
       "id": "guides/using-chat-globals-and-defaults:read-next:1",
       "referenceLabel": "Using Chat Globals and Defaults -> Read Next",
       "route": "/guides/using-chat-globals-and-defaults#read-next",
@@ -1347,9 +1156,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types"
-      ],
+      "headingPath": ["Using Different Input Types"],
       "id": "guides/using-different-input-types:page:1",
       "referenceLabel": "Using Different Input Types",
       "route": "/guides/using-different-input-types",
@@ -1359,10 +1166,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types",
-        "Two Separate Concepts"
-      ],
+      "headingPath": ["Using Different Input Types", "Two Separate Concepts"],
       "id": "guides/using-different-input-types:two-separate-concepts:1",
       "referenceLabel": "Using Different Input Types -> Two Separate Concepts",
       "route": "/guides/using-different-input-types#two-separate-concepts",
@@ -1372,10 +1176,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types",
-        "Supported Input Types"
-      ],
+      "headingPath": ["Using Different Input Types", "Supported Input Types"],
       "id": "guides/using-different-input-types:supported-input-types:1",
       "referenceLabel": "Using Different Input Types -> Supported Input Types",
       "route": "/guides/using-different-input-types#supported-input-types",
@@ -1385,10 +1186,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types",
-        "Quick Reference"
-      ],
+      "headingPath": ["Using Different Input Types", "Quick Reference"],
       "id": "guides/using-different-input-types:quick-reference:1",
       "referenceLabel": "Using Different Input Types -> Quick Reference",
       "route": "/guides/using-different-input-types#quick-reference",
@@ -1398,10 +1196,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types",
-        "Basic Pattern"
-      ],
+      "headingPath": ["Using Different Input Types", "Basic Pattern"],
       "id": "guides/using-different-input-types:basic-pattern:1",
       "referenceLabel": "Using Different Input Types -> Basic Pattern",
       "route": "/guides/using-different-input-types#basic-pattern",
@@ -1411,10 +1206,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types",
-        "textarea"
-      ],
+      "headingPath": ["Using Different Input Types", "textarea"],
       "id": "guides/using-different-input-types:textarea:1",
       "referenceLabel": "Using Different Input Types -> textarea",
       "route": "/guides/using-different-input-types#textarea",
@@ -1424,10 +1216,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types",
-        "text"
-      ],
+      "headingPath": ["Using Different Input Types", "text"],
       "id": "guides/using-different-input-types:text:1",
       "referenceLabel": "Using Different Input Types -> text",
       "route": "/guides/using-different-input-types#text",
@@ -1437,10 +1226,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types",
-        "email"
-      ],
+      "headingPath": ["Using Different Input Types", "email"],
       "id": "guides/using-different-input-types:email:1",
       "referenceLabel": "Using Different Input Types -> email",
       "route": "/guides/using-different-input-types#email",
@@ -1450,10 +1236,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types",
-        "password"
-      ],
+      "headingPath": ["Using Different Input Types", "password"],
       "id": "guides/using-different-input-types:password:1",
       "referenceLabel": "Using Different Input Types -> password",
       "route": "/guides/using-different-input-types#password",
@@ -1463,10 +1246,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types",
-        "tel"
-      ],
+      "headingPath": ["Using Different Input Types", "tel"],
       "id": "guides/using-different-input-types:tel:1",
       "referenceLabel": "Using Different Input Types -> tel",
       "route": "/guides/using-different-input-types#tel",
@@ -1476,10 +1256,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types",
-        "search"
-      ],
+      "headingPath": ["Using Different Input Types", "search"],
       "id": "guides/using-different-input-types:search:1",
       "referenceLabel": "Using Different Input Types -> search",
       "route": "/guides/using-different-input-types#search",
@@ -1489,10 +1266,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types",
-        "number"
-      ],
+      "headingPath": ["Using Different Input Types", "number"],
       "id": "guides/using-different-input-types:number:1",
       "referenceLabel": "Using Different Input Types -> number",
       "route": "/guides/using-different-input-types#number",
@@ -1502,10 +1276,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types",
-        "url"
-      ],
+      "headingPath": ["Using Different Input Types", "url"],
       "id": "guides/using-different-input-types:url:1",
       "referenceLabel": "Using Different Input Types -> url",
       "route": "/guides/using-different-input-types#url",
@@ -1515,10 +1286,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types",
-        "Upload-aware Flows"
-      ],
+      "headingPath": ["Using Different Input Types", "Upload-aware Flows"],
       "id": "guides/using-different-input-types:upload-aware-flows:1",
       "referenceLabel": "Using Different Input Types -> Upload-aware Flows",
       "route": "/guides/using-different-input-types#upload-aware-flows",
@@ -1528,10 +1296,7 @@
     },
     {
       "filePath": "guides/using-different-input-types.md",
-      "headingPath": [
-        "Using Different Input Types",
-        "Validation Patterns"
-      ],
+      "headingPath": ["Using Different Input Types", "Validation Patterns"],
       "id": "guides/using-different-input-types:validation-patterns:1",
       "referenceLabel": "Using Different Input Types -> Validation Patterns",
       "route": "/guides/using-different-input-types#validation-patterns",
@@ -1663,9 +1428,7 @@
     },
     {
       "filePath": "index.md",
-      "headingPath": [
-        "Start Here"
-      ],
+      "headingPath": ["Start Here"],
       "id": "index:start-here:1",
       "referenceLabel": "React Actions Chat Docs -> Start Here",
       "route": "/#start-here",
@@ -1675,9 +1438,7 @@
     },
     {
       "filePath": "index.md",
-      "headingPath": [
-        "Run The Site Locally"
-      ],
+      "headingPath": ["Run The Site Locally"],
       "id": "index:run-the-site-locally:1",
       "referenceLabel": "React Actions Chat Docs -> Run The Site Locally",
       "route": "/#run-the-site-locally",
@@ -1687,9 +1448,7 @@
     },
     {
       "filePath": "reference/core-api.md",
-      "headingPath": [
-        "Core API Reference"
-      ],
+      "headingPath": ["Core API Reference"],
       "id": "reference/core-api:page:1",
       "referenceLabel": "Core API Reference",
       "route": "/reference/core-api",
@@ -1699,11 +1458,7 @@
     },
     {
       "filePath": "reference/core-api.md",
-      "headingPath": [
-        "Core API Reference",
-        "Components",
-        "Chat"
-      ],
+      "headingPath": ["Core API Reference", "Components", "Chat"],
       "id": "reference/core-api:chat:1",
       "referenceLabel": "Core API Reference -> Components -> Chat",
       "route": "/reference/core-api#chat",
@@ -1713,11 +1468,7 @@
     },
     {
       "filePath": "reference/core-api.md",
-      "headingPath": [
-        "Core API Reference",
-        "Components",
-        "MessageList"
-      ],
+      "headingPath": ["Core API Reference", "Components", "MessageList"],
       "id": "reference/core-api:messagelist:1",
       "referenceLabel": "Core API Reference -> Components -> MessageList",
       "route": "/reference/core-api#messagelist",
@@ -1727,11 +1478,7 @@
     },
     {
       "filePath": "reference/core-api.md",
-      "headingPath": [
-        "Core API Reference",
-        "Components",
-        "Message"
-      ],
+      "headingPath": ["Core API Reference", "Components", "Message"],
       "id": "reference/core-api:message:1",
       "referenceLabel": "Core API Reference -> Components -> Message",
       "route": "/reference/core-api#message",
@@ -1741,11 +1488,7 @@
     },
     {
       "filePath": "reference/core-api.md",
-      "headingPath": [
-        "Core API Reference",
-        "Components",
-        "InputBar"
-      ],
+      "headingPath": ["Core API Reference", "Components", "InputBar"],
       "id": "reference/core-api:inputbar:1",
       "referenceLabel": "Core API Reference -> Components -> InputBar",
       "route": "/reference/core-api#inputbar",
@@ -1755,11 +1498,7 @@
     },
     {
       "filePath": "reference/core-api.md",
-      "headingPath": [
-        "Core API Reference",
-        "Message Model",
-        "InputMessage"
-      ],
+      "headingPath": ["Core API Reference", "Message Model", "InputMessage"],
       "id": "reference/core-api:inputmessage:1",
       "referenceLabel": "Core API Reference -> Message Model -> InputMessage",
       "route": "/reference/core-api#inputmessage",
@@ -1769,11 +1508,7 @@
     },
     {
       "filePath": "reference/core-api.md",
-      "headingPath": [
-        "Core API Reference",
-        "Message Model",
-        "Message"
-      ],
+      "headingPath": ["Core API Reference", "Message Model", "Message"],
       "id": "reference/core-api:message:1",
       "referenceLabel": "Core API Reference -> Message Model -> Message",
       "route": "/reference/core-api#message",
@@ -1783,11 +1518,7 @@
     },
     {
       "filePath": "reference/core-api.md",
-      "headingPath": [
-        "Core API Reference",
-        "Message Model",
-        "MessagePart"
-      ],
+      "headingPath": ["Core API Reference", "Message Model", "MessagePart"],
       "id": "reference/core-api:messagepart:1",
       "referenceLabel": "Core API Reference -> Message Model -> MessagePart",
       "route": "/reference/core-api#messagepart",
@@ -1937,9 +1668,7 @@
     },
     {
       "filePath": "reference/llms-api.md",
-      "headingPath": [
-        "LLMs API Reference"
-      ],
+      "headingPath": ["LLMs API Reference"],
       "id": "reference/llms-api:page:1",
       "referenceLabel": "LLMs API Reference",
       "route": "/reference/llms-api",
@@ -1977,11 +1706,7 @@
     },
     {
       "filePath": "reference/llms-api.md",
-      "headingPath": [
-        "LLMs API Reference",
-        "Core Types",
-        "TextGenerator"
-      ],
+      "headingPath": ["LLMs API Reference", "Core Types", "TextGenerator"],
       "id": "reference/llms-api:textgenerator:1",
       "referenceLabel": "LLMs API Reference -> Core Types -> TextGenerator",
       "route": "/reference/llms-api#textgenerator",
@@ -2005,11 +1730,7 @@
     },
     {
       "filePath": "reference/llms-api.md",
-      "headingPath": [
-        "LLMs API Reference",
-        "Core Types",
-        "GeneratedText"
-      ],
+      "headingPath": ["LLMs API Reference", "Core Types", "GeneratedText"],
       "id": "reference/llms-api:generatedtext:1",
       "referenceLabel": "LLMs API Reference -> Core Types -> GeneratedText",
       "route": "/reference/llms-api#generatedtext",
@@ -2019,11 +1740,7 @@
     },
     {
       "filePath": "reference/llms-api.md",
-      "headingPath": [
-        "LLMs API Reference",
-        "Core Types",
-        "LLMMessage"
-      ],
+      "headingPath": ["LLMs API Reference", "Core Types", "LLMMessage"],
       "id": "reference/llms-api:llmmessage:1",
       "referenceLabel": "LLMs API Reference -> Core Types -> LLMMessage",
       "route": "/reference/llms-api#llmmessage",
@@ -2033,11 +1750,7 @@
     },
     {
       "filePath": "reference/llms-api.md",
-      "headingPath": [
-        "LLMs API Reference",
-        "Core Types",
-        "LLMMessageRole"
-      ],
+      "headingPath": ["LLMs API Reference", "Core Types", "LLMMessageRole"],
       "id": "reference/llms-api:llmmessagerole:1",
       "referenceLabel": "LLMs API Reference -> Core Types -> LLMMessageRole",
       "route": "/reference/llms-api#llmmessagerole",
@@ -2075,11 +1788,7 @@
     },
     {
       "filePath": "reference/llms-api.md",
-      "headingPath": [
-        "LLMs API Reference",
-        "Shared Utilities",
-        "FetchLike"
-      ],
+      "headingPath": ["LLMs API Reference", "Shared Utilities", "FetchLike"],
       "id": "reference/llms-api:fetchlike:1",
       "referenceLabel": "LLMs API Reference -> Shared Utilities -> FetchLike",
       "route": "/reference/llms-api#fetchlike",
@@ -2089,9 +1798,7 @@
     },
     {
       "filePath": "reference/recommended-actions-api.md",
-      "headingPath": [
-        "Recommended Actions API Reference"
-      ],
+      "headingPath": ["Recommended Actions API Reference"],
       "id": "reference/recommended-actions-api:page:1",
       "referenceLabel": "Recommended Actions API Reference",
       "route": "/reference/recommended-actions-api",
@@ -2269,9 +1976,7 @@
     },
     {
       "filePath": "reference/support-api.md",
-      "headingPath": [
-        "Support API Reference"
-      ],
+      "headingPath": ["Support API Reference"],
       "id": "reference/support-api:page:1",
       "referenceLabel": "Support API Reference",
       "route": "/reference/support-api",
@@ -2351,11 +2056,7 @@
     },
     {
       "filePath": "reference/support-api.md",
-      "headingPath": [
-        "Support API Reference",
-        "Core Types",
-        "SupportTicket"
-      ],
+      "headingPath": ["Support API Reference", "Core Types", "SupportTicket"],
       "id": "reference/support-api:supportticket:1",
       "referenceLabel": "Support API Reference -> Core Types -> SupportTicket",
       "route": "/reference/support-api#supportticket",
@@ -2407,9 +2108,7 @@
     },
     {
       "filePath": "stores/index.md",
-      "headingPath": [
-        "Stores Overview"
-      ],
+      "headingPath": ["Stores Overview"],
       "id": "stores/index:page:1",
       "referenceLabel": "Stores Overview",
       "route": "/stores",
@@ -2419,10 +2118,7 @@
     },
     {
       "filePath": "stores/index.md",
-      "headingPath": [
-        "Stores Overview",
-        "Available Stores"
-      ],
+      "headingPath": ["Stores Overview", "Available Stores"],
       "id": "stores/index:available-stores:1",
       "referenceLabel": "Stores Overview -> Available Stores",
       "route": "/stores#available-stores",
@@ -2432,10 +2128,7 @@
     },
     {
       "filePath": "stores/index.md",
-      "headingPath": [
-        "Stores Overview",
-        "When To Read These Pages"
-      ],
+      "headingPath": ["Stores Overview", "When To Read These Pages"],
       "id": "stores/index:when-to-read-these-pages:1",
       "referenceLabel": "Stores Overview -> When To Read These Pages",
       "route": "/stores#when-to-read-these-pages",
@@ -2445,9 +2138,7 @@
     },
     {
       "filePath": "stores/use-chat-store.md",
-      "headingPath": [
-        "useChatStore"
-      ],
+      "headingPath": ["useChatStore"],
       "id": "stores/use-chat-store:page:1",
       "referenceLabel": "useChatStore",
       "route": "/stores/use-chat-store",
@@ -2457,10 +2148,7 @@
     },
     {
       "filePath": "stores/use-chat-store.md",
-      "headingPath": [
-        "useChatStore",
-        "What It Manages"
-      ],
+      "headingPath": ["useChatStore", "What It Manages"],
       "id": "stores/use-chat-store:what-it-manages:1",
       "referenceLabel": "useChatStore -> What It Manages",
       "route": "/stores/use-chat-store#what-it-manages",
@@ -2484,10 +2172,7 @@
     },
     {
       "filePath": "stores/use-chat-store.md",
-      "headingPath": [
-        "useChatStore",
-        "Read the Latest User Submission"
-      ],
+      "headingPath": ["useChatStore", "Read the Latest User Submission"],
       "id": "stores/use-chat-store:read-the-latest-user-submission:1",
       "referenceLabel": "useChatStore -> Read the Latest User Submission",
       "route": "/stores/use-chat-store#read-the-latest-user-submission",
@@ -2497,10 +2182,7 @@
     },
     {
       "filePath": "stores/use-chat-store.md",
-      "headingPath": [
-        "useChatStore",
-        "parts vs rawContent"
-      ],
+      "headingPath": ["useChatStore", "parts vs rawContent"],
       "id": "stores/use-chat-store:parts-vs-rawcontent:1",
       "referenceLabel": "useChatStore -> parts vs rawContent",
       "route": "/stores/use-chat-store#parts-vs-rawcontent",
@@ -2510,10 +2192,7 @@
     },
     {
       "filePath": "stores/use-chat-store.md",
-      "headingPath": [
-        "useChatStore",
-        "Read Message Metadata"
-      ],
+      "headingPath": ["useChatStore", "Read Message Metadata"],
       "id": "stores/use-chat-store:read-message-metadata:1",
       "referenceLabel": "useChatStore -> Read Message Metadata",
       "route": "/stores/use-chat-store#read-message-metadata",
@@ -2523,10 +2202,7 @@
     },
     {
       "filePath": "stores/use-chat-store.md",
-      "headingPath": [
-        "useChatStore",
-        "Common Writes"
-      ],
+      "headingPath": ["useChatStore", "Common Writes"],
       "id": "stores/use-chat-store:common-writes:1",
       "referenceLabel": "useChatStore -> Common Writes",
       "route": "/stores/use-chat-store#common-writes",
@@ -2536,10 +2212,7 @@
     },
     {
       "filePath": "stores/use-chat-store.md",
-      "headingPath": [
-        "useChatStore",
-        "Loading State"
-      ],
+      "headingPath": ["useChatStore", "Loading State"],
       "id": "stores/use-chat-store:loading-state:1",
       "referenceLabel": "useChatStore -> Loading State",
       "route": "/stores/use-chat-store#loading-state",
@@ -2549,9 +2222,7 @@
     },
     {
       "filePath": "stores/use-input-field-store.md",
-      "headingPath": [
-        "useInputFieldStore"
-      ],
+      "headingPath": ["useInputFieldStore"],
       "id": "stores/use-input-field-store:page:1",
       "referenceLabel": "useInputFieldStore",
       "route": "/stores/use-input-field-store",
@@ -2561,10 +2232,7 @@
     },
     {
       "filePath": "stores/use-input-field-store.md",
-      "headingPath": [
-        "useInputFieldStore",
-        "What It Manages"
-      ],
+      "headingPath": ["useInputFieldStore", "What It Manages"],
       "id": "stores/use-input-field-store:what-it-manages:1",
       "referenceLabel": "useInputFieldStore -> What It Manages",
       "route": "/stores/use-input-field-store#what-it-manages",
@@ -2574,10 +2242,7 @@
     },
     {
       "filePath": "stores/use-input-field-store.md",
-      "headingPath": [
-        "useInputFieldStore",
-        "Common Reads"
-      ],
+      "headingPath": ["useInputFieldStore", "Common Reads"],
       "id": "stores/use-input-field-store:common-reads:1",
       "referenceLabel": "useInputFieldStore -> Common Reads",
       "route": "/stores/use-input-field-store#common-reads",
@@ -2587,10 +2252,7 @@
     },
     {
       "filePath": "stores/use-input-field-store.md",
-      "headingPath": [
-        "useInputFieldStore",
-        "Common Writes"
-      ],
+      "headingPath": ["useInputFieldStore", "Common Writes"],
       "id": "stores/use-input-field-store:common-writes:1",
       "referenceLabel": "useInputFieldStore -> Common Writes",
       "route": "/stores/use-input-field-store#common-writes",
@@ -2600,10 +2262,7 @@
     },
     {
       "filePath": "stores/use-input-field-store.md",
-      "headingPath": [
-        "useInputFieldStore",
-        "Typical Use Cases"
-      ],
+      "headingPath": ["useInputFieldStore", "Typical Use Cases"],
       "id": "stores/use-input-field-store:typical-use-cases:1",
       "referenceLabel": "useInputFieldStore -> Typical Use Cases",
       "route": "/stores/use-input-field-store#typical-use-cases",
@@ -2613,9 +2272,7 @@
     },
     {
       "filePath": "stores/use-persistent-button-store.md",
-      "headingPath": [
-        "usePersistentButtonStore"
-      ],
+      "headingPath": ["usePersistentButtonStore"],
       "id": "stores/use-persistent-button-store:page:1",
       "referenceLabel": "usePersistentButtonStore",
       "route": "/stores/use-persistent-button-store",
@@ -2625,10 +2282,7 @@
     },
     {
       "filePath": "stores/use-persistent-button-store.md",
-      "headingPath": [
-        "usePersistentButtonStore",
-        "Common Reads"
-      ],
+      "headingPath": ["usePersistentButtonStore", "Common Reads"],
       "id": "stores/use-persistent-button-store:common-reads:1",
       "referenceLabel": "usePersistentButtonStore -> Common Reads",
       "route": "/stores/use-persistent-button-store#common-reads",
@@ -2638,10 +2292,7 @@
     },
     {
       "filePath": "stores/use-persistent-button-store.md",
-      "headingPath": [
-        "usePersistentButtonStore",
-        "Common Writes"
-      ],
+      "headingPath": ["usePersistentButtonStore", "Common Writes"],
       "id": "stores/use-persistent-button-store:common-writes:1",
       "referenceLabel": "usePersistentButtonStore -> Common Writes",
       "route": "/stores/use-persistent-button-store#common-writes",
@@ -2651,10 +2302,7 @@
     },
     {
       "filePath": "stores/use-persistent-button-store.md",
-      "headingPath": [
-        "usePersistentButtonStore",
-        "Notes"
-      ],
+      "headingPath": ["usePersistentButtonStore", "Notes"],
       "id": "stores/use-persistent-button-store:notes:1",
       "referenceLabel": "usePersistentButtonStore -> Notes",
       "route": "/stores/use-persistent-button-store#notes",
@@ -2664,9 +2312,7 @@
     },
     {
       "filePath": "sub-packages/index.md",
-      "headingPath": [
-        "Sub-packages"
-      ],
+      "headingPath": ["Sub-packages"],
       "id": "sub-packages/index:page:1",
       "referenceLabel": "Sub-packages",
       "route": "/sub-packages",
@@ -2676,10 +2322,7 @@
     },
     {
       "filePath": "sub-packages/index.md",
-      "headingPath": [
-        "Sub-packages",
-        "Available Sub-packages"
-      ],
+      "headingPath": ["Sub-packages", "Available Sub-packages"],
       "id": "sub-packages/index:available-sub-packages:1",
       "referenceLabel": "Sub-packages -> Available Sub-packages",
       "route": "/sub-packages#available-sub-packages",
@@ -2689,10 +2332,7 @@
     },
     {
       "filePath": "sub-packages/index.md",
-      "headingPath": [
-        "Sub-packages",
-        "When To Use a Sub-package"
-      ],
+      "headingPath": ["Sub-packages", "When To Use a Sub-package"],
       "id": "sub-packages/index:when-to-use-a-sub-package:1",
       "referenceLabel": "Sub-packages -> When To Use a Sub-package",
       "route": "/sub-packages#when-to-use-a-sub-package",
@@ -2702,10 +2342,7 @@
     },
     {
       "filePath": "sub-packages/index.md",
-      "headingPath": [
-        "Sub-packages",
-        "Which One To Pick"
-      ],
+      "headingPath": ["Sub-packages", "Which One To Pick"],
       "id": "sub-packages/index:which-one-to-pick:1",
       "referenceLabel": "Sub-packages -> Which One To Pick",
       "route": "/sub-packages#which-one-to-pick",
@@ -2715,9 +2352,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-llms.md",
-      "headingPath": [
-        "react-actions-chat-llms"
-      ],
+      "headingPath": ["react-actions-chat-llms"],
       "id": "sub-packages/react-actions-chat-llms:page:1",
       "referenceLabel": "react-actions-chat-llms",
       "route": "/sub-packages/react-actions-chat-llms",
@@ -2727,10 +2362,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-llms.md",
-      "headingPath": [
-        "react-actions-chat-llms",
-        "Installation"
-      ],
+      "headingPath": ["react-actions-chat-llms", "Installation"],
       "id": "sub-packages/react-actions-chat-llms:installation:1",
       "referenceLabel": "react-actions-chat-llms -> Installation",
       "route": "/sub-packages/react-actions-chat-llms#installation",
@@ -2740,10 +2372,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-llms.md",
-      "headingPath": [
-        "react-actions-chat-llms",
-        "What It Adds"
-      ],
+      "headingPath": ["react-actions-chat-llms", "What It Adds"],
       "id": "sub-packages/react-actions-chat-llms:what-it-adds:1",
       "referenceLabel": "react-actions-chat-llms -> What It Adds",
       "route": "/sub-packages/react-actions-chat-llms#what-it-adds",
@@ -2753,10 +2382,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-llms.md",
-      "headingPath": [
-        "react-actions-chat-llms",
-        "Use It When"
-      ],
+      "headingPath": ["react-actions-chat-llms", "Use It When"],
       "id": "sub-packages/react-actions-chat-llms:use-it-when:1",
       "referenceLabel": "react-actions-chat-llms -> Use It When",
       "route": "/sub-packages/react-actions-chat-llms#use-it-when",
@@ -2766,10 +2392,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-llms.md",
-      "headingPath": [
-        "react-actions-chat-llms",
-        "Typical Shape"
-      ],
+      "headingPath": ["react-actions-chat-llms", "Typical Shape"],
       "id": "sub-packages/react-actions-chat-llms:typical-shape:1",
       "referenceLabel": "react-actions-chat-llms -> Typical Shape",
       "route": "/sub-packages/react-actions-chat-llms#typical-shape",
@@ -2779,10 +2402,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-llms.md",
-      "headingPath": [
-        "react-actions-chat-llms",
-        "Production Note"
-      ],
+      "headingPath": ["react-actions-chat-llms", "Production Note"],
       "id": "sub-packages/react-actions-chat-llms:production-note:1",
       "referenceLabel": "react-actions-chat-llms -> Production Note",
       "route": "/sub-packages/react-actions-chat-llms#production-note",
@@ -2792,10 +2412,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-llms.md",
-      "headingPath": [
-        "react-actions-chat-llms",
-        "Read Next"
-      ],
+      "headingPath": ["react-actions-chat-llms", "Read Next"],
       "id": "sub-packages/react-actions-chat-llms:read-next:1",
       "referenceLabel": "react-actions-chat-llms -> Read Next",
       "route": "/sub-packages/react-actions-chat-llms#read-next",
@@ -2805,9 +2422,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-recommended-actions.md",
-      "headingPath": [
-        "react-actions-chat-recommended-actions"
-      ],
+      "headingPath": ["react-actions-chat-recommended-actions"],
       "id": "sub-packages/react-actions-chat-recommended-actions:page:1",
       "referenceLabel": "react-actions-chat-recommended-actions",
       "route": "/sub-packages/react-actions-chat-recommended-actions",
@@ -2817,10 +2432,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-recommended-actions.md",
-      "headingPath": [
-        "react-actions-chat-recommended-actions",
-        "Installation"
-      ],
+      "headingPath": ["react-actions-chat-recommended-actions", "Installation"],
       "id": "sub-packages/react-actions-chat-recommended-actions:installation:1",
       "referenceLabel": "react-actions-chat-recommended-actions -> Installation",
       "route": "/sub-packages/react-actions-chat-recommended-actions#installation",
@@ -2830,10 +2442,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-recommended-actions.md",
-      "headingPath": [
-        "react-actions-chat-recommended-actions",
-        "What It Adds"
-      ],
+      "headingPath": ["react-actions-chat-recommended-actions", "What It Adds"],
       "id": "sub-packages/react-actions-chat-recommended-actions:what-it-adds:1",
       "referenceLabel": "react-actions-chat-recommended-actions -> What It Adds",
       "route": "/sub-packages/react-actions-chat-recommended-actions#what-it-adds",
@@ -2843,10 +2452,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-recommended-actions.md",
-      "headingPath": [
-        "react-actions-chat-recommended-actions",
-        "Use It When"
-      ],
+      "headingPath": ["react-actions-chat-recommended-actions", "Use It When"],
       "id": "sub-packages/react-actions-chat-recommended-actions:use-it-when:1",
       "referenceLabel": "react-actions-chat-recommended-actions -> Use It When",
       "route": "/sub-packages/react-actions-chat-recommended-actions#use-it-when",
@@ -2897,10 +2503,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-recommended-actions.md",
-      "headingPath": [
-        "react-actions-chat-recommended-actions",
-        "Read Next"
-      ],
+      "headingPath": ["react-actions-chat-recommended-actions", "Read Next"],
       "id": "sub-packages/react-actions-chat-recommended-actions:read-next:1",
       "referenceLabel": "react-actions-chat-recommended-actions -> Read Next",
       "route": "/sub-packages/react-actions-chat-recommended-actions#read-next",
@@ -2910,9 +2513,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-support.md",
-      "headingPath": [
-        "react-actions-chat-support"
-      ],
+      "headingPath": ["react-actions-chat-support"],
       "id": "sub-packages/react-actions-chat-support:page:1",
       "referenceLabel": "react-actions-chat-support",
       "route": "/sub-packages/react-actions-chat-support",
@@ -2922,10 +2523,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-support.md",
-      "headingPath": [
-        "react-actions-chat-support",
-        "Installation"
-      ],
+      "headingPath": ["react-actions-chat-support", "Installation"],
       "id": "sub-packages/react-actions-chat-support:installation:1",
       "referenceLabel": "react-actions-chat-support -> Installation",
       "route": "/sub-packages/react-actions-chat-support#installation",
@@ -2935,10 +2533,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-support.md",
-      "headingPath": [
-        "react-actions-chat-support",
-        "What It Adds"
-      ],
+      "headingPath": ["react-actions-chat-support", "What It Adds"],
       "id": "sub-packages/react-actions-chat-support:what-it-adds:1",
       "referenceLabel": "react-actions-chat-support -> What It Adds",
       "route": "/sub-packages/react-actions-chat-support#what-it-adds",
@@ -2948,10 +2543,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-support.md",
-      "headingPath": [
-        "react-actions-chat-support",
-        "Use It When"
-      ],
+      "headingPath": ["react-actions-chat-support", "Use It When"],
       "id": "sub-packages/react-actions-chat-support:use-it-when:1",
       "referenceLabel": "react-actions-chat-support -> Use It When",
       "route": "/sub-packages/react-actions-chat-support#use-it-when",
@@ -3003,10 +2595,7 @@
     },
     {
       "filePath": "sub-packages/react-actions-chat-support.md",
-      "headingPath": [
-        "react-actions-chat-support",
-        "Read Next"
-      ],
+      "headingPath": ["react-actions-chat-support", "Read Next"],
       "id": "sub-packages/react-actions-chat-support:read-next:1",
       "referenceLabel": "react-actions-chat-support -> Read Next",
       "route": "/sub-packages/react-actions-chat-support#read-next",
@@ -3016,9 +2605,7 @@
     },
     {
       "filePath": "types/chat-theme.md",
-      "headingPath": [
-        "ChatTheme"
-      ],
+      "headingPath": ["ChatTheme"],
       "id": "types/chat-theme:page:1",
       "referenceLabel": "ChatTheme",
       "route": "/types/chat-theme",
@@ -3028,10 +2615,7 @@
     },
     {
       "filePath": "types/chat-theme.md",
-      "headingPath": [
-        "ChatTheme",
-        "Fields"
-      ],
+      "headingPath": ["ChatTheme", "Fields"],
       "id": "types/chat-theme:fields:1",
       "referenceLabel": "ChatTheme -> Fields",
       "route": "/types/chat-theme#fields",
@@ -3041,10 +2625,7 @@
     },
     {
       "filePath": "types/chat-theme.md",
-      "headingPath": [
-        "ChatTheme",
-        "Usage"
-      ],
+      "headingPath": ["ChatTheme", "Usage"],
       "id": "types/chat-theme:usage:1",
       "referenceLabel": "ChatTheme -> Usage",
       "route": "/types/chat-theme#usage",
@@ -3054,9 +2635,7 @@
     },
     {
       "filePath": "types/index.md",
-      "headingPath": [
-        "Types Overview"
-      ],
+      "headingPath": ["Types Overview"],
       "id": "types/index:page:1",
       "referenceLabel": "Types Overview",
       "route": "/types",
@@ -3066,10 +2645,7 @@
     },
     {
       "filePath": "types/index.md",
-      "headingPath": [
-        "Types Overview",
-        "Core Shapes"
-      ],
+      "headingPath": ["Types Overview", "Core Shapes"],
       "id": "types/index:core-shapes:1",
       "referenceLabel": "Types Overview -> Core Shapes",
       "route": "/types#core-shapes",
@@ -3079,10 +2655,7 @@
     },
     {
       "filePath": "types/index.md",
-      "headingPath": [
-        "Types Overview",
-        "When To Read These Pages"
-      ],
+      "headingPath": ["Types Overview", "When To Read These Pages"],
       "id": "types/index:when-to-read-these-pages:1",
       "referenceLabel": "Types Overview -> When To Read These Pages",
       "route": "/types#when-to-read-these-pages",
@@ -3092,9 +2665,7 @@
     },
     {
       "filePath": "types/input-message.md",
-      "headingPath": [
-        "InputMessage"
-      ],
+      "headingPath": ["InputMessage"],
       "id": "types/input-message:page:1",
       "referenceLabel": "InputMessage",
       "route": "/types/input-message",
@@ -3104,10 +2675,7 @@
     },
     {
       "filePath": "types/input-message.md",
-      "headingPath": [
-        "InputMessage",
-        "Fields"
-      ],
+      "headingPath": ["InputMessage", "Fields"],
       "id": "types/input-message:fields:1",
       "referenceLabel": "InputMessage -> Fields",
       "route": "/types/input-message#fields",
@@ -3117,10 +2685,7 @@
     },
     {
       "filePath": "types/input-message.md",
-      "headingPath": [
-        "InputMessage",
-        "Usage"
-      ],
+      "headingPath": ["InputMessage", "Usage"],
       "id": "types/input-message:usage:1",
       "referenceLabel": "InputMessage -> Usage",
       "route": "/types/input-message#usage",
@@ -3130,10 +2695,7 @@
     },
     {
       "filePath": "types/input-message.md",
-      "headingPath": [
-        "InputMessage",
-        "Notes"
-      ],
+      "headingPath": ["InputMessage", "Notes"],
       "id": "types/input-message:notes:1",
       "referenceLabel": "InputMessage -> Notes",
       "route": "/types/input-message#notes",
@@ -3143,9 +2705,7 @@
     },
     {
       "filePath": "types/input-type.md",
-      "headingPath": [
-        "InputType"
-      ],
+      "headingPath": ["InputType"],
       "id": "types/input-type:page:1",
       "referenceLabel": "InputType",
       "route": "/types/input-type",
@@ -3155,10 +2715,7 @@
     },
     {
       "filePath": "types/input-type.md",
-      "headingPath": [
-        "InputType",
-        "Supported Values"
-      ],
+      "headingPath": ["InputType", "Supported Values"],
       "id": "types/input-type:supported-values:1",
       "referenceLabel": "InputType -> Supported Values",
       "route": "/types/input-type#supported-values",
@@ -3168,10 +2725,7 @@
     },
     {
       "filePath": "types/input-type.md",
-      "headingPath": [
-        "InputType",
-        "Usage"
-      ],
+      "headingPath": ["InputType", "Usage"],
       "id": "types/input-type:usage:1",
       "referenceLabel": "InputType -> Usage",
       "route": "/types/input-type#usage",
@@ -3181,9 +2735,7 @@
     },
     {
       "filePath": "types/input-validation-result.md",
-      "headingPath": [
-        "InputValidationResult"
-      ],
+      "headingPath": ["InputValidationResult"],
       "id": "types/input-validation-result:page:1",
       "referenceLabel": "InputValidationResult",
       "route": "/types/input-validation-result",
@@ -3193,10 +2745,7 @@
     },
     {
       "filePath": "types/input-validation-result.md",
-      "headingPath": [
-        "InputValidationResult",
-        "Allowed Results"
-      ],
+      "headingPath": ["InputValidationResult", "Allowed Results"],
       "id": "types/input-validation-result:allowed-results:1",
       "referenceLabel": "InputValidationResult -> Allowed Results",
       "route": "/types/input-validation-result#allowed-results",
@@ -3206,10 +2755,7 @@
     },
     {
       "filePath": "types/input-validation-result.md",
-      "headingPath": [
-        "InputValidationResult",
-        "Example"
-      ],
+      "headingPath": ["InputValidationResult", "Example"],
       "id": "types/input-validation-result:example:1",
       "referenceLabel": "InputValidationResult -> Example",
       "route": "/types/input-validation-result#example",
@@ -3219,9 +2765,7 @@
     },
     {
       "filePath": "types/input-validator.md",
-      "headingPath": [
-        "InputValidator"
-      ],
+      "headingPath": ["InputValidator"],
       "id": "types/input-validator:page:1",
       "referenceLabel": "InputValidator",
       "route": "/types/input-validator",
@@ -3231,10 +2775,7 @@
     },
     {
       "filePath": "types/input-validator.md",
-      "headingPath": [
-        "InputValidator",
-        "Shape"
-      ],
+      "headingPath": ["InputValidator", "Shape"],
       "id": "types/input-validator:shape:1",
       "referenceLabel": "InputValidator -> Shape",
       "route": "/types/input-validator#shape",
@@ -3244,10 +2785,7 @@
     },
     {
       "filePath": "types/input-validator.md",
-      "headingPath": [
-        "InputValidator",
-        "Example"
-      ],
+      "headingPath": ["InputValidator", "Example"],
       "id": "types/input-validator:example:1",
       "referenceLabel": "InputValidator -> Example",
       "route": "/types/input-validator#example",
@@ -3257,9 +2795,7 @@
     },
     {
       "filePath": "types/message-button.md",
-      "headingPath": [
-        "MessageButton"
-      ],
+      "headingPath": ["MessageButton"],
       "id": "types/message-button:page:1",
       "referenceLabel": "MessageButton",
       "route": "/types/message-button",
@@ -3269,10 +2805,7 @@
     },
     {
       "filePath": "types/message-button.md",
-      "headingPath": [
-        "MessageButton",
-        "Fields"
-      ],
+      "headingPath": ["MessageButton", "Fields"],
       "id": "types/message-button:fields:1",
       "referenceLabel": "MessageButton -> Fields",
       "route": "/types/message-button#fields",
@@ -3282,10 +2815,7 @@
     },
     {
       "filePath": "types/message-button.md",
-      "headingPath": [
-        "MessageButton",
-        "Variants"
-      ],
+      "headingPath": ["MessageButton", "Variants"],
       "id": "types/message-button:variants:1",
       "referenceLabel": "MessageButton -> Variants",
       "route": "/types/message-button#variants",
@@ -3295,10 +2825,7 @@
     },
     {
       "filePath": "types/message-button.md",
-      "headingPath": [
-        "MessageButton",
-        "Usage"
-      ],
+      "headingPath": ["MessageButton", "Usage"],
       "id": "types/message-button:usage:1",
       "referenceLabel": "MessageButton -> Usage",
       "route": "/types/message-button#usage",
@@ -3308,9 +2835,7 @@
     },
     {
       "filePath": "types/message.md",
-      "headingPath": [
-        "Message"
-      ],
+      "headingPath": ["Message"],
       "id": "types/message:page:1",
       "referenceLabel": "Message",
       "route": "/types/message",
@@ -3320,10 +2845,7 @@
     },
     {
       "filePath": "types/message.md",
-      "headingPath": [
-        "Message",
-        "What It Guarantees"
-      ],
+      "headingPath": ["Message", "What It Guarantees"],
       "id": "types/message:what-it-guarantees:1",
       "referenceLabel": "Message -> What It Guarantees",
       "route": "/types/message#what-it-guarantees",
@@ -3333,10 +2855,7 @@
     },
     {
       "filePath": "types/message.md",
-      "headingPath": [
-        "Message",
-        "Usage"
-      ],
+      "headingPath": ["Message", "Usage"],
       "id": "types/message:usage:1",
       "referenceLabel": "Message -> Usage",
       "route": "/types/message#usage",
@@ -3346,10 +2865,7 @@
     },
     {
       "filePath": "types/message.md",
-      "headingPath": [
-        "Message",
-        "Common Uses"
-      ],
+      "headingPath": ["Message", "Common Uses"],
       "id": "types/message:common-uses:1",
       "referenceLabel": "Message -> Common Uses",
       "route": "/types/message#common-uses",
