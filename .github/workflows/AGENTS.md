@@ -11,6 +11,7 @@ GitHub Actions workflow definitions for continuous integration, releases, docs d
 - `ci.yml`: GitHub Actions workflow for the main CI checks, including AGENTS hierarchy validation.
 - `deploy-docs.yml`: GitHub Actions workflow that builds and deploys the docs site.
 - `e2e.yml`: GitHub Actions workflow that builds the example apps and runs the Playwright suite.
+- `pr-ci-failure-guidance.yml`: GitHub Actions workflow that comments on pull requests with recommended local commands for failed CI jobs.
 - `pr-coverage.yml`: GitHub Actions workflow that posts coverage summaries on pull requests.
 - `release.yml`: GitHub Actions workflow that publishes package releases.
 - `require-changeset.yml`: GitHub Actions workflow that enforces changeset coverage on pull requests.
