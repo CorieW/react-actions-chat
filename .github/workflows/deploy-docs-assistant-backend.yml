@@ -56,11 +56,9 @@ jobs:
           DOCS_ASSISTANT_ALLOWED_ORIGINS: ${{ vars.DOCS_ASSISTANT_ALLOWED_ORIGINS }}
           DOCS_ASSISTANT_EMBEDDING_MODEL: ${{ vars.DOCS_ASSISTANT_EMBEDDING_MODEL }}
           DOCS_ASSISTANT_LLM_MODEL: ${{ vars.DOCS_ASSISTANT_LLM_MODEL }}
-          OPENAI_API_KEY: ${{ secrets.DOCS_ASSISTANT_OPENAI_API_KEY }}
           OPENAI_BASE_URL: ${{ vars.OPENAI_BASE_URL }}
         run: |
           {
-            printf 'OPENAI_API_KEY=%s\n' "$OPENAI_API_KEY"
             printf 'OPENAI_BASE_URL=%s\n' "${OPENAI_BASE_URL:-https://api.openai.com/v1}"
             printf 'DOCS_ASSISTANT_LLM_MODEL=%s\n' "${DOCS_ASSISTANT_LLM_MODEL:-gpt-5-mini}"
             printf 'DOCS_ASSISTANT_EMBEDDING_MODEL=%s\n' "${DOCS_ASSISTANT_EMBEDDING_MODEL:-text-embedding-3-small}"
@@ -71,6 +69,16 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Sync Firebase OpenAI secret
+        env:
+          OPENAI_API_KEY: ${{ secrets.DOCS_ASSISTANT_OPENAI_API_KEY }}
+        run: |
+          printf '%s' "$OPENAI_API_KEY" \
+            | pnpm exec firebase functions:secrets:set DOCS_ASSISTANT_OPENAI_API_KEY \
+                --data-file - \
+                --force \
+                --project "${{ vars.FIREBASE_PROJECT_ID }}"
 
       - name: Deploy docs assistant function
         run: pnpm exec firebase deploy --non-interactive --only functions:docsAssistantApi --project "${{ vars.FIREBASE_PROJECT_ID }}"

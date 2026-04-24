@@ -1,5 +1,6 @@
 import { readFileSync, statSync } from 'node:fs';
 import { onRequest } from 'firebase-functions/v2/https';
+import { defineSecret } from 'firebase-functions/params';
 
 const DEFAULT_ALLOWED_ORIGINS = [
   'http://127.0.0.1:5173',
@@ -15,6 +16,7 @@ const MAX_REFERENCE_COUNT = 4;
 const MAX_TRANSCRIPT_CHARS = 12000;
 const MAX_TRANSCRIPT_MESSAGES = 10;
 const MAX_MESSAGE_LENGTH = 3000;
+const docsAssistantOpenAIApiKey = defineSecret('DOCS_ASSISTANT_OPENAI_API_KEY');
 
 const docsCorpusFileUrl = new URL(
   './generated/docsAssistantCorpus.json',
@@ -47,6 +49,7 @@ export const docsAssistantApi = onRequest(
   {
     maxInstances: 5,
     memory: '512MiB',
+    secrets: [docsAssistantOpenAIApiKey],
     timeoutSeconds: 60,
   },
   async (request, response) => {
@@ -378,8 +381,13 @@ function truncateText(value, maxLength) {
 }
 
 function resolveOpenAIConfig() {
+  const apiKey =
+    docsAssistantOpenAIApiKey.value().trim() ||
+    process.env.OPENAI_API_KEY?.trim() ||
+    '';
+
   return {
-    apiKey: process.env.OPENAI_API_KEY?.trim() ?? '',
+    apiKey,
     baseUrl:
       process.env.OPENAI_BASE_URL?.trim()?.replace(/\/$/, '') ??
       DEFAULT_OPENAI_BASE_URL,

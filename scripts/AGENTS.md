@@ -14,7 +14,7 @@ Repository automation scripts for building styles, docs, and examples, plus runn
 - `build-pages.js`: Builds the GitHub Pages output by combining docs and selected example apps.
 - `build-styles-simple.js`: Alternate Tailwind CLI script for generating `src/styles.css`.
 - `build-styles-v4.js`: Main Tailwind v4 build script for generating `src/styles.css`.
-- `check-docs-assistant-corpus.js`: Regenerates the docs assistant corpus and fails when the committed JSON is out of date.
+- `check-docs-assistant-corpus.js`: Regenerates the docs assistant corpus and fails when generation breaks or produces an empty output.
 - `check-docs.js`: Validates selected docs reference lists against source types and typechecks marked TS/TSX docs snippets.
 - `check-styles.js`: CI check that regenerates and verifies `src/styles.css` is up to date.
 - `dev-docs-assistant.js`: Starts the docs assistant local stack by combining corpus generation, the Firebase emulator, and the VitePress dev server.

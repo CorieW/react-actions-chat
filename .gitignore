@@ -22,9 +22,7 @@ test-results
 docs/.vitepress/.temp
 docs/.vitepress/cache
 docs/.vitepress/dist
-docs-chat/backend/generated/*.json
-!docs-chat/backend/generated/docsAssistantCorpus.json
-!docs-chat/backend/generated/.gitkeep
+docs-chat/backend/generated
 
 # Editor directories and files
 .vscode/*

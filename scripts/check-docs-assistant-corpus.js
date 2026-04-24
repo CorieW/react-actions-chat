@@ -1,17 +1,16 @@
 #!/usr/bin/env node
 
 /**
- * Verifies that the committed docs assistant corpus matches the current docs.
+ * Verifies that the docs assistant corpus can be regenerated from the current docs.
  *
  * Steps:
- * 1. Read the committed corpus JSON into memory.
- * 2. Regenerate the corpus with the canonical docs assistant generator.
- * 3. Compare the regenerated file with the committed one and fail when they differ.
- * 4. Instruct contributors to rebuild and commit the corpus artifact when needed.
+ * 1. Regenerate the corpus with the canonical docs assistant generator.
+ * 2. Read the generated JSON artifact from the backend tree.
+ * 3. Fail when the build did not produce any chunks.
  */
 
 import { execSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const repoRoot = resolve(import.meta.dirname, '..');
@@ -26,27 +25,8 @@ const corpusFilePath = resolve(
 checkDocsAssistantCorpus();
 
 function checkDocsAssistantCorpus() {
-  console.log('Checking if the docs assistant corpus is up to date...');
-
-  let beforeContent = '';
-
-  try {
-    beforeContent = readFileSync(corpusFilePath, 'utf8');
-  } catch (error) {
-    if (error && typeof error === 'object' && 'code' in error) {
-      if (error.code === 'ENOENT') {
-        console.error('\nERROR: docsAssistantCorpus.json is missing.\n');
-        console.error(
-          'Generate and commit the docs assistant corpus before merging.'
-        );
-        console.error('Run: node scripts/build-docs-assistant-corpus.js\n');
-        process.exit(1);
-      }
-    }
-
-    console.error('Error reading the current docs assistant corpus.', error);
-    process.exit(1);
-  }
+  console.log('Checking if the docs assistant corpus can be generated...');
+  const hadExistingCorpus = existsSync(corpusFilePath);
 
   try {
     execSync('node scripts/build-docs-assistant-corpus.js', {
@@ -58,23 +38,47 @@ function checkDocsAssistantCorpus() {
     process.exit(1);
   }
 
-  const afterContent = readFileSync(corpusFilePath, 'utf8');
+  let corpus = null;
 
-  if (beforeContent !== afterContent) {
-    console.error('\nERROR: docsAssistantCorpus.json is out of date.\n');
+  try {
+    corpus = JSON.parse(readFileSync(corpusFilePath, 'utf8'));
+  } catch (error) {
+    console.error('Error reading the generated docs assistant corpus.', error);
+    process.exit(1);
+  }
+
+  const chunkCount =
+    typeof corpus?.chunkCount === 'number'
+      ? corpus.chunkCount
+      : Array.isArray(corpus?.chunks)
+        ? corpus.chunks.length
+        : 0;
+
+  if (!Array.isArray(corpus?.chunks) || chunkCount === 0) {
     console.error(
-      'The generated docs assistant corpus differs from the committed version.'
+      '\nERROR: docsAssistantCorpus.json was generated but is empty.\n'
     );
     console.error(
-      'This means the docs changed but the retrieval corpus was not regenerated and committed.\n'
-    );
-    console.error('To fix this:');
-    console.error('  1. Run: node scripts/build-docs-assistant-corpus.js');
-    console.error(
-      '  2. Commit docs-chat/backend/generated/docsAssistantCorpus.json\n'
+      'The docs assistant corpus build completed without any retrieval chunks.'
     );
     process.exit(1);
   }
 
-  console.log('The docs assistant corpus is up to date.');
+  if (!hadExistingCorpus) {
+    try {
+      rmSync(corpusFilePath, {
+        force: true,
+      });
+    } catch (error) {
+      console.error(
+        'The docs assistant corpus check succeeded, but the transient artifact could not be cleaned up.',
+        error
+      );
+      process.exit(1);
+    }
+  }
+
+  console.log(
+    `The docs assistant corpus generated successfully (${chunkCount} chunk(s)).`
+  );
 }

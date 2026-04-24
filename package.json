@@ -45,7 +45,7 @@
     "docs:assistant:corpus:check": "node scripts/check-docs-assistant-corpus.js",
     "docs:assistant:corpus:watch": "node scripts/watch-docs-assistant-corpus.js",
     "docs:assistant:dev": "node scripts/dev-docs-assistant.js",
-    "docs:assistant:emulator": "pnpm exec firebase emulators:start --only functions --project local-docs-assistant",
+    "docs:assistant:emulator": "pnpm docs:assistant:corpus && pnpm exec firebase emulators:start --only functions --project local-docs-assistant",
     "docs:build": "vitepress build docs",
     "docs:check": "node scripts/check-docs.js",
     "docs:preview": "vitepress preview docs",

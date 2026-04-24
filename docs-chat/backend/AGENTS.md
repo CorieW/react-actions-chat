@@ -2,10 +2,6 @@
 
 Firebase deployment root for the docs assistant backend.
 
-## Directories
-
-- `generated/`: Auto-generated docs corpus and embeddings loaded by the Firebase function at runtime.
-
 ## Files
 
 - `.env.example`: Example local environment configuration for the docs assistant backend emulator and deploy workflow.

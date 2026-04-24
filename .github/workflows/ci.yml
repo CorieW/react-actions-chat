@@ -86,7 +86,7 @@ jobs:
         run: pnpm check:styles
 
   docs-assistant-corpus-check:
-    name: Docs Assistant Corpus Check
+    name: Docs Assistant Corpus Build Check
     runs-on: ubuntu-latest
 
     steps:
@@ -108,7 +108,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check if docs assistant corpus is up to date
+      - name: Build docs assistant corpus
         run: pnpm docs:assistant:corpus:check
 
   lint:
