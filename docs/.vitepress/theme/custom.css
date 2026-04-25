@@ -39,7 +39,7 @@
     display: flex;
     justify-content: center;
     width: 100%;
-    margin: 2rem 0 0;
+    margin: 3rem 0 0;
   }
 
   .VPHomeHero .image-container {
@@ -59,6 +59,18 @@
 }
 
 @media (min-width: 960px) {
+  .VPHomeHero .container {
+    column-gap: clamp(2rem, 4vw, 4rem);
+  }
+
+  .VPHomeHero .main {
+    flex: 1 1 0;
+    flex-shrink: 1;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+  }
+
   .VPHomeHero .image {
     display: flex;
     flex: 1 1 0;
