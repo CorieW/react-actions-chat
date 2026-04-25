@@ -19,6 +19,7 @@ VitePress source for the public documentation site, including guides, references
 - `examples.md`: Guide to the runnable example apps and what each demo shows.
 - `getting-started.md`: Getting-started guide for installing and rendering the chat component.
 - `index.md`: Landing page for the documentation site.
+- `use-cases.md`: Use-case guide that maps common product flows to docs, package pieces, and examples.
 
 ## Writing Rules
 

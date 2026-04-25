@@ -15,10 +15,16 @@ hero:
       text: Components
       link: /components/index
     - theme: alt
+      text: Use Cases
+      link: /use-cases
+    - theme: alt
       text: Types
       link: /types/index
 
 features:
+  - title: Use Cases
+    details: Match support triage, guided account flows, uploads, LLM replies, recommended actions, and support desks to the right package pieces.
+    link: /use-cases
   - title: Key Components
     details: Learn how Chat and the button helpers fit together.
     link: /components/index
@@ -48,6 +54,7 @@ features:
 ## Start Here
 
 - New to the package: [Getting started](./getting-started.md)
+- Choosing what to build: [Use cases](./use-cases.md)
 - Exploring the main building blocks: [Components overview](./components/index.md)
 - Reviewing the main data shapes: [Types overview](./types/index.md)
 - Working directly with state: [Stores overview](./stores/index.md)

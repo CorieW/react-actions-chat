@@ -30,21 +30,16 @@ const RESPONSE_WAIT_PLACEHOLDER = 'Searching the docs...';
 
 const STARTER_PROMPTS = [
   {
+    label: 'Tell me about this',
+    prompt: 'What is react-actions-chat, and what problems does it help solve?',
+  },
+  {
     label: 'Getting started',
     prompt: 'How do I get started with react-actions-chat?',
   },
   {
-    label: 'Uploads',
-    prompt: 'How do uploads and different input types work in the chat?',
-  },
-  {
-    label: 'LLM backend',
-    prompt: 'How do I connect the chat to my own LLM backend?',
-  },
-  {
-    label: 'Recommended actions',
-    prompt:
-      'When should I use recommended actions and vector search in this package?',
+    label: 'Use cases',
+    prompt: 'What use cases is react-actions-chat designed for?',
   },
 ] as const;
 
@@ -241,7 +236,9 @@ function createResetButton(): MessageButton {
 }
 
 function createResetOnlyButtons(): readonly MessageButton[] {
-  return [createResetButton()];
+  return useChatStore.getState().getMessages().length > 1
+    ? [createResetButton()]
+    : [];
 }
 
 function submitSuggestedQuestion(question: string): void {
@@ -265,7 +262,7 @@ function submitSuggestedQuestion(question: string): void {
 }
 
 function createStarterButtons(): readonly MessageButton[] {
-  const buttons = STARTER_PROMPTS.map(({ label, prompt }) =>
+  return STARTER_PROMPTS.map(({ label, prompt }) =>
     createButton({
       label,
       onClick: () => {
@@ -273,10 +270,10 @@ function createStarterButtons(): readonly MessageButton[] {
       },
     })
   );
+}
 
-  buttons.push(createResetButton());
-
-  return buttons;
+function createErrorButtons(): readonly MessageButton[] {
+  return [...createStarterButtons(), ...createResetOnlyButtons()];
 }
 
 function createDocsMarkdownPart(markdown: string) {
@@ -376,7 +373,7 @@ const DOCS_ASSISTANT_FLOW: ChatTextGenerationFlow | null =
                   : 'Something went wrong while contacting the docs assistant.'
               ),
             ],
-            buttons: createStarterButtons(),
+            buttons: createErrorButtons(),
             userResponseCallback: createConversationCallback(),
           };
         },

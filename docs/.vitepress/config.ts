@@ -20,19 +20,7 @@ export default defineConfig({
     'Consumer docs for react-actions-chat and its recommended-actions, support, and llms companion packages.',
   lastUpdated: true,
   themeConfig: {
-    nav: [
-      { text: 'Components', link: '/components/index' },
-      { text: 'Types', link: '/types/index' },
-      { text: 'Stores', link: '/stores/index' },
-      { text: 'Sub-packages', link: '/sub-packages/index' },
-      { text: 'Getting Started', link: '/getting-started' },
-      { text: 'Reference', link: '/reference/core-api' },
-      { text: 'Examples', link: '/examples' },
-      {
-        text: 'GitHub',
-        link: 'https://github.com/CorieW/react-actions-chat',
-      },
-    ],
+    nav: [],
     search: {
       provider: 'local',
     },
@@ -46,7 +34,7 @@ export default defineConfig({
         text: 'Getting Started',
         items: [
           { text: 'Getting Started', link: '/getting-started' },
-          { text: 'Docs Home', link: '/' },
+          { text: 'Use Cases', link: '/use-cases' },
           { text: 'Examples', link: '/examples' },
         ],
       },
