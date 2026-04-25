@@ -1,18 +1,7 @@
 name: Deploy Docs Assistant Backend
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/deploy-docs-assistant-backend.yml'
-      - 'docs/**'
-      - 'docs-chat/**'
-      - 'firebase.json'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'scripts/build-docs-assistant-corpus.js'
-      - 'scripts/build-docs-assistant-embeddings.js'
+  workflow_call:
   workflow_dispatch:
 
 permissions:
