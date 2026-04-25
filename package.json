@@ -60,7 +60,7 @@
     "node": "^22.13.0 || >=24.0.0"
   },
   "scripts": {
-    "agents:check": "agentsmd-hierarchy check .",
+    "agents:check": "git ls-files '*AGENTS.md' ':!:.changeset/AGENTS.md' | xargs -n 1 agentsmd-hierarchy check",
     "changeset": "changeset",
     "dev": "vite --config config/vite.config.ts",
     "docs:dev": "vitepress dev docs",
