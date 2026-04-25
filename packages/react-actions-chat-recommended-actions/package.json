@@ -1,6 +1,6 @@
 {
   "name": "react-actions-chat-recommended-actions",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Query-driven and vector-search-backed recommended action flows for react-actions-chat.",
   "keywords": [
     "react",
