@@ -13,7 +13,8 @@
       "ignoreDependencies": ["prettier-plugin-tailwindcss", "tailwindcss"]
     },
     "docs-chat/backend": {
-      "project": ["**/*.{js,ts}"]
+      "project": ["**/*.{js,ts}"],
+      "ignoreDependencies": ["@google-cloud/functions-framework"]
     },
     "packages/react-actions-chat-llms": {
       "project": ["src/**/*.{ts,tsx}"]
