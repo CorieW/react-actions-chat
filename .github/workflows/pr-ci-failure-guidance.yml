@@ -1,0 +1,243 @@
+name: PR CI Failure Guidance
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+jobs:
+  comment:
+    name: Comment Failure Guidance
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.event == 'pull_request'
+    permissions:
+      actions: read
+      contents: read
+      issues: write
+      pull-requests: read
+
+    steps:
+      - name: Create or clear CI guidance comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- pr-ci-failure-guidance -->';
+            const workflowRun = context.payload.workflow_run;
+            const pullRequest = workflowRun.pull_requests?.[0];
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const failureConclusions = new Set([
+              'action_required',
+              'failure',
+              'startup_failure',
+              'timed_out',
+            ]);
+
+            if (!pullRequest) {
+              core.notice('No pull request is associated with this workflow run.');
+              return;
+            }
+
+            const issue_number = pullRequest.number;
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              {
+                owner,
+                repo,
+                issue_number,
+                per_page: 100,
+              }
+            );
+            const existingComment = comments.find(
+              comment =>
+                comment.user?.type === 'Bot' &&
+                comment.body?.includes(marker)
+            );
+
+            if (!failureConclusions.has(workflowRun.conclusion ?? '')) {
+              if (existingComment) {
+                await github.rest.issues.deleteComment({
+                  owner,
+                  repo,
+                  comment_id: existingComment.id,
+                });
+                core.notice('Removed the stale CI failure guidance comment.');
+              } else {
+                core.notice('Latest CI run did not fail; no guidance comment needed.');
+              }
+              return;
+            }
+
+            const adviceByJobName = {
+              'Format Check': {
+                summary: 'Run Prettier and commit the formatted files.',
+                commands: ['pnpm format'],
+              },
+              'AGENTS Check': {
+                summary:
+                  'Refresh the AGENTS inventory, then commit the updated `AGENTS.md` files.',
+                commands: ['pnpm exec agentsmd-hierarchy fix .', 'pnpm agents:check'],
+              },
+              'Styles Sync Check': {
+                summary:
+                  'Regenerate the published stylesheet and commit the updated `src/styles.css`.',
+                commands: ['pnpm build:styles'],
+              },
+              'Docs Assistant Corpus Check': {
+                summary:
+                  'Regenerate the docs assistant corpus and commit the generated JSON artifact.',
+                commands: ['pnpm docs:assistant:corpus'],
+              },
+              'Linter Check': {
+                summary: 'Run ESLint locally and address the reported diagnostics.',
+                commands: ['pnpm lint'],
+              },
+              'Type Check': {
+                summary:
+                  'Rerun typechecking locally; this also validates docs snippets and reference pages.',
+                commands: ['pnpm typecheck'],
+              },
+              'Knip Check': {
+                summary:
+                  'Run Knip locally and remove or wire up the unused files, exports, or dependencies it reports.',
+                commands: ['pnpm knip'],
+              },
+              Build: {
+                summary:
+                  'Reproduce the build locally and fix the first build error before rerunning CI.',
+                commands: ['pnpm build'],
+              },
+              Test: {
+                summary:
+                  'Run the Vitest suite locally and fix the failing test or implementation.',
+                commands: ['pnpm test -- --run'],
+              },
+              E2E: {
+                summary:
+                  'Run the PR Playwright suite locally and inspect the first failing scenario.',
+                commands: ['pnpm test:e2e'],
+              },
+              Coverage: {
+                summary:
+                  'Reproduce the coverage run locally and fix the failing test or instrumentation issue.',
+                commands: ['pnpm test:coverage'],
+              },
+            };
+
+            const adviceByStepName = {
+              'Install dependencies': {
+                summary:
+                  'Reinstall workspace dependencies locally. If `pnpm-lock.yaml` changes, commit the updated lockfile.',
+                commands: ['pnpm install'],
+              },
+              'Install Playwright browsers': {
+                summary:
+                  'Install the required Playwright browser binaries locally before rerunning E2E.',
+                commands: ['pnpm exec playwright install --with-deps chromium'],
+              },
+              'Check formatting': adviceByJobName['Format Check'],
+              'Validate AGENTS.md hierarchy': adviceByJobName['AGENTS Check'],
+              'Check if styles.css is up to date': adviceByJobName['Styles Sync Check'],
+              'Check if docs assistant corpus is up to date':
+                adviceByJobName['Docs Assistant Corpus Check'],
+              'Run linter': adviceByJobName['Linter Check'],
+              'Type check': adviceByJobName['Type Check'],
+              'Check for unused files, exports, and dependencies':
+                adviceByJobName['Knip Check'],
+              Build: adviceByJobName.Build,
+              'Run tests': adviceByJobName.Test,
+              'Run E2E tests': adviceByJobName.E2E,
+              'Run coverage': adviceByJobName.Coverage,
+            };
+
+            const jobs = await github.paginate(
+              github.rest.actions.listJobsForWorkflowRun,
+              {
+                owner,
+                repo,
+                run_id: workflowRun.id,
+                per_page: 100,
+              }
+            );
+            const failingJobs = jobs.filter(job =>
+              failureConclusions.has(job.conclusion ?? '')
+            );
+
+            if (failingJobs.length === 0) {
+              core.notice(
+                'Workflow concluded with a failure state, but no failed jobs were returned.'
+              );
+              return;
+            }
+
+            const commandSet = new Set();
+            const jobLines = failingJobs.map(job => {
+              const failedStep = job.steps?.find(step =>
+                failureConclusions.has(step.conclusion ?? '')
+              );
+              const advice =
+                adviceByStepName[failedStep?.name ?? ''] ??
+                adviceByJobName[job.name] ?? {
+                  summary:
+                    'Open the linked job log, rerun the matching command locally, and fix the first reported error.',
+                  commands: [],
+                };
+
+              for (const command of advice.commands) {
+                commandSet.add(command);
+              }
+
+              const stepLabel = failedStep?.name
+                ? ` failed at \`${failedStep.name}\``
+                : '';
+
+              return `- [\`${job.name}\`](${job.html_url})${stepLabel}: ${advice.summary}`;
+            });
+
+            const commandBlock = Array.from(commandSet)
+              .map(command => command)
+              .join('\n');
+
+            const bodyLines = [
+              marker,
+              'CI finished with failing checks for this PR.',
+              '',
+              ...jobLines,
+              '',
+            ];
+
+            if (commandBlock) {
+              bodyLines.push(
+                'Recommended local commands:',
+                '',
+                '```bash',
+                commandBlock,
+                '```',
+                ''
+              );
+            }
+
+            bodyLines.push(
+              `Workflow run: [\`${workflowRun.name ?? 'CI'} #${workflowRun.run_number}\`](${workflowRun.html_url})`
+            );
+
+            const body = bodyLines.join('\n');
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existingComment.id,
+                body,
+              });
+              core.notice('Updated the CI failure guidance comment.');
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body,
+            });
+            core.notice('Created the CI failure guidance comment.');

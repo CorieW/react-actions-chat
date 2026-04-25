@@ -32,7 +32,7 @@ export function MessageButtons({
 
   return (
     <div
-      className={`mt-2 flex flex-wrap gap-2 ${
+      className={`asc-message-actions mt-2 flex flex-wrap gap-2 ${
         messageType === 'self' ? 'justify-end' : 'justify-start'
       }`}
       role='group'
@@ -44,7 +44,7 @@ export function MessageButtons({
         const variantStyles = getButtonVariantStyles(variant, theme);
         const buttonStyles = { ...variantStyles, ...button.style };
         const baseClassName =
-          'rounded-lg px-3 py-1.5 text-xs font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-1';
+          'rounded-lg px-3 py-1.5 text-xs font-medium transition-[transform,opacity,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:opacity-90 focus-visible:outline-none focus-visible:ring-1';
         const buttonClassName = cn(baseClassName, button.className);
 
         return (
