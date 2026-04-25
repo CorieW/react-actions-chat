@@ -1,8 +1,13 @@
 {
   "name": "docs-chat",
   "private": true,
+  "version": "1.0.0",
   "type": "module",
   "main": "index.js",
+  "files": [
+    "generated",
+    "index.js"
+  ],
   "engines": {
     "node": "22"
   },

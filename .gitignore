@@ -23,6 +23,7 @@ docs/.vitepress/.temp
 docs/.vitepress/cache
 docs/.vitepress/dist
 docs-chat/backend/generated
+docs-chat/backend/isolate
 
 # Editor directories and files
 .vscode/*
