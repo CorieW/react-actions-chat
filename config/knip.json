@@ -10,7 +10,11 @@
         "src/**/*.{js,jsx,ts,tsx}"
       ],
       "ignore": ["config/tailwind.config.js", "scripts/build-styles-simple.js"],
-      "ignoreDependencies": ["prettier-plugin-tailwindcss", "tailwindcss"]
+      "ignoreDependencies": [
+        "agentsmd-hierarchy",
+        "prettier-plugin-tailwindcss",
+        "tailwindcss"
+      ]
     },
     "docs-chat/backend": {
       "project": ["**/*.{js,ts}"],
