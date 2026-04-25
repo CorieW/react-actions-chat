@@ -1,0 +1,84 @@
+name: Deploy Docs Assistant Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-docs-assistant-backend.yml'
+      - 'docs/**'
+      - 'docs-chat/**'
+      - 'firebase.json'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'scripts/build-docs-assistant-corpus.js'
+      - 'scripts/build-docs-assistant-embeddings.js'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy Docs Assistant Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: 'pnpm'
+          node-version: '22.13.0'
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate docs assistant corpus
+        run: node scripts/build-docs-assistant-corpus.js
+
+      - name: Generate docs assistant embeddings
+        env:
+          DOCS_ASSISTANT_EMBEDDING_MODEL: ${{ vars.DOCS_ASSISTANT_EMBEDDING_MODEL }}
+          OPENAI_API_KEY: ${{ secrets.DOCS_ASSISTANT_OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ vars.OPENAI_BASE_URL }}
+        run: node scripts/build-docs-assistant-embeddings.js
+
+      - name: Write Firebase function environment file
+        env:
+          DOCS_ASSISTANT_ALLOWED_ORIGINS: ${{ vars.DOCS_ASSISTANT_ALLOWED_ORIGINS }}
+          DOCS_ASSISTANT_EMBEDDING_MODEL: ${{ vars.DOCS_ASSISTANT_EMBEDDING_MODEL }}
+          DOCS_ASSISTANT_LLM_MODEL: ${{ vars.DOCS_ASSISTANT_LLM_MODEL }}
+          OPENAI_BASE_URL: ${{ vars.OPENAI_BASE_URL }}
+        run: |
+          {
+            printf 'OPENAI_BASE_URL=%s\n' "${OPENAI_BASE_URL:-https://api.openai.com/v1}"
+            printf 'DOCS_ASSISTANT_LLM_MODEL=%s\n' "${DOCS_ASSISTANT_LLM_MODEL:-gpt-5-mini}"
+            printf 'DOCS_ASSISTANT_EMBEDDING_MODEL=%s\n' "${DOCS_ASSISTANT_EMBEDDING_MODEL:-text-embedding-3-small}"
+            printf 'DOCS_ASSISTANT_ALLOWED_ORIGINS=%s\n' "$DOCS_ASSISTANT_ALLOWED_ORIGINS"
+          } > docs-chat/backend/.env
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Sync Firebase OpenAI secret
+        env:
+          OPENAI_API_KEY: ${{ secrets.DOCS_ASSISTANT_OPENAI_API_KEY }}
+        run: |
+          printf '%s' "$OPENAI_API_KEY" \
+            | pnpm exec firebase functions:secrets:set DOCS_ASSISTANT_OPENAI_API_KEY \
+                --data-file - \
+                --force \
+                --project "${{ vars.FIREBASE_PROJECT_ID }}"
+
+      - name: Deploy docs assistant function
+        run: pnpm exec firebase deploy --non-interactive --only functions:docsAssistantApi --project "${{ vars.FIREBASE_PROJECT_ID }}"

@@ -1,4 +1,5 @@
 packages:
   - '.'
+  - 'docs-chat/backend'
   - 'packages/*'
   - 'examples/*'

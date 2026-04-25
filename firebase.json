@@ -1,0 +1,17 @@
+{
+  "emulators": {
+    "functions": {
+      "port": 5180
+    }
+  },
+  "functions": {
+    "source": "docs-chat/backend",
+    "ignore": [
+      ".env.local",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "node_modules"
+    ]
+  }
+}

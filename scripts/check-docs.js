@@ -31,7 +31,7 @@ const tsConfigPath = join(rootDir, 'config', 'tsconfig.json');
 const docsSupportFiles = [
   'docs/.vitepress/config.ts',
   'docs/.vitepress/theme/index.ts',
-  'docs/.vitepress/theme/components/homepageChatDemo.ts',
+  'docs-chat/frontend/homepageChatDemo.ts',
 ];
 const printer = ts.createPrinter({
   newLine: ts.NewLineKind.LineFeed,

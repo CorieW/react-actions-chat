@@ -825,7 +825,7 @@
     opacity: .7;
   }
 
-  .shadow, .shadow-sm {
+  .shadow-sm {
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, #0000001a), 0 1px 2px -1px var(--tw-shadow-color, #0000001a);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
@@ -864,6 +864,14 @@
   .ease-out {
     --tw-ease: var(--ease-out);
     transition-timing-function: var(--ease-out);
+  }
+
+  .\[docs-assistant\:corpus\] {
+    docs-assistant: corpus;
+  }
+
+  .\[docs-assistant\:dev\] {
+    docs-assistant: dev;
   }
 
   @media (hover: hover) {
