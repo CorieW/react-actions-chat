@@ -11,7 +11,7 @@
   "dependencies": {
     "react-actions-chat": "workspace:*",
     "react-actions-chat-recommended-actions": "workspace:*",
-    "@tanstack/react-query": "^5.90.5",
+    "@tanstack/react-query": "^5.100.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
