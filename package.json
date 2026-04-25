@@ -1,7 +1,7 @@
 {
   "name": "react-actions-chat",
   "private": false,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Composable React chat components with action buttons, guided request flows, and support workflows.",
   "keywords": [
     "react",

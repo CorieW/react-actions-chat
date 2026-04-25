@@ -1,6 +1,6 @@
 {
   "name": "react-actions-chat-llms",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Backend-routed text-generation helpers for react-actions-chat flows.",
   "keywords": [
     "react",
