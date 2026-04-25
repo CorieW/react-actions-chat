@@ -310,20 +310,8 @@ function resolveCorsOrigin(requestOrigin) {
 function parseConfiguredOrigins(rawOrigins) {
   return (rawOrigins ?? '')
     .split(',')
-    .map(origin => normalizeConfiguredOrigin(origin.trim()))
+    .map(origin => origin.trim())
     .filter(Boolean);
-}
-
-function normalizeConfiguredOrigin(origin) {
-  if (origin === '*' || origin === '') {
-    return origin;
-  }
-
-  try {
-    return new URL(origin).origin;
-  } catch {
-    return origin.replace(/\/+$/, '');
-  }
 }
 
 function parseRequestBody(request) {
