@@ -9,6 +9,7 @@ Changeset metadata for published package version bumps and release-note entries.
 ## Files
 
 - `config.json`: Changesets configuration for versioning and release PR generation.
+- `fresh-icons-share.md`: Patch changeset for adding GitHub repository metadata to published package manifests.
 
 ## Writing Rules
 

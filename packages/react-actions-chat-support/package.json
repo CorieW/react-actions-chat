@@ -1,10 +1,31 @@
 {
   "name": "react-actions-chat-support",
   "version": "1.0.0",
+  "description": "Support-desk flow helpers and in-memory adapters for react-actions-chat.",
+  "keywords": [
+    "react",
+    "chat",
+    "support",
+    "support-desk",
+    "customer-support",
+    "workflow",
+    "react-actions-chat"
+  ],
+  "author": "CorieW",
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CorieW/react-actions-chat.git",
+    "directory": "packages/react-actions-chat-support"
+  },
+  "homepage": "https://github.com/CorieW/react-actions-chat/tree/main/packages/react-actions-chat-support#readme",
+  "bugs": {
+    "url": "https://github.com/CorieW/react-actions-chat/issues"
+  },
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "sideEffects": false,
   "files": [
     "src/index.ts",
     "src/supportFlowTypes.ts",

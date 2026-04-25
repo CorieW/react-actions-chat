@@ -1,10 +1,31 @@
 {
   "name": "react-actions-chat-llms",
   "version": "1.0.0",
+  "description": "Backend-routed text-generation helpers for react-actions-chat flows.",
+  "keywords": [
+    "react",
+    "chat",
+    "llm",
+    "ai",
+    "text-generation",
+    "assistant",
+    "react-actions-chat"
+  ],
+  "author": "CorieW",
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CorieW/react-actions-chat.git",
+    "directory": "packages/react-actions-chat-llms"
+  },
+  "homepage": "https://github.com/CorieW/react-actions-chat/tree/main/packages/react-actions-chat-llms#readme",
+  "bugs": {
+    "url": "https://github.com/CorieW/react-actions-chat/issues"
+  },
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "sideEffects": false,
   "files": [
     "src/index.ts",
     "src/chatTextGenerationFlow.ts",

@@ -1,10 +1,31 @@
 {
   "name": "react-actions-chat-recommended-actions",
   "version": "1.0.0",
+  "description": "Query-driven and vector-search-backed recommended action flows for react-actions-chat.",
+  "keywords": [
+    "react",
+    "chat",
+    "recommended-actions",
+    "vector-search",
+    "embeddings",
+    "assistant",
+    "react-actions-chat"
+  ],
+  "author": "CorieW",
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CorieW/react-actions-chat.git",
+    "directory": "packages/react-actions-chat-recommended-actions"
+  },
+  "homepage": "https://github.com/CorieW/react-actions-chat/tree/main/packages/react-actions-chat-recommended-actions#readme",
+  "bugs": {
+    "url": "https://github.com/CorieW/react-actions-chat/issues"
+  },
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "sideEffects": false,
   "files": [
     "src/embedders",
     "src/index.ts",

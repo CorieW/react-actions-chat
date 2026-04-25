@@ -2,10 +2,33 @@
   "name": "react-actions-chat",
   "private": false,
   "version": "1.0.0",
+  "description": "Composable React chat components with action buttons, guided request flows, and support workflows.",
+  "keywords": [
+    "react",
+    "chat",
+    "chatbot",
+    "actions",
+    "assistant",
+    "support",
+    "ui",
+    "components"
+  ],
+  "author": "CorieW",
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CorieW/react-actions-chat.git"
+  },
+  "homepage": "https://github.com/CorieW/react-actions-chat#readme",
+  "bugs": {
+    "url": "https://github.com/CorieW/react-actions-chat/issues"
+  },
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "sideEffects": [
+    "**/*.css"
+  ],
   "files": [
     "src/components",
     "src/lib",
