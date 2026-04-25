@@ -16,6 +16,10 @@ const MAX_REFERENCE_COUNT = 4;
 const MAX_TRANSCRIPT_CHARS = 12000;
 const MAX_TRANSCRIPT_MESSAGES = 10;
 const MAX_MESSAGE_LENGTH = 3000;
+const MAX_EMPTY_ASSISTANT_TEXT_RETRIES = 3;
+const EMPTY_ASSISTANT_TEXT_RETRY_DELAY_MS = 250;
+const EMPTY_ASSISTANT_TEXT_ERROR_MESSAGE =
+  'OpenAI did not return any assistant text.';
 const docsAssistantOpenAIApiKey = defineSecret('DOCS_ASSISTANT_OPENAI_API_KEY');
 
 const docsCorpusFileUrl = new URL(
@@ -599,33 +603,58 @@ async function generateDocsAnswer({
       ].join('\n')
     )
     .join('\n\n---\n\n');
+  const requestBody = {
+    input: [
+      {
+        role: 'system',
+        content: SYSTEM_PROMPT,
+      },
+      {
+        role: 'developer',
+        content: [
+          'Use the retrieved documentation context below when answering.',
+          'Prefer the most relevant sections and mention exact API names when useful.',
+          'If you show code, format it as fenced markdown with `ts` or `tsx` language tags.',
+          '',
+          docsContext,
+        ].join('\n'),
+      },
+      ...messages,
+    ],
+    max_output_tokens: maxOutputTokens,
+    model: openAIConfig.llmModel,
+  };
+
+  for (
+    let attempt = 0;
+    attempt <= MAX_EMPTY_ASSISTANT_TEXT_RETRIES;
+    attempt += 1
+  ) {
+    const responseText = await requestDocsAnswerText(openAIConfig, requestBody);
+
+    if (responseText) {
+      return responseText.trim();
+    }
+
+    if (attempt < MAX_EMPTY_ASSISTANT_TEXT_RETRIES) {
+      console.warn(
+        `OpenAI returned no assistant text. Retrying docs answer request (${attempt + 2}/${MAX_EMPTY_ASSISTANT_TEXT_RETRIES + 1}).`
+      );
+      await waitForMs(EMPTY_ASSISTANT_TEXT_RETRY_DELAY_MS * (attempt + 1));
+    }
+  }
+
+  throw new Error(EMPTY_ASSISTANT_TEXT_ERROR_MESSAGE);
+}
+
+async function requestDocsAnswerText(openAIConfig, requestBody) {
   const response = await fetch(`${openAIConfig.baseUrl}/responses`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${openAIConfig.apiKey}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      input: [
-        {
-          role: 'system',
-          content: SYSTEM_PROMPT,
-        },
-        {
-          role: 'developer',
-          content: [
-            'Use the retrieved documentation context below when answering.',
-            'Prefer the most relevant sections and mention exact API names when useful.',
-            'If you show code, format it as fenced markdown with `ts` or `tsx` language tags.',
-            '',
-            docsContext,
-          ].join('\n'),
-        },
-        ...messages,
-      ],
-      max_output_tokens: maxOutputTokens,
-      model: openAIConfig.llmModel,
-    }),
+    body: JSON.stringify(requestBody),
   });
   const data = await parseJsonResponse(response);
 
@@ -638,13 +667,13 @@ async function generateDocsAnswer({
     );
   }
 
-  const responseText = extractOutputText(data);
+  return extractOutputText(data);
+}
 
-  if (!responseText) {
-    throw new Error('OpenAI did not return any assistant text.');
-  }
-
-  return responseText.trim();
+function waitForMs(durationMs) {
+  return new Promise(resolve => {
+    globalThis.setTimeout(resolve, durationMs);
+  });
 }
 
 function buildReferencesMarkdown(chunks, docsBaseUrl) {
