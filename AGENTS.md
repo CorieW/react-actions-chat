@@ -4,7 +4,6 @@ Workspace root for the published `react-actions-chat` package, its companion rec
 
 ## Directories
 
-- `.changeset/`: Changeset metadata used to version and publish workspace packages.
 - `.github/`: GitHub configuration, automation, and CI workflows.
 - `config/`: Shared tool configuration for Vite, TypeScript, ESLint, Prettier, and Tailwind.
 - `docs/`: VitePress documentation source for the package site.
@@ -28,6 +27,7 @@ Workspace root for the published `react-actions-chat` package, its companion rec
 
 ## Generated Files
 
+- `.changeset/`: Changeset metadata used to version and publish workspace packages.
 - `pnpm-lock.yaml`: pnpm lockfile for the workspace dependency graph.
   Rules:
   - Prefer regenerating it instead of hand-editing when possible.
