@@ -47,6 +47,7 @@ const SYSTEM_PROMPT = [
 
 export const docsAssistantApi = onRequest(
   {
+    invoker: 'public',
     maxInstances: 5,
     memory: '512MiB',
     secrets: [docsAssistantOpenAIApiKey],
@@ -309,8 +310,20 @@ function resolveCorsOrigin(requestOrigin) {
 function parseConfiguredOrigins(rawOrigins) {
   return (rawOrigins ?? '')
     .split(',')
-    .map(origin => origin.trim())
+    .map(origin => normalizeConfiguredOrigin(origin.trim()))
     .filter(Boolean);
+}
+
+function normalizeConfiguredOrigin(origin) {
+  if (origin === '*' || origin === '') {
+    return origin;
+  }
+
+  try {
+    return new URL(origin).origin;
+  } catch {
+    return origin.replace(/\/+$/, '');
+  }
 }
 
 function parseRequestBody(request) {
