@@ -9,7 +9,7 @@ on:
         default: true
         type: boolean
       publish_packages:
-        description: 'Create or publish the package release via Changesets'
+        description: 'Create or publish npm releases for react-actions-chat and companion packages'
         required: true
         default: true
         type: boolean
@@ -56,13 +56,19 @@ jobs:
     secrets: inherit
 
   release-packages:
-    name: Release Packages
+    name: Release npm Packages
     needs: validate-inputs
     if: ${{ inputs.publish_packages }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
+    env:
+      PUBLISHABLE_PACKAGES: |-
+        react-actions-chat
+        react-actions-chat-llms
+        react-actions-chat-recommended-actions
+        react-actions-chat-support
 
     steps:
       - name: Checkout code
@@ -85,7 +91,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Create Release Pull Request or Publish to npm
+      - name: List publishable packages
+        run: |
+          {
+            echo '### Publishable npm packages'
+            echo
+            while IFS= read -r package_name; do
+              echo "- \`${package_name}\`"
+            done <<< "$PUBLISHABLE_PACKAGES"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create Release Pull Request or Publish Workspace Packages to npm
         id: changesets
         uses: changesets/action@v1
         with:
