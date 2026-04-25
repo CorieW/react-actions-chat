@@ -2,6 +2,10 @@
 
 Firebase deployment root for the docs assistant backend.
 
+## Directories
+
+- None.
+
 ## Files
 
 - `.env.example`: Example local environment configuration for the docs assistant backend emulator and deploy workflow.

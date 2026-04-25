@@ -8,8 +8,8 @@ GitHub Actions workflow definitions for continuous integration, releases, docs d
 
 ## Files
 
-- `deploy-docs-assistant-backend.yml`: GitHub Actions workflow that regenerates and deploys the Firebase docs assistant backend.
 - `ci.yml`: GitHub Actions workflow for the main CI checks on pushes and pull requests across all branches, including AGENTS hierarchy validation.
+- `deploy-docs-assistant-backend.yml`: GitHub Actions workflow that regenerates and deploys the Firebase docs assistant backend.
 - `deploy-docs.yml`: GitHub Actions workflow that manually or reusably builds and deploys the docs site from the default branch.
 - `e2e.yml`: GitHub Actions workflow that builds the example apps and runs the Playwright suite.
 - `pr-ci-failure-guidance.yml`: GitHub Actions workflow that comments on pull requests with recommended local commands for failed CI jobs.
