@@ -41,7 +41,7 @@ export default defineConfig({
       {
         text: 'Components',
         items: [
-          { text: 'Components', link: '/components/index' },
+          { text: 'Components', link: '/components/' },
           { text: 'Chat', link: '/components/chat' },
           {
             text: 'Plain Message Buttons',
@@ -64,7 +64,7 @@ export default defineConfig({
       {
         text: 'Types',
         items: [
-          { text: 'Types', link: '/types/index' },
+          { text: 'Types', link: '/types/' },
           { text: 'ChatTheme', link: '/types/chat-theme' },
           { text: 'InputMessage', link: '/types/input-message' },
           { text: 'Message', link: '/types/message' },
@@ -80,7 +80,7 @@ export default defineConfig({
       {
         text: 'Stores',
         items: [
-          { text: 'Stores', link: '/stores/index' },
+          { text: 'Stores', link: '/stores/' },
           { text: 'useChatStore', link: '/stores/use-chat-store' },
           {
             text: 'useInputFieldStore',
@@ -95,7 +95,7 @@ export default defineConfig({
       {
         text: 'Sub-packages',
         items: [
-          { text: 'Sub-packages', link: '/sub-packages/index' },
+          { text: 'Sub-packages', link: '/sub-packages/' },
           {
             text: 'react-actions-chat-llms',
             link: '/sub-packages/react-actions-chat-llms',

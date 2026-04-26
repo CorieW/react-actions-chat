@@ -46,11 +46,13 @@ const sourceProgram = ts.createProgram({
 const checker = sourceProgram.getTypeChecker();
 
 const referenceValidationErrors = runReferenceChecks();
+const sidebarLinkErrors = runSidebarLinkChecks();
 const supportFileDiagnostics = runDocsSupportFileTypecheck();
 const snippetDiagnostics = runSnippetTypecheck();
 
 const allErrors = [
   ...referenceValidationErrors,
+  ...sidebarLinkErrors,
   ...supportFileDiagnostics,
   ...snippetDiagnostics,
 ];
@@ -443,6 +445,42 @@ function runDocsSupportFileTypecheck() {
       recursive: true,
     });
   }
+}
+
+function runSidebarLinkChecks() {
+  const configPath = join(rootDir, 'docs/.vitepress/config.ts');
+  const configContent = readFileSync(configPath, 'utf8');
+  const sourceFileNode = ts.createSourceFile(
+    configPath,
+    configContent,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS
+  );
+  const errors = [];
+
+  function visit(node) {
+    if (
+      ts.isPropertyAssignment(node) &&
+      ts.isIdentifier(node.name) &&
+      node.name.text === 'link' &&
+      ts.isStringLiteralLike(node.initializer) &&
+      /^\/.+\/index$/.test(node.initializer.text)
+    ) {
+      const { line, character } = sourceFileNode.getLineAndCharacterOfPosition(
+        node.initializer.getStart(sourceFileNode)
+      );
+      errors.push(
+        `${relative(rootDir, configPath)}:${line + 1}:${character + 1} uses "${node.initializer.text}". Link index pages as directory routes, for example "/components/", so VitePress pager lookup can match index.md pages.`
+      );
+    }
+
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFileNode);
+
+  return errors;
 }
 
 function collectTypecheckedSnippets() {
