@@ -57,7 +57,7 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "engines": {
-    "node": "^22.13.0 || >=24.0.0"
+    "node": "^24.15.0"
   },
   "scripts": {
     "agents:check": "git ls-files '*AGENTS.md' ':!:.changeset/AGENTS.md' | xargs -n 1 agentsmd-hierarchy check",

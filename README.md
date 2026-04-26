@@ -10,7 +10,7 @@ Interactive React chat UI for support flows, guided actions, confirmations, and 
 npm install react-actions-chat
 ```
 
-This package targets Node.js `^22.13.0 || >=24.0.0`.
+This package targets Node.js `^24.15.0`.
 
 If you want query-driven or vector-search-backed action recommendations, install the companion package too:
 
@@ -97,7 +97,7 @@ pnpm --filter settings-example dev
 
 ## Development
 
-Use Node.js `^22.13.0 || >=24.0.0` with `pnpm`.
+Use Node.js `^24.15.0` with `pnpm`.
 
 ```bash
 corepack enable
