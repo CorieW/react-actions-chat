@@ -51,18 +51,33 @@ jobs:
   live-settings:
     name: Live Settings
     runs-on: ubuntu-latest
-    if: ${{ secrets.E2E_SETTINGS_OPENAI_API_KEY != '' }}
+    if: ${{ github.event_name != 'pull_request' }}
 
     steps:
+      - name: Check live settings API key
+        id: live-settings-api-key
+        env:
+          VITE_OPENAI_API_KEY: ${{ secrets.E2E_SETTINGS_OPENAI_API_KEY }}
+        run: |
+          if [ -n "$VITE_OPENAI_API_KEY" ]; then
+            echo 'available=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'available=false' >> "$GITHUB_OUTPUT"
+            echo 'E2E_SETTINGS_OPENAI_API_KEY is not configured; skipping live settings E2E.'
+          fi
+
       - name: Checkout code
+        if: ${{ steps.live-settings-api-key.outputs.available == 'true' }}
         uses: actions/checkout@v4
 
       - name: Setup pnpm
+        if: ${{ steps.live-settings-api-key.outputs.available == 'true' }}
         uses: pnpm/action-setup@v4
         with:
           run_install: false
 
       - name: Setup Node.js
+        if: ${{ steps.live-settings-api-key.outputs.available == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: '22.13.0'
@@ -70,12 +85,15 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
+        if: ${{ steps.live-settings-api-key.outputs.available == 'true' }}
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright Chromium
+        if: ${{ steps.live-settings-api-key.outputs.available == 'true' }}
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run live settings E2E
+        if: ${{ steps.live-settings-api-key.outputs.available == 'true' }}
         env:
           VITE_OPENAI_API_KEY: ${{ secrets.E2E_SETTINGS_OPENAI_API_KEY }}
         run: pnpm test:e2e:live
