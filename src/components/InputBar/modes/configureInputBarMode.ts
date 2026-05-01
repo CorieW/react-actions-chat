@@ -17,6 +17,7 @@ export function configureInputBarMode(
     type: config.type,
     placeholder: config.placeholder ?? 'Type your message...',
     description: config.description ?? '',
+    options: config.options ?? [],
   });
 }
 
@@ -30,5 +31,6 @@ export function resetInputBarMode(store: InputFieldStoreState): void {
     type: true,
     placeholder: true,
     description: true,
+    options: true,
   });
 }

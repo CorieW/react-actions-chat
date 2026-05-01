@@ -63,6 +63,7 @@ export function createRequestInputButton(
         placeholder = 'Type your message...',
         inputDescription,
         inputType = 'textarea',
+        inputOptions,
         allowFileUpload = false,
         fileValidator,
         validator,
@@ -89,6 +90,7 @@ export function createRequestInputButton(
       const modeConfig: InputBarModeConfig = {
         type: inputType,
         placeholder,
+        ...(inputOptions ? { options: inputOptions } : {}),
         ...(inputDescription ? { description: inputDescription } : {}),
       };
       const behaviorConfig: InputBarBehaviorConfig = {
@@ -127,6 +129,7 @@ export function createRequestInputButton(
           value: true,
           description: true,
           files: true,
+          options: true,
           fileValidator: true,
           validator: true,
           submitGuard: true,

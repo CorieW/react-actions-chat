@@ -23,6 +23,7 @@ describe('Input Field Store Unit Tests', () => {
     store.resetInputFieldDisabled();
     store.resetInputFieldValue();
     store.resetInputFieldFiles();
+    store.resetInputFieldOptions();
     store.resetInputFieldFileUploadEnabled();
   });
 
@@ -52,6 +53,7 @@ describe('Input Field Store Unit Tests', () => {
       const store = useInputFieldStore.getState();
       const types: InputType[] = [
         'textarea',
+        'select',
         'text',
         'password',
         'email',
@@ -329,6 +331,7 @@ describe('Input Field Store Unit Tests', () => {
         type: 'email',
         placeholder: 'Enter your email',
         description: 'We need your work email.',
+        options: [{ value: 'urgent', label: 'Urgent' }],
         fileValidator,
         validator,
         submitGuard,
@@ -348,6 +351,7 @@ describe('Input Field Store Unit Tests', () => {
         submitFunc: true,
         value: true,
         files: true,
+        options: true,
         fileUploadEnabled: true,
         disabled: true,
       });
@@ -362,6 +366,7 @@ describe('Input Field Store Unit Tests', () => {
       expect(store.getInputFieldSubmitFunc()).toBeNull();
       expect(store.getInputFieldValue()).toBe('');
       expect(store.getInputFieldFiles()).toEqual([]);
+      expect(store.getInputFieldOptions()).toEqual([]);
       expect(store.getInputFieldFileUploadEnabled()).toBe(false);
       expect(store.getInputFieldDisabled()).toBe(true);
     });

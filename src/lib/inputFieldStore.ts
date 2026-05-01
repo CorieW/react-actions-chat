@@ -14,6 +14,7 @@ const DEFAULT_INPUT_TYPE: InputType = 'textarea';
  */
 export type InputType =
   | 'textarea'
+  | 'select'
   | 'text'
   | 'password'
   | 'email'
@@ -22,13 +23,22 @@ export type InputType =
   | 'url'
   | 'search';
 
-type RegisteredInputElement = HTMLInputElement | HTMLTextAreaElement;
+export interface InputSelectOption {
+  readonly value: string;
+  readonly label: string;
+  readonly disabled?: boolean | undefined;
+}
+
+type RegisteredInputElement =
+  | HTMLInputElement
+  | HTMLTextAreaElement
+  | HTMLSelectElement;
 
 function applyInputElementType(
   element: RegisteredInputElement | null,
   type: InputType
 ): void {
-  if (!element || element.tagName !== 'INPUT') {
+  if (!element || element.tagName !== 'INPUT' || type === 'select') {
     return;
   }
 
@@ -101,6 +111,7 @@ export interface InputFieldParams {
   readonly fileValidator?: InputFileValidator | null | undefined;
   readonly fileUploadEnabled?: boolean | undefined;
   readonly files?: readonly File[] | undefined;
+  readonly options?: readonly InputSelectOption[] | undefined;
   readonly placeholder?: string | undefined;
   readonly submitFunc?: (() => void) | null | undefined;
   readonly submitGuard?: InputSubmitGuard | null | undefined;
@@ -124,6 +135,7 @@ export interface InputFieldResetParams {
   readonly fileValidator?: true | undefined;
   readonly fileUploadEnabled?: true | undefined;
   readonly files?: true | undefined;
+  readonly options?: true | undefined;
   readonly placeholder?: true | undefined;
   readonly submitFunc?: true | undefined;
   readonly submitGuard?: true | undefined;
@@ -142,6 +154,7 @@ type InputFieldStatePatch = {
   inputFieldFileValidator?: InputFileValidator | null;
   inputFieldFileUploadEnabled?: boolean;
   inputFieldFiles?: readonly File[];
+  inputFieldOptions?: readonly InputSelectOption[];
   inputFieldPlaceholder?: string;
   inputFieldSubmitFunc?: (() => void) | null;
   inputFieldSubmitGuard?: InputSubmitGuard | null;
@@ -160,6 +173,7 @@ type InputFieldStatePatch = {
  * @property inputFieldType Current shared input mode.
  * @property inputFieldPlaceholder Current placeholder text.
  * @property inputFieldFiles Current files selected through the optional upload button.
+ * @property inputFieldOptions Current options used when the input type is select.
  * @property inputFieldFileValidator Current validator applied when files are attached.
  * @property inputFieldFileUploadEnabled Whether the optional upload button is visible.
  * @property inputFieldDisabledPlaceholder Placeholder text shown while the shared input is disabled.
@@ -175,6 +189,7 @@ type InputFieldStatePatch = {
  * @property getInputFieldType Returns the current shared input mode.
  * @property getInputFieldPlaceholder Returns the current placeholder text.
  * @property getInputFieldFiles Returns the selected files.
+ * @property getInputFieldOptions Returns the current select options.
  * @property getInputFieldFileValidator Returns the current file validator.
  * @property getInputFieldFileUploadEnabled Returns whether the upload button is enabled.
  * @property getInputFieldDisabledPlaceholder Returns the placeholder text shown while disabled.
@@ -190,6 +205,7 @@ type InputFieldStatePatch = {
  * @property setInputFieldType Updates the current shared input mode.
  * @property setInputFieldPlaceholder Updates the current placeholder text.
  * @property setInputFieldFiles Updates the selected files.
+ * @property setInputFieldOptions Updates the current select options.
  * @property setInputFieldFileValidator Updates the current file validator.
  * @property setInputFieldFileUploadEnabled Shows or hides the upload button.
  * @property setInputFieldDisabledPlaceholder Updates the placeholder text shown while disabled.
@@ -213,6 +229,7 @@ type InputFieldStatePatch = {
  * @property resetInputFieldDisabledPlaceholderDefault Resets the default disabled placeholder.
  * @property resetInputFieldDisabled Resets the shared input to the default disabled state.
  * @property resetInputFieldFiles Clears the selected files.
+ * @property resetInputFieldOptions Clears the select options.
  * @property resetInputFieldFileUploadEnabled Hides the upload button.
  */
 interface InputFieldState {
@@ -223,6 +240,7 @@ interface InputFieldState {
   readonly inputFieldType: InputType;
   readonly inputFieldPlaceholder: string;
   readonly inputFieldFiles: readonly File[];
+  readonly inputFieldOptions: readonly InputSelectOption[];
   readonly inputFieldFileValidator: InputFileValidator | null;
   readonly inputFieldFileUploadEnabled: boolean;
   readonly inputFieldDisabledPlaceholder: string;
@@ -239,6 +257,7 @@ interface InputFieldState {
   readonly getInputFieldType: () => InputType;
   readonly getInputFieldPlaceholder: () => string;
   readonly getInputFieldFiles: () => readonly File[];
+  readonly getInputFieldOptions: () => readonly InputSelectOption[];
   readonly getInputFieldFileValidator: () => InputFileValidator | null;
   readonly getInputFieldFileUploadEnabled: () => boolean;
   readonly getInputFieldDisabledPlaceholder: () => string;
@@ -257,6 +276,9 @@ interface InputFieldState {
   readonly setInputFieldType: (type: InputType) => void;
   readonly setInputFieldPlaceholder: (placeholder: string) => void;
   readonly setInputFieldFiles: (files: readonly File[]) => void;
+  readonly setInputFieldOptions: (
+    options: readonly InputSelectOption[]
+  ) => void;
   readonly setInputFieldFileValidator: (
     validator: InputFileValidator | null
   ) => void;
@@ -277,6 +299,7 @@ interface InputFieldState {
   readonly resetInputFieldDescription: () => void;
   readonly resetInputFieldType: () => void;
   readonly resetInputFieldPlaceholder: () => void;
+  readonly resetInputFieldOptions: () => void;
   readonly resetInputFieldDisabledPlaceholder: () => void;
   readonly resetInputFieldFileValidator: () => void;
   readonly resetInputFieldValidator: () => void;
@@ -299,6 +322,7 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
   inputFieldType: DEFAULT_INPUT_TYPE,
   inputFieldPlaceholder: DEFAULT_INPUT_PLACEHOLDER,
   inputFieldFiles: [],
+  inputFieldOptions: [],
   inputFieldFileValidator: null,
   inputFieldFileUploadEnabled: false,
   inputFieldDisabledPlaceholder: DEFAULT_DISABLED_INPUT_PLACEHOLDER,
@@ -334,6 +358,10 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
 
   getInputFieldFiles: () => {
     return get().inputFieldFiles;
+  },
+
+  getInputFieldOptions: () => {
+    return get().inputFieldOptions;
   },
 
   getInputFieldFileValidator: () => {
@@ -397,6 +425,10 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
     set({ inputFieldFiles: files });
   },
 
+  setInputFieldOptions: options => {
+    set({ inputFieldOptions: options });
+  },
+
   setInputFieldFileValidator: validator => {
     set({ inputFieldFileValidator: validator });
   },
@@ -458,6 +490,10 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
 
     if (params.files !== undefined) {
       nextState.inputFieldFiles = params.files;
+    }
+
+    if (params.options !== undefined) {
+      nextState.inputFieldOptions = params.options;
     }
 
     if (params.fileValidator !== undefined) {
@@ -538,6 +574,10 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
       nextState.inputFieldFiles = [];
     }
 
+    if (params.options) {
+      nextState.inputFieldOptions = [];
+    }
+
     if (params.fileValidator) {
       nextState.inputFieldFileValidator = null;
     }
@@ -601,6 +641,10 @@ export const useInputFieldStore = create<InputFieldState>((set, get) => ({
 
   resetInputFieldPlaceholder: () => {
     set({ inputFieldPlaceholder: DEFAULT_INPUT_PLACEHOLDER });
+  },
+
+  resetInputFieldOptions: () => {
+    set({ inputFieldOptions: [] });
   },
 
   resetInputFieldDisabledPlaceholder: () => {

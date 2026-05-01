@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { RequestInputRateLimit } from '../components/RequestInputButton';
 import type {
   InputFileValidator,
+  InputSelectOption,
   InputType,
   InputValidator,
 } from './inputFieldStore';
@@ -17,6 +18,7 @@ export interface RequestInputGlobalDefaults {
   readonly cooldownMs?: number | undefined;
   readonly fileValidator?: InputFileValidator | undefined;
   readonly inputDescription?: string | undefined;
+  readonly inputOptions?: readonly InputSelectOption[] | undefined;
   readonly inputTimeoutMessage?: string | undefined;
   readonly inputTimeoutMs?: number | undefined;
   readonly inputType?: InputType | undefined;

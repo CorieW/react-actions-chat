@@ -1,5 +1,6 @@
 import type {
   InputFileValidator,
+  InputSelectOption,
   InputSubmission,
   InputSubmitGuard,
   InputType,
@@ -173,11 +174,13 @@ export type MessagePartRenderer<TPart extends MessagePart = MessagePart> = (
  * @property type Active HTML input type.
  * @property placeholder Placeholder text shown in the input.
  * @property description Helper text shown above the input.
+ * @property options Options shown when type is select.
  */
 export interface InputBarModeConfig {
   readonly type: InputType;
   readonly placeholder?: string | undefined;
   readonly description?: string | undefined;
+  readonly options?: readonly InputSelectOption[] | undefined;
 }
 
 /**

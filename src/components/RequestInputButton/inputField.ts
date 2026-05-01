@@ -60,6 +60,7 @@ export function resetRequestInputField(store: RequestInputFieldStore): void {
     type: true,
     placeholder: true,
     description: true,
+    options: true,
     files: true,
     fileValidator: true,
     fileUploadEnabled: true,

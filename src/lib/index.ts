@@ -9,6 +9,7 @@ export {
   type InputFieldParams,
   type InputFieldResetParams,
   type InputFileValidator,
+  type InputSelectOption,
   type InputSubmission,
   type InputSubmitGuard,
   type InputType,

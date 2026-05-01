@@ -45,7 +45,11 @@ import type {
   TextMessageFormat,
   TextMessagePart,
 } from './js/types';
-import type { ChatGlobals, RequestInputGlobalDefaults } from './lib';
+import type {
+  ChatGlobals,
+  InputSelectOption,
+  RequestInputGlobalDefaults,
+} from './lib';
 
 export {
   Chat,
@@ -73,6 +77,7 @@ export type {
   InputBarModeConfig,
   InputBarValidationConfig,
   InputMessage,
+  InputSelectOption,
   FileMessagePart,
   ImageMessagePart,
   MessageButton,

@@ -2,6 +2,7 @@ import type React from 'react';
 import type { MessageButtonVariant } from '../../js/types';
 import type {
   InputFileValidator,
+  InputSelectOption,
   InputSubmission,
   InputType,
   InputValidator,
@@ -59,6 +60,7 @@ export interface RequestInputRateLimit {
  * @property placeholder Placeholder text for the input field.
  * @property inputDescription Description text shown above the input field.
  * @property inputType Type of input field used for the request flow.
+ * @property inputOptions Options shown when inputType is select.
  * @property allowFileUpload Whether the shared input should expose the upload button during the flow.
  * @property fileValidator Validation function used to accept or reject uploaded files.
  * @property validator Validation function used to accept or reject submitted input.
@@ -86,6 +88,7 @@ export interface RequestInputButtonConfig {
   readonly placeholder?: string | undefined;
   readonly inputDescription?: string | undefined;
   readonly inputType?: InputType | undefined;
+  readonly inputOptions?: readonly InputSelectOption[] | undefined;
   readonly allowFileUpload?: boolean | undefined;
   readonly fileValidator?: InputFileValidator | undefined;
   readonly validator?: InputValidator | undefined;

@@ -25,7 +25,10 @@ interface InputBarProps {
   readonly isInputBlocked: boolean;
 }
 
-type ChatInputElement = HTMLInputElement | HTMLTextAreaElement;
+type ChatInputElement =
+  | HTMLInputElement
+  | HTMLTextAreaElement
+  | HTMLSelectElement;
 
 function formatFileSize(sizeBytes: number): string {
   if (sizeBytes < 1024) {
@@ -67,6 +70,10 @@ function isMultilineInputType(inputType: InputType): boolean {
   return inputType === 'textarea';
 }
 
+function isSelectInputType(inputType: InputType): boolean {
+  return inputType === 'select';
+}
+
 function resolveInvalidFileMessage(fileCount: number): string {
   return `Please choose a valid file${fileCount === 1 ? '' : 's'} and try again.`;
 }
@@ -106,6 +113,7 @@ export function InputBar({
     getInputFieldFiles,
     getInputFieldFileValidator,
     getInputFieldFileUploadEnabled,
+    getInputFieldOptions,
     getInputFieldPlaceholder,
     getInputFieldType,
     getInputFieldValue,
@@ -119,12 +127,14 @@ export function InputBar({
   const inputDisabled = getInputFieldDisabled();
   const inputDisabledPlaceholder = getInputFieldDisabledPlaceholder();
   const inputFiles = getInputFieldFiles();
+  const inputOptions = getInputFieldOptions();
   const inputFileValidator = getInputFieldFileValidator();
   const fileUploadEnabled = getInputFieldFileUploadEnabled();
   const inputValue = getInputFieldValue();
   const inputDescription = getInputFieldDescription();
   const inputIsDisabled = inputDisabled || isInputBlocked;
   const usesMultilineInput = isMultilineInputType(inputType);
+  const usesSelectInput = isSelectInputType(inputType);
   const hasPendingSubmission =
     inputValue.trim().length > 0 || inputFiles.length > 0;
   const displayedPlaceholder = inputDisabled
@@ -199,6 +209,7 @@ export function InputBar({
     inputDescription,
     inputFileValidator,
     inputFiles,
+    inputOptions,
     inputType,
   ]);
 
@@ -326,6 +337,42 @@ export function InputBar({
                 color: theme.inputTextColor,
               }}
             />
+          ) : usesSelectInput ? (
+            <select
+              ref={inputRef as React.Ref<HTMLSelectElement>}
+              value={inputValue}
+              onChange={event => setInputFieldValue(event.target.value)}
+              onKeyDown={handleKeyPress}
+              disabled={inputIsDisabled}
+              aria-label='Chat input'
+              aria-describedby={
+                inputDescription ? inputDescriptionId : undefined
+              }
+              data-asc-role='chat-input'
+              className='flex-1 rounded-lg px-4 py-3 focus:ring-1 focus:outline-none'
+              style={{
+                backgroundColor: `${theme.inputBackgroundColor}80`,
+                borderColor: 'transparent',
+                border: 'none',
+                color: theme.inputTextColor,
+              }}
+            >
+              <option
+                value=''
+                disabled
+              >
+                {displayedPlaceholder}
+              </option>
+              {inputOptions.map(option => (
+                <option
+                  key={option.value}
+                  value={option.value}
+                  disabled={option.disabled}
+                >
+                  {option.label}
+                </option>
+              ))}
+            </select>
           ) : (
             <input
               ref={inputRef as React.Ref<HTMLInputElement>}

@@ -54,6 +54,7 @@ describe('Chat Component Integration Tests', () => {
     useInputFieldStore.getState().resetInputFieldValidator();
     useInputFieldStore.getState().resetInputFieldSubmitGuard();
     useInputFieldStore.getState().resetInputFieldFiles();
+    useInputFieldStore.getState().resetInputFieldOptions();
     useInputFieldStore.getState().resetInputFieldFileUploadEnabled();
     useInputFieldStore.getState().resetInputFieldDisabledDefault();
     useInputFieldStore.getState().resetInputFieldDisabledPlaceholderDefault();
@@ -207,6 +208,56 @@ describe('Chat Component Integration Tests', () => {
     expect(
       screen.queryByRole('button', { name: 'Upload files' })
     ).not.toBeInTheDocument();
+  });
+
+  it('supports select request-input flows', async () => {
+    const user = userEvent.setup();
+    const onValidInput = vi.fn();
+
+    render(
+      <Chat
+        initialMessages={[
+          createInputMessage('Choose a priority.', {
+            type: 'other',
+            buttons: [
+              createButton(
+                createRequestInputButtonDef({
+                  initialLabel: 'Set priority',
+                  inputPromptMessage: 'Choose the priority.',
+                  placeholder: 'Select priority',
+                  inputType: 'select',
+                  inputOptions: [
+                    { value: 'low', label: 'Low' },
+                    { value: 'urgent', label: 'Urgent' },
+                  ],
+                }),
+                {
+                  onValidInput,
+                }
+              ),
+            ],
+          }),
+        ]}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Set priority' }));
+
+    const select = screen.getByRole('combobox', { name: 'Chat input' });
+    expect(select).toHaveValue('');
+    expect(
+      screen.getByRole('option', { name: 'Select priority' })
+    ).toBeDisabled();
+
+    await user.selectOptions(select, 'urgent');
+    await user.click(screen.getByRole('button', { name: 'Send message' }));
+
+    expect(onValidInput).toHaveBeenCalledWith(
+      'urgent',
+      expect.objectContaining({
+        text: 'urgent',
+      })
+    );
   });
 
   it('supports upload-enabled request-input flows with file validation', async () => {
