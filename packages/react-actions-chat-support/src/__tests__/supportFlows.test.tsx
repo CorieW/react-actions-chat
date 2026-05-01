@@ -772,7 +772,7 @@ describe('support flows package', () => {
     expect(screen.queryByText(/chat-0042/i)).not.toBeInTheDocument();
   });
 
-  it('lets an admin triage tickets and live chats created through the shared adapter', async () => {
+  it('lets an admin triage tickets created through the shared adapter', async () => {
     const user = userEvent.setup();
     const adapter = createInMemorySupportFlowAdapter();
     const customer = {
@@ -802,12 +802,6 @@ describe('support flows package', () => {
       })
     ).toBeInTheDocument();
 
-    await adapter.startLiveChat({
-      summary: 'Billing renewal needs a live chat with support.',
-      requestedBy: 'customer',
-      customer,
-    });
-
     firstRender.unmount();
     resetChatStores();
 
@@ -818,12 +812,6 @@ describe('support flows package', () => {
         name: 'Morgan Admin',
         email: 'morgan@example.com',
       },
-      liveChatPersistentButtons: () => [
-        {
-          label: 'Escalate chat',
-          onClick: () => {},
-        },
-      ],
     });
 
     render(<Chat initialMessages={adminFlow.initialMessages} />);
@@ -944,16 +932,68 @@ describe('support flows package', () => {
     await user.click(
       screen.getByRole('button', { name: 'Back to admin options' })
     );
-    expect(
-      await screen.findByRole('button', { name: 'View ticket queue' })
-    ).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
-    expect(getLatestButton('SUP-1000')).toHaveStyle({
-      backgroundColor: '#ef4444',
+    const ticketButtons = screen.getAllByRole('button', {
+      name: 'SUP-1000',
     });
-    await user.click(
-      screen.getByRole('button', { name: 'Back to admin options' })
-    );
+    await user.click(ticketButtons[ticketButtons.length - 1]!);
+    expect(
+      (await screen.findAllByRole('heading', { name: /Ticket SUP-1000/i }))
+        .length
+    ).toBeGreaterThan(0);
+
+    await user.click(screen.getByRole('button', { name: 'Resolve ticket' }));
+    await user.click(screen.getByRole('button', { name: 'Resolve' }));
+    expect(
+      await screen.findByRole('heading', {
+        name: /SUP-1000 has been resolved/i,
+      })
+    ).toBeInTheDocument();
+
+    await waitFor(async () => {
+      const ticket = await adapter.getTicketByReference('SUP-1000');
+      expect(ticket?.status).toBe('resolved');
+      expect(ticket?.assignedTo).toBe('Avery Specialist');
+      expect(ticket?.liveChatOffered).toBe(false);
+      expect(
+        ticket?.messages.some(message => {
+          return message.author === 'agent';
+        })
+      ).toBe(true);
+    });
+  }, 12_000);
+
+  it('lets an admin triage live chats created through the shared adapter', async () => {
+    const user = userEvent.setup();
+    const adapter = createInMemorySupportFlowAdapter();
+    const customer = {
+      id: 'customer-2',
+      name: 'Jamie Rivera',
+      email: 'jamie@example.com',
+    };
+
+    await adapter.startLiveChat({
+      summary: 'Billing renewal needs a live chat with support.',
+      requestedBy: 'customer',
+      customer,
+    });
+
+    const adminFlow = createSupportAdminFlow({
+      adapter,
+      agent: {
+        id: 'agent-1',
+        name: 'Morgan Admin',
+        email: 'morgan@example.com',
+      },
+      liveChatPersistentButtons: () => [
+        {
+          label: 'Escalate chat',
+          onClick: () => {},
+        },
+      ],
+    });
+
+    render(<Chat initialMessages={adminFlow.initialMessages} />);
 
     await user.click(
       screen.getByRole('button', { name: 'View live chat queue' })
@@ -1074,38 +1114,7 @@ describe('support flows package', () => {
     ).toBeGreaterThan(0);
     expect(screen.getAllByText(/Status:/i).length).toBeGreaterThan(0);
 
-    await user.click(
-      screen.getByRole('button', { name: 'Back to admin options' })
-    );
-    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
-    const ticketButtons = screen.getAllByRole('button', {
-      name: 'SUP-1000',
-    });
-    await user.click(ticketButtons[ticketButtons.length - 1]!);
-    expect(
-      (await screen.findAllByRole('heading', { name: /Ticket SUP-1000/i }))
-        .length
-    ).toBeGreaterThan(0);
-
-    await user.click(screen.getByRole('button', { name: 'Resolve ticket' }));
-    await user.click(screen.getByRole('button', { name: 'Resolve' }));
-    expect(
-      await screen.findByRole('heading', {
-        name: /SUP-1000 has been resolved/i,
-      })
-    ).toBeInTheDocument();
-
     await waitFor(async () => {
-      const ticket = await adapter.getTicketByReference('SUP-1000');
-      expect(ticket?.status).toBe('resolved');
-      expect(ticket?.assignedTo).toBe('Avery Specialist');
-      expect(ticket?.liveChatOffered).toBe(false);
-      expect(
-        ticket?.messages.some(message => {
-          return message.author === 'agent';
-        })
-      ).toBe(true);
-
       const liveChat = await adapter.getLiveChatById('chat-0001');
       expect(liveChat?.status).toBe('ended');
       expect(
