@@ -115,6 +115,8 @@ Creates a reusable input-request definition.
 
 Useful upload-related config:
 
+- `inputType?: InputType` to choose a text, textarea, select, or semantic HTML input mode
+- `inputOptions?: readonly InputSelectOption[]` to provide dropdown choices when `inputType` is `select`
 - `allowFileUpload?: boolean` to show the optional upload button during the flow
 - `fileValidator?: (file, submission?) => InputValidationResult` to accept or reject uploaded files
 
@@ -131,6 +133,7 @@ Public mode settings for the shared input bar:
 - `type`
 - `placeholder?`
 - `description?`
+- `options?`
 
 ### `InputBarValidationConfig`
 

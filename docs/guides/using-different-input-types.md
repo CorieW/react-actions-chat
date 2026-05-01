@@ -25,6 +25,7 @@ That means uploads are not their own `InputType`. A flow can use `text`, `textar
 The shared chat input supports the following [`InputType`](../types/input-type.md) values:
 
 - `textarea`
+- `select`
 - `text`
 - `password`
 - `email`
@@ -37,16 +38,17 @@ The shared chat input supports the following [`InputType`](../types/input-type.m
 
 ## Quick Reference
 
-| Input type | Best for                                | Notes                                             |
-| ---------- | --------------------------------------- | ------------------------------------------------- |
-| `textarea` | Longer free-form replies                | Multiline; best default for open questions        |
-| `text`     | Names, labels, short answers            | Single-line general purpose input                 |
-| `password` | Secrets or masked values                | Transcript masks the visible user message         |
-| `email`    | Account and contact addresses           | Pair with an email validator                      |
-| `number`   | Numeric-only answers                    | Still arrives as a string in validators/callbacks |
-| `tel`      | Phone numbers                           | Accepts phone-friendly keyboard layouts on mobile |
-| `url`      | Links and endpoint inputs               | Pair with normalization or URL validation         |
-| `search`   | Help lookups and recommendation queries | Good fit for find/recommend/discovery prompts     |
+| Input type | Best for                                | Notes                                              |
+| ---------- | --------------------------------------- | -------------------------------------------------- |
+| `textarea` | Longer free-form replies                | Multiline; best default for open questions         |
+| `select`   | Choosing from a fixed set of values     | Uses `inputOptions` and submits the selected value |
+| `text`     | Names, labels, short answers            | Single-line general purpose input                  |
+| `password` | Secrets or masked values                | Transcript masks the visible user message          |
+| `email`    | Account and contact addresses           | Pair with an email validator                       |
+| `number`   | Numeric-only answers                    | Still arrives as a string in validators/callbacks  |
+| `tel`      | Phone numbers                           | Accepts phone-friendly keyboard layouts on mobile  |
+| `url`      | Links and endpoint inputs               | Pair with normalization or URL validation          |
+| `search`   | Help lookups and recommendation queries | Good fit for find/recommend/discovery prompts      |
 
 ## Basic Pattern
 
@@ -110,6 +112,25 @@ const displayNameButtonDef = createRequestInputButtonDef({
   inputPromptMessage: 'What display name would you like to use?',
   inputType: 'text',
   placeholder: 'Enter display name',
+});
+```
+
+## `select`
+
+Use `select` when the user should choose one value from a fixed list.
+
+```tsx
+const priorityButtonDef = createRequestInputButtonDef({
+  initialLabel: 'Set priority',
+  inputPromptMessage: 'Choose a priority.',
+  inputType: 'select',
+  placeholder: 'Select priority',
+  inputOptions: [
+    { value: 'low', label: 'Low' },
+    { value: 'normal', label: 'Normal' },
+    { value: 'high', label: 'High' },
+    { value: 'urgent', label: 'Urgent' },
+  ],
 });
 ```
 

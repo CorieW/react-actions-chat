@@ -51,6 +51,7 @@ Important definition fields:
 - `initialLabel`
 - `inputPromptMessage`
 - `inputType`
+- `inputOptions`
 - `allowFileUpload`
 - `fileValidator`
 - `placeholder`
