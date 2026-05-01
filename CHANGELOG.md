@@ -1,5 +1,11 @@
 # react-actions-chat
 
+## 1.1.0
+
+### Minor Changes
+
+- 3858c8b: Add select input support to guided request flows. The main package now exports `InputSelectOption`, stores select options on the shared input field, renders `select` mode in `InputBar`, and lets request input buttons pass options with `inputOptions`.
+
 ## 1.0.2
 
 ### Patch Changes
