@@ -4,6 +4,7 @@ import {
   clickAssistantActionAndWaitForAssistant,
   clickPersistentActionAndWaitForAssistant,
   gotoExample,
+  latestAssistantMessage,
   submitChatInputAndWaitForAssistant,
 } from './support/chat';
 
@@ -17,7 +18,7 @@ test.describe('support-desk example', () => {
       page.getByRole('heading', { name: 'Harbor Support Desk' })
     ).toBeVisible();
 
-    await clickAssistantActionAndWaitForAssistant(page, 'Open a ticket');
+    await clickAssistantActionAndWaitForAssistant(page, 'Start ticket');
     const createdTicketMessage = await submitChatInputAndWaitForAssistant(
       page,
       'Our finance leads cannot download the updated invoice PDF after enabling SSO.'
@@ -29,7 +30,7 @@ test.describe('support-desk example', () => {
 
     await page.getByRole('button', { name: 'Admin console' }).click();
 
-    await clickAssistantActionAndWaitForAssistant(page, 'View queue');
+    await clickAssistantActionAndWaitForAssistant(page, 'View ticket queue');
     const reviewedTicket = await clickAssistantActionAndWaitForAssistant(
       page,
       'SUP-2043'
@@ -71,26 +72,12 @@ test.describe('support-desk example', () => {
     await expect(resolvedTicket).toContainText('SUP-2043 has been resolved');
   });
 
-  test('supports knowledge-base search, seeded ticket review, live chat, and workspace reset', async ({
+  test('supports seeded ticket review, live chat handoff, and workspace reset', async ({
     page,
   }) => {
     await gotoExample(page, 'support-desk');
 
-    await clickAssistantActionAndWaitForAssistant(page, 'Search help center');
-    const knowledgeBaseResults = await submitChatInputAndWaitForAssistant(
-      page,
-      'refund'
-    );
-    await expect(knowledgeBaseResults).toContainText(
-      'Refund and cancellation policy'
-    );
-
-    await page.getByRole('button', { name: 'Reset workspace' }).click();
-    await expect(
-      page.getByRole('button', { name: 'Customer inbox', pressed: true })
-    ).toBeVisible();
-
-    await clickAssistantActionAndWaitForAssistant(page, 'View my tickets');
+    await clickAssistantActionAndWaitForAssistant(page, 'View tickets');
     const seededTicket = await clickAssistantActionAndWaitForAssistant(
       page,
       'SUP-2042'
@@ -110,26 +97,71 @@ test.describe('support-desk example', () => {
       'I confirmed the duplicate charge and queued a refund review with finance.'
     );
 
+    await clickAssistantActionAndWaitForAssistant(
+      page,
+      'Back to support options'
+    );
     await clickAssistantActionAndWaitForAssistant(page, 'Start live chat');
     const liveChatMessage = await submitChatInputAndWaitForAssistant(
       page,
       'Finance is waiting on the refund answer before they release the launch hold.'
     );
-    await expect(liveChatMessage).toContainText(
-      'Live chat request chat-0001 is queued'
+    await expect(liveChatMessage).toContainText('Live chat');
+    await expect(liveChatMessage).toContainText('Status: queued');
+    await expect(liveChatMessage).toContainText('Estimated wait:');
+
+    await page.getByRole('button', { name: 'Admin console' }).click();
+
+    const liveChatQueue = await clickAssistantActionAndWaitForAssistant(
+      page,
+      'View live chat queue'
+    );
+    await expect(liveChatQueue).toContainText('Live chat queue');
+    await expect(liveChatQueue).toContainText('chat-0001');
+
+    const liveChatDetails = await clickAssistantActionAndWaitForAssistant(
+      page,
+      'chat-0001'
+    );
+    await expect(liveChatDetails).toContainText('Live chat chat-0001');
+    await expect(liveChatDetails).toContainText(
+      'Finance is waiting on the refund answer before they release the launch hold.'
     );
 
+    await clickAssistantAction(page, 'Join live chat');
+    await expect(
+      page.getByRole('heading', { name: 'Joined live chat chat-0001' })
+    ).toBeVisible();
+    await expect(latestAssistantMessage(page)).toContainText(
+      'Live chat chat-0001'
+    );
+    await expect(latestAssistantMessage(page)).toContainText('Status: active');
+
     await page.getByRole('button', { name: 'Reset workspace' }).click();
+    await expect(
+      page.getByRole('button', { name: 'Admin console', pressed: true })
+    ).toBeVisible();
+
+    const resetLiveChatQueue = await clickAssistantActionAndWaitForAssistant(
+      page,
+      'View live chat queue'
+    );
+    await expect(resetLiveChatQueue).toContainText(
+      'The live chat queue is empty right now.'
+    );
+
+    await page.getByRole('button', { name: 'Customer inbox' }).click();
 
     const resetTicketList = await clickAssistantActionAndWaitForAssistant(
       page,
-      'View my tickets'
+      'View tickets'
     );
     await expect(resetTicketList).toContainText('SUP-2042');
+    await expect(resetTicketList).not.toContainText('chat-0001');
 
     await clickAssistantAction(page, 'SUP-2042');
     await expect(
-      page.getByRole('button', { name: 'Start live chat' }).last()
+      page.getByRole('button', { name: 'Refresh status' }).last()
     ).toBeVisible();
   });
 
@@ -138,18 +170,18 @@ test.describe('support-desk example', () => {
   }) => {
     await gotoExample(page, 'support-desk');
 
-    await clickAssistantActionAndWaitForAssistant(page, 'Search help center');
+    await clickAssistantActionAndWaitForAssistant(page, 'Start ticket');
     const customerAbortMessage = await clickPersistentActionAndWaitForAssistant(
       page,
       'Abort'
     );
     await expect(customerAbortMessage).toContainText(
-      'Help-center search cancelled.'
+      'Ticket creation cancelled.'
     );
     await expect(
       page
         .getByRole('log', { name: 'Chat transcript' })
-        .getByRole('button', { name: 'View my tickets' })
+        .getByRole('button', { name: 'View tickets' })
         .last()
     ).toBeVisible();
 
@@ -164,7 +196,7 @@ test.describe('support-desk example', () => {
     await expect(
       page
         .getByRole('log', { name: 'Chat transcript' })
-        .getByRole('button', { name: 'View queue' })
+        .getByRole('button', { name: 'View ticket queue' })
         .last()
     ).toBeVisible();
   });
