@@ -22,4 +22,4 @@ Reach for a sub-package when:
 
 - Use `react-actions-chat-llms` when your transcript should drive backend-routed text generation.
 - Use `react-actions-chat-recommended-actions` when free-form user queries should resolve into one or more recommended next-step buttons.
-- Use `react-actions-chat-support` when you want prebuilt support workflows with tickets, queue review, knowledge-base search, and live-chat handoff.
+- Use `react-actions-chat-support` when you want prebuilt support workflows with tickets, queue review, and live-chat handoff.

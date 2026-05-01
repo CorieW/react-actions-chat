@@ -6,7 +6,7 @@ Concise reference for the public exports from `react-actions-chat-support`.
 
 ### `createSupportUserFlow(config)`
 
-Creates a reusable customer-facing support flow with ticket creation, ticket lookup, knowledge-base search, and live-chat handoff prompts.
+Creates a reusable customer-facing support flow with ticket creation, ticket lookup, and live-chat handoff prompts.
 
 Returned API:
 
@@ -17,9 +17,17 @@ Returned API:
 Important config fields:
 
 - `adapter`
+- `callbacks`
 - `customer`
 - `brandName`
 - `initialMessage`
+- `validation`
+- `labels`
+- `requestInputs`
+- `formatters`
+- `behavior`
+- `customizeButtons`
+- `liveChatPersistentButtons`
 
 ### `createSupportAdminFlow(config)`
 
@@ -34,9 +42,40 @@ Returned API:
 Important config fields:
 
 - `adapter`
+- `callbacks`
 - `agent`
 - `brandName`
 - `initialMessage`
+- `validation`
+- `labels`
+- `requestInputs`
+- `confirmations`
+- `formatters`
+- `behavior`
+- `customizeButtons`
+- `liveChatPersistentButtons`
+
+## Extension Points
+
+The user and admin flows expose optional hooks so applications can customize the
+prebuilt workflows without replacing the package:
+
+- `callbacks` override individual adapter operations.
+- `labels` changes fixed button labels and active live-chat input copy.
+- `requestInputs` changes request-button prompts, placeholders, validators,
+  input modes, file-upload settings, abort labels, cooldowns, timeouts, and
+  visual styling.
+- `confirmations` customizes admin confirmation buttons such as ticket
+  resolution.
+- `formatters` replaces markdown output for opening messages, ticket summaries,
+  queues, transcripts, and completion states.
+- `behavior` changes limits, predicates, status transitions, priority order,
+  queue button variants, assigned-work filters, and live-chat queue math.
+- `customizeButtons` receives each button slot with its default buttons so apps
+  can append, remove, reorder, or replace actions.
+
+Admin ticket priority uses `Set priority`, which opens the shared input
+dropdown.
 
 ## Adapter Helpers
 
@@ -47,13 +86,26 @@ Creates a self-contained `SupportFlowAdapter` implementation for demos, local de
 Important options:
 
 - `tickets`
-- `knowledgeBaseArticles`
 - `liveChats`
 - `nextTicketNumber`
-
-### `DEFAULT_SUPPORT_KNOWLEDGE_BASE_ARTICLES`
-
-Seed article set used by the in-memory adapter when you do not provide your own articles.
+- `nextTicketMessageNumber`
+- `nextLiveChatNumber`
+- `nextLiveChatMessageNumber`
+- `now`
+- `createTicketReference`
+- `createTicketSubject`
+- `createTicketMessageId`
+- `createLiveChatId`
+- `createLiveChatMessageId`
+- `defaultTicketStatus`
+- `defaultTicketPriority`
+- `defaultQueueStatuses`
+- `defaultLiveChatQueueStatuses`
+- `getLiveChatQueuePosition`
+- `getEstimatedWaitMinutes`
+- `matchCustomer`
+- `sortTickets`
+- `sortLiveChats`
 
 ## Core Types
 
@@ -65,10 +117,14 @@ Adapter contract with:
 - `getTicketByReference(reference)`
 - `listCustomerTickets(customer)`
 - `listQueue(filter?)`
+- `listLiveChatQueue(filter?)`
+- `getLiveChatById(sessionId)`
+- `listCustomerLiveChats(customer)`
 - `updateTicket(input)`
 - `appendTicketMessage(input)`
-- `searchKnowledgeBase(query)`
 - `startLiveChat(input)`
+- `updateLiveChat(input)`
+- `appendLiveChatMessage(input)`
 
 ### `SupportTicket`
 
@@ -86,17 +142,6 @@ Ticket shape with:
 - `updatedAt`
 - `messages`
 - `tags?`
-
-### `SupportKnowledgeBaseArticle`
-
-Knowledge-base result shape with:
-
-- `id`
-- `title`
-- `summary`
-- `body?`
-- `url?`
-- `keywords?`
 
 ### `SupportLiveChatSession`
 

@@ -13,7 +13,6 @@ npm install react-actions-chat react-actions-chat-support
 - `createSupportUserFlow`
 - `createSupportAdminFlow`
 - `createInMemorySupportFlowAdapter`
-- `DEFAULT_SUPPORT_KNOWLEDGE_BASE_ARTICLES`
 
 ## Use It When
 
@@ -29,7 +28,7 @@ Use the core package alone when your chat flow is fully custom and you do not ne
 
 ### Customer flow
 
-`createSupportUserFlow(...)` builds a ready-to-mount customer journey for opening tickets, checking status, searching the knowledge base, and requesting live chat.
+`createSupportUserFlow(...)` builds a ready-to-mount customer journey for opening tickets, checking status, and requesting live chat.
 
 ### Admin flow
 
@@ -37,7 +36,31 @@ Use the core package alone when your chat flow is fully custom and you do not ne
 
 ### Adapter layer
 
-`SupportFlowAdapter` is the contract both flows use for ticket, queue, article, and live-chat operations. `createInMemorySupportFlowAdapter(...)` gives you a self-contained implementation for demos and local prototyping.
+`SupportFlowAdapter` is the contract both flows use for ticket, queue, and live-chat operations. `createInMemorySupportFlowAdapter(...)` gives you a self-contained implementation for demos and local prototyping.
+
+### Customization layer
+
+Use the prebuilt flows as defaults, then customize the parts your product owns:
+
+- use `callbacks` to replace individual adapter calls
+- use `validation`, `labels`, `requestInputs`, and `confirmations` to tune
+  guided inputs, validators, input modes, file-upload settings, and
+  confirmation steps
+- use `formatters` to replace markdown for tickets, queues, transcripts, and
+  completion messages
+- use `behavior` to adjust limits, priority order, status transitions,
+  predicates, queue button variants, assigned-work filters, and live-chat
+  requeue math
+- use `customizeButtons` to append, remove, reorder, or replace buttons for
+  primary, ticket, queue, live-chat, assigned-work, and persistent live-chat
+  slots
+
+Admin ticket priority uses a shared-input dropdown for choosing an exact
+priority.
+
+The in-memory adapter also accepts factories for references, IDs, timestamps,
+subjects, customer matching, queue positions, estimated waits, sorting, and
+default statuses or priorities.
 
 ## Read Next
 

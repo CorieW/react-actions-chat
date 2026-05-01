@@ -128,7 +128,7 @@ export function App() {
 
 Keep the adapter instance stable with state, context, or another long-lived container.
 
-If you recreate the adapter on every render, its in-memory tickets, live chats, and knowledge-base state reset too.
+If you recreate the adapter on every render, its in-memory tickets and live chats reset too.
 
 ## Why The Store Reset Matters
 
@@ -233,12 +233,6 @@ const adapter: SupportFlowAdapter = {
       body: JSON.stringify(input),
     });
 
-    return response.json();
-  },
-  searchKnowledgeBase: async query => {
-    const response = await fetch(
-      `/api/support/articles?q=${encodeURIComponent(query)}`
-    );
     return response.json();
   },
   startLiveChat: async input => {
