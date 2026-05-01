@@ -1,17 +1,41 @@
 import type {
+  AppendSupportLiveChatMessageInput,
   AppendSupportTicketMessageInput,
   CreateSupportTicketInput,
   InMemorySupportFlowAdapterOptions,
+  InMemorySupportLiveChatIdContext,
+  InMemorySupportLiveChatMessageIdContext,
+  InMemorySupportLiveChatQueueContext,
+  InMemorySupportTicketMessageIdContext,
+  InMemorySupportTicketReferenceContext,
   StartSupportLiveChatInput,
   SupportFlowAdapter,
-  SupportKnowledgeBaseArticle,
+  SupportLiveChatMessage,
+  SupportLiveChatQueueFilter,
   SupportLiveChatSession,
   SupportQueueFilter,
   SupportTicket,
   SupportTicketMessage,
   SupportUserIdentity,
+  UpdateSupportLiveChatInput,
   UpdateSupportTicketInput,
 } from './supportFlowTypes';
+
+const DEFAULT_OPEN_TICKET_STATUSES = [
+  'new',
+  'open',
+  'pending-customer',
+  'pending-internal',
+] as const;
+
+const DEFAULT_OPEN_LIVE_CHAT_STATUSES = ['queued', 'active'] as const;
+
+const TICKET_PRIORITY_RANK: Record<SupportTicket['priority'], number> = {
+  urgent: 0,
+  high: 1,
+  normal: 2,
+  low: 3,
+};
 
 function cloneIdentity(
   identity: SupportUserIdentity | undefined
@@ -32,6 +56,15 @@ function cloneMessage(message: SupportTicketMessage): SupportTicketMessage {
   };
 }
 
+function cloneLiveChatMessage(
+  message: SupportLiveChatMessage
+): SupportLiveChatMessage {
+  return {
+    ...message,
+    createdAt: new Date(message.createdAt),
+  };
+}
+
 function cloneTicket(ticket: SupportTicket): SupportTicket {
   return {
     ...ticket,
@@ -45,23 +78,18 @@ function cloneTicket(ticket: SupportTicket): SupportTicket {
   };
 }
 
-function cloneArticle(
-  article: SupportKnowledgeBaseArticle
-): SupportKnowledgeBaseArticle {
-  return {
-    ...article,
-    ...(article.keywords ? { keywords: [...article.keywords] } : {}),
-  };
-}
-
 function cloneLiveChat(
   session: SupportLiveChatSession
 ): SupportLiveChatSession {
   return {
     ...session,
     createdAt: new Date(session.createdAt),
+    ...(session.updatedAt ? { updatedAt: new Date(session.updatedAt) } : {}),
     ...(session.customer ? { customer: { ...session.customer } } : {}),
     ...(session.agent ? { agent: { ...session.agent } } : {}),
+    ...(session.messages
+      ? { messages: session.messages.map(cloneLiveChatMessage) }
+      : {}),
   };
 }
 
@@ -95,18 +123,18 @@ function deriveSubject(summary: string): string {
   return `${condensed.slice(0, 69).trimEnd()}...`;
 }
 
-function matchesCustomer(
-  ticket: SupportTicket,
+function matchesIdentity(
+  candidate: SupportUserIdentity,
   customer: SupportUserIdentity
 ): boolean {
-  if (customer.id && ticket.customer.id && customer.id === ticket.customer.id) {
+  if (customer.id && candidate.id && customer.id === candidate.id) {
     return true;
   }
 
   if (
     customer.email &&
-    ticket.customer.email &&
-    customer.email.toLowerCase() === ticket.customer.email.toLowerCase()
+    candidate.email &&
+    customer.email.toLowerCase() === candidate.email.toLowerCase()
   ) {
     return true;
   }
@@ -118,48 +146,154 @@ function createMessageId(prefix: string, counter: number): string {
   return `${prefix}-${counter.toString().padStart(4, '0')}`;
 }
 
-export const DEFAULT_SUPPORT_KNOWLEDGE_BASE_ARTICLES: readonly SupportKnowledgeBaseArticle[] =
-  [
-    {
-      id: 'billing-renewals',
-      title: 'Billing and renewals',
-      summary:
-        'Understand invoice timing, failed payments, and renewal reminders.',
-      body: 'Invoices are generated immediately after a successful payment. Renewal reminders go out three days before the next billing date, and failed payments automatically retry.',
-      keywords: ['billing', 'invoice', 'renewal', 'payment', 'charge'],
-    },
-    {
-      id: 'refund-policy',
-      title: 'Refund and cancellation policy',
-      summary:
-        'Learn which purchases are refundable and how long approvals take.',
-      body: 'Unused subscriptions can be refunded within 30 days. Approved refunds are usually processed in two business days, and banks may take another five to ten days to post the credit.',
-      keywords: ['refund', 'return', 'cancel', 'cancellation'],
-    },
-    {
-      id: 'live-chat-handoff',
-      title: 'Escalating to live chat',
-      summary:
-        'See when live chat is available and what details help the handoff.',
-      body: 'Live chat is best for urgent blockers and account-access problems. Include the impact, deadline, and any recent troubleshooting so the handoff is faster.',
-      keywords: ['live chat', 'agent', 'handoff', 'escalation', 'urgent'],
-    },
-  ];
+function sortByUpdatedAtDesc(
+  left: Pick<SupportTicket, 'updatedAt'>,
+  right: Pick<SupportTicket, 'updatedAt'>
+): number {
+  return right.updatedAt.getTime() - left.updatedAt.getTime();
+}
+
+function sortTicketPriorityDesc(
+  left: SupportTicket,
+  right: SupportTicket
+): number {
+  return (
+    TICKET_PRIORITY_RANK[left.priority] - TICKET_PRIORITY_RANK[right.priority]
+  );
+}
+
+function sortQueueTickets(left: SupportTicket, right: SupportTicket): number {
+  const leftIsUntaken = !left.assignedTo;
+  const rightIsUntaken = !right.assignedTo;
+
+  if (leftIsUntaken !== rightIsUntaken) {
+    return leftIsUntaken ? -1 : 1;
+  }
+
+  if (leftIsUntaken && rightIsUntaken) {
+    return (
+      sortTicketPriorityDesc(left, right) || sortByUpdatedAtDesc(left, right)
+    );
+  }
+
+  return sortByUpdatedAtDesc(left, right);
+}
+
+function sortLiveChatsByQueuePosition(
+  left: SupportLiveChatSession,
+  right: SupportLiveChatSession
+): number {
+  return (
+    left.queuePosition - right.queuePosition ||
+    left.createdAt.getTime() - right.createdAt.getTime()
+  );
+}
+
+function sortLiveChatsByRecentActivity(
+  left: SupportLiveChatSession,
+  right: SupportLiveChatSession
+): number {
+  const rightTime = right.updatedAt ?? right.createdAt;
+  const leftTime = left.updatedAt ?? left.createdAt;
+  return rightTime.getTime() - leftTime.getTime();
+}
 
 export function createInMemorySupportFlowAdapter(
   options: InMemorySupportFlowAdapterOptions = {}
 ): SupportFlowAdapter {
   let tickets = (options.tickets ?? []).map(cloneTicket);
-  const knowledgeBaseArticles = (
-    options.knowledgeBaseArticles ?? DEFAULT_SUPPORT_KNOWLEDGE_BASE_ARTICLES
-  ).map(cloneArticle);
   let liveChats = (options.liveChats ?? []).map(cloneLiveChat);
   let nextTicketNumber =
     options.nextTicketNumber ?? inferNextTicketNumber(tickets);
-  let nextMessageNumber = tickets.reduce((count, ticket) => {
-    return count + ticket.messages.length;
-  }, 1);
-  let nextLiveChatNumber = liveChats.length + 1;
+  let nextMessageNumber =
+    options.nextTicketMessageNumber ??
+    tickets.reduce((count, ticket) => {
+      return count + ticket.messages.length;
+    }, 1);
+  let nextLiveChatMessageNumber =
+    options.nextLiveChatMessageNumber ??
+    liveChats.reduce((count, session) => {
+      return count + (session.messages?.length ?? 0);
+    }, 1);
+  let nextLiveChatNumber = options.nextLiveChatNumber ?? liveChats.length + 1;
+
+  function getNow(): Date {
+    return new Date(options.now?.() ?? Date.now());
+  }
+
+  function getTicketReference(input: CreateSupportTicketInput): string {
+    const context: InMemorySupportTicketReferenceContext = {
+      input,
+      nextTicketNumber,
+      tickets: tickets.map(cloneTicket),
+    };
+
+    return (
+      options.createTicketReference?.(context) ??
+      `SUP-${nextTicketNumber.toString().padStart(4, '0')}`
+    );
+  }
+
+  function getTicketSubject(input: CreateSupportTicketInput): string {
+    return (
+      input.subject?.trim() ||
+      options.createTicketSubject?.({ input }) ||
+      deriveSubject(input.summary)
+    );
+  }
+
+  function getTicketMessageId(
+    context: InMemorySupportTicketMessageIdContext
+  ): string {
+    return (
+      options.createTicketMessageId?.(context) ??
+      createMessageId('ticket-message', context.nextMessageNumber)
+    );
+  }
+
+  function getLiveChatId(input: StartSupportLiveChatInput): string {
+    const context: InMemorySupportLiveChatIdContext = {
+      input,
+      liveChats: liveChats.map(cloneLiveChat),
+      nextLiveChatNumber,
+    };
+
+    return (
+      options.createLiveChatId?.(context) ??
+      `chat-${nextLiveChatNumber.toString().padStart(4, '0')}`
+    );
+  }
+
+  function getLiveChatMessageId(
+    context: InMemorySupportLiveChatMessageIdContext
+  ): string {
+    return (
+      options.createLiveChatMessageId?.(context) ??
+      createMessageId('live-chat-message', context.nextMessageNumber)
+    );
+  }
+
+  function matchesConfiguredIdentity(
+    candidate: SupportUserIdentity,
+    customer: SupportUserIdentity
+  ): boolean {
+    return (
+      options.matchCustomer?.(candidate, customer) ??
+      matchesIdentity(candidate, customer)
+    );
+  }
+
+  function getLiveChatQueueContext(
+    input: StartSupportLiveChatInput
+  ): InMemorySupportLiveChatQueueContext {
+    return {
+      input,
+      liveChats: liveChats.map(cloneLiveChat),
+      queuedLiveChatCount: liveChats.filter(session => {
+        return session.status === 'queued';
+      }).length,
+    };
+  }
 
   function getTicketIndex(reference: string): number {
     const normalizedReference = normalizeReference(reference);
@@ -195,13 +329,49 @@ export function createInMemorySupportFlowAdapter(
     return cloneTicket(nextTicket);
   }
 
+  function getLiveChatIndex(sessionId: string): number {
+    const normalizedSessionId = sessionId.trim();
+    return liveChats.findIndex(session => session.id === normalizedSessionId);
+  }
+
+  function getRequiredLiveChat(sessionId: string): SupportLiveChatSession {
+    const liveChatIndex = getLiveChatIndex(sessionId);
+    const session = liveChatIndex >= 0 ? liveChats[liveChatIndex] : undefined;
+
+    if (!session) {
+      throw new Error(`Live chat ${sessionId.trim()} not found`);
+    }
+
+    return session;
+  }
+
+  function saveLiveChat(
+    nextSession: SupportLiveChatSession
+  ): SupportLiveChatSession {
+    const liveChatIndex = getLiveChatIndex(nextSession.id);
+
+    if (liveChatIndex >= 0) {
+      liveChats = liveChats.map((session, index) => {
+        return index === liveChatIndex ? nextSession : session;
+      });
+    } else {
+      liveChats = [nextSession, ...liveChats];
+    }
+
+    return cloneLiveChat(nextSession);
+  }
+
   return {
     createTicket(input: CreateSupportTicketInput): SupportTicket {
-      const now = new Date();
-      const reference = `SUP-${nextTicketNumber.toString().padStart(4, '0')}`;
+      const now = getNow();
+      const reference = getTicketReference(input);
       nextTicketNumber += 1;
       const initialMessage: SupportTicketMessage = {
-        id: createMessageId('ticket-message', nextMessageNumber),
+        id: getTicketMessageId({
+          ticketReference: reference,
+          input,
+          nextMessageNumber,
+        }),
         author: 'customer',
         authorLabel: input.customer.name ?? input.customer.email,
         body: input.summary.trim(),
@@ -210,13 +380,13 @@ export function createInMemorySupportFlowAdapter(
       nextMessageNumber += 1;
       const nextTicket: SupportTicket = {
         reference,
-        subject: input.subject?.trim() || deriveSubject(input.summary),
+        subject: getTicketSubject(input),
         summary: input.summary.trim(),
         customer: {
           ...input.customer,
         },
-        status: 'new',
-        priority: input.priority ?? 'normal',
+        status: options.defaultTicketStatus ?? 'new',
+        priority: input.priority ?? options.defaultTicketPriority ?? 'normal',
         liveChatOffered: false,
         createdAt: now,
         updatedAt: now,
@@ -237,20 +407,18 @@ export function createInMemorySupportFlowAdapter(
       customer: SupportUserIdentity
     ): readonly SupportTicket[] {
       return tickets
-        .filter(ticket => matchesCustomer(ticket, customer))
-        .sort((left, right) => {
-          return right.updatedAt.getTime() - left.updatedAt.getTime();
+        .filter(ticket => {
+          return matchesConfiguredIdentity(ticket.customer, customer);
         })
+        .sort(options.sortTickets ?? sortByUpdatedAtDesc)
         .map(cloneTicket);
     },
 
     listQueue(filter?: SupportQueueFilter): readonly SupportTicket[] {
-      const allowedStatuses = filter?.statuses ?? [
-        'new',
-        'open',
-        'pending-customer',
-        'pending-internal',
-      ];
+      const allowedStatuses =
+        filter?.statuses ??
+        options.defaultQueueStatuses ??
+        DEFAULT_OPEN_TICKET_STATUSES;
 
       return tickets
         .filter(ticket => allowedStatuses.includes(ticket.status))
@@ -261,10 +429,50 @@ export function createInMemorySupportFlowAdapter(
 
           return ticket.assignedTo === filter.assignedTo;
         })
-        .sort((left, right) => {
-          return right.updatedAt.getTime() - left.updatedAt.getTime();
-        })
+        .sort(options.sortTickets ?? sortQueueTickets)
         .map(cloneTicket);
+    },
+
+    listLiveChatQueue(
+      filter?: SupportLiveChatQueueFilter
+    ): readonly SupportLiveChatSession[] {
+      const allowedStatuses =
+        filter?.statuses ??
+        options.defaultLiveChatQueueStatuses ??
+        DEFAULT_OPEN_LIVE_CHAT_STATUSES;
+
+      return liveChats
+        .filter(session => allowedStatuses.includes(session.status))
+        .filter(session => {
+          if (!filter?.requestedBy) {
+            return true;
+          }
+
+          return session.requestedBy === filter.requestedBy;
+        })
+        .sort(options.sortLiveChats ?? sortLiveChatsByQueuePosition)
+        .map(cloneLiveChat);
+    },
+
+    getLiveChatById(sessionId: string): SupportLiveChatSession | null {
+      const liveChatIndex = getLiveChatIndex(sessionId);
+      const session = liveChatIndex >= 0 ? liveChats[liveChatIndex] : undefined;
+      return session ? cloneLiveChat(session) : null;
+    },
+
+    listCustomerLiveChats(
+      customer: SupportUserIdentity
+    ): readonly SupportLiveChatSession[] {
+      return liveChats
+        .filter(session => {
+          if (!session.customer) {
+            return false;
+          }
+
+          return matchesConfiguredIdentity(session.customer, customer);
+        })
+        .sort(options.sortLiveChats ?? sortLiveChatsByRecentActivity)
+        .map(cloneLiveChat);
     },
 
     updateTicket(input: UpdateSupportTicketInput): SupportTicket {
@@ -281,7 +489,7 @@ export function createInMemorySupportFlowAdapter(
         ...(input.liveChatOffered !== undefined
           ? { liveChatOffered: input.liveChatOffered }
           : {}),
-        updatedAt: new Date(),
+        updatedAt: getNow(),
       };
 
       return saveTicket(nextTicket);
@@ -290,10 +498,14 @@ export function createInMemorySupportFlowAdapter(
     appendTicketMessage(input: AppendSupportTicketMessageInput): SupportTicket {
       const currentTicket = getRequiredTicket(input.reference);
       const message: SupportTicketMessage = {
-        id: createMessageId('ticket-message', nextMessageNumber),
+        id: getTicketMessageId({
+          ticketReference: currentTicket.reference,
+          input,
+          nextMessageNumber,
+        }),
         author: input.author,
         body: input.body.trim(),
-        createdAt: new Date(),
+        createdAt: getNow(),
         ...(input.authorLabel ? { authorLabel: input.authorLabel } : {}),
       };
       nextMessageNumber += 1;
@@ -306,48 +518,64 @@ export function createInMemorySupportFlowAdapter(
       return saveTicket(nextTicket);
     },
 
-    searchKnowledgeBase(query: string): readonly SupportKnowledgeBaseArticle[] {
-      const normalizedQuery = query.trim().toLowerCase();
-      if (!normalizedQuery) {
-        return [];
+    startLiveChat(input: StartSupportLiveChatInput): SupportLiveChatSession {
+      const liveChatCustomer = input.customer;
+      const existingOpenSession = liveChatCustomer
+        ? liveChats.find(session => {
+            return (
+              (session.status === 'queued' || session.status === 'active') &&
+              session.customer &&
+              matchesConfiguredIdentity(session.customer, liveChatCustomer)
+            );
+          })
+        : undefined;
+
+      if (existingOpenSession) {
+        return cloneLiveChat(existingOpenSession);
       }
 
-      return knowledgeBaseArticles
-        .filter(article => {
-          const haystack = [
-            article.title,
-            article.summary,
-            article.body ?? '',
-            ...(article.keywords ?? []),
-          ]
-            .join(' ')
-            .toLowerCase();
-
-          return normalizedQuery
-            .split(/\s+/)
-            .some(queryTerm => haystack.includes(queryTerm));
-        })
-        .map(cloneArticle);
-    },
-
-    startLiveChat(input: StartSupportLiveChatInput): SupportLiveChatSession {
-      const now = new Date();
+      const now = getNow();
       const ticketReference = input.ticketReference
         ? normalizeReference(input.ticketReference)
         : undefined;
+      const queueContext = getLiveChatQueueContext(input);
+      const queuePosition =
+        options.getLiveChatQueuePosition?.(queueContext) ??
+        queueContext.queuedLiveChatCount + 1;
+      const sessionId = getLiveChatId(input);
+      const initialMessage: SupportLiveChatMessage = {
+        id: getLiveChatMessageId({
+          sessionId,
+          input,
+          nextMessageNumber: nextLiveChatMessageNumber,
+        }),
+        author: input.requestedBy,
+        authorLabel:
+          input.requestedBy === 'customer'
+            ? (input.customer?.name ?? input.customer?.email)
+            : (input.agent?.name ?? input.agent?.email),
+        body: input.summary.trim(),
+        createdAt: now,
+      };
+      nextLiveChatMessageNumber += 1;
+      const customer = cloneIdentity(input.customer);
       const session: SupportLiveChatSession = {
-        id: `chat-${nextLiveChatNumber.toString().padStart(4, '0')}`,
+        id: sessionId,
         summary: input.summary.trim(),
         requestedBy: input.requestedBy,
-        queuePosition: liveChats.length + 1,
-        estimatedWaitMinutes: 2 + liveChats.length * 3,
+        queuePosition,
+        estimatedWaitMinutes:
+          options.getEstimatedWaitMinutes?.({
+            ...queueContext,
+            queuePosition,
+          }) ?? 2 + queueContext.queuedLiveChatCount * 3,
         status: 'queued',
         createdAt: now,
+        updatedAt: now,
         ...(ticketReference ? { ticketReference } : {}),
-        ...(cloneIdentity(input.customer)
-          ? { customer: cloneIdentity(input.customer) }
-          : {}),
+        ...(customer ? { customer } : {}),
         ...(input.agent ? { agent: { ...input.agent } } : {}),
+        messages: [initialMessage],
       };
       nextLiveChatNumber += 1;
       liveChats = [session, ...liveChats];
@@ -362,6 +590,72 @@ export function createInMemorySupportFlowAdapter(
       }
 
       return cloneLiveChat(session);
+    },
+
+    updateLiveChat(input: UpdateSupportLiveChatInput): SupportLiveChatSession {
+      const currentSession = getRequiredLiveChat(input.sessionId);
+      const status = input.status ?? currentSession.status;
+      const nextSession: SupportLiveChatSession = {
+        ...currentSession,
+        status,
+        queuePosition:
+          input.queuePosition ??
+          (status === 'queued' ? currentSession.queuePosition : 0),
+        estimatedWaitMinutes:
+          input.estimatedWaitMinutes ??
+          (status === 'queued' ? currentSession.estimatedWaitMinutes : 0),
+        ...(input.agent !== undefined
+          ? input.agent === null
+            ? { agent: undefined }
+            : { agent: { ...input.agent } }
+          : {}),
+        updatedAt: getNow(),
+      };
+
+      return saveLiveChat(nextSession);
+    },
+
+    appendLiveChatMessage(
+      input: AppendSupportLiveChatMessageInput
+    ): SupportLiveChatSession {
+      const currentSession = getRequiredLiveChat(input.sessionId);
+
+      if (currentSession.status === 'ended') {
+        throw new Error(`Live chat ${input.sessionId.trim()} has ended`);
+      }
+
+      const message: SupportLiveChatMessage = {
+        id: getLiveChatMessageId({
+          sessionId: currentSession.id,
+          input,
+          nextMessageNumber: nextLiveChatMessageNumber,
+        }),
+        author: input.author,
+        body: input.body.trim(),
+        createdAt: getNow(),
+        ...(input.authorLabel ? { authorLabel: input.authorLabel } : {}),
+      };
+      nextLiveChatMessageNumber += 1;
+
+      const nextSession: SupportLiveChatSession = {
+        ...currentSession,
+        status:
+          input.author === 'agent' && currentSession.status === 'queued'
+            ? 'active'
+            : currentSession.status,
+        queuePosition:
+          input.author === 'agent' && currentSession.status === 'queued'
+            ? 0
+            : currentSession.queuePosition,
+        estimatedWaitMinutes:
+          input.author === 'agent' && currentSession.status === 'queued'
+            ? 0
+            : currentSession.estimatedWaitMinutes,
+        updatedAt: message.createdAt,
+        messages: [...(currentSession.messages ?? []), message],
+      };
+
+      return saveLiveChat(nextSession);
     },
   };
 }
