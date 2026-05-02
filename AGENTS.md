@@ -7,6 +7,7 @@ Workspace root for the published `react-actions-chat` package, its companion rec
 - `.changeset/`: Changeset metadata used to version and publish workspace packages.
   Rules:
   - Do not add `AGENTS.md` files here because Changesets parses markdown files in this directory as release metadata.
+  - Define chanes in small focused bullet points.
 - `.github/`: GitHub configuration, automation, and CI workflows.
 - `config/`: Shared tool configuration for Vite, TypeScript, ESLint, Prettier, and Tailwind.
 - `docs/`: VitePress documentation source for the package site.
