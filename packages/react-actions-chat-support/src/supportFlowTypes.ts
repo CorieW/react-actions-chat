@@ -137,11 +137,13 @@ export interface AppendSupportLiveChatMessageInput {
 export interface SupportQueueFilter {
   readonly statuses?: readonly SupportTicketStatus[] | undefined;
   readonly assignedTo?: string | undefined;
+  readonly [key: string]: unknown;
 }
 
 export interface SupportLiveChatQueueFilter {
   readonly statuses?: readonly SupportLiveChatStatus[] | undefined;
   readonly requestedBy?: 'customer' | 'agent' | undefined;
+  readonly [key: string]: unknown;
 }
 
 export interface SupportFlowAdapter {
@@ -299,6 +301,16 @@ export interface SupportButtonCustomizationContext {
 export type SupportButtonCustomizer<
   TContext extends SupportButtonCustomizationContext,
 > = (context: TContext) => readonly MessageButton[];
+
+export interface SupportListFilterOption {
+  readonly id: string;
+  readonly label: string;
+  readonly isDefault?: boolean | undefined;
+  readonly variant?: MessageButton['variant'] | undefined;
+  readonly activeVariant?: MessageButton['variant'] | undefined;
+  readonly className?: string | undefined;
+  readonly style?: MessageButton['style'] | undefined;
+}
 
 export interface SupportRequestInputButtonOverrides<TContext> {
   readonly initialLabel?: SupportTextResolver<TContext> | undefined;

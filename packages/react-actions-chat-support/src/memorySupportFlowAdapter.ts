@@ -20,183 +20,22 @@ import type {
   UpdateSupportLiveChatInput,
   UpdateSupportTicketInput,
 } from './supportFlowTypes';
-
-const DEFAULT_OPEN_TICKET_STATUSES = [
-  'new',
-  'open',
-  'pending-customer',
-  'pending-internal',
-] as const;
-
-const DEFAULT_OPEN_LIVE_CHAT_STATUSES = ['queued', 'active'] as const;
-
-const TICKET_PRIORITY_RANK: Record<SupportTicket['priority'], number> = {
-  urgent: 0,
-  high: 1,
-  normal: 2,
-  low: 3,
-};
-
-function cloneIdentity(
-  identity: SupportUserIdentity | undefined
-): SupportUserIdentity | undefined {
-  if (!identity) {
-    return undefined;
-  }
-
-  return {
-    ...identity,
-  };
-}
-
-function cloneMessage(message: SupportTicketMessage): SupportTicketMessage {
-  return {
-    ...message,
-    createdAt: new Date(message.createdAt),
-  };
-}
-
-function cloneLiveChatMessage(
-  message: SupportLiveChatMessage
-): SupportLiveChatMessage {
-  return {
-    ...message,
-    createdAt: new Date(message.createdAt),
-  };
-}
-
-function cloneTicket(ticket: SupportTicket): SupportTicket {
-  return {
-    ...ticket,
-    customer: {
-      ...ticket.customer,
-    },
-    createdAt: new Date(ticket.createdAt),
-    updatedAt: new Date(ticket.updatedAt),
-    messages: ticket.messages.map(cloneMessage),
-    ...(ticket.tags ? { tags: [...ticket.tags] } : {}),
-  };
-}
-
-function cloneLiveChat(
-  session: SupportLiveChatSession
-): SupportLiveChatSession {
-  return {
-    ...session,
-    createdAt: new Date(session.createdAt),
-    ...(session.updatedAt ? { updatedAt: new Date(session.updatedAt) } : {}),
-    ...(session.customer ? { customer: { ...session.customer } } : {}),
-    ...(session.agent ? { agent: { ...session.agent } } : {}),
-    ...(session.messages
-      ? { messages: session.messages.map(cloneLiveChatMessage) }
-      : {}),
-  };
-}
-
-function normalizeReference(reference: string): string {
-  return reference.trim().toUpperCase();
-}
-
-function inferNextTicketNumber(tickets: readonly SupportTicket[]): number {
-  const nextFromTickets = tickets.reduce((highestNumber, ticket) => {
-    const match = ticket.reference.match(/(\d+)$/);
-    const ticketNumber = match ? Number(match[1]) : 0;
-    return Math.max(highestNumber, ticketNumber);
-  }, 999);
-
-  return nextFromTickets + 1;
-}
-
-function deriveSubject(summary: string): string {
-  const trimmedSummary = summary.trim();
-  if (!trimmedSummary) {
-    return 'General support request';
-  }
-
-  const firstSentence = trimmedSummary.split(/[.!?]/, 1)[0] ?? trimmedSummary;
-  const condensed = firstSentence.trim();
-
-  if (condensed.length <= 72) {
-    return condensed;
-  }
-
-  return `${condensed.slice(0, 69).trimEnd()}...`;
-}
-
-function matchesIdentity(
-  candidate: SupportUserIdentity,
-  customer: SupportUserIdentity
-): boolean {
-  if (customer.id && candidate.id && customer.id === candidate.id) {
-    return true;
-  }
-
-  if (
-    customer.email &&
-    candidate.email &&
-    customer.email.toLowerCase() === candidate.email.toLowerCase()
-  ) {
-    return true;
-  }
-
-  return false;
-}
-
-function createMessageId(prefix: string, counter: number): string {
-  return `${prefix}-${counter.toString().padStart(4, '0')}`;
-}
-
-function sortByUpdatedAtDesc(
-  left: Pick<SupportTicket, 'updatedAt'>,
-  right: Pick<SupportTicket, 'updatedAt'>
-): number {
-  return right.updatedAt.getTime() - left.updatedAt.getTime();
-}
-
-function sortTicketPriorityDesc(
-  left: SupportTicket,
-  right: SupportTicket
-): number {
-  return (
-    TICKET_PRIORITY_RANK[left.priority] - TICKET_PRIORITY_RANK[right.priority]
-  );
-}
-
-function sortQueueTickets(left: SupportTicket, right: SupportTicket): number {
-  const leftIsUntaken = !left.assignedTo;
-  const rightIsUntaken = !right.assignedTo;
-
-  if (leftIsUntaken !== rightIsUntaken) {
-    return leftIsUntaken ? -1 : 1;
-  }
-
-  if (leftIsUntaken && rightIsUntaken) {
-    return (
-      sortTicketPriorityDesc(left, right) || sortByUpdatedAtDesc(left, right)
-    );
-  }
-
-  return sortByUpdatedAtDesc(left, right);
-}
-
-function sortLiveChatsByQueuePosition(
-  left: SupportLiveChatSession,
-  right: SupportLiveChatSession
-): number {
-  return (
-    left.queuePosition - right.queuePosition ||
-    left.createdAt.getTime() - right.createdAt.getTime()
-  );
-}
-
-function sortLiveChatsByRecentActivity(
-  left: SupportLiveChatSession,
-  right: SupportLiveChatSession
-): number {
-  const rightTime = right.updatedAt ?? right.createdAt;
-  const leftTime = left.updatedAt ?? left.createdAt;
-  return rightTime.getTime() - leftTime.getTime();
-}
+import {
+  cloneIdentity,
+  cloneLiveChat,
+  cloneTicket,
+  createMessageId,
+  DEFAULT_OPEN_LIVE_CHAT_STATUSES,
+  DEFAULT_OPEN_TICKET_STATUSES,
+  deriveSubject,
+  inferNextTicketNumber,
+  matchesIdentity,
+  normalizeReference,
+  sortByUpdatedAtDesc,
+  sortLiveChatsByQueuePosition,
+  sortLiveChatsByRecentActivity,
+  sortQueueTickets,
+} from './memorySupportFlowAdapter/index';
 
 export function createInMemorySupportFlowAdapter(
   options: InMemorySupportFlowAdapterOptions = {}
