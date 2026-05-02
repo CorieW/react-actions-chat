@@ -195,6 +195,37 @@ export function App(): React.JSX.Element {
           adapter,
           agent: AGENT_IDENTITY,
           brandName: 'Harbor Ops',
+          filterOptions: {
+            ticketQueue: [
+              {
+                id: 'all',
+                label: 'All tickets',
+                isDefault: true,
+              },
+              {
+                id: 'open',
+                label: 'Open tickets',
+                filter: {
+                  statuses: ['new', 'open', 'pending-customer'],
+                },
+              },
+              {
+                id: 'unassigned',
+                label: 'Needs owner',
+                predicate: ticket => !ticket.assignedTo,
+              },
+              {
+                id: 'urgent',
+                label: 'Urgent',
+                predicate: ticket => ticket.priority === 'urgent',
+              },
+              {
+                id: 'billing',
+                label: 'Billing',
+                predicate: ticket => ticket.tags?.includes('billing') ?? false,
+              },
+            ],
+          },
           initialMessage: [
             '## Harbor Ops is online',
             '',
