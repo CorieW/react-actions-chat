@@ -1,4 +1,4 @@
-export { createSupportAdminFlow } from './adminFlow';
+export { createSupportAdminFlow } from './createSupportAdminFlow';
 export type {
   SupportAdminFlow,
   SupportAdminFlowBehavior,
@@ -27,4 +27,4 @@ export type {
   SupportAdminTicketFormatterContext,
   SupportAdminTicketInputContext,
   SupportAdminTicketsFormatterContext,
-} from './adminFlow';
+} from './types';

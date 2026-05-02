@@ -5,6 +5,10 @@ Published source for the support companion package, including customer/admin flo
 ## Directories
 
 - `__tests__/`: Automated coverage for the support-flow package behavior.
+- `adminFlow/`: Internal modules for the admin-side support flow, including contracts, defaults, formatting, service routing, and ticket/live-chat helpers.
+- `memorySupportFlowAdapter/`: Pure helper modules used by the in-memory support adapter for cloning, IDs, defaults, matching, and sorting.
+- `supportFlowUtils/`: Shared pure helpers used by both support flows for formatting, validation, async detection, and button override resolution.
+- `userFlow/`: Internal modules for the customer-side support flow, including contracts, defaults, formatting, service routing, and live-chat helpers.
 
 ## Files
 
