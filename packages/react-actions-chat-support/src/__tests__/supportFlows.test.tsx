@@ -12,6 +12,8 @@ import {
   createInMemorySupportFlowAdapter,
   createSupportAdminFlow,
   createSupportUserFlow,
+  type SupportFlowAdapter,
+  type SupportLiveChatSession,
   type SupportTicket,
 } from 'react-actions-chat-support';
 
@@ -39,16 +41,53 @@ function getLatestButton(label: string): HTMLElement {
   return buttons[buttons.length - 1]!;
 }
 
+async function chooseFilter(
+  user: ReturnType<typeof userEvent.setup>,
+  activeFilterLabel: string,
+  nextFilterId: string
+): Promise<void> {
+  await user.click(getLatestButton(`Filter: ${activeFilterLabel}`));
+  await user.selectOptions(
+    screen.getByRole('combobox', { name: 'Chat input' }),
+    nextFilterId
+  );
+  await user.click(screen.getByRole('button', { name: 'Send message' }));
+}
+
+function createAsyncSupportFlowAdapter(
+  adapter: SupportFlowAdapter
+): SupportFlowAdapter {
+  return {
+    createTicket: async input => adapter.createTicket(input),
+    getTicketByReference: async reference =>
+      adapter.getTicketByReference(reference),
+    listCustomerTickets: async customer =>
+      adapter.listCustomerTickets(customer),
+    listQueue: async filter => adapter.listQueue(filter),
+    listLiveChatQueue: async filter => adapter.listLiveChatQueue(filter),
+    getLiveChatById: async sessionId => adapter.getLiveChatById(sessionId),
+    listCustomerLiveChats: async customer =>
+      adapter.listCustomerLiveChats(customer),
+    updateTicket: async input => adapter.updateTicket(input),
+    appendTicketMessage: async input => adapter.appendTicketMessage(input),
+    startLiveChat: async input => adapter.startLiveChat(input),
+    updateLiveChat: async input => adapter.updateLiveChat(input),
+    appendLiveChatMessage: async input => adapter.appendLiveChatMessage(input),
+  };
+}
+
 function createQueueTestTicket({
   reference,
   priority,
   updatedAt,
   assignedTo,
+  status = 'open',
 }: {
   readonly reference: string;
   readonly priority: SupportTicket['priority'];
   readonly updatedAt: string;
   readonly assignedTo?: string | undefined;
+  readonly status?: SupportTicket['status'] | undefined;
 }): SupportTicket {
   const createdAt = new Date('2026-04-30T12:00:00Z');
 
@@ -60,7 +99,7 @@ function createQueueTestTicket({
       id: `customer-${reference}`,
       name: 'Queue Customer',
     },
-    status: 'open',
+    status,
     priority,
     ...(assignedTo ? { assignedTo } : {}),
     liveChatOffered: false,
@@ -71,6 +110,40 @@ function createQueueTestTicket({
         id: `message-${reference}`,
         author: 'customer',
         body: `${reference} queue test`,
+        createdAt,
+      },
+    ],
+  };
+}
+
+function createQueueTestLiveChat({
+  id,
+  queuePosition,
+  status = 'queued',
+}: {
+  readonly id: string;
+  readonly queuePosition: number;
+  readonly status?: SupportLiveChatSession['status'] | undefined;
+}): SupportLiveChatSession {
+  const createdAt = new Date('2026-04-30T12:00:00Z');
+
+  return {
+    id,
+    summary: `${id} queue handoff`,
+    requestedBy: 'customer',
+    queuePosition,
+    estimatedWaitMinutes: queuePosition * 3,
+    status,
+    createdAt,
+    customer: {
+      id: `customer-${id}`,
+      name: 'Queue Customer',
+    },
+    messages: [
+      {
+        id: `message-${id}`,
+        author: 'customer',
+        body: `${id} queue handoff`,
         createdAt,
       },
     ],
@@ -318,6 +391,304 @@ describe('support flows package', () => {
     ).toBeInTheDocument();
   });
 
+  it('shows ticket lookup on initial customer messages when tickets load asynchronously', async () => {
+    const user = userEvent.setup();
+    const ticket = createQueueTestTicket({
+      reference: 'SUP-2000',
+      priority: 'normal',
+      updatedAt: '2026-04-30T18:00:00Z',
+    });
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: () => Promise.resolve([ticket]),
+      },
+      customer: {
+        id: 'async-ticket-customer',
+        name: 'Ari Kim',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    expect(
+      screen.getByRole('button', { name: 'View tickets' })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /Here are your latest tickets:/i,
+      })
+    ).toBeInTheDocument();
+    expect(screen.getByText(/SUP-2000 \(normal\):/i)).toBeInTheDocument();
+  });
+
+  it('paginates customer ticket lists beyond the configured limit', async () => {
+    const user = userEvent.setup();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-3000',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3001',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3002',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3003',
+        priority: 'normal',
+        updatedAt: '2026-04-30T17:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3004',
+        priority: 'normal',
+        updatedAt: '2026-04-30T16:00:00Z',
+      }),
+    ];
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: () => tickets,
+      },
+      customer: {
+        id: 'ticket-pagination-customer',
+        name: 'Ari Kim',
+      },
+      behavior: {
+        ticketListLimit: 2,
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 1-2 of 5/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-3000' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-3001' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'SUP-3002' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Previous tickets' })
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 3-4 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-3002')).toBeInTheDocument();
+    expect(getLatestButton('SUP-3003')).toBeInTheDocument();
+    expect(getLatestButton('Previous tickets')).toBeInTheDocument();
+
+    await user.click(getLatestButton('Next tickets'));
+
+    expect(
+      await screen.findByText(/Showing tickets 5-5 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-3004')).toBeInTheDocument();
+
+    await user.click(getLatestButton('Previous tickets'));
+
+    expect(getLatestButton('SUP-3002')).toBeInTheDocument();
+    expect(getLatestButton('SUP-3003')).toBeInTheDocument();
+  });
+
+  it('filters customer ticket lists with custom local predicates', async () => {
+    const user = userEvent.setup();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-4000',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-4001',
+        priority: 'high',
+        updatedAt: '2026-04-30T19:00:00Z',
+        status: 'resolved',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-4002',
+        priority: 'urgent',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+    ];
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: () => tickets,
+      },
+      customer: {
+        id: 'ticket-filter-customer',
+        name: 'Ari Kim',
+      },
+      filterOptions: {
+        tickets: [
+          {
+            id: 'all',
+            label: 'All cases',
+          },
+          {
+            id: 'open',
+            label: 'Open cases',
+            predicate: ticket => ticket.status === 'open',
+          },
+        ],
+      },
+      formatters: {
+        ticketList: ({ activeFilterLabel, totalTickets, visibleTickets }) => {
+          return `## ${activeFilterLabel ?? 'Tickets'} (${totalTickets})\n\n${visibleTickets?.map(ticket => ticket.reference).join(', ')}`;
+        },
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+    expect(
+      await screen.findByRole('heading', { name: /All cases \(3\)/i })
+    ).toBeInTheDocument();
+
+    await chooseFilter(user, 'All cases', 'open');
+
+    expect(
+      await screen.findByRole('heading', { name: /Open cases \(2\)/i })
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-4000')).toBeInTheDocument();
+    expect(getLatestButton('SUP-4002')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'SUP-4001' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('handles customer tickets and live chat through async adapter methods', async () => {
+    const user = userEvent.setup();
+    const adapter = createInMemorySupportFlowAdapter();
+    const asyncAdapter = createAsyncSupportFlowAdapter(adapter);
+    const flow = createSupportUserFlow({
+      adapter: asyncAdapter,
+      customer: {
+        id: 'async-customer',
+        name: 'Ari Kim',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    expect(
+      screen.getByRole('button', { name: 'View tickets' })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Start ticket' }));
+    await user.type(
+      screen.getByPlaceholderText(
+        'Our team cannot invite new users after enabling SSO.'
+      ),
+      'Async callbacks need to keep ticket creation working for customers.'
+    );
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /SUP-1000 is open for Ari Kim/i,
+      })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Add detail' }));
+    await user.type(
+      screen.getByPlaceholderText(
+        'The error started after we rotated SSO certificates...'
+      ),
+      'The async backend accepted the follow-up details.'
+    );
+    await user.keyboard('{Enter}');
+    expect(
+      await screen.findByRole('heading', { name: /New detail/i })
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('button', { name: 'View full activity' })
+    );
+    expect(
+      await screen.findByRole('heading', {
+        name: /Full activity for SUP-1000/i,
+      })
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Back to support options' })
+    );
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+    expect(
+      await screen.findByRole('heading', {
+        name: /Here are your latest tickets:/i,
+      })
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Back to support options' })
+    );
+    await user.click(screen.getByRole('button', { name: 'Start live chat' }));
+    await user.type(
+      screen.getByPlaceholderText(
+        'We are blocked from deploying to production...'
+      ),
+      'Async callbacks need to keep live chat handoff working.'
+    );
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByRole('heading', { name: /^Live chat$/i })
+    ).toBeInTheDocument();
+
+    await asyncAdapter.updateLiveChat({
+      sessionId: 'chat-0001',
+      status: 'active',
+      queuePosition: 0,
+      estimatedWaitMinutes: 0,
+      agent: {
+        id: 'async-agent',
+        name: 'Morgan Admin',
+      },
+    });
+    await user.click(screen.getByRole('button', { name: 'Refresh chat' }));
+    expect(
+      await screen.findByPlaceholderText('Type a live chat message...')
+    ).toBeInTheDocument();
+
+    await user.type(
+      screen.getByPlaceholderText('Type a live chat message...'),
+      'The async backend accepted the chat reply.'
+    );
+    await user.keyboard('{Enter}');
+    expect(
+      (
+        await screen.findAllByText(
+          /The async backend accepted the chat reply\./i
+        )
+      ).length
+    ).toBeGreaterThan(0);
+
+    await user.click(screen.getByRole('button', { name: 'End live chat' }));
+    expect(
+      await screen.findByRole('heading', { name: /^Ended live chat$/i })
+    ).toBeInTheDocument();
+  }, 12_000);
+
   it('allows library users to customize support input validation', async () => {
     const user = userEvent.setup();
     const adapter = createInMemorySupportFlowAdapter();
@@ -532,6 +903,710 @@ describe('support flows package', () => {
       'SUP-1003',
     ]);
   });
+
+  it('shows unassigned tickets before assigned tickets in admin queues', async () => {
+    const user = userEvent.setup();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-1000',
+        priority: 'urgent',
+        updatedAt: '2026-04-30T20:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1001',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1002',
+        priority: 'low',
+        updatedAt: '2026-04-30T16:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1003',
+        priority: 'high',
+        updatedAt: '2026-04-30T14:00:00Z',
+        assignedTo: 'Morgan Admin',
+      }),
+    ];
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: () => tickets,
+        getTicket: reference => {
+          return tickets.find(ticket => ticket.reference === reference) ?? null;
+        },
+      },
+      agent: {
+        id: 'assignment-order-agent',
+        name: 'Priya Admin',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+
+    const firstUnassigned = await screen.findByText(/SUP-1001 \(normal\):/i);
+    const secondUnassigned = screen.getByText(/SUP-1002 \(low\):/i);
+    const firstAssigned = screen.getByText(/SUP-1000 \(urgent\):/i);
+    const secondAssigned = screen.getByText(/SUP-1003 \(high\):/i);
+
+    expect(
+      firstUnassigned.compareDocumentPosition(secondUnassigned) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(
+      secondUnassigned.compareDocumentPosition(firstAssigned) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(
+      firstAssigned.compareDocumentPosition(secondAssigned) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
+  it('paginates admin ticket queues beyond the configured limit', async () => {
+    const user = userEvent.setup();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-1000',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1001',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1002',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1003',
+        priority: 'normal',
+        updatedAt: '2026-04-30T17:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1004',
+        priority: 'normal',
+        updatedAt: '2026-04-30T16:00:00Z',
+      }),
+    ];
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: () => tickets,
+        getTicket: reference => {
+          return tickets.find(ticket => ticket.reference === reference) ?? null;
+        },
+      },
+      agent: {
+        id: 'queue-pagination-agent',
+        name: 'Priya Admin',
+      },
+      behavior: {
+        queueLimit: 2,
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 1-2 of 5/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-1000' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-1001' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'SUP-1002' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Previous tickets' })
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 3-4 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-1002')).toBeInTheDocument();
+    expect(getLatestButton('SUP-1003')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'SUP-1004' })
+    ).not.toBeInTheDocument();
+    expect(getLatestButton('Previous tickets')).toBeInTheDocument();
+
+    await user.click(getLatestButton('Next tickets'));
+
+    expect(
+      await screen.findByText(/Showing tickets 5-5 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-1004')).toBeInTheDocument();
+
+    await user.click(getLatestButton('Previous tickets'));
+
+    expect(getLatestButton('SUP-1002')).toBeInTheDocument();
+    expect(getLatestButton('SUP-1003')).toBeInTheDocument();
+  });
+
+  it('paginates admin assigned work beyond the configured limit', async () => {
+    const user = userEvent.setup();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-2000',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-2001',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-2002',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+    ];
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: filter => {
+          return filter?.assignedTo
+            ? tickets.filter(ticket => ticket.assignedTo === filter.assignedTo)
+            : tickets;
+        },
+        getTicket: reference => {
+          return tickets.find(ticket => ticket.reference === reference) ?? null;
+        },
+      },
+      agent: {
+        id: 'assigned-pagination-agent',
+        name: 'Priya Admin',
+      },
+      behavior: {
+        assignedWorkLimit: 1,
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'My assigned work' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 1-1 of 3/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-2000' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'SUP-2001' })
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 2-2 of 3/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-2001')).toBeInTheDocument();
+    expect(getLatestButton('Previous tickets')).toBeInTheDocument();
+  });
+
+  it('filters admin ticket queue and assigned work with custom options', async () => {
+    const user = userEvent.setup();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-5000',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-5001',
+        priority: 'urgent',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-5002',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-5003',
+        priority: 'urgent',
+        updatedAt: '2026-04-30T17:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+    ];
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: filter => {
+          return filter?.assignedTo
+            ? tickets.filter(ticket => ticket.assignedTo === filter.assignedTo)
+            : tickets;
+        },
+        getTicket: reference => {
+          return tickets.find(ticket => ticket.reference === reference) ?? null;
+        },
+      },
+      agent: {
+        id: 'ticket-filter-agent',
+        name: 'Priya Admin',
+      },
+      filterOptions: {
+        ticketQueue: [
+          {
+            id: 'all',
+            label: 'All tickets',
+          },
+          {
+            id: 'urgent',
+            label: 'Urgent tickets',
+            predicate: ticket => ticket.priority === 'urgent',
+          },
+        ],
+        assignedWork: [
+          {
+            id: 'assigned-all',
+            label: 'All assigned',
+          },
+          {
+            id: 'assigned-urgent',
+            label: 'Urgent assigned',
+            predicate: ticket => ticket.priority === 'urgent',
+          },
+        ],
+      },
+      formatters: {
+        ticketQueue: ({ activeFilterLabel, totalTickets, visibleTickets }) => {
+          return `## ${activeFilterLabel ?? 'Ticket queue'} (${totalTickets})\n\n${visibleTickets?.map(ticket => ticket.reference).join(', ')}`;
+        },
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+    expect(
+      await screen.findByRole('heading', { name: /All tickets \(4\)/i })
+    ).toBeInTheDocument();
+
+    await chooseFilter(user, 'All tickets', 'urgent');
+
+    expect(
+      await screen.findByRole('heading', { name: /Urgent tickets \(2\)/i })
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-5001')).toBeInTheDocument();
+    expect(getLatestButton('SUP-5003')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'SUP-5000' })
+    ).not.toBeInTheDocument();
+
+    await user.click(getLatestButton('Back to admin options'));
+    await user.click(getLatestButton('My assigned work'));
+    expect(
+      await screen.findByRole('heading', { name: /All assigned \(2\)/i })
+    ).toBeInTheDocument();
+
+    await chooseFilter(user, 'All assigned', 'assigned-urgent');
+
+    expect(
+      await screen.findByRole('heading', { name: /Urgent assigned \(1\)/i })
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-5003')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'SUP-5002' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('paginates admin live chat queues beyond the configured limit', async () => {
+    const user = userEvent.setup();
+    const sessions = [
+      createQueueTestLiveChat({
+        id: 'chat-1000',
+        queuePosition: 1,
+      }),
+      createQueueTestLiveChat({
+        id: 'chat-1001',
+        queuePosition: 2,
+      }),
+      createQueueTestLiveChat({
+        id: 'chat-1002',
+        queuePosition: 3,
+      }),
+      createQueueTestLiveChat({
+        id: 'chat-1003',
+        queuePosition: 4,
+      }),
+      createQueueTestLiveChat({
+        id: 'chat-1004',
+        queuePosition: 5,
+      }),
+    ];
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listLiveChatQueue: () => sessions,
+        getLiveChat: sessionId => {
+          return sessions.find(session => session.id === sessionId) ?? null;
+        },
+      },
+      agent: {
+        id: 'live-chat-pagination-agent',
+        name: 'Priya Admin',
+      },
+      behavior: {
+        liveChatQueueLimit: 2,
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(
+      screen.getByRole('button', { name: 'View live chat queue' })
+    );
+
+    expect(
+      await screen.findByText(/Showing live chats 1-2 of 5/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'chat-1000' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'chat-1001' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'chat-1002' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Previous live chats' })
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next live chats' }));
+
+    expect(
+      await screen.findByText(/Showing live chats 3-4 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('chat-1002')).toBeInTheDocument();
+    expect(getLatestButton('chat-1003')).toBeInTheDocument();
+    expect(getLatestButton('Previous live chats')).toBeInTheDocument();
+
+    await user.click(getLatestButton('Next live chats'));
+
+    expect(
+      await screen.findByText(/Showing live chats 5-5 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('chat-1004')).toBeInTheDocument();
+
+    await user.click(getLatestButton('Previous live chats'));
+
+    expect(getLatestButton('chat-1002')).toBeInTheDocument();
+    expect(getLatestButton('chat-1003')).toBeInTheDocument();
+  });
+
+  it('filters admin live chat queues with custom backend filters', async () => {
+    const user = userEvent.setup();
+    const sessions = [
+      createQueueTestLiveChat({
+        id: 'chat-2000',
+        queuePosition: 1,
+      }),
+      createQueueTestLiveChat({
+        id: 'chat-2001',
+        queuePosition: 0,
+        status: 'active',
+      }),
+      createQueueTestLiveChat({
+        id: 'chat-2002',
+        queuePosition: 2,
+      }),
+    ];
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listLiveChatQueue: filter => {
+          return filter?.statuses
+            ? sessions.filter(session =>
+                filter.statuses?.includes(session.status)
+              )
+            : sessions;
+        },
+        getLiveChat: sessionId => {
+          return sessions.find(session => session.id === sessionId) ?? null;
+        },
+      },
+      agent: {
+        id: 'live-chat-filter-agent',
+        name: 'Priya Admin',
+      },
+      filterOptions: {
+        liveChatQueue: [
+          {
+            id: 'all',
+            label: 'All chats',
+          },
+          {
+            id: 'queued',
+            label: 'Queued chats',
+            filter: {
+              statuses: ['queued'],
+            },
+          },
+        ],
+      },
+      formatters: {
+        liveChatQueue: ({
+          activeFilterLabel,
+          totalSessions,
+          visibleSessions,
+        }) => {
+          return `## ${activeFilterLabel ?? 'Live chats'} (${totalSessions})\n\n${visibleSessions?.map(session => session.id).join(', ')}`;
+        },
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(
+      screen.getByRole('button', { name: 'View live chat queue' })
+    );
+    expect(
+      await screen.findByRole('heading', { name: /All chats \(3\)/i })
+    ).toBeInTheDocument();
+
+    await chooseFilter(user, 'All chats', 'queued');
+
+    expect(
+      await screen.findByRole('heading', { name: /Queued chats \(2\)/i })
+    ).toBeInTheDocument();
+    expect(getLatestButton('chat-2000')).toBeInTheDocument();
+    expect(getLatestButton('chat-2002')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'chat-2001' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('omits live-chat admin guidance when live chat is not configured', () => {
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: () => [],
+        getTicket: () => null,
+      },
+      agent: {
+        id: 'ticket-only-agent',
+        name: 'Priya Admin',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    expect(
+      screen.getByRole('heading', {
+        name: /Support operations is ready/i,
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'View ticket queue' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Review a ticket' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'View live chat queue' })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/live chat queue/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/active live chats/i)).not.toBeInTheDocument();
+  });
+
+  it('passes admin capabilities and labels to opening formatters', () => {
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listLiveChatQueue: () => [],
+        getLiveChat: () => null,
+      },
+      agent: {
+        id: 'handoff-agent',
+        name: 'Priya Admin',
+      },
+      labels: {
+        viewLiveChatQueue: 'Review handoffs',
+      },
+      formatters: {
+        openingMessage: ({ labels, capabilities }) => {
+          return capabilities.canOpenLiveChatQueue
+            ? `## ${labels.viewLiveChatQueue} available`
+            : '## No handoffs configured';
+        },
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    expect(
+      screen.getByRole('heading', { name: /Review handoffs available/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Review handoffs' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'View ticket queue' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('handles admin tickets and live chat through async adapter methods', async () => {
+    const user = userEvent.setup();
+    const adapter = createInMemorySupportFlowAdapter();
+    const asyncAdapter = createAsyncSupportFlowAdapter(adapter);
+    const ticket = await asyncAdapter.createTicket({
+      customer: {
+        id: 'async-admin-customer',
+        name: 'Async Customer',
+      },
+      summary: 'Async admin callbacks need a queued ticket.',
+    });
+    const session = await asyncAdapter.startLiveChat({
+      summary: 'Async admin callbacks need a live chat.',
+      requestedBy: 'customer',
+      customer: {
+        id: 'async-admin-customer',
+        name: 'Async Customer',
+      },
+    });
+    const flow = createSupportAdminFlow({
+      adapter: asyncAdapter,
+      agent: {
+        id: 'async-admin-agent',
+        name: 'Priya Admin',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+    expect(
+      await screen.findByRole('heading', { name: /Ticket queue/i })
+    ).toBeInTheDocument();
+    await user.click(getLatestButton(ticket.reference));
+    expect(
+      await screen.findByRole('heading', {
+        name: new RegExp(`Ticket ${ticket.reference}`, 'i'),
+      })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Assign to me' }));
+    expect(
+      await screen.findByRole('heading', {
+        name: new RegExp(`${ticket.reference} is now assigned to Priya Admin`),
+      })
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Back to admin options' })
+    );
+    await user.click(screen.getByRole('button', { name: 'My assigned work' }));
+    expect(
+      (await screen.findAllByText(/SUP-1000 \(normal\):/i)).length
+    ).toBeGreaterThan(0);
+    await user.click(getLatestButton(ticket.reference));
+
+    await user.click(screen.getByRole('button', { name: 'Set priority' }));
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Chat input' }),
+      'high'
+    );
+    await user.click(screen.getByRole('button', { name: 'Send message' }));
+    expect(
+      await screen.findByRole('heading', {
+        name: new RegExp(`${ticket.reference} is now high priority`, 'i'),
+      })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Reply to customer' }));
+    await user.type(
+      screen.getByPlaceholderText(
+        'We reproduced the issue and are working on a fix.'
+      ),
+      'The async backend accepted the admin reply.'
+    );
+    await user.keyboard('{Enter}');
+    expect(
+      await screen.findByRole('heading', {
+        name: new RegExp(`Sent your reply on ${ticket.reference}`, 'i'),
+      })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Resolve ticket' }));
+    await user.click(screen.getByRole('button', { name: 'Resolve' }));
+    expect(
+      await screen.findByRole('heading', {
+        name: new RegExp(`${ticket.reference} has been resolved`, 'i'),
+      })
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Back to admin options' })
+    );
+    await user.click(
+      screen.getByRole('button', { name: 'View live chat queue' })
+    );
+    expect(
+      await screen.findByRole('heading', { name: /Live chat queue/i })
+    ).toBeInTheDocument();
+    await user.click(getLatestButton(session.id));
+    expect(
+      await screen.findByRole('heading', {
+        name: new RegExp(`Live chat ${session.id}`, 'i'),
+      })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Join live chat' }));
+    expect(
+      await screen.findByRole('heading', {
+        name: new RegExp(`Joined live chat ${session.id}`, 'i'),
+      })
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Leave live chat' }));
+    expect(
+      await screen.findByRole('heading', {
+        name: new RegExp(`Left live chat ${session.id}`, 'i'),
+      })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Join live chat' }));
+    expect(
+      (
+        await screen.findAllByRole('heading', {
+          name: new RegExp(`Joined live chat ${session.id}`, 'i'),
+        })
+      ).length
+    ).toBeGreaterThan(0);
+    await user.type(
+      screen.getByPlaceholderText('Type a live chat reply...'),
+      'The async backend accepted the admin chat reply.'
+    );
+    await user.keyboard('{Enter}');
+    expect(
+      (
+        await screen.findAllByText(
+          /The async backend accepted the admin chat reply\./i
+        )
+      ).length
+    ).toBeGreaterThan(0);
+
+    await user.click(screen.getByRole('button', { name: 'End live chat' }));
+    expect(
+      await screen.findByRole('heading', {
+        name: new RegExp(`Ended live chat ${session.id}`, 'i'),
+      })
+    ).toBeInTheDocument();
+  }, 12_000);
 
   it('allows admin flows to customize labels, rendering, behavior, and button slots', async () => {
     const user = userEvent.setup();
