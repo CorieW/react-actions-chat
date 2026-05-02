@@ -1,5 +1,20 @@
 # react-actions-chat-support
 
+## 2.0.1
+
+### Patch Changes
+
+- ab8337e: - Keep the user-side `View tickets` action available in initial messages when ticket availability loads asynchronously.
+  - Cover customer and admin ticket/live-chat workflows with async adapter methods.
+  - Make admin opening guidance advertise only configured ticket and live-chat capabilities.
+  - Pass resolved admin labels and capability flags to admin opening formatters.
+  - Add configurable `filterOptions` for customer ticket lists and admin ticket, assigned-work, and live-chat queues using backend filters, local predicates, or both.
+  - Restore the active list view when a user aborts filter selection instead of leaving the chat on the filter prompt.
+  - Pass active filter and pagination metadata into ticket/live-chat list formatters and button customization contexts.
+  - Publish the split support-flow implementation modules so package source imports resolve after the internal flow reorganization.
+- ab8337e: - Sort admin ticket queues so unassigned tickets appear before assigned tickets while preserving each group's existing order.
+  - Add previous/next pagination controls to customer ticket lists, admin ticket queues, assigned-work queues, and admin live-chat queues when there are more items than the configured limit.
+
 ## 2.0.0
 
 ### Major Changes
