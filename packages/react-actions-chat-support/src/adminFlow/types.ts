@@ -103,9 +103,9 @@ export interface SupportAdminFormatterContext {
   readonly brandName: string;
   readonly labels: SupportAdminFlowLabels;
   readonly capabilities: SupportAdminFlowCapabilities;
-  readonly queueLimit: number;
-  readonly liveChatQueueLimit: number;
-  readonly assignedWorkLimit: number;
+  readonly queueLimit?: number | undefined;
+  readonly liveChatQueueLimit?: number | undefined;
+  readonly assignedWorkLimit?: number | undefined;
   readonly recentActivityLimit: number;
   readonly transcriptLimit: number;
 }

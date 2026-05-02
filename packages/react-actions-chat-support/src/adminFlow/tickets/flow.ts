@@ -53,8 +53,8 @@ interface CreateAdminTicketFlowOptions {
   readonly formatterContext: SupportAdminFormatterContext;
   readonly statusTransitions: SupportAdminStatusTransitions;
   readonly priorityOrder: readonly SupportTicketPriority[];
-  readonly queueLimit: number;
-  readonly assignedWorkLimit: number;
+  readonly queueLimit?: number | undefined;
+  readonly assignedWorkLimit?: number | undefined;
   readonly ticketAssignmentValidation: SupportInputValidationSettings;
   readonly ticketReplyValidation: SupportInputValidationSettings;
   readonly canUpdateTicket: boolean;
@@ -247,7 +247,7 @@ export function createAdminTicketFlow({
   const createTicketQueueButtons = (
     tickets: readonly SupportTicket[],
     pageIndex: number,
-    pageSize: number,
+    pageSize: number | undefined,
     showPage: (nextPageIndex: number) => void
   ): readonly MessageButton[] => {
     const page = paginateTickets(tickets, pageIndex, pageSize);

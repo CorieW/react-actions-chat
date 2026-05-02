@@ -50,7 +50,7 @@ interface CreateAdminLiveChatFlowOptions {
   readonly labels: SupportAdminFlowLabels;
   readonly behavior: NonNullable<SupportAdminFlowConfig['behavior']>;
   readonly formatterContext: SupportAdminFormatterContext;
-  readonly liveChatQueueLimit: number;
+  readonly liveChatQueueLimit?: number | undefined;
   readonly liveChatMessageValidation: SupportInputValidationSettings;
   readonly canUpdateLiveChat: boolean;
   readonly canAppendLiveChatMessage: boolean;

@@ -12,9 +12,15 @@ export interface SupportPaginationPage<TItem> {
 export function paginateItems<TItem>(
   items: readonly TItem[],
   pageIndex: number,
-  pageSize: number
+  pageSize?: number
 ): SupportPaginationPage<TItem> {
-  const safePageSize = Math.max(1, Math.floor(pageSize));
+  const requestedPageSize = pageSize ?? items.length;
+  const safePageSize = Math.max(
+    1,
+    Number.isFinite(requestedPageSize)
+      ? Math.floor(requestedPageSize)
+      : items.length
+  );
   const pageCount = Math.max(1, Math.ceil(items.length / safePageSize));
   const safePageIndex = Math.min(Math.max(0, pageIndex), pageCount - 1);
   const firstVisibleItemIndex = safePageIndex * safePageSize;

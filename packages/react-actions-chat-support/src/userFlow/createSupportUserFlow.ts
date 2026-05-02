@@ -42,12 +42,12 @@ export function createSupportUserFlow(
   };
   const behavior = config.behavior ?? {};
   const recentActivityLimit = behavior.recentActivityLimit ?? 3;
-  const ticketListLimit = behavior.ticketListLimit ?? 4;
+  const ticketListLimit = behavior.ticketListLimit;
   const formatterContext: SupportUserFormatterContext = {
     customer,
     brandName,
     recentActivityLimit,
-    ticketListLimit,
+    ...(ticketListLimit !== undefined ? { ticketListLimit } : {}),
   };
 
   const {

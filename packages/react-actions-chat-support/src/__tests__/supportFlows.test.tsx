@@ -532,6 +532,73 @@ describe('support flows package', () => {
     expect(getLatestButton('SUP-3003')).toBeInTheDocument();
   });
 
+  it('shows every customer ticket when no ticket list limit is configured', async () => {
+    const user = userEvent.setup();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-3100',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3101',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3102',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3103',
+        priority: 'normal',
+        updatedAt: '2026-04-30T17:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3104',
+        priority: 'normal',
+        updatedAt: '2026-04-30T16:00:00Z',
+      }),
+    ];
+    let formatterTicketListLimit: number | undefined = 1;
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: () => tickets,
+      },
+      customer: {
+        id: 'ticket-unlimited-customer',
+        name: 'Ari Kim',
+      },
+      formatters: {
+        ticketList: ({ ticketListLimit, totalTickets, visibleTickets }) => {
+          formatterTicketListLimit = ticketListLimit;
+          return `## Ticket list (${ticketListLimit ?? 'no limit'})\n\n${visibleTickets?.map(ticket => ticket.reference).join(', ')}\n\nTotal: ${totalTickets}`;
+        },
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /Ticket list \(no limit\)/i,
+      })
+    ).toBeInTheDocument();
+    expect(formatterTicketListLimit).toBeUndefined();
+    expect(screen.getByText(/Total: 5/i)).toBeInTheDocument();
+    for (const ticket of tickets) {
+      expect(
+        screen.getByRole('button', { name: ticket.reference })
+      ).toBeInTheDocument();
+    }
+    expect(
+      screen.queryByRole('button', { name: 'Next tickets' })
+    ).not.toBeInTheDocument();
+  });
+
   it('filters customer ticket lists with custom local predicates', async () => {
     const user = userEvent.setup();
     const tickets = [
@@ -997,6 +1064,130 @@ describe('support flows package', () => {
       firstAssigned.compareDocumentPosition(secondAssigned) &
         Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
+  });
+
+  it('shows every admin ticket and live chat when no queue limits are configured', async () => {
+    const user = userEvent.setup();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-1100',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1101',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1102',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1103',
+        priority: 'normal',
+        updatedAt: '2026-04-30T17:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1104',
+        priority: 'normal',
+        updatedAt: '2026-04-30T16:00:00Z',
+      }),
+    ];
+    const sessions = [
+      createQueueTestLiveChat({
+        id: 'chat-1100',
+        queuePosition: 1,
+      }),
+      createQueueTestLiveChat({
+        id: 'chat-1101',
+        queuePosition: 2,
+      }),
+      createQueueTestLiveChat({
+        id: 'chat-1102',
+        queuePosition: 3,
+      }),
+      createQueueTestLiveChat({
+        id: 'chat-1103',
+        queuePosition: 4,
+      }),
+      createQueueTestLiveChat({
+        id: 'chat-1104',
+        queuePosition: 5,
+      }),
+    ];
+    let formatterQueueLimit: number | undefined = 1;
+    let formatterLiveChatQueueLimit: number | undefined = 1;
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: () => tickets,
+        getTicket: reference => {
+          return tickets.find(ticket => ticket.reference === reference) ?? null;
+        },
+        listLiveChatQueue: () => sessions,
+        getLiveChat: sessionId => {
+          return sessions.find(session => session.id === sessionId) ?? null;
+        },
+      },
+      agent: {
+        id: 'queue-unlimited-agent',
+        name: 'Priya Admin',
+      },
+      formatters: {
+        ticketQueue: ({ queueLimit, totalTickets, visibleTickets }) => {
+          formatterQueueLimit = queueLimit;
+          return `## Ticket queue (${queueLimit ?? 'no limit'})\n\n${visibleTickets?.map(ticket => ticket.reference).join(', ')}\n\nTotal: ${totalTickets}`;
+        },
+        liveChatQueue: ({
+          liveChatQueueLimit,
+          totalSessions,
+          visibleSessions,
+        }) => {
+          formatterLiveChatQueueLimit = liveChatQueueLimit;
+          return `## Live chat queue (${liveChatQueueLimit ?? 'no limit'})\n\n${visibleSessions?.map(session => session.id).join(', ')}\n\nTotal: ${totalSessions}`;
+        },
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /Ticket queue \(no limit\)/i,
+      })
+    ).toBeInTheDocument();
+    expect(formatterQueueLimit).toBeUndefined();
+    expect(screen.getByText(/Total: 5/i)).toBeInTheDocument();
+    for (const ticket of tickets) {
+      expect(
+        screen.getByRole('button', { name: ticket.reference })
+      ).toBeInTheDocument();
+    }
+    expect(
+      screen.queryByRole('button', { name: 'Next tickets' })
+    ).not.toBeInTheDocument();
+
+    await user.click(getLatestButton('Back to admin options'));
+    await user.click(getLatestButton('View live chat queue'));
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /Live chat queue \(no limit\)/i,
+      })
+    ).toBeInTheDocument();
+    expect(formatterLiveChatQueueLimit).toBeUndefined();
+    expect(screen.getAllByText(/Total: 5/i)).toHaveLength(2);
+    for (const session of sessions) {
+      expect(
+        screen.getByRole('button', { name: session.id })
+      ).toBeInTheDocument();
+    }
+    expect(
+      screen.queryByRole('button', { name: 'Next live chats' })
+    ).not.toBeInTheDocument();
   });
 
   it('paginates admin ticket queues beyond the configured limit', async () => {

@@ -38,7 +38,7 @@ interface CreateUserTicketFlowOptions {
   readonly customer: SupportUserIdentity;
   readonly labels: SupportUserFlowLabels;
   readonly formatterContext: SupportUserFormatterContext;
-  readonly ticketListLimit: number;
+  readonly ticketListLimit?: number | undefined;
   readonly ticketSummaryValidation: SupportInputValidationSettings;
   readonly ticketDetailValidation: SupportInputValidationSettings;
   readonly canCreateTicket: boolean;

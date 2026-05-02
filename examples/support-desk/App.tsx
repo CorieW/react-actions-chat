@@ -66,6 +66,8 @@ const ADMIN_NOTES = [
   'Resolve or reopen tickets without leaving the chat surface.',
 ];
 
+const SUPPORT_LIST_LIMIT = 5;
+
 function resetChatStores(): void {
   useChatGlobalsStore.getState().resetChatGlobals();
   useChatStore.getState().clearMessages();
@@ -181,6 +183,9 @@ export function App(): React.JSX.Element {
           adapter,
           customer: CUSTOMER_IDENTITY,
           brandName: 'Harbor Support',
+          behavior: {
+            ticketListLimit: SUPPORT_LIST_LIMIT,
+          },
           initialMessage: [
             '## Harbor Support is ready',
             '',
@@ -195,6 +200,11 @@ export function App(): React.JSX.Element {
           adapter,
           agent: AGENT_IDENTITY,
           brandName: 'Harbor Ops',
+          behavior: {
+            queueLimit: SUPPORT_LIST_LIMIT,
+            assignedWorkLimit: SUPPORT_LIST_LIMIT,
+            liveChatQueueLimit: SUPPORT_LIST_LIMIT,
+          },
           filterOptions: {
             ticketQueue: [
               {

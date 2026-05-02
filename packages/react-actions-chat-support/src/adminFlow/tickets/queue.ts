@@ -31,7 +31,7 @@ export function sortTicketsByAssignment(
 export function paginateTickets(
   tickets: readonly SupportTicket[],
   pageIndex: number,
-  pageSize: number
+  pageSize?: number
 ): SupportAdminTicketPage {
   const page = paginateItems(tickets, pageIndex, pageSize);
 

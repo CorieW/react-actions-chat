@@ -59,7 +59,7 @@ export interface SupportUserFormatterContext {
   readonly customer: SupportUserIdentity;
   readonly brandName: string;
   readonly recentActivityLimit: number;
-  readonly ticketListLimit: number;
+  readonly ticketListLimit?: number | undefined;
 }
 
 export interface SupportUserTicketFormatterContext extends SupportUserFormatterContext {

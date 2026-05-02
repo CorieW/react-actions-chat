@@ -44,9 +44,9 @@ export function createSupportAdminFlow(
     ...config.labels,
   };
   const behavior = config.behavior ?? {};
-  const queueLimit = behavior.queueLimit ?? 5;
-  const liveChatQueueLimit = behavior.liveChatQueueLimit ?? 5;
-  const assignedWorkLimit = behavior.assignedWorkLimit ?? 5;
+  const queueLimit = behavior.queueLimit;
+  const liveChatQueueLimit = behavior.liveChatQueueLimit;
+  const assignedWorkLimit = behavior.assignedWorkLimit;
   const recentActivityLimit = behavior.recentActivityLimit ?? 4;
   const transcriptLimit = behavior.transcriptLimit ?? 8;
   const priorityOrder = behavior.priorityOrder ?? DEFAULT_PRIORITY_ORDER;
@@ -80,9 +80,9 @@ export function createSupportAdminFlow(
     brandName,
     labels,
     capabilities,
-    queueLimit,
-    liveChatQueueLimit,
-    assignedWorkLimit,
+    ...(queueLimit !== undefined ? { queueLimit } : {}),
+    ...(liveChatQueueLimit !== undefined ? { liveChatQueueLimit } : {}),
+    ...(assignedWorkLimit !== undefined ? { assignedWorkLimit } : {}),
     recentActivityLimit,
     transcriptLimit,
   };
