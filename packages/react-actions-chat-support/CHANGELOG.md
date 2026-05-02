@@ -1,5 +1,11 @@
 # react-actions-chat-support
 
+## 2.0.2
+
+### Patch Changes
+
+- e67015c: Stop applying default ticket and live-chat queue limits so support lists only paginate when a behavior limit is configured.
+
 ## 2.0.1
 
 ### Patch Changes
