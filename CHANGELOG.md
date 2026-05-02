@@ -1,5 +1,11 @@
 # react-actions-chat
 
+## 1.1.1
+
+### Patch Changes
+
+- c2cfc8e: - Regenerate published styles so the Tailwind `filter` utility remains in sync with the workspace source scan.
+
 ## 1.1.0
 
 ### Minor Changes
