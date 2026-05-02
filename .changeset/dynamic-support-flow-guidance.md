@@ -7,5 +7,6 @@
 - Make admin opening guidance advertise only configured ticket and live-chat capabilities.
 - Pass resolved admin labels and capability flags to admin opening formatters.
 - Add configurable `filterOptions` for customer ticket lists and admin ticket, assigned-work, and live-chat queues using backend filters, local predicates, or both.
+- Restore the active list view when a user aborts filter selection instead of leaving the chat on the filter prompt.
 - Pass active filter and pagination metadata into ticket/live-chat list formatters and button customization contexts.
 - Publish the split support-flow implementation modules so package source imports resolve after the internal flow reorganization.

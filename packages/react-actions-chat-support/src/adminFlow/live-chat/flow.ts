@@ -367,6 +367,9 @@ export function createAdminLiveChatFlow({
       showFilter: nextFilterId => {
         void showLiveChatQueue(0, nextFilterId);
       },
+      abortFilter: () => {
+        void showLiveChatQueue(pageIndex, activeFilter?.id);
+      },
     });
     const isFiltered = Boolean(activeFilter?.filter ?? activeFilter?.predicate);
     const sessions = applyLiveChatFilterPredicate(

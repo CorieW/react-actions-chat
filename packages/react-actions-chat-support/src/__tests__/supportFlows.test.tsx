@@ -54,6 +54,30 @@ async function chooseFilter(
   await user.click(screen.getByRole('button', { name: 'Send message' }));
 }
 
+async function abortFilter(
+  user: ReturnType<typeof userEvent.setup>,
+  activeFilterLabel: string
+): Promise<void> {
+  await user.click(getLatestButton(`Filter: ${activeFilterLabel}`));
+  expect(
+    screen.getByRole('combobox', { name: 'Chat input' })
+  ).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Abort' }));
+}
+
+function getHeadingCount(name: RegExp): number {
+  return screen.queryAllByRole('heading', { name }).length;
+}
+
+async function expectHeadingCountToIncrease(
+  name: RegExp,
+  previousCount: number
+): Promise<void> {
+  await waitFor(() => {
+    expect(getHeadingCount(name)).toBeGreaterThan(previousCount);
+  });
+}
+
 function createAsyncSupportFlowAdapter(
   adapter: SupportFlowAdapter
 ): SupportFlowAdapter {
@@ -562,6 +586,15 @@ describe('support flows package', () => {
     expect(
       await screen.findByRole('heading', { name: /All cases \(3\)/i })
     ).toBeInTheDocument();
+    const initialAllCasesCount = getHeadingCount(/All cases \(3\)/i);
+
+    await abortFilter(user, 'All cases');
+
+    await expectHeadingCountToIncrease(
+      /All cases \(3\)/i,
+      initialAllCasesCount
+    );
+    expect(getLatestButton('Filter: All cases')).toBeInTheDocument();
 
     await chooseFilter(user, 'All cases', 'open');
 
@@ -1199,6 +1232,15 @@ describe('support flows package', () => {
     expect(
       await screen.findByRole('heading', { name: /All tickets \(4\)/i })
     ).toBeInTheDocument();
+    const initialAllTicketsCount = getHeadingCount(/All tickets \(4\)/i);
+
+    await abortFilter(user, 'All tickets');
+
+    await expectHeadingCountToIncrease(
+      /All tickets \(4\)/i,
+      initialAllTicketsCount
+    );
+    expect(getLatestButton('Filter: All tickets')).toBeInTheDocument();
 
     await chooseFilter(user, 'All tickets', 'urgent');
 
@@ -1216,6 +1258,15 @@ describe('support flows package', () => {
     expect(
       await screen.findByRole('heading', { name: /All assigned \(2\)/i })
     ).toBeInTheDocument();
+    const initialAllAssignedCount = getHeadingCount(/All assigned \(2\)/i);
+
+    await abortFilter(user, 'All assigned');
+
+    await expectHeadingCountToIncrease(
+      /All assigned \(2\)/i,
+      initialAllAssignedCount
+    );
+    expect(getLatestButton('Filter: All assigned')).toBeInTheDocument();
 
     await chooseFilter(user, 'All assigned', 'assigned-urgent');
 
@@ -1380,6 +1431,15 @@ describe('support flows package', () => {
     expect(
       await screen.findByRole('heading', { name: /All chats \(3\)/i })
     ).toBeInTheDocument();
+    const initialAllChatsCount = getHeadingCount(/All chats \(3\)/i);
+
+    await abortFilter(user, 'All chats');
+
+    await expectHeadingCountToIncrease(
+      /All chats \(3\)/i,
+      initialAllChatsCount
+    );
+    expect(getLatestButton('Filter: All chats')).toBeInTheDocument();
 
     await chooseFilter(user, 'All chats', 'queued');
 

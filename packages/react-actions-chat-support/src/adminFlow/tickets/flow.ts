@@ -370,6 +370,9 @@ export function createAdminTicketFlow({
       showFilter: nextFilterId => {
         void showTicketQueue(0, nextFilterId);
       },
+      abortFilter: () => {
+        void showTicketQueue(pageIndex, activeFilter?.id);
+      },
     });
     const isFiltered = Boolean(activeFilter?.filter ?? activeFilter?.predicate);
     const tickets = applyTicketFilterPredicate(
@@ -463,6 +466,9 @@ export function createAdminTicketFlow({
       activeFilterId: activeFilter?.id,
       showFilter: nextFilterId => {
         void showAssignedWork(0, nextFilterId);
+      },
+      abortFilter: () => {
+        void showAssignedWork(pageIndex, activeFilter?.id);
       },
     });
     const isFiltered = Boolean(activeFilter?.filter ?? activeFilter?.predicate);

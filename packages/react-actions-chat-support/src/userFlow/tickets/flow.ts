@@ -223,6 +223,9 @@ export function createUserTicketFlow({
       showFilter: nextFilterId => {
         void showMyTickets(0, nextFilterId);
       },
+      abortFilter: () => {
+        void showMyTickets(pageIndex, activeFilter?.id);
+      },
     });
     const isFiltered = Boolean(activeFilter?.predicate);
     const tickets = applyTicketFilterPredicate(

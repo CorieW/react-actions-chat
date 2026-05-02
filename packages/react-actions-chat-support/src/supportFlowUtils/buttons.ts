@@ -241,6 +241,7 @@ interface CreateListFilterButtonsOptions<
   readonly filterOptions: readonly TOption[];
   readonly activeFilterId: string | undefined;
   readonly showFilter: (filterId: string) => void;
+  readonly abortFilter?: (() => void) | undefined;
 }
 
 export function createListFilterButtons<
@@ -249,6 +250,7 @@ export function createListFilterButtons<
   filterOptions,
   activeFilterId,
   showFilter,
+  abortFilter,
 }: CreateListFilterButtonsOptions<TOption>): readonly MessageButton[] {
   if (!filterOptions.length) {
     return [];
@@ -276,6 +278,7 @@ export function createListFilterButtons<
         style: activeFilter?.style,
       },
       {
+        ...(abortFilter ? { abortCallback: abortFilter } : {}),
         onValidInput: filterId => {
           if (filterOptions.some(option => option.id === filterId)) {
             showFilter(filterId);
