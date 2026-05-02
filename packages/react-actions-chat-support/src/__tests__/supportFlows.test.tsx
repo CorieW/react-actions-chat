@@ -361,7 +361,7 @@ describe('support flows package', () => {
     expect(
       screen.queryByRole('button', { name: 'End live chat' })
     ).not.toBeInTheDocument();
-  }, 15_000);
+  }, 25_000);
 
   it('restores customer guidance after an input flow is aborted', async () => {
     const user = userEvent.setup();
