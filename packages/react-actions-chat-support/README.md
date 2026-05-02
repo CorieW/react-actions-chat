@@ -37,6 +37,9 @@ applications can pass:
   timeout/cooldown behavior, and request-button styling
 - `formatters` to replace the markdown rendered for queues, tickets,
   transcripts, completion states, and opening messages
+- `filterOptions` to add optional, configurable filter buttons for admin
+  ticket queues, admin assigned work, admin live-chat queues, and customer
+  ticket lists using backend filters, local predicates, or both
 - `behavior` to adjust queue limits, recent-activity limits, live-chat
   send/open predicates, priority order, status transitions, queue button
   variants, assigned-work filters, and live-chat requeue math
