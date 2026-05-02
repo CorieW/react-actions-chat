@@ -1,4 +1,4 @@
-export { createSupportUserFlow } from './userFlow';
+export { createSupportUserFlow } from './createSupportUserFlow';
 export type {
   SupportUserCreateTicketInputContext,
   SupportUserFlow,
@@ -21,4 +21,4 @@ export type {
   SupportUserTicketFormatterContext,
   SupportUserTicketInputContext,
   SupportUserTicketsFormatterContext,
-} from './userFlow';
+} from './types';
