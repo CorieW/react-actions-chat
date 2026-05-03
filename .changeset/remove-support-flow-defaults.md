@@ -1,5 +1,5 @@
 ---
-"react-actions-chat-support": patch
+'react-actions-chat-support': patch
 ---
 
 - Remove built-in support flow limit and minimum validation defaults so callers only get configured behavior and validation.

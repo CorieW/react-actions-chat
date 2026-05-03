@@ -24,27 +24,6 @@ function createTooLongMessage(maxMessageLength: number): string {
 }
 
 /**
- * Resolves validation settings from caller configuration and defaults.
- *
- * @param defaults - Default settings used when no override is supplied.
- * @param override - Caller-provided settings that override the defaults.
- */
-export function resolveValidationSettings(
-  defaults: SupportInputValidationSettings,
-  override: SupportInputValidationSettings | undefined
-): SupportInputValidationSettings {
-  return {
-    minMessageLength: override?.minMessageLength ?? defaults.minMessageLength,
-    minMessageLengthMessage:
-      override?.minMessageLengthMessage ?? defaults.minMessageLengthMessage,
-    maxMessageLength: override?.maxMessageLength ?? defaults.maxMessageLength,
-    maxMessageLengthMessage:
-      override?.maxMessageLengthMessage ?? defaults.maxMessageLengthMessage,
-    validator: override?.validator ?? defaults.validator,
-  };
-}
-
-/**
  * Validates support input against length settings and custom validators.
  *
  * @param value - Value to inspect or resolve.
