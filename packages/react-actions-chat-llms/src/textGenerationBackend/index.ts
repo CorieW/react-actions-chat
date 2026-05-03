@@ -1,4 +1,4 @@
-export { createTextGenerationBackend } from './textGenerationBackend/index';
+export { createTextGenerationBackend } from './createTextGenerationBackend';
 export type {
   GenerateTextRequest,
   GeneratedText,
@@ -6,4 +6,4 @@ export type {
   LLMMessageRole,
   TextGenerationBackendConfig,
   TextGenerator,
-} from './textGenerationBackend/index';
+} from './types';
