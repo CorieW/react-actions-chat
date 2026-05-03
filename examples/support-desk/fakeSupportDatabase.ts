@@ -40,7 +40,7 @@ const FAKE_DATABASE_WRITE_RESPONSE_MS = 200;
 /**
  * Options used to create the support example fake database.
  */
-export interface FakeSupportDatabaseOptions {
+interface FakeSupportDatabaseOptions {
   /**
    * Seed and factory options passed to the internal in-memory backing store.
    */
@@ -50,7 +50,7 @@ export interface FakeSupportDatabaseOptions {
 /**
  * Support example fake database that follows the support adapter contract.
  */
-export type FakeSupportDatabase = SupportFlowAdapter;
+type FakeSupportDatabase = SupportFlowAdapter;
 
 /**
  * Waits for a fake database operation to finish.

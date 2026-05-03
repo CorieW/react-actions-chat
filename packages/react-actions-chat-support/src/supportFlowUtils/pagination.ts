@@ -57,7 +57,7 @@ export interface SupportPaginationPage<TItem> {
 /**
  * Options used to create a pagination page from an externally paged result.
  */
-export interface CreatePaginationPageOptions<TItem> {
+interface CreatePaginationPageOptions<TItem> {
   /**
    * Items visible in the current view.
    */

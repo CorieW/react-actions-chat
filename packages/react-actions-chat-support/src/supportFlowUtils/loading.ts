@@ -8,7 +8,7 @@ const SUPPORT_LOADING_DELAY_MS = 150;
 /**
  * Runs async support work while coordinating the shared chat loading indicator.
  */
-export interface SupportLoadingController {
+interface SupportLoadingController {
   /**
    * Runs an async operation and shows loading when it remains pending past the delay.
    *
