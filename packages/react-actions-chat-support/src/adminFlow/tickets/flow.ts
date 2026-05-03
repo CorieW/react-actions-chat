@@ -9,9 +9,13 @@ import type {
   SupportTicketPriority,
 } from '../../supportFlowTypes';
 import {
+  collectFilteredSupportTicketListPage,
   createPaginationPage,
+  createSupportTicketListRequest,
   createListFilterButtons,
   getSupportTicketListTickets,
+  getSupportTicketListNextOffset,
+  hasSupportTicketListNextPage,
   isSupportTicketListResult,
   normalizeReference,
   resolveActiveListFilter,
@@ -315,11 +319,7 @@ export function createAdminTicketFlow({
             getTicketPageKey(slot, activeFilterId, pageIndex)
           ) ?? pageIndex * (pageSize ?? 0));
 
-    return {
-      pageIndex,
-      offset,
-      ...(pageSize !== undefined ? { pageSize, limit: pageSize } : {}),
-    };
+    return createSupportTicketListRequest(pageIndex, offset, pageSize);
   };
 
   const rememberTicketListPage = (
@@ -333,10 +333,12 @@ export function createAdminTicketFlow({
       request.offset
     );
 
-    if (result.hasMore ?? result.totalTickets !== undefined) {
+    const nextOffset = getSupportTicketListNextOffset(request, result);
+
+    if (nextOffset !== undefined) {
       ticketPageOffsets.set(
         getTicketPageKey(slot, activeFilterId, request.pageIndex + 1),
-        result.nextOffset ?? request.offset + result.tickets.length
+        nextOffset
       );
     }
   };
@@ -593,19 +595,35 @@ export function createAdminTicketFlow({
       },
     });
     const isFiltered = Boolean(activeFilter?.filter ?? activeFilter?.predicate);
-    const request = createTicketListRequest(
-      'ticket-queue',
-      pageIndex,
-      activeFilter?.id,
-      queueLimit
-    );
-    const ticketResponse = await listTicketQueue(queueFilter, request);
-    const isPagedResponse = isSupportTicketListResult(ticketResponse);
-    const tickets = applyTicketFilterPredicate(
-      getSupportTicketListTickets(ticketResponse),
-      activeFilter,
-      filterContext
-    );
+    const filteredTicketPage = activeFilter?.predicate
+      ? await collectFilteredSupportTicketListPage({
+          pageIndex,
+          pageSize: queueLimit,
+          listTickets: request => listTicketQueue(queueFilter, request),
+          filterTickets: tickets =>
+            applyTicketFilterPredicate(tickets, activeFilter, filterContext),
+        })
+      : undefined;
+    const request = filteredTicketPage
+      ? undefined
+      : createTicketListRequest(
+          'ticket-queue',
+          pageIndex,
+          activeFilter?.id,
+          queueLimit
+        );
+    const ticketResponse = request
+      ? await listTicketQueue(queueFilter, request)
+      : undefined;
+    const isPagedResponse =
+      ticketResponse !== undefined && isSupportTicketListResult(ticketResponse);
+    const tickets =
+      filteredTicketPage?.tickets ??
+      applyTicketFilterPredicate(
+        getSupportTicketListTickets(ticketResponse ?? []),
+        activeFilter,
+        filterContext
+      );
 
     if (!tickets.length) {
       addSupportMessage(
@@ -629,20 +647,25 @@ export function createAdminTicketFlow({
       return;
     }
 
-    const page = isPagedResponse
-      ? createAdminTicketPage(
-          createPaginationPage({
-            visibleItems: tickets,
-            pageIndex,
-            pageSize: ticketResponse.tickets.length || queueLimit,
-            offset: request.offset,
-            totalItems: ticketResponse.totalTickets,
-            hasMoreItems: ticketResponse.hasMore,
-          })
-        )
-      : paginateTickets(tickets, pageIndex, queueLimit);
+    const page = filteredTicketPage
+      ? createAdminTicketPage(filteredTicketPage.page)
+      : isPagedResponse && request
+        ? createAdminTicketPage(
+            createPaginationPage({
+              visibleItems: tickets,
+              pageIndex,
+              pageSize: ticketResponse.tickets.length || queueLimit,
+              offset: request.offset,
+              totalItems: ticketResponse.totalTickets,
+              hasMoreItems: hasSupportTicketListNextPage(
+                request,
+                ticketResponse
+              ),
+            })
+          )
+        : paginateTickets(tickets, pageIndex, queueLimit);
 
-    if (isPagedResponse) {
+    if (isPagedResponse && request) {
       rememberTicketListPage(
         'ticket-queue',
         activeFilter?.id,
@@ -716,19 +739,35 @@ export function createAdminTicketFlow({
       },
     });
     const isFiltered = Boolean(activeFilter?.filter ?? activeFilter?.predicate);
-    const request = createTicketListRequest(
-      'assigned-work',
-      pageIndex,
-      activeFilter?.id,
-      assignedWorkLimit
-    );
-    const ticketResponse = await listTicketQueue(queueFilter, request);
-    const isPagedResponse = isSupportTicketListResult(ticketResponse);
-    const tickets = applyTicketFilterPredicate(
-      getSupportTicketListTickets(ticketResponse),
-      activeFilter,
-      filterContext
-    );
+    const filteredTicketPage = activeFilter?.predicate
+      ? await collectFilteredSupportTicketListPage({
+          pageIndex,
+          pageSize: assignedWorkLimit,
+          listTickets: request => listTicketQueue(queueFilter, request),
+          filterTickets: tickets =>
+            applyTicketFilterPredicate(tickets, activeFilter, filterContext),
+        })
+      : undefined;
+    const request = filteredTicketPage
+      ? undefined
+      : createTicketListRequest(
+          'assigned-work',
+          pageIndex,
+          activeFilter?.id,
+          assignedWorkLimit
+        );
+    const ticketResponse = request
+      ? await listTicketQueue(queueFilter, request)
+      : undefined;
+    const isPagedResponse =
+      ticketResponse !== undefined && isSupportTicketListResult(ticketResponse);
+    const tickets =
+      filteredTicketPage?.tickets ??
+      applyTicketFilterPredicate(
+        getSupportTicketListTickets(ticketResponse ?? []),
+        activeFilter,
+        filterContext
+      );
 
     if (!tickets.length) {
       addSupportMessage(
@@ -751,20 +790,25 @@ export function createAdminTicketFlow({
       return;
     }
 
-    const page = isPagedResponse
-      ? createAdminTicketPage(
-          createPaginationPage({
-            visibleItems: tickets,
-            pageIndex,
-            pageSize: ticketResponse.tickets.length || assignedWorkLimit,
-            offset: request.offset,
-            totalItems: ticketResponse.totalTickets,
-            hasMoreItems: ticketResponse.hasMore,
-          })
-        )
-      : paginateTickets(tickets, pageIndex, assignedWorkLimit);
+    const page = filteredTicketPage
+      ? createAdminTicketPage(filteredTicketPage.page)
+      : isPagedResponse && request
+        ? createAdminTicketPage(
+            createPaginationPage({
+              visibleItems: tickets,
+              pageIndex,
+              pageSize: ticketResponse.tickets.length || assignedWorkLimit,
+              offset: request.offset,
+              totalItems: ticketResponse.totalTickets,
+              hasMoreItems: hasSupportTicketListNextPage(
+                request,
+                ticketResponse
+              ),
+            })
+          )
+        : paginateTickets(tickets, pageIndex, assignedWorkLimit);
 
-    if (isPagedResponse) {
+    if (isPagedResponse && request) {
       rememberTicketListPage(
         'assigned-work',
         activeFilter?.id,

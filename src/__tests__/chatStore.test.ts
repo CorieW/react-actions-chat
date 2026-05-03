@@ -397,6 +397,26 @@ describe('Chat Store Unit Tests', () => {
 
       expect(useChatStore.getState().isLoading).toBe(false);
     });
+
+    it('should increment the loading mutation id for every loading write', () => {
+      const store = useChatStore.getState();
+      const initialLoadingMutationId = store.loadingMutationId;
+
+      store.setLoading(true);
+      expect(useChatStore.getState().loadingMutationId).toBe(
+        initialLoadingMutationId + 1
+      );
+
+      useChatStore.getState().setLoading(true);
+      expect(useChatStore.getState().loadingMutationId).toBe(
+        initialLoadingMutationId + 2
+      );
+
+      useChatStore.getState().clearLoading();
+      expect(useChatStore.getState().loadingMutationId).toBe(
+        initialLoadingMutationId + 3
+      );
+    });
   });
 
   describe('clearButtons', () => {

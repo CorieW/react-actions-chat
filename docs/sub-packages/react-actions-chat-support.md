@@ -190,7 +190,8 @@ const adapter = createInMemorySupportFlowAdapter({
 ### Add Queue Filters
 
 Filters can call the backend with a `filter` object, trim client-side results
-with `predicate`, or do both.
+with `predicate`, or do both. With backend-paged ticket responses, local
+predicates read through later backend pages so matching tickets remain reachable.
 
 ```ts typecheck
 import {

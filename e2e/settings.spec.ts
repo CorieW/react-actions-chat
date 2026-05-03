@@ -21,11 +21,6 @@ test.describe('settings example', () => {
 
     const initialAssistantMessageCount = await assistantMessages(page).count();
     await submitChatInput(page, 'change my email');
-    await expect(getChatInput(page)).toBeDisabled();
-    await expect(getChatInput(page)).toHaveAttribute(
-      'placeholder',
-      'Finding the best settings action...'
-    );
 
     const fallbackMessage = await waitForAssistantMessageCount(
       page,

@@ -185,6 +185,8 @@ math, wait-time math, and ticket/live-chat sorting.
 
 Filters show as selectable request-input buttons. A filter can send a backend
 filter object, apply a local predicate to returned records, or combine both.
+With backend-paged ticket responses, local predicates read through later backend
+pages so matching tickets remain reachable.
 
 ```ts typecheck
 import {

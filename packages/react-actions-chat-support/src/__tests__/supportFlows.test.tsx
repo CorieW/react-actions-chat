@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   Chat,
@@ -716,6 +716,75 @@ describe('support flows package', () => {
     expect(requestedOffsets).toEqual([0, 2, 4]);
   }, 10000);
 
+  it('paginates customer ticket lists with next offsets alone', async () => {
+    const user = userEvent.setup();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-3060',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3061',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3062',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+    ];
+    const requestedOffsets: number[] = [];
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: (_customer, request) => {
+          const offset = request?.offset ?? 0;
+          const nextOffset = offset + 1;
+          requestedOffsets.push(offset);
+
+          return {
+            tickets: tickets.slice(offset, nextOffset),
+            nextOffset: nextOffset < tickets.length ? nextOffset : undefined,
+          };
+        },
+      },
+      customer: {
+        id: 'ticket-next-offset-customer',
+        name: 'Ari Kim',
+      },
+      behavior: {
+        ticketListLimit: 1,
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 1-1 of at least 2/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-3060' })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 2-2 of at least 3/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-3061')).toBeInTheDocument();
+
+    await user.click(getLatestButton('Next tickets'));
+
+    expect(
+      await screen.findByText(/Showing tickets 3-3 of 3/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-3062')).toBeInTheDocument();
+    expect(requestedOffsets).toEqual([0, 0, 1, 2]);
+  });
+
   it('shows every customer ticket when no ticket list limit is configured', async () => {
     const user = userEvent.setup();
     const tickets = [
@@ -856,6 +925,85 @@ describe('support flows package', () => {
     expect(getLatestButton('SUP-4002')).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'SUP-4001' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('filters customer backend-paged ticket lists beyond the first backend page', async () => {
+    const user = userEvent.setup();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-4050',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+        status: 'resolved',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-4051',
+        priority: 'high',
+        updatedAt: '2026-04-30T19:00:00Z',
+        status: 'resolved',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-4052',
+        priority: 'urgent',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-4053',
+        priority: 'normal',
+        updatedAt: '2026-04-30T17:00:00Z',
+      }),
+    ];
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: (_customer, request) => {
+          const offset = request?.offset ?? 0;
+          const limit = request?.limit ?? 2;
+          const nextOffset = offset + limit;
+
+          return {
+            tickets: tickets.slice(offset, nextOffset),
+            hasMore: nextOffset < tickets.length,
+            nextOffset: nextOffset < tickets.length ? nextOffset : undefined,
+          };
+        },
+      },
+      customer: {
+        id: 'ticket-backend-filter-customer',
+        name: 'Ari Kim',
+      },
+      filterOptions: {
+        tickets: [
+          {
+            id: 'all',
+            label: 'All cases',
+          },
+          {
+            id: 'open',
+            label: 'Open cases',
+            predicate: ticket => ticket.status === 'open',
+          },
+        ],
+      },
+      formatters: {
+        ticketList: ({ activeFilterLabel, totalTickets, visibleTickets }) => {
+          return `## ${activeFilterLabel ?? 'Tickets'} (${totalTickets})\n\n${visibleTickets?.map(ticket => ticket.reference).join(', ')}`;
+        },
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+    await chooseFilter(user, 'All cases', 'open');
+
+    expect(
+      await screen.findByRole('heading', { name: /Open cases \(2\)/i })
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-4052')).toBeInTheDocument();
+    expect(getLatestButton('SUP-4053')).toBeInTheDocument();
+    expect(
+      screen.queryByText(/No tickets match Open cases/i)
     ).not.toBeInTheDocument();
   });
 
@@ -1548,6 +1696,7 @@ describe('support flows package', () => {
         reference: 'SUP-1050',
         priority: 'normal',
         updatedAt: '2026-04-30T20:00:00Z',
+        assignedTo: 'Priya Admin',
       }),
       createQueueTestTicket({
         reference: 'SUP-1051',
@@ -1602,12 +1751,18 @@ describe('support flows package', () => {
     expect(
       await screen.findByText(/Showing tickets 1-2 of 5/i)
     ).toBeInTheDocument();
+    const firstBackendTicket = screen.getByText(/SUP-1050 \(normal\):/i);
+    const secondBackendTicket = screen.getByText(/SUP-1051 \(normal\):/i);
     expect(
       screen.getByRole('button', { name: 'SUP-1050' })
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'SUP-1051' })
     ).toBeInTheDocument();
+    expect(
+      firstBackendTicket.compareDocumentPosition(secondBackendTicket) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
 
     await user.click(screen.getByRole('button', { name: 'Next tickets' }));
 
@@ -1624,6 +1779,78 @@ describe('support flows package', () => {
     ).toBeInTheDocument();
     expect(getLatestButton('SUP-1054')).toBeInTheDocument();
     expect(requestedOffsets).toEqual([0, 2, 4]);
+  });
+
+  it('paginates admin ticket queues with next offsets alone', async () => {
+    const user = userEvent.setup();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-1070',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1071',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1072',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+    ];
+    const requestedOffsets: number[] = [];
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: (_filter, request) => {
+          const offset = request?.offset ?? 0;
+          const nextOffset = offset + 1;
+          requestedOffsets.push(offset);
+
+          return {
+            tickets: tickets.slice(offset, nextOffset),
+            nextOffset: nextOffset < tickets.length ? nextOffset : undefined,
+          };
+        },
+        getTicket: reference => {
+          return tickets.find(ticket => ticket.reference === reference) ?? null;
+        },
+      },
+      agent: {
+        id: 'queue-next-offset-agent',
+        name: 'Priya Admin',
+      },
+      behavior: {
+        queueLimit: 1,
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 1-1 of at least 2/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-1070' })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 2-2 of at least 3/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-1071')).toBeInTheDocument();
+
+    await user.click(getLatestButton('Next tickets'));
+
+    expect(
+      await screen.findByText(/Showing tickets 3-3 of 3/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-1072')).toBeInTheDocument();
+    expect(requestedOffsets).toEqual([0, 1, 2]);
   });
 
   it('shows loading while an admin ticket queue database read is pending', async () => {
@@ -1660,6 +1887,57 @@ describe('support flows package', () => {
     expect(
       await screen.findByRole('button', { name: ticket.reference })
     ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('status', { name: 'Loading' })
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it('keeps external loading visible after a support read finishes', async () => {
+    const user = userEvent.setup();
+    const ticket = createQueueTestTicket({
+      reference: 'SUP-1080',
+      priority: 'normal',
+      updatedAt: '2026-04-30T20:00:00Z',
+    });
+    const queueRead = createDeferred<readonly SupportTicket[]>();
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: () => queueRead.promise,
+        getTicket: reference => {
+          return reference === ticket.reference ? ticket : null;
+        },
+      },
+      agent: {
+        id: 'queue-loading-owner-agent',
+        name: 'Priya Admin',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+
+    expect(
+      await screen.findByRole('status', { name: 'Loading' })
+    ).toBeInTheDocument();
+
+    act(() => {
+      useChatStore.getState().setLoading(true);
+    });
+    act(() => {
+      queueRead.resolve([ticket]);
+    });
+
+    expect(
+      await screen.findByRole('button', { name: ticket.reference })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
+
+    act(() => {
+      useChatStore.getState().clearLoading();
+    });
     await waitFor(() => {
       expect(
         screen.queryByRole('status', { name: 'Loading' })
@@ -1854,6 +2132,118 @@ describe('support flows package', () => {
     expect(getLatestButton('SUP-5003')).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'SUP-5002' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('filters admin backend-paged ticket queues beyond the first backend page', async () => {
+    const user = userEvent.setup();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-5100',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-5101',
+        priority: 'low',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-5102',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-5103',
+        priority: 'urgent',
+        updatedAt: '2026-04-30T17:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+    ];
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: (filter, request) => {
+          const offset = request?.offset ?? 0;
+          const limit = request?.limit ?? 2;
+          const filteredTickets = filter?.assignedTo
+            ? tickets.filter(ticket => ticket.assignedTo === filter.assignedTo)
+            : tickets;
+          const nextOffset = offset + limit;
+
+          return {
+            tickets: filteredTickets.slice(offset, nextOffset),
+            hasMore: nextOffset < filteredTickets.length,
+            nextOffset:
+              nextOffset < filteredTickets.length ? nextOffset : undefined,
+          };
+        },
+        getTicket: reference => {
+          return tickets.find(ticket => ticket.reference === reference) ?? null;
+        },
+      },
+      agent: {
+        id: 'ticket-backend-filter-agent',
+        name: 'Priya Admin',
+      },
+      behavior: {
+        assignedWorkLimit: 1,
+        queueLimit: 2,
+      },
+      filterOptions: {
+        ticketQueue: [
+          {
+            id: 'all',
+            label: 'All tickets',
+          },
+          {
+            id: 'urgent',
+            label: 'Urgent tickets',
+            predicate: ticket => ticket.priority === 'urgent',
+          },
+        ],
+        assignedWork: [
+          {
+            id: 'assigned-all',
+            label: 'All assigned',
+          },
+          {
+            id: 'assigned-urgent',
+            label: 'Urgent assigned',
+            predicate: ticket => ticket.priority === 'urgent',
+          },
+        ],
+      },
+      formatters: {
+        ticketQueue: ({ activeFilterLabel, totalTickets, visibleTickets }) => {
+          return `## ${activeFilterLabel ?? 'Ticket queue'} (${totalTickets})\n\n${visibleTickets?.map(ticket => ticket.reference).join(', ')}`;
+        },
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+    await chooseFilter(user, 'All tickets', 'urgent');
+
+    expect(
+      await screen.findByRole('heading', { name: /Urgent tickets \(1\)/i })
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-5103')).toBeInTheDocument();
+    expect(
+      screen.queryByText(/No tickets match Urgent tickets/i)
+    ).not.toBeInTheDocument();
+
+    await user.click(getLatestButton('Back to admin options'));
+    await user.click(getLatestButton('My assigned work'));
+    await chooseFilter(user, 'All assigned', 'assigned-urgent');
+
+    expect(
+      await screen.findByRole('heading', { name: /Urgent assigned \(1\)/i })
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-5103')).toBeInTheDocument();
+    expect(
+      screen.queryByText(/No assigned tickets match Urgent assigned/i)
     ).not.toBeInTheDocument();
   });
 

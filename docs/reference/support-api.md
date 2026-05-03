@@ -194,9 +194,9 @@ Customer and admin ticket-listing methods can return either a complete
 
 Return the paged result shape when the backing database can only read part of a
 larger ticket set. The support flow passes `offset` and `limit` into the next
-call, uses `totalTickets` or `hasMore` to decide whether to show `Next tickets`,
-and falls back to `nextOffset` when the backend needs a custom offset for the
-next page.
+call, and uses `totalTickets`, `hasMore`, or `nextOffset` to decide whether to
+show `Next tickets`. Return `nextOffset` when the backend needs a custom offset
+for the next page.
 
 ## Callback Contracts
 
@@ -377,9 +377,12 @@ Admin filter groups:
 - `filterOptions.assignedWork`
 - `filterOptions.liveChatQueue`
 
-Admin ticket filters may provide a backend `filter`, a local `predicate`, or
-both. The context includes the agent, agent label, queue slot, and base filter.
-Admin live-chat filters work the same way with live-chat queue filters.
+Customer ticket filters use local predicates. Admin ticket filters may provide a
+backend `filter`, a local `predicate`, or both. When a backend-paged ticket
+response is locally filtered with `predicate`, the flow reads through the
+backend pages so matches beyond the first page remain reachable. The admin
+context includes the agent, agent label, queue slot, and base filter. Admin
+live-chat filters work the same way with live-chat queue filters.
 
 ### Behavior
 

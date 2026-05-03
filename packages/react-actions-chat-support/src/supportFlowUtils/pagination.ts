@@ -1,5 +1,6 @@
 import type {
   SupportTicket,
+  SupportTicketListRequest,
   SupportTicketListResponse,
   SupportTicketListResult,
 } from '../supportFlowTypes';
@@ -85,6 +86,50 @@ interface CreatePaginationPageOptions<TItem> {
 }
 
 /**
+ * Options used to collect locally filtered tickets from a paged backend.
+ */
+interface CollectFilteredSupportTicketListOptions {
+  /**
+   * Zero-based page index requested by the current support flow.
+   */
+  readonly pageIndex: number;
+  /**
+   * Optional number of tickets requested by each backend page and shown in one UI page.
+   */
+  readonly pageSize?: number | undefined;
+  /**
+   * Lists tickets for one backend page.
+   *
+   * @param request - Paging metadata sent to the ticket-listing backend.
+   */
+  readonly listTickets: (
+    request: SupportTicketListRequest
+  ) => Promise<SupportTicketListResponse>;
+  /**
+   * Applies the local filter predicate to one backend page of tickets.
+   *
+   * @param tickets - Backend tickets to filter.
+   */
+  readonly filterTickets: (
+    tickets: readonly SupportTicket[]
+  ) => readonly SupportTicket[];
+}
+
+/**
+ * Locally filtered ticket-list result with pagination metadata.
+ */
+interface FilteredSupportTicketListPage {
+  /**
+   * All tickets that matched the local predicate.
+   */
+  readonly tickets: readonly SupportTicket[];
+  /**
+   * UI page derived from the filtered ticket list.
+   */
+  readonly page: SupportPaginationPage<SupportTicket>;
+}
+
+/**
  * Returns whether a ticket listing response includes backend pagination metadata.
  *
  * @param response - Ticket listing response returned by an adapter or callback.
@@ -104,6 +149,71 @@ export function getSupportTicketListTickets(
   response: SupportTicketListResponse
 ): readonly SupportTicket[] {
   return isSupportTicketListResult(response) ? response.tickets : response;
+}
+
+/**
+ * Creates a ticket-list request for one backend page.
+ *
+ * @param pageIndex - Zero-based page index requested by the flow.
+ * @param offset - Zero-based ticket offset requested from the backend.
+ * @param pageSize - Optional number of tickets the backend should return.
+ */
+export function createSupportTicketListRequest(
+  pageIndex: number,
+  offset: number,
+  pageSize?: number
+): SupportTicketListRequest {
+  return {
+    pageIndex,
+    offset,
+    ...(pageSize !== undefined ? { pageSize, limit: pageSize } : {}),
+  };
+}
+
+/**
+ * Returns the next offset implied by a paged ticket-list response.
+ *
+ * @param request - Ticket-list request that produced the response.
+ * @param result - Paged ticket-list response returned by the backend.
+ */
+export function getSupportTicketListNextOffset(
+  request: SupportTicketListRequest,
+  result: SupportTicketListResult
+): number | undefined {
+  const fallbackOffset = request.offset + result.tickets.length;
+  const totalTickets =
+    result.totalTickets !== undefined
+      ? Math.max(0, Math.floor(result.totalTickets))
+      : undefined;
+  const hasMoreByTotal =
+    totalTickets !== undefined ? fallbackOffset < totalTickets : undefined;
+
+  if (result.hasMore === false || hasMoreByTotal === false) {
+    return undefined;
+  }
+
+  if (result.nextOffset !== undefined && result.nextOffset > request.offset) {
+    return result.nextOffset;
+  }
+
+  if (result.hasMore === true || hasMoreByTotal === true) {
+    return fallbackOffset > request.offset ? fallbackOffset : undefined;
+  }
+
+  return undefined;
+}
+
+/**
+ * Returns whether a paged ticket-list response can advance to another page.
+ *
+ * @param request - Ticket-list request that produced the response.
+ * @param result - Paged ticket-list response returned by the backend.
+ */
+export function hasSupportTicketListNextPage(
+  request: SupportTicketListRequest,
+  result: SupportTicketListResult
+): boolean {
+  return getSupportTicketListNextOffset(request, result) !== undefined;
 }
 
 /**
@@ -169,6 +279,55 @@ export function createPaginationPage<TItem>({
     hasMoreItems: resolvedHasMoreItems,
     firstVisibleItemNumber: visibleItems.length ? safeOffset + 1 : 0,
     lastVisibleItemNumber: knownVisibleTotal,
+  };
+}
+
+/**
+ * Collects all backend pages required to apply a local ticket predicate exactly.
+ *
+ * @param options - Options used to fetch, filter, and paginate tickets.
+ */
+export async function collectFilteredSupportTicketListPage({
+  pageIndex,
+  pageSize,
+  listTickets,
+  filterTickets,
+}: CollectFilteredSupportTicketListOptions): Promise<FilteredSupportTicketListPage> {
+  const filteredTickets: SupportTicket[] = [];
+  const seenOffsets = new Set<number>();
+  let backendPageIndex = 0;
+  let offset = 0;
+
+  while (!seenOffsets.has(offset)) {
+    seenOffsets.add(offset);
+
+    const request = createSupportTicketListRequest(
+      backendPageIndex,
+      offset,
+      pageSize
+    );
+    const response = await listTickets(request);
+    filteredTickets.push(
+      ...filterTickets(getSupportTicketListTickets(response))
+    );
+
+    if (!isSupportTicketListResult(response)) {
+      break;
+    }
+
+    const nextOffset = getSupportTicketListNextOffset(request, response);
+
+    if (nextOffset === undefined) {
+      break;
+    }
+
+    offset = nextOffset;
+    backendPageIndex += 1;
+  }
+
+  return {
+    tickets: filteredTickets,
+    page: paginateItems(filteredTickets, pageIndex, pageSize),
   };
 }
 

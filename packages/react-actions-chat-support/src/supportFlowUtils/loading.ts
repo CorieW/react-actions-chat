@@ -26,6 +26,7 @@ export function createSupportLoadingController(): SupportLoadingController {
   let pendingOperations = 0;
   let loadingTimer: ReturnType<typeof setTimeout> | undefined;
   let didSetLoading = false;
+  let loadingMutationId: number | undefined;
 
   const clearLoadingTimer = (): void => {
     if (loadingTimer === undefined) {
@@ -50,6 +51,7 @@ export function createSupportLoadingController(): SupportLoadingController {
       if (!chatStore.isLoading) {
         chatStore.setLoading(true);
         didSetLoading = true;
+        loadingMutationId = useChatStore.getState().loadingMutationId;
       }
     }, SUPPORT_LOADING_DELAY_MS);
   };
@@ -63,8 +65,16 @@ export function createSupportLoadingController(): SupportLoadingController {
 
     clearLoadingTimer();
     if (didSetLoading) {
+      const chatStore = useChatStore.getState();
+
       didSetLoading = false;
-      useChatStore.getState().clearLoading();
+      if (
+        chatStore.isLoading &&
+        chatStore.loadingMutationId === loadingMutationId
+      ) {
+        chatStore.clearLoading();
+      }
+      loadingMutationId = undefined;
     }
   };
 

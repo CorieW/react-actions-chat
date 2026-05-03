@@ -162,10 +162,7 @@ export function createSupportAdminFlowServices({
     response: SupportTicketListResponse
   ): SupportTicketListResponse => {
     if (isSupportTicketListResult(response)) {
-      return {
-        ...response,
-        tickets: sortTicketsByAssignment(response.tickets),
-      };
+      return response;
     }
 
     return sortTicketsByAssignment(response);

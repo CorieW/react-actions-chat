@@ -38,6 +38,10 @@ type ChatStatePatch = {
    */
   isLoading?: boolean;
   /**
+   * Monotonic counter for loading-state writes.
+   */
+  loadingMutationId?: number;
+  /**
    * Messages associated with the transcript or support record.
    */
   messages?: readonly Message[];
@@ -48,6 +52,7 @@ type ChatStatePatch = {
  *
  * @property messages Current chat transcript.
  * @property isLoading Whether the chat is currently waiting on async work.
+ * @property loadingMutationId Monotonic counter for loading-state writes.
  * @property getMessages Returns the current chat transcript.
  * @property getPreviousMessage Returns the latest message in the transcript.
  * @property addMessage Adds one message to the transcript.
@@ -70,6 +75,10 @@ interface ChatState {
    * Whether loading is true.
    */
   readonly isLoading: boolean;
+  /**
+   * Monotonic counter incremented whenever loading state is explicitly written.
+   */
+  readonly loadingMutationId: number;
   /**
    * Returns the messages.
    */
@@ -136,6 +145,7 @@ interface ChatState {
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isLoading: false,
+  loadingMutationId: 0,
 
   getMessages: () => {
     return get().messages;
@@ -210,6 +220,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     if (params.isLoading !== undefined) {
       nextState.isLoading = params.isLoading;
+      nextState.loadingMutationId = get().loadingMutationId + 1;
     }
 
     set(nextState);
