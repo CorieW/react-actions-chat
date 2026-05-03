@@ -1,4 +1,4 @@
-export { createVectorSearchQueryRecommendedActionsFlow } from './vectorSearch';
+export { createVectorSearchQueryRecommendedActionsFlow } from './createVectorSearchQueryRecommendedActionsFlow';
 export type {
   EmbeddedButtonsVectorSearchQueryRecommendedActionsFlowConfig,
   QueryEmbeddingResolver,
@@ -9,4 +9,4 @@ export type {
   VectorSearchButtonSearchAdapter,
   VectorSearchButtonsResultResolver,
   VectorSearchQueryRecommendedActionsFlowConfig,
-} from './vectorSearch';
+} from './types';

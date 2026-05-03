@@ -29,7 +29,9 @@
   "files": [
     "src/embedders",
     "src/index.ts",
+    "src/queryFlow",
     "src/queryRecommendedActionsFlow.ts",
+    "src/vectorSearch",
     "src/vectorSearchButtonDefinition.ts",
     "src/vectorSearchQueryRecommendedActionsFlow.ts",
     "README.md"
