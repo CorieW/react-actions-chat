@@ -25,12 +25,21 @@ export interface VectorSearchButtonMatch<
   TButtonDefinition extends VectorSearchButtonDefinition =
     VectorSearchButtonDefinition,
 > {
+  /**
+   * Button definition or instance handled by this contract.
+   */
   readonly button: TButtonDefinition;
+  /**
+   * Similarity score returned for the vector-search match.
+   */
   readonly score: number;
 }
 
 /**
  * Embeds a user query before vector search runs.
+ *
+ * @param query - Submitted query text.
+ * @param context - Context object available to this resolver.
  */
 export type QueryEmbeddingResolver = (
   query: string,
@@ -40,25 +49,47 @@ export type QueryEmbeddingResolver = (
 /**
  * Optional hook for customizing how a button match becomes a rendered action.
  * By default, the flow calls createButton on the matched button definition.
+ *
+ * @param args - Match, query, and context used to create an action.
  */
 export type VectorSearchButtonActionResolver<
   TButtonDefinition extends VectorSearchButtonDefinition =
     VectorSearchButtonDefinition,
 > = (args: {
+  /**
+   * Vector-search match returned for a button definition.
+   */
   readonly match: VectorSearchButtonMatch<TButtonDefinition>;
+  /**
+   * Search query or user request text.
+   */
   readonly query: string;
+  /**
+   * Context passed to the callback or resolver.
+   */
   readonly context: QueryRecommendedActionsContext;
 }) => QueryRecommendedAction | Promise<QueryRecommendedAction>;
 
 /**
  * Optional hook for customizing the full recommendation result after search.
+ *
+ * @param args - Matches, query, and context used to build the result.
  */
 export type VectorSearchButtonsResultResolver<
   TButtonDefinition extends VectorSearchButtonDefinition =
     VectorSearchButtonDefinition,
 > = (args: {
+  /**
+   * Vector-search matches available to the result resolver.
+   */
   readonly matches: readonly VectorSearchButtonMatch<TButtonDefinition>[];
+  /**
+   * Search query or user request text.
+   */
   readonly query: string;
+  /**
+   * Context passed to the callback or resolver.
+   */
   readonly context: QueryRecommendedActionsContext;
 }) =>
   | QueryRecommendedActionsResult
@@ -74,19 +105,36 @@ export type VectorSearchButtonsResultResolver<
 
 /**
  * Search adapter for hosted vector databases or custom retrieval systems.
+ *
+ * @param args - Query, embedding, context, and limit used by the search adapter.
  */
 export type VectorSearchButtonSearchAdapter<
   TButtonDefinition extends VectorSearchButtonDefinition =
     VectorSearchButtonDefinition,
 > = (args: {
+  /**
+   * Search query or user request text.
+   */
   readonly query: string;
+  /**
+   * Context passed to the callback or resolver.
+   */
   readonly context: QueryRecommendedActionsContext;
+  /**
+   * Embedding vector generated for the query.
+   */
   readonly queryEmbedding: EmbeddingVector;
+  /**
+   * Maximum number of search matches to return.
+   */
   readonly maxResults: number;
 }) =>
   | readonly VectorSearchButtonMatch<TButtonDefinition>[]
   | Promise<readonly VectorSearchButtonMatch<TButtonDefinition>[]>;
 
+/**
+ * Shared vector-search recommendation configuration fields.
+ */
 interface VectorSearchQueryRecommendedActionsFlowConfigBase<
   TButtonDefinition extends VectorSearchButtonDefinition =
     VectorSearchButtonDefinition,
@@ -135,9 +183,23 @@ export interface EmbeddedButtonsVectorSearchQueryRecommendedActionsFlowConfig<
   TButtonDefinition extends VectorSearchButtonDefinition =
     VectorSearchButtonDefinition,
 > extends VectorSearchQueryRecommendedActionsFlowConfigBase<TButtonDefinition> {
+  /**
+   * Buttons rendered, stored, or customized by this contract.
+   */
   readonly buttons: readonly TButtonDefinition[];
+  /**
+   * Returns the embedding for a button definition.
+   *
+   * @param button - Button to store or update.
+   */
   readonly getButtonEmbedding: (button: TButtonDefinition) => EmbeddingVector;
+  /**
+   * Function that returns searchable text for a button definition.
+   */
   readonly getButtonText?: undefined;
+  /**
+   * Search implementation used to retrieve vector matches.
+   */
   readonly search?: undefined;
 }
 
@@ -148,10 +210,27 @@ export interface TextButtonsVectorSearchQueryRecommendedActionsFlowConfig<
   TButtonDefinition extends VectorSearchButtonDefinition =
     VectorSearchButtonDefinition,
 > extends VectorSearchQueryRecommendedActionsFlowConfigBase<TButtonDefinition> {
+  /**
+   * Buttons rendered, stored, or customized by this contract.
+   */
   readonly buttons: readonly TButtonDefinition[];
+  /**
+   * Text embedder used to create query and button embeddings.
+   */
   readonly embedder: TextEmbedder;
+  /**
+   * Returns button text.
+   *
+   * @param button - Button to store or update.
+   */
   readonly getButtonText?: ((button: TButtonDefinition) => string) | undefined;
+  /**
+   * Function that returns the vector embedding for a button definition.
+   */
   readonly getButtonEmbedding?: undefined;
+  /**
+   * Search implementation used to retrieve vector matches.
+   */
   readonly search?: undefined;
 }
 
@@ -162,9 +241,21 @@ export interface SearchButtonsVectorSearchQueryRecommendedActionsFlowConfig<
   TButtonDefinition extends VectorSearchButtonDefinition =
     VectorSearchButtonDefinition,
 > extends VectorSearchQueryRecommendedActionsFlowConfigBase<TButtonDefinition> {
+  /**
+   * Search implementation used to retrieve vector matches.
+   */
   readonly search: VectorSearchButtonSearchAdapter<TButtonDefinition>;
+  /**
+   * Buttons rendered, stored, or customized by this contract.
+   */
   readonly buttons?: undefined;
+  /**
+   * Function that returns the vector embedding for a button definition.
+   */
   readonly getButtonEmbedding?: undefined;
+  /**
+   * Function that returns searchable text for a button definition.
+   */
   readonly getButtonText?: undefined;
 }
 
@@ -179,6 +270,12 @@ export type VectorSearchQueryRecommendedActionsFlowConfig<
   | TextButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>
   | SearchButtonsVectorSearchQueryRecommendedActionsFlowConfig<TButtonDefinition>;
 
+/**
+ * Calculates cosine similarity between two embedding vectors.
+ *
+ * @param left - Left value in the comparison.
+ * @param right - Right value in the comparison.
+ */
 function cosineSimilarity(
   left: EmbeddingVector,
   right: EmbeddingVector
@@ -207,6 +304,11 @@ function cosineSimilarity(
   return dotProduct / Math.sqrt(leftMagnitude * rightMagnitude);
 }
 
+/**
+ * Returns whether vector search is delegated to an external adapter.
+ *
+ * @param config - Vector-search recommendation configuration to inspect or resolve.
+ */
 function usesSearchAdapter<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
@@ -215,6 +317,11 @@ function usesSearchAdapter<
   return 'search' in config && typeof config.search === 'function';
 }
 
+/**
+ * Returns whether buttons already provide precomputed embeddings.
+ *
+ * @param config - Vector-search recommendation configuration to inspect or resolve.
+ */
 function usesEmbeddedButtons<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
@@ -223,6 +330,11 @@ function usesEmbeddedButtons<
   return typeof config.getButtonEmbedding === 'function';
 }
 
+/**
+ * Returns the configured button definitions for local vector search.
+ *
+ * @param config - Vector-search recommendation configuration to inspect or resolve.
+ */
 function getConfiguredButtons<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
@@ -231,6 +343,11 @@ function getConfiguredButtons<
   return config.buttons ?? [];
 }
 
+/**
+ * Returns the configured button text resolver when present.
+ *
+ * @param config - Vector-search recommendation configuration to inspect or resolve.
+ */
 function getButtonTextResolver<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
@@ -239,6 +356,11 @@ function getButtonTextResolver<
   return config.getButtonText;
 }
 
+/**
+ * Returns the configured button embedding resolver when present.
+ *
+ * @param config - Vector-search recommendation configuration to inspect or resolve.
+ */
 function getButtonEmbeddingResolver<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
@@ -247,12 +369,24 @@ function getButtonEmbeddingResolver<
   return config.getButtonEmbedding;
 }
 
+/**
+ * Scores locally embedded buttons against the query embedding.
+ *
+ * @param queryEmbedding - Embedding vector for the submitted query.
+ * @param buttons - Buttons to transform, render, or customize.
+ */
 function runInMemoryVectorSearch<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
   queryEmbedding: EmbeddingVector,
   buttons: readonly {
+    /**
+     * Button definition or instance handled by this contract.
+     */
     readonly button: TButtonDefinition;
+    /**
+     * Vector embedding generated for the text.
+     */
     readonly embedding: EmbeddingVector;
   }[]
 ): readonly VectorSearchButtonMatch<TButtonDefinition>[] {
@@ -262,6 +396,11 @@ function runInMemoryVectorSearch<
   }));
 }
 
+/**
+ * Creates the query embedding resolver for vector-search recommendations.
+ *
+ * @param config - Vector-search recommendation configuration to inspect or resolve.
+ */
 function createQueryEmbeddingResolver<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
@@ -284,9 +423,21 @@ function createQueryEmbeddingResolver<
   );
 }
 
+/**
+ * Creates a default action.
+ *
+ * @param options - Match data used to create the default action.
+ */
 function createDefaultAction<
   TButtonDefinition extends VectorSearchButtonDefinition,
->({ match }: { readonly match: VectorSearchButtonMatch<TButtonDefinition> }) {
+>({
+  match,
+}: {
+  /**
+   * Vector-search match returned for a button definition.
+   */
+  readonly match: VectorSearchButtonMatch<TButtonDefinition>;
+}) {
   if ('kind' in match.button && match.button.kind === 'request-input') {
     return createButton(match.button);
   }
@@ -298,6 +449,11 @@ function createDefaultAction<
   return createButton(match.button);
 }
 
+/**
+ * Creates a vector search resolver.
+ *
+ * @param config - Vector-search recommendation configuration to inspect or resolve.
+ */
 function createVectorSearchResolver<
   TButtonDefinition extends VectorSearchButtonDefinition,
 >(
@@ -317,7 +473,13 @@ function createVectorSearchResolver<
   let embeddedButtonsPromise:
     | Promise<
         readonly {
+          /**
+           * Button definition or instance handled by this contract.
+           */
           readonly button: TButtonDefinition;
+          /**
+           * Vector embedding generated for the text.
+           */
           readonly embedding: EmbeddingVector;
         }[]
       >
@@ -325,7 +487,13 @@ function createVectorSearchResolver<
 
   const getEmbeddedButtons = async (): Promise<
     readonly {
+      /**
+       * Button definition or instance handled by this contract.
+       */
       readonly button: TButtonDefinition;
+      /**
+       * Vector embedding generated for the text.
+       */
       readonly embedding: EmbeddingVector;
     }[]
   > => {
@@ -412,6 +580,8 @@ function createVectorSearchResolver<
 /**
  * Creates a query flow with built-in embedding and vector search wiring for
  * button definitions.
+ *
+ * @param config - Vector-search recommendation configuration to inspect or resolve.
  */
 export function createVectorSearchQueryRecommendedActionsFlow<
   TButtonDefinition extends VectorSearchButtonDefinition,

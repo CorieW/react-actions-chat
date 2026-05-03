@@ -1,5 +1,10 @@
 import type { MaybePromise } from '../supportFlowTypes';
 
+/**
+ * Returns whether promise like.
+ *
+ * @param value - Value to inspect or resolve.
+ */
 export function isPromiseLike<T>(value: MaybePromise<T>): value is Promise<T> {
   return (
     typeof value === 'object' &&

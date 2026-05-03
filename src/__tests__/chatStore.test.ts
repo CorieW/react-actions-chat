@@ -4,6 +4,12 @@ import { useChatStore } from '../lib/chatStore';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
 import type { InputMessage, Message } from '../js/types';
 
+/**
+ * Creates an input message with a single text part for tests.
+ *
+ * @param text - Text content for the fixture.
+ * @param message - Message fields to merge into the fixture.
+ */
 function createInputMessage(
   text: string,
   message: Omit<InputMessage, 'parts'>
@@ -14,6 +20,12 @@ function createInputMessage(
   };
 }
 
+/**
+ * Creates a stored chat message with raw text for tests.
+ *
+ * @param text - Text content for the fixture.
+ * @param message - Message fields to merge into the fixture.
+ */
 function createStoredMessage(
   text: string,
   message: Omit<Message, 'parts' | 'rawContent'>
@@ -25,6 +37,13 @@ function createStoredMessage(
   };
 }
 
+/**
+ * Creates a stored chat message with a single file part for tests.
+ *
+ * @param url - File URL for the fixture.
+ * @param fileName - Filename to attach to the file message.
+ * @param message - Message fields to merge into the fixture.
+ */
 function createStoredFileMessage(
   url: string,
   fileName: string,
@@ -41,6 +60,11 @@ function createStoredFileMessage(
   };
 }
 
+/**
+ * Returns the first text part from a test message.
+ *
+ * @param message - Message to inspect for text content.
+ */
 function getMessageText(message: Message | undefined): string {
   const firstPart = message?.parts[0];
   if (!firstPart || firstPart.type !== 'text') {

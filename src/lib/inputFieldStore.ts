@@ -5,8 +5,17 @@
 
 import { create } from 'zustand';
 
+/**
+ * Default input placeholder used when callers do not override it.
+ */
 const DEFAULT_INPUT_PLACEHOLDER = 'Type your message...';
+/**
+ * Default disabled input placeholder used when callers do not override it.
+ */
 const DEFAULT_DISABLED_INPUT_PLACEHOLDER = 'Input disabled.';
+/**
+ * Default input type used when callers do not override it.
+ */
 const DEFAULT_INPUT_TYPE: InputType = 'textarea';
 
 /**
@@ -23,17 +32,38 @@ export type InputType =
   | 'url'
   | 'search';
 
+/**
+ * Option shown by the shared input bar when it is configured as a select.
+ */
 export interface InputSelectOption {
+  /**
+   * Submitted value for this option.
+   */
   readonly value: string;
+  /**
+   * Visible label shown for this option or button.
+   */
   readonly label: string;
+  /**
+   * Whether the option or input control is disabled.
+   */
   readonly disabled?: boolean | undefined;
 }
 
+/**
+ * Input element types that can be controlled by the shared input store.
+ */
 type RegisteredInputElement =
   | HTMLInputElement
   | HTMLTextAreaElement
   | HTMLSelectElement;
 
+/**
+ * Applies the active input type to the registered input element.
+ *
+ * @param element - Registered input element to inspect or update.
+ * @param type - Input type to apply to the element.
+ */
 function applyInputElementType(
   element: RegisteredInputElement | null,
   type: InputType
@@ -50,7 +80,13 @@ function applyInputElementType(
  * Submitted shared-input payload passed through validators and callbacks.
  */
 export interface InputSubmission {
+  /**
+   * Text content carried by this value.
+   */
   readonly text: string;
+  /**
+   * Files currently selected for submission.
+   */
   readonly files: readonly File[];
 }
 
@@ -102,21 +138,69 @@ export type InputSubmitGuard = (
  * Only the provided properties are changed.
  */
 export interface InputFieldParams {
+  /**
+   * Whether the option or input control is disabled.
+   */
   readonly disabled?: boolean | undefined;
+  /**
+   * Default disabled state restored when the input resets.
+   */
   readonly disabledDefault?: boolean | undefined;
+  /**
+   * Placeholder shown while the input is disabled.
+   */
   readonly disabledPlaceholder?: string | undefined;
+  /**
+   * Default disabled placeholder restored when the input resets.
+   */
   readonly disabledPlaceholderDefault?: string | undefined;
+  /**
+   * Descriptive text shown to users or sent to a provider.
+   */
   readonly description?: string | undefined;
+  /**
+   * Input element currently bound to the store.
+   */
   readonly element?: RegisteredInputElement | null | undefined;
+  /**
+   * Validator applied to uploaded files.
+   */
   readonly fileValidator?: InputFileValidator | null | undefined;
+  /**
+   * Whether file upload is enabled for the input field.
+   */
   readonly fileUploadEnabled?: boolean | undefined;
+  /**
+   * Files currently selected for submission.
+   */
   readonly files?: readonly File[] | undefined;
+  /**
+   * Options available to the select input or operation.
+   */
   readonly options?: readonly InputSelectOption[] | undefined;
+  /**
+   * Placeholder text shown by the input.
+   */
   readonly placeholder?: string | undefined;
+  /**
+   * Submit handler currently bound to the input field.
+   */
   readonly submitFunc?: (() => void) | null | undefined;
+  /**
+   * Guard that can block an input submission.
+   */
   readonly submitGuard?: InputSubmitGuard | null | undefined;
+  /**
+   * Discriminant or input type for this value.
+   */
   readonly type?: InputType | undefined;
+  /**
+   * Validator applied to text submissions.
+   */
   readonly validator?: InputValidator | null | undefined;
+  /**
+   * Submitted value for this option.
+   */
   readonly value?: string | undefined;
 }
 
@@ -126,40 +210,139 @@ export interface InputFieldParams {
  * Each provided property resets that field back to its default store value.
  */
 export interface InputFieldResetParams {
+  /**
+   * Descriptive text shown to users or sent to a provider.
+   */
   readonly description?: true | undefined;
+  /**
+   * Whether the option or input control is disabled.
+   */
   readonly disabled?: true | undefined;
+  /**
+   * Default disabled state restored when the input resets.
+   */
   readonly disabledDefault?: true | undefined;
+  /**
+   * Placeholder shown while the input is disabled.
+   */
   readonly disabledPlaceholder?: true | undefined;
+  /**
+   * Default disabled placeholder restored when the input resets.
+   */
   readonly disabledPlaceholderDefault?: true | undefined;
+  /**
+   * Input element currently bound to the store.
+   */
   readonly element?: true | undefined;
+  /**
+   * Validator applied to uploaded files.
+   */
   readonly fileValidator?: true | undefined;
+  /**
+   * Whether file upload is enabled for the input field.
+   */
   readonly fileUploadEnabled?: true | undefined;
+  /**
+   * Files currently selected for submission.
+   */
   readonly files?: true | undefined;
+  /**
+   * Options available to the select input or operation.
+   */
   readonly options?: true | undefined;
+  /**
+   * Placeholder text shown by the input.
+   */
   readonly placeholder?: true | undefined;
+  /**
+   * Submit handler currently bound to the input field.
+   */
   readonly submitFunc?: true | undefined;
+  /**
+   * Guard that can block an input submission.
+   */
   readonly submitGuard?: true | undefined;
+  /**
+   * Discriminant or input type for this value.
+   */
   readonly type?: true | undefined;
+  /**
+   * Validator applied to text submissions.
+   */
   readonly validator?: true | undefined;
+  /**
+   * Submitted value for this option.
+   */
   readonly value?: true | undefined;
 }
 
+/**
+ * Internal partial state patch applied to the input field store.
+ */
 type InputFieldStatePatch = {
+  /**
+   * Current description shown alongside the shared input field.
+   */
   inputFieldDescription?: string;
+  /**
+   * Current disabled state of the shared input field.
+   */
   inputFieldDisabled?: boolean;
+  /**
+   * Default disabled state for the shared input field.
+   */
   inputFieldDisabledDefault?: boolean;
+  /**
+   * Current placeholder shown while the shared input field is disabled.
+   */
   inputFieldDisabledPlaceholder?: string;
+  /**
+   * Default disabled placeholder for the shared input field.
+   */
   inputFieldDisabledPlaceholderDefault?: string;
+  /**
+   * Current DOM element for the shared input field.
+   */
   inputFieldElement?: RegisteredInputElement | null;
+  /**
+   * Current file validator for the shared input field.
+   */
   inputFieldFileValidator?: InputFileValidator | null;
+  /**
+   * Whether file upload is currently enabled for the shared input field.
+   */
   inputFieldFileUploadEnabled?: boolean;
+  /**
+   * Files currently selected in the shared input field.
+   */
   inputFieldFiles?: readonly File[];
+  /**
+   * Current select options for the shared input field.
+   */
   inputFieldOptions?: readonly InputSelectOption[];
+  /**
+   * Current placeholder for the shared input field.
+   */
   inputFieldPlaceholder?: string;
+  /**
+   * Current submit handler for the shared input field.
+   */
   inputFieldSubmitFunc?: (() => void) | null;
+  /**
+   * Current submit guard for the shared input field.
+   */
   inputFieldSubmitGuard?: InputSubmitGuard | null;
+  /**
+   * Current input mode for the shared input field.
+   */
   inputFieldType?: InputType;
+  /**
+   * Current text validator for the shared input field.
+   */
   inputFieldValidator?: InputValidator | null;
+  /**
+   * Current text value of the shared input field.
+   */
   inputFieldValue?: string;
 };
 
@@ -233,81 +416,312 @@ type InputFieldStatePatch = {
  * @property resetInputFieldFileUploadEnabled Hides the upload button.
  */
 interface InputFieldState {
+  /**
+   * Current DOM element for the shared input field.
+   */
   readonly inputFieldElement: RegisteredInputElement | null;
+  /**
+   * Current text value of the shared input field.
+   */
   readonly inputFieldValue: string;
+  /**
+   * Current submit handler for the shared input field.
+   */
   readonly inputFieldSubmitFunc: (() => void) | null;
+  /**
+   * Current description shown alongside the shared input field.
+   */
   readonly inputFieldDescription: string;
+  /**
+   * Current input mode for the shared input field.
+   */
   readonly inputFieldType: InputType;
+  /**
+   * Current placeholder for the shared input field.
+   */
   readonly inputFieldPlaceholder: string;
+  /**
+   * Files currently selected in the shared input field.
+   */
   readonly inputFieldFiles: readonly File[];
+  /**
+   * Current select options for the shared input field.
+   */
   readonly inputFieldOptions: readonly InputSelectOption[];
+  /**
+   * Current file validator for the shared input field.
+   */
   readonly inputFieldFileValidator: InputFileValidator | null;
+  /**
+   * Whether file upload is currently enabled for the shared input field.
+   */
   readonly inputFieldFileUploadEnabled: boolean;
+  /**
+   * Current placeholder shown while the shared input field is disabled.
+   */
   readonly inputFieldDisabledPlaceholder: string;
+  /**
+   * Current text validator for the shared input field.
+   */
   readonly inputFieldValidator: InputValidator | null;
+  /**
+   * Current submit guard for the shared input field.
+   */
   readonly inputFieldSubmitGuard: InputSubmitGuard | null;
+  /**
+   * Default disabled state for the shared input field.
+   */
   readonly inputFieldDisabledDefault: boolean;
+  /**
+   * Default disabled placeholder for the shared input field.
+   */
   readonly inputFieldDisabledPlaceholderDefault: string;
+  /**
+   * Current disabled state of the shared input field.
+   */
   readonly inputFieldDisabled: boolean;
 
+  /**
+   * Returns the input field element.
+   */
   readonly getInputFieldElement: () => RegisteredInputElement | null;
+  /**
+   * Returns the input field value.
+   */
   readonly getInputFieldValue: () => string;
+  /**
+   * Returns the input field submit handler.
+   */
   readonly getInputFieldSubmitFunc: () => (() => void) | null;
+  /**
+   * Returns the input field description.
+   */
   readonly getInputFieldDescription: () => string;
+  /**
+   * Returns the input field type.
+   */
   readonly getInputFieldType: () => InputType;
+  /**
+   * Returns the input field placeholder.
+   */
   readonly getInputFieldPlaceholder: () => string;
+  /**
+   * Returns the input field files.
+   */
   readonly getInputFieldFiles: () => readonly File[];
+  /**
+   * Returns the input field options.
+   */
   readonly getInputFieldOptions: () => readonly InputSelectOption[];
+  /**
+   * Returns the input field file validator.
+   */
   readonly getInputFieldFileValidator: () => InputFileValidator | null;
+  /**
+   * Returns the input field file upload enabled.
+   */
   readonly getInputFieldFileUploadEnabled: () => boolean;
+  /**
+   * Returns the input field disabled placeholder.
+   */
   readonly getInputFieldDisabledPlaceholder: () => string;
+  /**
+   * Returns the input field validator.
+   */
   readonly getInputFieldValidator: () => InputValidator | null;
+  /**
+   * Returns the input field submit guard.
+   */
   readonly getInputFieldSubmitGuard: () => InputSubmitGuard | null;
+  /**
+   * Returns the input field disabled default.
+   */
   readonly getInputFieldDisabledDefault: () => boolean;
+  /**
+   * Returns the input field disabled placeholder default.
+   */
   readonly getInputFieldDisabledPlaceholderDefault: () => string;
+  /**
+   * Returns the input field disabled.
+   */
   readonly getInputFieldDisabled: () => boolean;
 
+  /**
+   * Sets input field element.
+   *
+   * @param element - Input element to register.
+   */
   readonly setInputFieldElement: (
     element: RegisteredInputElement | null
   ) => void;
+  /**
+   * Sets input field value.
+   *
+   * @param value - Input value to apply.
+   */
   readonly setInputFieldValue: (value: string) => void;
+  /**
+   * Sets the input field submit handler.
+   *
+   * @param submitFunc - Submit handler to register.
+   */
   readonly setInputFieldSubmitFunc: (submitFunc: (() => void) | null) => void;
+  /**
+   * Sets input field description.
+   *
+   * @param description - Input description to apply.
+   */
   readonly setInputFieldDescription: (description: string) => void;
+  /**
+   * Sets input field type.
+   *
+   * @param type - Input type to apply.
+   */
   readonly setInputFieldType: (type: InputType) => void;
+  /**
+   * Sets input field placeholder.
+   *
+   * @param placeholder - Placeholder text to apply.
+   */
   readonly setInputFieldPlaceholder: (placeholder: string) => void;
+  /**
+   * Sets input field files.
+   *
+   * @param files - Files selected in the input.
+   */
   readonly setInputFieldFiles: (files: readonly File[]) => void;
+  /**
+   * Sets input field options.
+   *
+   * @param options - Select options to apply.
+   */
   readonly setInputFieldOptions: (
     options: readonly InputSelectOption[]
   ) => void;
+  /**
+   * Sets input field file validator.
+   *
+   * @param validator - Validator to apply.
+   */
   readonly setInputFieldFileValidator: (
     validator: InputFileValidator | null
   ) => void;
+  /**
+   * Sets input field file upload enabled.
+   *
+   * @param enabled - Whether the feature should be enabled.
+   */
   readonly setInputFieldFileUploadEnabled: (enabled: boolean) => void;
+  /**
+   * Sets input field disabled placeholder.
+   *
+   * @param placeholder - Placeholder text to apply.
+   */
   readonly setInputFieldDisabledPlaceholder: (placeholder: string) => void;
+  /**
+   * Sets input field validator.
+   *
+   * @param validator - Validator to apply.
+   */
   readonly setInputFieldValidator: (validator: InputValidator | null) => void;
+  /**
+   * Sets input field submit guard.
+   *
+   * @param guard - Submit guard to apply.
+   */
   readonly setInputFieldSubmitGuard: (guard: InputSubmitGuard | null) => void;
+  /**
+   * Sets input field disabled default.
+   *
+   * @param disabled - Disabled state to apply.
+   */
   readonly setInputFieldDisabledDefault: (disabled: boolean) => void;
+  /**
+   * Sets input field disabled placeholder default.
+   *
+   * @param placeholder - Placeholder text to apply.
+   */
   readonly setInputFieldDisabledPlaceholderDefault: (
     placeholder: string
   ) => void;
+  /**
+   * Sets input field disabled.
+   *
+   * @param disabled - Disabled state to apply.
+   */
   readonly setInputFieldDisabled: (disabled: boolean) => void;
+  /**
+   * Applies multiple input field updates.
+   *
+   * @param params - Partial state parameters to apply.
+   */
   readonly setInputFieldParams: (params: InputFieldParams) => void;
+  /**
+   * Handles reset input field params.
+   *
+   * @param params - Partial state parameters to apply.
+   */
   readonly resetInputFieldParams: (params: InputFieldResetParams) => void;
 
+  /**
+   * Resets the input field.
+   */
   readonly resetInputField: () => void;
+  /**
+   * Resets the input field value.
+   */
   readonly resetInputFieldValue: () => void;
+  /**
+   * Resets the input field description.
+   */
   readonly resetInputFieldDescription: () => void;
+  /**
+   * Resets the input field type.
+   */
   readonly resetInputFieldType: () => void;
+  /**
+   * Resets the input field placeholder.
+   */
   readonly resetInputFieldPlaceholder: () => void;
+  /**
+   * Resets the input field options.
+   */
   readonly resetInputFieldOptions: () => void;
+  /**
+   * Resets the input field disabled placeholder.
+   */
   readonly resetInputFieldDisabledPlaceholder: () => void;
+  /**
+   * Resets the input field file validator.
+   */
   readonly resetInputFieldFileValidator: () => void;
+  /**
+   * Resets the input field validator.
+   */
   readonly resetInputFieldValidator: () => void;
+  /**
+   * Resets the input field submit guard.
+   */
   readonly resetInputFieldSubmitGuard: () => void;
+  /**
+   * Resets the input field disabled default.
+   */
   readonly resetInputFieldDisabledDefault: () => void;
+  /**
+   * Resets the input field disabled placeholder default.
+   */
   readonly resetInputFieldDisabledPlaceholderDefault: () => void;
+  /**
+   * Resets the input field disabled.
+   */
   readonly resetInputFieldDisabled: () => void;
+  /**
+   * Resets the input field files.
+   */
   readonly resetInputFieldFiles: () => void;
+  /**
+   * Resets the input field file upload enabled.
+   */
   readonly resetInputFieldFileUploadEnabled: () => void;
 }
 

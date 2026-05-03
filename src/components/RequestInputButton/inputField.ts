@@ -19,14 +19,41 @@ import {
 } from './messageFormatter';
 import type { RequestInputRateLimit } from './types';
 
+/**
+ * Resolved input field store state used by request-input helpers.
+ */
 type RequestInputFieldStore = ReturnType<typeof useInputFieldStore.getState>;
 
+/**
+ * Options used to build the request-input submit guard.
+ */
 interface RequestInputSubmitGuardOptions {
+  /**
+   * Message shown while the input is in cooldown.
+   */
   readonly cooldownMessage?: string | undefined;
+  /**
+   * Cooldown duration in milliseconds before another submission is allowed.
+   */
   readonly cooldownMs?: number | undefined;
+  /**
+   * Minimum number of characters required for submission.
+   */
   readonly minMessageLength?: number | undefined;
+  /**
+   * Validation message shown when the submission is too short.
+   */
   readonly minMessageLengthMessage?: string | undefined;
+  /**
+   * Handles invalid request-input submissions.
+   *
+   * @param inputValue - Current input value being validated.
+   * @param errorMessage - Validation error message to render.
+   */
   readonly onInvalidInput: (inputValue: string, errorMessage: string) => void;
+  /**
+   * Rate-limit settings applied to request-input submissions.
+   */
   readonly rateLimit?: RequestInputRateLimit | undefined;
 }
 

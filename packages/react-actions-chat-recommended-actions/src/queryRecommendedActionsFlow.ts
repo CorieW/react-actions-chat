@@ -17,7 +17,13 @@ import type {
  * Context passed to query recommendation resolvers.
  */
 export interface QueryRecommendedActionsContext {
+  /**
+   * Search query or user request text.
+   */
   readonly query: string;
+  /**
+   * Messages associated with the transcript or support record.
+   */
   readonly messages: readonly ChatMessage[];
 }
 
@@ -41,12 +47,21 @@ export interface QueryRecommendedActionsResult {
   readonly recommendedActions?: readonly QueryRecommendedAction[] | undefined;
 }
 
+/**
+ * Internal normalized result variants accepted from recommendation resolvers.
+ */
 type QueryRecommendedActionsResolverResult =
   | QueryRecommendedActionsResult
   | readonly QueryRecommendedAction[]
   | null
   | undefined;
 
+/**
+ * Resolves recommended chat actions for a submitted query.
+ *
+ * @param query - Submitted query text.
+ * @param context - Context object available to this resolver.
+ */
 export type QueryRecommendedActionsResolver = (
   query: string,
   context: QueryRecommendedActionsContext
@@ -54,15 +69,50 @@ export type QueryRecommendedActionsResolver = (
   | QueryRecommendedActionsResolverResult
   | Promise<QueryRecommendedActionsResolverResult>;
 
+/**
+ * Builds a flow message from the submitted query.
+ *
+ * @param query - Submitted query text.
+ */
 type FlowMessageResolver = (query: string) => string;
+/**
+ * Builds an error message from the submitted query and failure.
+ *
+ * @param query - Submitted query text.
+ * @param error - Error thrown while resolving the request.
+ */
 type FlowErrorMessageResolver = (query: string, error: unknown) => string;
+/**
+ * Builds loading text from the submitted query.
+ *
+ * @param query - Submitted query text.
+ */
 type FlowLoadingMessageResolver = (query: string) => string;
+/**
+ * Queued recommendation request waiting for the active lookup to finish.
+ */
 type QueuedRecommendationResolver = {
+  /**
+   * Search query or user request text.
+   */
   readonly query: string;
+  /**
+   * Resolves recommended actions for a query context.
+   */
   readonly resolve: () => void;
+  /**
+   * Rejects a queued recommendation request.
+   *
+   * @param error - Error that caused the failure.
+   */
   readonly reject: (error: unknown) => void;
 };
 
+/**
+ * Waits for a fixed number of milliseconds.
+ *
+ * @param durationMs - Duration to wait, in milliseconds.
+ */
 function wait(durationMs: number): Promise<void> {
   return new Promise(resolve => {
     globalThis.setTimeout(resolve, durationMs);
@@ -110,6 +160,8 @@ export interface QueryRecommendedActionsFlowConfig
   /**
    * Optional query normalization step before the resolver runs.
    * Defaults to trimming the submitted query.
+   *
+   * @param query - Submitted query text.
    */
   readonly normalizeQuery?: ((query: string) => string) | undefined;
 
@@ -160,6 +212,10 @@ export interface QueryRecommendedActionsFlowConfig
 
   /**
    * Optional error callback for custom logging or recovery behavior.
+   *
+   * @param query - Submitted query text.
+   * @param error - Error that caused the failure.
+   * @param context - Context available to the callback.
    */
   readonly onError?:
     | undefined
@@ -186,16 +242,28 @@ export interface QueryRecommendedActionsFlow {
 
   /**
    * Resolves recommendations directly from an app-provided query.
+   *
+   * @param query - Submitted query text.
    */
   readonly recommend: (query: string) => Promise<void>;
 }
 
+/**
+ * Returns whether a resolver result is a direct action array.
+ *
+ * @param result - Resolver or provider result to normalize.
+ */
 function isRecommendedActionArray(
   result: QueryRecommendedActionsResolverResult
 ): result is readonly QueryRecommendedAction[] {
   return Array.isArray(result);
 }
 
+/**
+ * Creates the recommendation context for a submitted query.
+ *
+ * @param query - Submitted query text.
+ */
 function createContext(query: string): QueryRecommendedActionsContext {
   return {
     query,
@@ -203,6 +271,11 @@ function createContext(query: string): QueryRecommendedActionsContext {
   };
 }
 
+/**
+ * Normalizes every supported recommendation resolver result shape.
+ *
+ * @param result - Resolver or provider result to normalize.
+ */
 function normalizeResolverResult(
   result: QueryRecommendedActionsResolverResult
 ): QueryRecommendedActionsResult {
@@ -224,6 +297,13 @@ function normalizeResolverResult(
   };
 }
 
+/**
+ * Resolves static or query-derived flow message text.
+ *
+ * @param query - Submitted query text.
+ * @param message - Message to inspect, format, or clone.
+ * @param fallback - Fallback text used when no resolver value is provided.
+ */
 function resolveMessage(
   query: string,
   message: string | FlowMessageResolver | undefined,
@@ -236,6 +316,12 @@ function resolveMessage(
   return message ?? fallback;
 }
 
+/**
+ * Resolves loading text for a recommendation lookup.
+ *
+ * @param query - Submitted query text.
+ * @param message - Message to inspect, format, or clone.
+ */
 function resolveLoadingMessage(
   query: string,
   message: string | FlowLoadingMessageResolver | undefined
@@ -247,6 +333,13 @@ function resolveLoadingMessage(
   return message ?? `Finding recommended actions for "${query}"...`;
 }
 
+/**
+ * Resolves error text for a failed recommendation lookup.
+ *
+ * @param query - Submitted query text.
+ * @param error - Error thrown while resolving the request.
+ * @param message - Message to inspect, format, or clone.
+ */
 function resolveErrorMessage(
   query: string,
   error: unknown,
@@ -265,6 +358,8 @@ function resolveErrorMessage(
 /**
  * Creates a reusable flow that asks the user for a query, resolves
  * recommended actions, and displays the resulting buttons in the chat.
+ *
+ * @param config - Query prompt, resolver, loading, and error-handling settings.
  */
 export function createQueryRecommendedActionsFlow(
   config: QueryRecommendedActionsFlowConfig
@@ -339,8 +434,17 @@ export function createQueryRecommendedActionsFlow(
     const loadingLabel = resolveLoadingMessage(query, loadingMessage);
     let pendingMessage:
       | {
+          /**
+           * Discriminant or input type for this value.
+           */
           readonly type: 'other';
+          /**
+           * Structured message parts rendered for the message.
+           */
           readonly parts: readonly MessagePart[];
+          /**
+           * Buttons rendered, stored, or customized by this contract.
+           */
           readonly buttons?: readonly QueryRecommendedAction[] | undefined;
         }
       | undefined;

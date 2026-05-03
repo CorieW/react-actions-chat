@@ -8,6 +8,9 @@ import type { InputMessage, Message } from '../js/types';
 import { getMessageRawText, revokeMessagePartUploadUrls } from './messageParts';
 import { usePersistentButtonStore } from './persistentButtonStore';
 
+/**
+ * Shared abort button ID value used by this module.
+ */
 const ABORT_BUTTON_ID = 'input-request-abort';
 
 /**
@@ -16,12 +19,27 @@ const ABORT_BUTTON_ID = 'input-request-abort';
  * Only the provided properties are changed.
  */
 export interface ChatStateParams {
+  /**
+   * Whether loading is true.
+   */
   readonly isLoading?: boolean | undefined;
+  /**
+   * Messages associated with the transcript or support record.
+   */
   readonly messages?: readonly Message[] | undefined;
 }
 
+/**
+ * Internal partial state patch applied to the chat store.
+ */
 type ChatStatePatch = {
+  /**
+   * Whether loading is true.
+   */
   isLoading?: boolean;
+  /**
+   * Messages associated with the transcript or support record.
+   */
   messages?: readonly Message[];
 };
 
@@ -44,19 +62,71 @@ type ChatStatePatch = {
  * @property clearPreviousMessageCallback Removes the latest message callback.
  */
 interface ChatState {
+  /**
+   * Messages associated with the transcript or support record.
+   */
   readonly messages: readonly Message[];
+  /**
+   * Whether loading is true.
+   */
   readonly isLoading: boolean;
+  /**
+   * Returns the messages.
+   */
   readonly getMessages: () => readonly Message[];
+  /**
+   * Returns the previous message.
+   */
   readonly getPreviousMessage: () => Message | undefined;
+  /**
+   * Adds one message to the transcript.
+   *
+   * @param message - Message to add, inspect, or render.
+   */
   readonly addMessage: (message: InputMessage) => void;
+  /**
+   * Adds multiple messages to the transcript.
+   *
+   * @param messages - Messages to process.
+   */
   readonly addMessages: (messages: readonly InputMessage[]) => void;
+  /**
+   * Replaces the transcript.
+   *
+   * @param messages - Messages to process.
+   */
   readonly setMessages: (messages: readonly Message[]) => void;
+  /**
+   * Sets loading.
+   *
+   * @param isLoading - Loading state to apply.
+   */
   readonly setLoading: (isLoading: boolean) => void;
+  /**
+   * Applies a partial chat state update.
+   *
+   * @param params - Partial state parameters to apply.
+   */
   readonly setChatState: (params: ChatStateParams) => void;
+  /**
+   * Clears the loading.
+   */
   readonly clearLoading: () => void;
+  /**
+   * Clears the messages.
+   */
   readonly clearMessages: () => void;
+  /**
+   * Clears the buttons.
+   */
   readonly clearButtons: () => void;
+  /**
+   * Clears the previous message buttons.
+   */
   readonly clearPreviousMessageButtons: () => void;
+  /**
+   * Clears the previous message callback.
+   */
   readonly clearPreviousMessageCallback: () => void;
 }
 

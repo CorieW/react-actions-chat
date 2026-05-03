@@ -8,14 +8,30 @@ import type {
   InputValidator,
 } from '../../lib/inputFieldStore';
 
+/**
+ * Value that may be returned synchronously or through a promise.
+ */
 type MaybePromise<T> = T | Promise<T>;
 
+/**
+ * Callback invoked when a request-input flow rejects a submission.
+ *
+ * @param inputValue - Submitted input value being validated or handled.
+ * @param errorMessage - Validation error message produced for the submission.
+ * @param submission - Full input submission, including text and files.
+ */
 type RequestInputInvalidCallback = (
   inputValue: string,
   errorMessage: string,
   submission: InputSubmission
 ) => void;
 
+/**
+ * Callback invoked when a request-input flow accepts a submission.
+ *
+ * @param inputValue - Submitted input value being validated or handled.
+ * @param submission - Full input submission, including text and files.
+ */
 type RequestInputValidCallback = (
   inputValue: string,
   submission: InputSubmission
@@ -83,31 +99,109 @@ export interface RequestInputRateLimit {
  * @property rateLimit Optional rolling limits for how often input can be submitted.
  */
 export interface RequestInputButtonConfig {
+  /**
+   * Label shown for the initial action.
+   */
   readonly initialLabel: string;
+  /**
+   * Prompt message shown before collecting request input.
+   */
   readonly inputPromptMessage: string;
+  /**
+   * Placeholder text shown by the input.
+   */
   readonly placeholder?: string | undefined;
+  /**
+   * Description shown alongside the request input.
+   */
   readonly inputDescription?: string | undefined;
+  /**
+   * Input mode used when collecting user input.
+   */
   readonly inputType?: InputType | undefined;
+  /**
+   * Select options shown by the request input.
+   */
   readonly inputOptions?: readonly InputSelectOption[] | undefined;
+  /**
+   * Whether file uploads are allowed for the input.
+   */
   readonly allowFileUpload?: boolean | undefined;
+  /**
+   * Validator applied to uploaded files.
+   */
   readonly fileValidator?: InputFileValidator | undefined;
+  /**
+   * Validator applied to text submissions.
+   */
   readonly validator?: InputValidator | undefined;
+  /**
+   * Minimum number of characters required for submission.
+   */
   readonly minMessageLength?: number | undefined;
+  /**
+   * Validation message shown when the submission is too short.
+   */
   readonly minMessageLengthMessage?: string | undefined;
+  /**
+   * Cooldown duration in milliseconds before another submission is allowed.
+   */
   readonly cooldownMs?: number | undefined;
+  /**
+   * Message shown while the input is in cooldown.
+   */
   readonly cooldownMessage?: string | undefined;
+  /**
+   * Timeout in milliseconds before the request input expires.
+   */
   readonly inputTimeoutMs?: number | undefined;
+  /**
+   * Message shown when the input times out.
+   */
   readonly inputTimeoutMessage?: string | undefined;
+  /**
+   * Callback invoked when submitted input fails validation.
+   */
   readonly onInvalidInput?: RequestInputInvalidCallback | undefined;
+  /**
+   * Callback invoked when submitted input passes validation.
+   */
   readonly onValidInput?: RequestInputValidCallback | undefined;
+  /**
+   * Whether validation failure messages are suppressed.
+   */
   readonly suppressValidationFailureMessage?: boolean | undefined;
+  /**
+   * Visual variant used when rendering the button.
+   */
   readonly variant?: MessageButtonVariant | undefined;
+  /**
+   * Additional class name applied to the rendered element.
+   */
   readonly className?: string | undefined;
+  /**
+   * Inline styles applied to the rendered element.
+   */
   readonly style?: React.CSSProperties | undefined;
+  /**
+   * Label shown for the abort action.
+   */
   readonly abortLabel?: string | undefined;
+  /**
+   * Callback invoked when the request-input flow is aborted.
+   */
   readonly abortCallback?: () => void | undefined;
+  /**
+   * Whether the abort action is shown while collecting input.
+   */
   readonly showAbort?: boolean | undefined;
+  /**
+   * Whether submissions wait for the current assistant turn to finish.
+   */
   readonly shouldWaitForTurn?: boolean | undefined;
+  /**
+   * Rate-limit settings applied to request-input submissions.
+   */
   readonly rateLimit?: RequestInputRateLimit | undefined;
 }
 
@@ -120,9 +214,21 @@ export interface RequestInputButtonConfig {
  * @property onValidInput Callback function executed when the user provides valid input.
  */
 export interface RequestInputButtonRuntimeConfig {
+  /**
+   * Stable identifier for this value.
+   */
   readonly id?: string | undefined;
+  /**
+   * Callback invoked when the request-input flow is aborted.
+   */
   readonly abortCallback?: () => void | undefined;
+  /**
+   * Callback invoked when submitted input fails validation.
+   */
   readonly onInvalidInput?: RequestInputInvalidCallback | undefined;
+  /**
+   * Callback invoked when submitted input passes validation.
+   */
   readonly onValidInput?: RequestInputValidCallback | undefined;
 }
 
@@ -138,7 +244,16 @@ export interface RequestInputButtonDefinition extends Omit<
   RequestInputButtonConfig,
   'abortCallback' | 'onInvalidInput' | 'onValidInput'
 > {
+  /**
+   * Discriminant describing which branch of the contract is active.
+   */
   readonly kind: 'request-input';
+  /**
+   * Stable identifier for this value.
+   */
   readonly id?: string | undefined;
+  /**
+   * Callback invoked after the operation completes successfully.
+   */
   readonly onSuccess?: RequestInputValidCallback | undefined;
 }

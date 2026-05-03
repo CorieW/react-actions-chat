@@ -1,6 +1,12 @@
 import type { RequestInputGlobalDefaults } from '../../lib';
 import type { RequestInputButtonConfig } from './types';
 
+/**
+ * Selects a button-level request-input value before falling back to globals.
+ *
+ * @param value - Value to inspect or resolve.
+ * @param globalValue - Chat-level default value to use when the local value is absent.
+ */
 function resolveRequestInputGlobalValue<T>(
   value: T | undefined,
   globalValue: T | undefined

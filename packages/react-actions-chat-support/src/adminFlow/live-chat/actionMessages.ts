@@ -5,6 +5,11 @@ import {
   joinMarkdownLines,
 } from '../../supportFlowUtils';
 
+/**
+ * Formats live chat ended message for display in chat messages.
+ *
+ * @param session - Live chat session to inspect, format, or update.
+ */
 export function formatLiveChatEndedMessage(
   session: SupportLiveChatSession
 ): string {
@@ -15,6 +20,11 @@ export function formatLiveChatEndedMessage(
   ]);
 }
 
+/**
+ * Formats live chat left message for display in chat messages.
+ *
+ * @param session - Live chat session to inspect, format, or update.
+ */
 export function formatLiveChatLeftMessage(
   session: SupportLiveChatSession
 ): string {
@@ -26,6 +36,12 @@ export function formatLiveChatLeftMessage(
   ]);
 }
 
+/**
+ * Formats live chat joined message for display in chat messages.
+ *
+ * @param session - Live chat session to inspect, format, or update.
+ * @param agentLabel - Display label for the current support agent.
+ */
 export function formatLiveChatJoinedMessage(
   session: SupportLiveChatSession,
   agentLabel: string

@@ -27,49 +27,154 @@ import type {
   SupportUserLiveChatPersistentButtonContext,
 } from '../types';
 
+/**
+ * Button customization hook scoped to customer flow internals.
+ *
+ * @param context - Context object available to this resolver.
+ */
 type CustomizeUserButtons = (
   context: Omit<SupportUserFlowButtonContext, 'customer'>
 ) => readonly MessageButton[];
 
+/**
+ * Options used to create user live chat flow.
+ */
 interface CreateUserLiveChatFlowOptions {
+  /**
+   * Flow or component configuration for this contract.
+   */
   readonly config: SupportUserFlowConfig;
+  /**
+   * Customer identity associated with the flow or record.
+   */
   readonly customer: SupportUserIdentity;
+  /**
+   * Resolved labels used by this flow or helper.
+   */
   readonly labels: SupportUserFlowLabels;
+  /**
+   * Input behavior settings applied by the flow.
+   */
   readonly behavior: NonNullable<SupportUserFlowConfig['behavior']>;
+  /**
+   * Shared context passed to formatter functions.
+   */
   readonly formatterContext: SupportUserFormatterContext;
+  /**
+   * Validation settings for initial live-chat messages.
+   */
   readonly liveChatInitialMessageValidation: SupportInputValidationSettings;
+  /**
+   * Validation settings for live-chat messages.
+   */
   readonly liveChatMessageValidation: SupportInputValidationSettings;
+  /**
+   * Whether individual live-chat lookup is available.
+   */
   readonly canGetLiveChat: boolean;
+  /**
+   * Service used to start a live-chat session.
+   */
   readonly startLiveChat: SupportUserFlowServices['startLiveChat'];
+  /**
+   * Service used to update a live-chat session.
+   */
   readonly updateLiveChat: SupportUserFlowServices['updateLiveChat'];
+  /**
+   * Service used to append a message to a live-chat session.
+   */
   readonly appendLiveChatMessage: SupportUserFlowServices['appendLiveChatMessage'];
+  /**
+   * Service used to retrieve a live-chat session.
+   */
   readonly getLiveChat: SupportUserFlowServices['getLiveChat'];
+  /**
+   * Service used to retrieve the customer's open live-chat session.
+   */
   readonly getOpenLiveChat: SupportUserFlowServices['getOpenLiveChat'];
+  /**
+   * Formats user live chat details.
+   *
+   * @param session - Live chat session to inspect or render.
+   */
   readonly formatUserLiveChatDetails: (
     session: SupportLiveChatSession
   ) => string;
+  /**
+   * Formats user live chat ended.
+   *
+   * @param session - Live chat session to inspect or render.
+   */
   readonly formatUserLiveChatEnded: (session: SupportLiveChatSession) => string;
+  /**
+   * Adds a support markdown message to the transcript.
+   *
+   * @param markdown - Markdown message body to add.
+   * @param buttons - Buttons to render, store, or customize.
+   * @param userResponseCallback - Callback invoked with the submitted user response.
+   */
   readonly addSupportMessage: (
     markdown: string,
     buttons: readonly MessageButton[],
     userResponseCallback?: (submission?: InputSubmission) => void
   ) => void;
+  /**
+   * Adds a recovery message after a request-input flow is aborted.
+   *
+   * @param markdown - Markdown message body to add.
+   * @param buttons - Buttons to render, store, or customize.
+   */
   readonly addAbortRecoveryMessage: (
     markdown: string,
     buttons: readonly MessageButton[]
   ) => void;
+  /**
+   * Factory used to create the primary flow action buttons.
+   */
   readonly createPrimaryButtons: () => readonly MessageButton[];
+  /**
+   * Creates a button that refreshes a live chat session.
+   *
+   * @param sessionId - Live chat session ID to look up.
+   */
   readonly createRefreshLiveChatButton: (sessionId: string) => MessageButton;
+  /**
+   * Hook used to customize customer live-chat buttons before rendering.
+   */
   readonly customizeButtons: CustomizeUserButtons;
 }
 
+/**
+ * Runtime API returned by the user live chat factory.
+ */
 export interface UserLiveChatFlow {
+  /**
+   * Factory used to create the live-chat action button.
+   */
   readonly createLiveChatButton: () => MessageButton;
+  /**
+   * Handler used to redirect the customer to an existing open live chat.
+   */
   readonly redirectToOpenLiveChat: () => Promise<boolean>;
+  /**
+   * Renders a live chat session into the transcript.
+   *
+   * @param session - Live chat session to inspect or render.
+   */
   readonly renderLiveChatSession: (session: SupportLiveChatSession) => void;
+  /**
+   * Shows a customer live chat session.
+   *
+   * @param sessionId - Live chat session ID to look up.
+   */
   readonly showLiveChatSession: (sessionId: string) => Promise<void>;
 }
 
+/**
+ * Runtime API returned by the customer live chat workflow factory.
+ *
+ * @param options - Options for creating the user live chat flow.
+ */
 export function createUserLiveChatFlow({
   config,
   customer,

@@ -1,5 +1,8 @@
 import type { SupportAdminFlowLabels } from '../types';
 
+/**
+ * Defaultable label contract for the admin live chat.
+ */
 type AdminLiveChatLabels = Pick<
   SupportAdminFlowLabels,
   | 'viewLiveChatQueue'
@@ -15,6 +18,9 @@ type AdminLiveChatLabels = Pick<
   | 'liveChatReplyDescription'
 >;
 
+/**
+ * Default admin live chat labels used when callers do not override it.
+ */
 export const DEFAULT_ADMIN_LIVE_CHAT_LABELS: AdminLiveChatLabels = {
   viewLiveChatQueue: 'View live chat queue',
   previousLiveChats: 'Previous live chats',

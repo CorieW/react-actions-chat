@@ -13,15 +13,35 @@ import type {
   SupportUserLiveChatInputContext,
 } from '../types';
 
+/**
+ * Options used to create the start-live-chat request button definition.
+ */
 interface CreateStartLiveChatButtonDefOptions {
+  /**
+   * Resolved labels used by this flow or helper.
+   */
   readonly labels: SupportUserFlowLabels;
+  /**
+   * Validation settings applied while collecting input.
+   */
   readonly validation: SupportInputValidationSettings;
+  /**
+   * Request-input override settings for this button definition.
+   */
   readonly inputOverrides:
     | SupportUserFlowRequestInputs['startLiveChat']
     | undefined;
+  /**
+   * Context passed to request-input override resolvers.
+   */
   readonly inputContext: SupportUserLiveChatInputContext;
 }
 
+/**
+ * Creates the start-live-chat request button definition.
+ *
+ * @param options - Options for creating the start live chat button definition.
+ */
 export function createStartLiveChatButtonDef({
   labels,
   validation,

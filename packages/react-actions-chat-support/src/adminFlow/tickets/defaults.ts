@@ -1,5 +1,8 @@
 import type { SupportAdminFlowLabels } from '../types';
 
+/**
+ * Default priority order used when callers do not override it.
+ */
 export const DEFAULT_PRIORITY_ORDER = [
   'low',
   'normal',
@@ -7,6 +10,9 @@ export const DEFAULT_PRIORITY_ORDER = [
   'urgent',
 ] as const;
 
+/**
+ * Defaultable label contract for the admin ticket.
+ */
 type AdminTicketLabels = Pick<
   SupportAdminFlowLabels,
   | 'viewTicketQueue'
@@ -30,6 +36,9 @@ type AdminTicketLabels = Pick<
   | 'resolveReject'
 >;
 
+/**
+ * Default admin ticket labels used when callers do not override it.
+ */
 export const DEFAULT_ADMIN_TICKET_LABELS: AdminTicketLabels = {
   viewTicketQueue: 'View ticket queue',
   reviewTicket: 'Review a ticket',

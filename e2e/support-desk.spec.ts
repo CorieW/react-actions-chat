@@ -24,7 +24,7 @@ test.describe('support-desk example', () => {
       'Our finance leads cannot download the updated invoice PDF after enabling SSO.'
     );
     await expect(createdTicketMessage).toContainText(
-      'SUP-2043 is open for Alex Morgan'
+      'SUP-1000 is open for Alex Morgan'
     );
     await expect(createdTicketMessage).toContainText('Subject:');
 
@@ -33,7 +33,7 @@ test.describe('support-desk example', () => {
     await clickAssistantActionAndWaitForAssistant(page, 'View ticket queue');
     const reviewedTicket = await clickAssistantActionAndWaitForAssistant(
       page,
-      'SUP-2043'
+      'SUP-1000'
     );
     await expect(reviewedTicket).toContainText(
       'Assigned to: No agent assigned yet'
@@ -43,7 +43,7 @@ test.describe('support-desk example', () => {
       page,
       'View full activity'
     );
-    await expect(fullActivity).toContainText('Full activity for SUP-2043');
+    await expect(fullActivity).toContainText('Full activity for SUP-1000');
     await expect(fullActivity).toContainText(
       'Our finance leads cannot download the updated invoice PDF after enabling SSO.'
     );
@@ -53,7 +53,7 @@ test.describe('support-desk example', () => {
       'Assign to me'
     );
     await expect(assignedTicket).toContainText(
-      'SUP-2043 is now assigned to Morgan Admin'
+      'SUP-1000 is now assigned to Morgan Admin'
     );
     await expect(assignedTicket).toContainText('Status: open');
 
@@ -62,45 +62,19 @@ test.describe('support-desk example', () => {
       'Resolve ticket'
     );
     await expect(confirmationPrompt).toContainText(
-      'Resolve SUP-2043 and mark the work complete?'
+      'Resolve SUP-1000 and mark the work complete?'
     );
 
     const resolvedTicket = await clickAssistantActionAndWaitForAssistant(
       page,
       'Resolve'
     );
-    await expect(resolvedTicket).toContainText('SUP-2043 has been resolved');
+    await expect(resolvedTicket).toContainText('SUP-1000 has been resolved');
   });
 
-  test('supports seeded ticket review, live chat handoff, and workspace reset', async ({
-    page,
-  }) => {
+  test('supports live chat handoff and workspace reset', async ({ page }) => {
     await gotoExample(page, 'support-desk');
 
-    await clickAssistantActionAndWaitForAssistant(page, 'View tickets');
-    const seededTicket = await clickAssistantActionAndWaitForAssistant(
-      page,
-      'SUP-2042'
-    );
-    await expect(seededTicket).toContainText('Ticket SUP-2042');
-    await expect(seededTicket).toContainText('Status: pending customer');
-    await expect(seededTicket).toContainText('Priority: high');
-
-    const fullSeededActivity = await clickAssistantActionAndWaitForAssistant(
-      page,
-      'View full activity'
-    );
-    await expect(fullSeededActivity).toContainText(
-      'Full activity for SUP-2042'
-    );
-    await expect(fullSeededActivity).toContainText(
-      'I confirmed the duplicate charge and queued a refund review with finance.'
-    );
-
-    await clickAssistantActionAndWaitForAssistant(
-      page,
-      'Back to support options'
-    );
     await clickAssistantActionAndWaitForAssistant(page, 'Start live chat');
     const liveChatMessage = await submitChatInputAndWaitForAssistant(
       page,
@@ -152,17 +126,15 @@ test.describe('support-desk example', () => {
 
     await page.getByRole('button', { name: 'Customer inbox' }).click();
 
-    const resetTicketList = await clickAssistantActionAndWaitForAssistant(
-      page,
-      'View tickets'
-    );
-    await expect(resetTicketList).toContainText('SUP-2042');
-    await expect(resetTicketList).not.toContainText('chat-0001');
-
-    await clickAssistantAction(page, 'SUP-2042');
     await expect(
-      page.getByRole('button', { name: 'Refresh status' }).last()
+      page.getByRole('button', { name: 'Start ticket' }).last()
     ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Start live chat' }).last()
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'View tickets' })
+    ).toHaveCount(0);
   });
 
   test('recovers with guided next steps after customer and admin aborts', async ({
@@ -181,7 +153,7 @@ test.describe('support-desk example', () => {
     await expect(
       page
         .getByRole('log', { name: 'Chat transcript' })
-        .getByRole('button', { name: 'View tickets' })
+        .getByRole('button', { name: 'Start live chat' })
         .last()
     ).toBeVisible();
 

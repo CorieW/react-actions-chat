@@ -21,7 +21,7 @@ import { PersistentButtons } from './PersistentButtons';
 /**
  * Renders the chat UI and wires user input into the shared chat state.
  *
- * @param props The `ChatPropsWithFlexibleTheme` object.
+ * @param props - The `ChatPropsWithFlexibleTheme` object.
  */
 export function Chat({
   allowFreeTextInput = false,

@@ -12,6 +12,11 @@ import { useChatStore } from '../lib/chatStore';
 import { useInputFieldStore } from '../lib/inputFieldStore';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
 
+/**
+ * Returns the first text part from a test message.
+ *
+ * @param message - Message to inspect for text content.
+ */
 function getMessageText(message: Message | undefined): string {
   const firstPart = message?.parts[0];
   if (!firstPart || firstPart.type !== 'text') {

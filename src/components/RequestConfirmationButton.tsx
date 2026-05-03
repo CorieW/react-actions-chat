@@ -19,14 +19,41 @@ import { useChatStore } from '../lib';
  * @property style Optional style for the initial button.
  */
 export interface RequestConfirmationButtonConfig {
+  /**
+   * Label shown for the initial action.
+   */
   readonly initialLabel: string;
+  /**
+   * Message shown before asking the user to confirm the action.
+   */
   readonly confirmationMessage?: string | undefined;
+  /**
+   * Label shown for the confirm action.
+   */
   readonly confirmLabel?: string | undefined;
+  /**
+   * Label shown for the reject action.
+   */
   readonly rejectLabel?: string | undefined;
+  /**
+   * Callback invoked when the user confirms the action.
+   */
   readonly onConfirm: () => void;
+  /**
+   * Callback invoked when the user rejects the action.
+   */
   readonly onReject: () => void;
+  /**
+   * Visual variant used when rendering the button.
+   */
   readonly variant?: MessageButtonVariant | undefined;
+  /**
+   * Additional class name applied to the rendered element.
+   */
   readonly className?: string | undefined;
+  /**
+   * Inline styles applied to the rendered element.
+   */
   readonly style?: React.CSSProperties | undefined;
 }
 
@@ -38,8 +65,17 @@ export interface RequestConfirmationButtonConfig {
  * @property onReject Callback function executed when the user rejects.
  */
 export interface RequestConfirmationButtonRuntimeConfig {
+  /**
+   * Stable identifier for this value.
+   */
   readonly id?: string | undefined;
+  /**
+   * Callback invoked when the user confirms the action.
+   */
   readonly onConfirm?: (() => void) | undefined;
+  /**
+   * Callback invoked when the user rejects the action.
+   */
   readonly onReject?: (() => void) | undefined;
 }
 
@@ -55,8 +91,17 @@ export interface RequestConfirmationButtonDefinition extends Omit<
   RequestConfirmationButtonConfig,
   'onConfirm' | 'onReject'
 > {
+  /**
+   * Discriminant describing which branch of the contract is active.
+   */
   readonly kind: 'request-confirmation';
+  /**
+   * Stable identifier for this value.
+   */
   readonly id?: string | undefined;
+  /**
+   * Callback invoked after the operation completes successfully.
+   */
   readonly onSuccess?: (() => void) | undefined;
 }
 

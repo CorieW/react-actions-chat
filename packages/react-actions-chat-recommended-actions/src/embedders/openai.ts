@@ -7,31 +7,81 @@ import {
   parseJsonResponse,
 } from './shared';
 
+/**
+ * Configuration for the OpenAI text embedder.
+ */
 export interface OpenAITextEmbedderConfig {
+  /**
+   * Provider API key used for authenticated requests.
+   */
   readonly apiKey: string;
+  /**
+   * Provider model identifier used for generation or embeddings.
+   */
   readonly model?: string | undefined;
+  /**
+   * Base URL used when making provider requests.
+   */
   readonly baseUrl?: string | undefined;
+  /**
+   * Requested embedding dimension count for OpenAI models that support it.
+   */
   readonly dimensions?: number | undefined;
+  /**
+   * OpenAI organization identifier sent with embedding requests.
+   */
   readonly organization?: string | undefined;
+  /**
+   * OpenAI project identifier sent with embedding requests.
+   */
   readonly project?: string | undefined;
+  /**
+   * Additional headers sent with provider requests.
+   */
   readonly headers?: Readonly<Record<string, string>> | undefined;
+  /**
+   * Fetch implementation used for HTTP requests.
+   */
   readonly fetch?: FetchLike | undefined;
 }
 
+/**
+ * Provider response shape returned by the OpenAI embeddings endpoint.
+ */
 interface OpenAIEmbeddingsResponse {
+  /**
+   * Provider response data returned by the request.
+   */
   readonly data?: readonly {
+    /**
+     * Vector embedding generated for the text.
+     */
     readonly embedding?: readonly number[];
   }[];
+  /**
+   * Error value raised by the operation.
+   */
   readonly error?: {
+    /**
+     * Message object handled by this contract.
+     */
     readonly message?: string;
   };
 }
 
+/**
+ * Default OpenAI API base URL used by the text embedder.
+ */
 const DEFAULT_OPENAI_BASE_URL = 'https://api.openai.com/v1';
+/**
+ * Default OpenAI embedding model used by the text embedder.
+ */
 const DEFAULT_OPENAI_MODEL = 'text-embedding-3-large';
 
 /**
  * Creates a text embedder backed by OpenAI's embeddings endpoint.
+ *
+ * @param config - OpenAI API credentials, model, endpoint, headers, and fetch override.
  */
 export function createOpenAITextEmbedder(
   config: OpenAITextEmbedderConfig

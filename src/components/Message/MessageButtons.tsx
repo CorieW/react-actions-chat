@@ -11,15 +11,24 @@ import { getButtonVariantStyles } from '../shared/buttonVariantStyles';
  * @property theme Theme tokens used to style button colors.
  */
 interface MessageButtonsProps {
+  /**
+   * Buttons rendered, stored, or customized by this contract.
+   */
   readonly buttons: InputMessage['buttons'];
+  /**
+   * Message type used to choose button alignment and styling.
+   */
   readonly messageType: InputMessage['type'];
+  /**
+   * Theme tokens used to style the rendered UI.
+   */
   readonly theme: ChatTheme;
 }
 
 /**
  * Renders the action buttons attached to a single message.
  *
- * @param props The `MessageButtonsProps` object.
+ * @param props - The `MessageButtonsProps` object.
  */
 export function MessageButtons({
   buttons,

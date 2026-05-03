@@ -10,13 +10,16 @@ import { getButtonVariantStyles } from '../shared/buttonVariantStyles';
  * @property theme Theme tokens used to style the persistent action bar and buttons.
  */
 interface PersistentButtonsProps {
+  /**
+   * Theme tokens used to style the rendered UI.
+   */
   readonly theme: ChatTheme;
 }
 
 /**
  * Renders the persistent action buttons shown above the input bar.
  *
- * @param props The `PersistentButtonsProps` object.
+ * @param props - The `PersistentButtonsProps` object.
  */
 export function PersistentButtons({
   theme,

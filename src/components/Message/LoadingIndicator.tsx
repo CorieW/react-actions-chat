@@ -7,13 +7,16 @@ import type { ChatTheme } from '../../js/types';
  * @property theme Theme tokens used to style the indicator.
  */
 interface LoadingIndicatorProps {
+  /**
+   * Theme tokens used to style the rendered UI.
+   */
   readonly theme: ChatTheme;
 }
 
 /**
  * Lightweight chat loading indicator shown while async work is in progress.
  *
- * @param props The `LoadingIndicatorProps` object.
+ * @param props - The `LoadingIndicatorProps` object.
  */
 export function LoadingIndicator({
   theme,

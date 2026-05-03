@@ -5,6 +5,11 @@ import type {
   MessagePartRendererProps,
 } from '../../../js/types';
 
+/**
+ * Formats file byte size metadata for display.
+ *
+ * @param sizeBytes - File size in bytes.
+ */
 function formatFileSize(sizeBytes: number | undefined): string | null {
   if (sizeBytes === undefined) {
     return null;
@@ -24,7 +29,7 @@ function formatFileSize(sizeBytes: number | undefined): string | null {
 /**
  * Renders a downloadable file attachment.
  *
- * @param props The `MessagePartRendererProps<FileMessagePart>` object.
+ * @param props - The `MessagePartRendererProps<FileMessagePart>` object.
  */
 export function FilePart({
   part,

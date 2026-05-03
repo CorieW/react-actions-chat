@@ -11,7 +11,6 @@ import {
   createInMemorySupportFlowAdapter,
   createSupportAdminFlow,
   createSupportUserFlow,
-  type SupportTicket,
 } from 'react-actions-chat-support';
 
 type DemoView = 'customer' | 'admin';
@@ -55,18 +54,16 @@ const ADMIN_THEME: ChatTheme = {
 };
 
 const CUSTOMER_NOTES = [
-  'Open a fresh ticket and watch it appear in the admin queue.',
-  'Search the help center before you escalate to a live handoff.',
-  'Check the seeded ticket to see how returning customers pick up where they left off.',
+  'Open a ticket and switch to the admin console to review it.',
+  'Start a live chat and watch the same session appear in the admin queue.',
+  'Reset the workspace whenever you want a fresh in-memory adapter.',
 ];
 
 const ADMIN_NOTES = [
-  'Review the shared queue, assign ownership, and reply to the customer.',
-  'Offer live chat when the issue needs real-time handling.',
-  'Resolve or reopen tickets without leaving the chat surface.',
+  'Review the shared ticket queue from the same adapter instance.',
+  'Assign ownership, reply to customers, and resolve tickets.',
+  'Join queued live chats without extra example-level glue code.',
 ];
-
-const SUPPORT_LIST_LIMIT = 5;
 
 function resetChatStores(): void {
   useChatGlobalsStore.getState().resetChatGlobals();
@@ -84,97 +81,11 @@ function resetChatStores(): void {
   useInputFieldStore.getState().resetInputFieldDisabled();
 }
 
-function minutesAgo(reference: Date, minutes: number): Date {
-  return new Date(reference.getTime() - minutes * 60 * 1000);
-}
-
-function buildSeedTickets(now = new Date()): readonly SupportTicket[] {
-  return [
-    {
-      reference: 'SUP-2042',
-      subject: 'Duplicate renewal invoice after seat change',
-      summary:
-        'Our workspace was charged twice after we increased seats before renewal.',
-      customer: CUSTOMER_IDENTITY,
-      status: 'pending-customer',
-      priority: 'high',
-      assignedTo: 'Rina Gomez',
-      liveChatOffered: true,
-      createdAt: minutesAgo(now, 170),
-      updatedAt: minutesAgo(now, 24),
-      tags: ['billing', 'renewal'],
-      messages: [
-        {
-          id: 'seed-message-2042-1',
-          author: 'customer',
-          authorLabel: 'Alex Morgan',
-          body: 'Our workspace was charged twice after we increased seats before renewal.',
-          createdAt: minutesAgo(now, 170),
-        },
-        {
-          id: 'seed-message-2042-2',
-          author: 'agent',
-          authorLabel: 'Rina Gomez',
-          body: 'I confirmed the duplicate charge and queued a refund review with finance.',
-          createdAt: minutesAgo(now, 55),
-        },
-        {
-          id: 'seed-message-2042-3',
-          author: 'system',
-          authorLabel: 'System',
-          body: 'Live chat was offered because the billing lock delayed a production launch.',
-          createdAt: minutesAgo(now, 24),
-        },
-      ],
-    },
-    {
-      reference: 'SUP-2041',
-      subject: 'SSO login failures after certificate rotation',
-      summary:
-        'New hires cannot complete SSO sign-in after the latest Okta certificate rotation.',
-      customer: {
-        id: 'customer-priya',
-        name: 'Priya Chen',
-        email: 'priya@northwind.test',
-        company: 'Northwind',
-      },
-      status: 'open',
-      priority: 'urgent',
-      assignedTo: undefined,
-      liveChatOffered: false,
-      createdAt: minutesAgo(now, 235),
-      updatedAt: minutesAgo(now, 18),
-      tags: ['sso', 'auth'],
-      messages: [
-        {
-          id: 'seed-message-2041-1',
-          author: 'customer',
-          authorLabel: 'Priya Chen',
-          body: 'New hires cannot complete SSO sign-in after the latest Okta certificate rotation.',
-          createdAt: minutesAgo(now, 235),
-        },
-        {
-          id: 'seed-message-2041-2',
-          author: 'system',
-          authorLabel: 'System',
-          body: 'Priority was raised to urgent after the customer reported an onboarding blocker.',
-          createdAt: minutesAgo(now, 18),
-        },
-      ],
-    },
-  ];
-}
-
-function createDemoAdapter() {
-  return createInMemorySupportFlowAdapter({
-    tickets: buildSeedTickets(),
-    nextTicketNumber: 2043,
-  });
-}
-
 export function App(): React.JSX.Element {
   const [activeView, setActiveView] = useState<DemoView>('customer');
-  const [adapter, setAdapter] = useState(() => createDemoAdapter());
+  const [adapter, setAdapter] = useState(() =>
+    createInMemorySupportFlowAdapter()
+  );
   const [chatInstance, setChatInstance] = useState(0);
 
   const flow =
@@ -183,68 +94,11 @@ export function App(): React.JSX.Element {
           adapter,
           customer: CUSTOMER_IDENTITY,
           brandName: 'Harbor Support',
-          behavior: {
-            ticketListLimit: SUPPORT_LIST_LIMIT,
-          },
-          initialMessage: [
-            '## Harbor Support is ready',
-            '',
-            'Use the customer inbox to:',
-            '',
-            '- Open a new request',
-            '- Check your existing billing ticket',
-            '- Search the help center before you ask for a live handoff',
-          ].join('\n'),
         })
       : createSupportAdminFlow({
           adapter,
           agent: AGENT_IDENTITY,
           brandName: 'Harbor Ops',
-          behavior: {
-            queueLimit: SUPPORT_LIST_LIMIT,
-            assignedWorkLimit: SUPPORT_LIST_LIMIT,
-            liveChatQueueLimit: SUPPORT_LIST_LIMIT,
-          },
-          filterOptions: {
-            ticketQueue: [
-              {
-                id: 'all',
-                label: 'All tickets',
-                isDefault: true,
-              },
-              {
-                id: 'open',
-                label: 'Open tickets',
-                filter: {
-                  statuses: ['new', 'open', 'pending-customer'],
-                },
-              },
-              {
-                id: 'unassigned',
-                label: 'Needs owner',
-                predicate: ticket => !ticket.assignedTo,
-              },
-              {
-                id: 'urgent',
-                label: 'Urgent',
-                predicate: ticket => ticket.priority === 'urgent',
-              },
-              {
-                id: 'billing',
-                label: 'Billing',
-                predicate: ticket => ticket.tags?.includes('billing') ?? false,
-              },
-            ],
-          },
-          initialMessage: [
-            '## Harbor Ops is online',
-            '',
-            'From the admin console you can:',
-            '',
-            '- Review the shared queue',
-            '- Assign yourself work',
-            '- Reply to customers and resolve tickets from one place',
-          ].join('\n'),
         });
 
   const activeTheme = activeView === 'customer' ? CUSTOMER_THEME : ADMIN_THEME;
@@ -268,7 +122,7 @@ export function App(): React.JSX.Element {
 
   function resetWorkspace(): void {
     remountChat(() => {
-      setAdapter(createDemoAdapter());
+      setAdapter(createInMemorySupportFlowAdapter());
     });
   }
 
@@ -287,7 +141,12 @@ export function App(): React.JSX.Element {
           <div className='support-desk-demo__controls'>
             <button
               type='button'
-              className={`support-desk-demo__view-button${activeView === 'customer' ? 'is-active' : ''}`}
+              className={[
+                'support-desk-demo__view-button',
+                activeView === 'customer' ? 'is-active' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
               aria-pressed={activeView === 'customer'}
               onClick={() => {
                 switchView('customer');
@@ -297,7 +156,12 @@ export function App(): React.JSX.Element {
             </button>
             <button
               type='button'
-              className={`support-desk-demo__view-button${activeView === 'admin' ? 'is-active' : ''}`}
+              className={[
+                'support-desk-demo__view-button',
+                activeView === 'admin' ? 'is-active' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
               aria-pressed={activeView === 'admin'}
               onClick={() => {
                 switchView('admin');
@@ -325,25 +189,6 @@ export function App(): React.JSX.Element {
                 return <li key={note}>{note}</li>;
               })}
             </ul>
-          </section>
-
-          <section className='support-desk-demo__panel'>
-            <h2>What is seeded</h2>
-            <div className='support-desk-demo__ticket-cards'>
-              <article className='support-desk-demo__ticket-card'>
-                <strong>SUP-2042</strong>
-                <span>Alex Morgan</span>
-                <p>
-                  High-priority duplicate renewal invoice with live chat already
-                  offered.
-                </p>
-              </article>
-              <article className='support-desk-demo__ticket-card'>
-                <strong>SUP-2041</strong>
-                <span>Priya Chen</span>
-                <p>Urgent SSO outage waiting in the admin queue.</p>
-              </article>
-            </div>
           </section>
         </section>
 

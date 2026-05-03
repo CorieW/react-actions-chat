@@ -14,43 +14,127 @@ import type {
 import { isPromiseLike } from '../supportFlowUtils';
 import type { InitialTicketListState } from './types';
 
+/**
+ * Options used to create support customer flow services.
+ */
 interface CreateSupportUserFlowServicesOptions {
+  /**
+   * Support adapter used to fetch and persist support state.
+   */
   readonly adapter: SupportFlowAdapter | undefined;
+  /**
+   * Callback-backed service implementations provided by the consumer.
+   */
   readonly callbacks: SupportUserFlowCallbacks;
+  /**
+   * Customer identity associated with the flow or record.
+   */
   readonly customer: SupportUserIdentity;
+  /**
+   * Returns whether a live chat is still open.
+   *
+   * @param session - Live chat session to inspect or render.
+   */
   readonly isOpenLiveChat: (session: SupportLiveChatSession) => boolean;
 }
 
+/**
+ * Resolved service methods and capability flags for the support customer flow.
+ */
 export interface SupportUserFlowServices {
+  /**
+   * Whether ticket creation is available.
+   */
   readonly canCreateTicket: boolean;
+  /**
+   * Whether ticket listing is available.
+   */
   readonly canListTickets: boolean;
+  /**
+   * Whether ticket message append actions are available.
+   */
   readonly canAppendTicketMessage: boolean;
+  /**
+   * Whether the current customer can use live chat.
+   */
   readonly canUseLiveChat: boolean;
+  /**
+   * Whether individual live-chat lookup is available.
+   */
   readonly canGetLiveChat: boolean;
+  /**
+   * Creates a support ticket.
+   *
+   * @param input - Input payload for the operation.
+   */
   readonly createTicket: (
     input: CreateSupportTicketInput
   ) => Promise<SupportTicket>;
+  /**
+   * Returns a support ticket by reference.
+   *
+   * @param reference - Ticket reference to look up.
+   */
   readonly getTicket: (reference: string) => Promise<SupportTicket | null>;
+  /**
+   * Lists the tickets.
+   */
   readonly listTickets: () => Promise<readonly SupportTicket[]>;
+  /**
+   * Appends a message to a support ticket.
+   *
+   * @param input - Input payload for the operation.
+   */
   readonly appendTicketMessage: (
     input: AppendSupportTicketMessageInput
   ) => Promise<SupportTicket>;
+  /**
+   * Starts a support live chat.
+   *
+   * @param input - Input payload for the operation.
+   */
   readonly startLiveChat: (
     input: StartSupportLiveChatInput
   ) => Promise<SupportLiveChatSession>;
+  /**
+   * Updates a live chat session.
+   *
+   * @param input - Input payload for the operation.
+   */
   readonly updateLiveChat: (
     input: UpdateSupportLiveChatInput
   ) => Promise<SupportLiveChatSession>;
+  /**
+   * Appends a message to a live chat session.
+   *
+   * @param input - Input payload for the operation.
+   */
   readonly appendLiveChatMessage: (
     input: AppendSupportLiveChatMessageInput
   ) => Promise<SupportLiveChatSession>;
+  /**
+   * Returns a live chat session by ID.
+   *
+   * @param sessionId - Live chat session ID to look up.
+   */
   readonly getLiveChat: (
     sessionId: string
   ) => Promise<SupportLiveChatSession | null>;
+  /**
+   * Service used to retrieve the customer's open live-chat session.
+   */
   readonly getOpenLiveChat: () => Promise<SupportLiveChatSession | null>;
+  /**
+   * Reads the initial customer tickets for the flow.
+   */
   readonly readInitialTickets: () => InitialTicketListState;
 }
 
+/**
+ * Resolved service methods and capability flags for the create support customer flow.
+ *
+ * @param options - Options for creating the support customer flow services.
+ */
 export function createSupportUserFlowServices({
   adapter,
   callbacks,

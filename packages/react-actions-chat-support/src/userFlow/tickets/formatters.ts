@@ -8,9 +8,15 @@ import {
   type SupportPaginationPage,
 } from '../../supportFlowUtils';
 
+/**
+ * Formats ticket summary for display in chat messages.
+ *
+ * @param ticket - Support ticket to inspect, format, or update.
+ * @param recentActivityLimit - Optional maximum number of recent activity entries to include.
+ */
 export function formatTicketSummary(
   ticket: SupportTicket,
-  recentActivityLimit: number
+  recentActivityLimit?: number
 ): string {
   const latestMessage = ticket.messages[ticket.messages.length - 1];
   return joinMarkdownLines([
@@ -31,6 +37,11 @@ export function formatTicketSummary(
   ]);
 }
 
+/**
+ * Formats ticket list for display in chat messages.
+ *
+ * @param page - Pagination state used to render the current view.
+ */
 export function formatTicketList(
   page: SupportPaginationPage<SupportTicket>
 ): string {

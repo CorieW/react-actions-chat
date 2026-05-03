@@ -22,38 +22,104 @@ import {
   createOpenTicketButtonDef,
 } from './buttonDefs';
 
+/**
+ * Button customization hook scoped to customer flow internals.
+ *
+ * @param context - Context object available to this resolver.
+ */
 type CustomizeUserButtons = (
   context: Omit<SupportUserFlowButtonContext, 'customer'>
 ) => readonly MessageButton[];
 
+/**
+ * Shared dependencies used while building customer ticket button.
+ */
 interface UserTicketButtonEnvironment {
+  /**
+   * Customer identity associated with the flow or record.
+   */
   readonly customer: SupportUserIdentity;
+  /**
+   * Resolved labels used by this flow or helper.
+   */
   readonly labels: SupportUserFlowLabels;
+  /**
+   * Shared context passed to formatter functions.
+   */
   readonly formatterContext: SupportUserFormatterContext;
+  /**
+   * Formatter overrides used by this flow or helper.
+   */
   readonly formatters: SupportUserFlowConfig['formatters'];
+  /**
+   * Request-input override settings used by the flow.
+   */
   readonly requestInputs: SupportUserFlowConfig['requestInputs'];
+  /**
+   * Validation settings for ticket-summary input.
+   */
   readonly ticketSummaryValidation: SupportInputValidationSettings;
+  /**
+   * Validation settings for additional ticket details.
+   */
   readonly ticketDetailValidation: SupportInputValidationSettings;
+  /**
+   * Service used to create a support ticket.
+   */
   readonly createTicket: SupportUserFlowServices['createTicket'];
+  /**
+   * Service used to append a message to a support ticket.
+   */
   readonly appendTicketMessage: SupportUserFlowServices['appendTicketMessage'];
+  /**
+   * Adds a support markdown message to the transcript.
+   *
+   * @param markdown - Markdown message body to add.
+   * @param buttons - Buttons to render, store, or customize.
+   */
   readonly addSupportMessage: (
     markdown: string,
     buttons: readonly MessageButton[]
   ) => void;
+  /**
+   * Adds a recovery message after a request-input flow is aborted.
+   *
+   * @param markdown - Markdown message body to add.
+   * @param buttons - Buttons to render, store, or customize.
+   */
   readonly addAbortRecoveryMessage: (
     markdown: string,
     buttons: readonly MessageButton[]
   ) => void;
+  /**
+   * Creates ticket action buttons.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly createTicketButtons: (
     ticket: SupportTicket
   ) => readonly MessageButton[];
+  /**
+   * Factory used to create the primary flow action buttons.
+   */
   readonly createPrimaryButtons: () => readonly MessageButton[];
 }
 
+/**
+ * Options used to create customer ticket action button.
+ */
 interface CreateUserTicketActionButtonOptions extends UserTicketButtonEnvironment {
+  /**
+   * Support ticket handled by this flow or helper.
+   */
   readonly ticket: SupportTicket;
 }
 
+/**
+ * Creates a customer add-detail button.
+ *
+ * @param options - Options for creating the customer add-detail button.
+ */
 export function createUserAddDetailButton({
   ticket,
   customer,
@@ -117,6 +183,11 @@ export function createUserAddDetailButton({
   );
 }
 
+/**
+ * Creates a customer open-ticket button.
+ *
+ * @param options - Options for creating the customer open ticket button.
+ */
 export function createUserOpenTicketButton({
   customer,
   labels,
@@ -178,11 +249,25 @@ export function createUserOpenTicketButton({
   );
 }
 
+/**
+ * Options used to create view tickets button.
+ */
 interface CreateViewTicketsButtonOptions {
+  /**
+   * Resolved labels used by this flow or helper.
+   */
   readonly labels: SupportUserFlowLabels;
+  /**
+   * Handler used to render the customer ticket list.
+   */
   readonly showMyTickets: () => void;
 }
 
+/**
+ * Creates a view tickets button.
+ *
+ * @param options - Options for creating the view tickets button.
+ */
 export function createViewTicketsButton({
   labels,
   showMyTickets,
@@ -193,19 +278,63 @@ export function createViewTicketsButton({
   });
 }
 
+/**
+ * Options used to create customer ticket buttons.
+ */
 interface CreateUserTicketButtonsOptions {
+  /**
+   * Support ticket handled by this flow or helper.
+   */
   readonly ticket: SupportTicket;
+  /**
+   * Resolved labels used by this flow or helper.
+   */
   readonly labels: SupportUserFlowLabels;
+  /**
+   * Whether ticket message append actions are available.
+   */
   readonly canAppendTicketMessage: boolean;
+  /**
+   * Whether ticket listing is available.
+   */
   readonly canListTickets: boolean;
+  /**
+   * Creates the customer add-detail button for a ticket.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly createAddDetailButton: (ticket: SupportTicket) => MessageButton;
+  /**
+   * Factory used to create the support options navigation button.
+   */
   readonly createBackToSupportOptionsButton: () => MessageButton;
+  /**
+   * Shows a support ticket.
+   *
+   * @param reference - Ticket reference to look up.
+   */
   readonly showTicket: (reference: string) => void;
+  /**
+   * Shows full ticket activity.
+   *
+   * @param reference - Ticket reference to look up.
+   */
   readonly showFullActivity: (reference: string) => void;
+  /**
+   * Handler used to render the customer ticket list.
+   */
   readonly showMyTickets: () => void;
+  /**
+   * Hook used to customize customer ticket buttons before rendering.
+   */
   readonly customizeButtons: CustomizeUserButtons;
 }
 
+/**
+ * Creates customer ticket buttons.
+ *
+ * @param options - Options for creating the customer ticket buttons.
+ */
 export function createUserTicketButtons({
   ticket,
   labels,
@@ -250,11 +379,27 @@ export function createUserTicketButtons({
   });
 }
 
+/**
+ * Options used to create customer ticket reference buttons.
+ */
 interface CreateUserTicketReferenceButtonsOptions {
+  /**
+   * Support tickets in the current list or queue.
+   */
   readonly tickets: readonly SupportTicket[];
+  /**
+   * Shows a support ticket.
+   *
+   * @param reference - Ticket reference to look up.
+   */
   readonly showTicket: (reference: string) => void;
 }
 
+/**
+ * Creates customer ticket reference buttons.
+ *
+ * @param options - Options for creating the customer ticket reference buttons.
+ */
 export function createUserTicketReferenceButtons({
   tickets,
   showTicket,
@@ -269,12 +414,31 @@ export function createUserTicketReferenceButtons({
   });
 }
 
+/**
+ * Options used to create customer ticket pagination buttons.
+ */
 interface CreateUserTicketPaginationButtonsOptions {
+  /**
+   * Page of records returned by the pagination helper.
+   */
   readonly page: SupportPaginationPage<SupportTicket>;
+  /**
+   * Resolved labels used by this flow or helper.
+   */
   readonly labels: SupportUserFlowLabels;
+  /**
+   * Shows a requested list page.
+   *
+   * @param pageIndex - Zero-based page index to show.
+   */
   readonly showPage: (pageIndex: number) => void;
 }
 
+/**
+ * Creates customer ticket pagination buttons.
+ *
+ * @param options - Options for creating the customer ticket pagination buttons.
+ */
 export function createUserTicketPaginationButtons({
   page,
   labels,

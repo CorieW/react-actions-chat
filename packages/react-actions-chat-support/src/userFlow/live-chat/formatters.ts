@@ -5,6 +5,11 @@ import {
   joinMarkdownLines,
 } from '../../supportFlowUtils';
 
+/**
+ * Formats live chat details for display in chat messages.
+ *
+ * @param session - Live chat session to inspect, format, or update.
+ */
 export function formatLiveChatDetails(session: SupportLiveChatSession): string {
   return joinMarkdownLines([
     '## Live chat',
@@ -14,6 +19,11 @@ export function formatLiveChatDetails(session: SupportLiveChatSession): string {
   ]);
 }
 
+/**
+ * Formats live chat ended for display in chat messages.
+ *
+ * @param session - Live chat session to inspect, format, or update.
+ */
 export function formatLiveChatEnded(session: SupportLiveChatSession): string {
   return joinMarkdownLines([
     '## Ended live chat',

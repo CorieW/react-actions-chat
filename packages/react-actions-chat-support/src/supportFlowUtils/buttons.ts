@@ -6,42 +6,145 @@ import type {
   SupportTextResolver,
 } from '../supportFlowTypes';
 
+/**
+ * Concrete request-input button overrides after text resolvers have run.
+ */
 interface ResolvedRequestInputButtonOverrides {
+  /**
+   * Label shown for the initial action.
+   */
   readonly initialLabel?: string;
+  /**
+   * Prompt message shown before collecting request input.
+   */
   readonly inputPromptMessage?: string;
+  /**
+   * Placeholder text shown by the input.
+   */
   readonly placeholder?: string;
+  /**
+   * Description shown alongside the request input.
+   */
   readonly inputDescription?: string;
+  /**
+   * Input mode used when collecting user input.
+   */
   readonly inputType?: SupportRequestInputButtonOverrides<unknown>['inputType'];
+  /**
+   * Select options shown by the request input.
+   */
   readonly inputOptions?: SupportRequestInputButtonOverrides<unknown>['inputOptions'];
+  /**
+   * Whether file uploads are allowed for the input.
+   */
   readonly allowFileUpload?: boolean;
+  /**
+   * Validator applied to uploaded files.
+   */
   readonly fileValidator?: SupportRequestInputButtonOverrides<unknown>['fileValidator'];
+  /**
+   * Validator applied to text submissions.
+   */
   readonly validator?: SupportRequestInputButtonOverrides<unknown>['validator'];
+  /**
+   * Minimum number of characters required for submission.
+   */
   readonly minMessageLength?: number;
+  /**
+   * Validation message shown when the submission is too short.
+   */
   readonly minMessageLengthMessage?: string;
+  /**
+   * Label shown for the abort action.
+   */
   readonly abortLabel?: string;
+  /**
+   * Whether the abort action is shown while collecting input.
+   */
   readonly showAbort?: boolean;
+  /**
+   * Whether submissions wait for the current assistant turn to finish.
+   */
   readonly shouldWaitForTurn?: boolean;
+  /**
+   * Cooldown duration in milliseconds before another submission is allowed.
+   */
   readonly cooldownMs?: number;
+  /**
+   * Message shown while the input is in cooldown.
+   */
   readonly cooldownMessage?: string;
+  /**
+   * Timeout in milliseconds before the request input expires.
+   */
   readonly inputTimeoutMs?: number;
+  /**
+   * Message shown when the input times out.
+   */
   readonly inputTimeoutMessage?: string;
+  /**
+   * Whether validation failure messages are suppressed.
+   */
   readonly suppressValidationFailureMessage?: boolean;
+  /**
+   * Visual variant used when rendering the button.
+   */
   readonly variant?: SupportRequestInputButtonOverrides<unknown>['variant'];
+  /**
+   * Additional class name applied to the rendered element.
+   */
   readonly className?: string;
+  /**
+   * Inline styles applied to the rendered element.
+   */
   readonly style?: SupportRequestInputButtonOverrides<unknown>['style'];
+  /**
+   * Rate-limit settings applied to request-input submissions.
+   */
   readonly rateLimit?: SupportRequestInputButtonOverrides<unknown>['rateLimit'];
 }
 
+/**
+ * Concrete confirmation button overrides after text resolvers have run.
+ */
 interface ResolvedConfirmationButtonOverrides {
+  /**
+   * Label shown for the initial action.
+   */
   readonly initialLabel?: string;
+  /**
+   * Message shown before asking the user to confirm the action.
+   */
   readonly confirmationMessage?: string;
+  /**
+   * Label shown for the confirm action.
+   */
   readonly confirmLabel?: string;
+  /**
+   * Label shown for the reject action.
+   */
   readonly rejectLabel?: string;
+  /**
+   * Visual variant used when rendering the button.
+   */
   readonly variant?: SupportConfirmationButtonOverrides<unknown>['variant'];
+  /**
+   * Additional class name applied to the rendered element.
+   */
   readonly className?: string;
+  /**
+   * Inline styles applied to the rendered element.
+   */
   readonly style?: SupportConfirmationButtonOverrides<unknown>['style'];
 }
 
+/**
+ * Resolves support text from caller configuration and defaults.
+ *
+ * @param resolver - Text resolver to evaluate.
+ * @param context - Context object available to this resolver.
+ * @param fallback - Fallback text used when no resolver value is provided.
+ */
 function resolveSupportText<TContext>(
   resolver: SupportTextResolver<TContext> | undefined,
   context: TContext,
@@ -54,6 +157,12 @@ function resolveSupportText<TContext>(
   return resolver ?? fallback;
 }
 
+/**
+ * Resolves request input button overrides from caller configuration and defaults.
+ *
+ * @param overrides - Caller-provided button overrides to resolve.
+ * @param context - Context object available to this resolver.
+ */
 export function resolveRequestInputButtonOverrides<TContext>(
   overrides: SupportRequestInputButtonOverrides<TContext> | undefined,
   context: TContext
@@ -166,6 +275,12 @@ export function resolveRequestInputButtonOverrides<TContext>(
   };
 }
 
+/**
+ * Resolves confirmation button overrides from caller configuration and defaults.
+ *
+ * @param overrides - Caller-provided button overrides to resolve.
+ * @param context - Context object available to this resolver.
+ */
 export function resolveConfirmationButtonOverrides<TContext>(
   overrides: SupportConfirmationButtonOverrides<TContext> | undefined,
   context: TContext
@@ -205,12 +320,30 @@ export function resolveConfirmationButtonOverrides<TContext>(
   };
 }
 
+/**
+ * Returns persistent button ids applied to the provided value.
+ *
+ * @param buttons - Buttons to transform, render, or customize.
+ * @param idPrefix - Prefix used when generating missing persistent button IDs.
+ */
 export function withPersistentButtonIds(
   buttons: readonly MessageButton[],
   idPrefix: string
-): readonly (MessageButton & { readonly id: string })[] {
+): readonly (MessageButton & {
+  /**
+   * Stable identifier for this value.
+   */
+  readonly id: string;
+})[] {
   return buttons.map((button, index) => {
-    const explicitId = (button as MessageButton & { readonly id?: string }).id;
+    const explicitId = (
+      button as MessageButton & {
+        /**
+         * Stable identifier for this value.
+         */
+        readonly id?: string;
+      }
+    ).id;
     return {
       ...button,
       id: explicitId ?? `${idPrefix}-${index}`,
@@ -218,6 +351,12 @@ export function withPersistentButtonIds(
   });
 }
 
+/**
+ * Resolves active list filter from caller configuration and defaults.
+ *
+ * @param filterOptions - Available filter options for the list.
+ * @param activeFilterId - Identifier of the filter that should be treated as active.
+ */
 export function resolveActiveListFilter<
   TOption extends SupportListFilterOption,
 >(
@@ -235,15 +374,37 @@ export function resolveActiveListFilter<
   );
 }
 
+/**
+ * Options used to create list filter buttons.
+ */
 interface CreateListFilterButtonsOptions<
   TOption extends SupportListFilterOption,
 > {
+  /**
+   * Filter options available for the current list.
+   */
   readonly filterOptions: readonly TOption[];
+  /**
+   * Identifier for the currently selected filter option.
+   */
   readonly activeFilterId: string | undefined;
+  /**
+   * Shows the list for a selected filter.
+   *
+   * @param filterId - Identifier of the filter to show.
+   */
   readonly showFilter: (filterId: string) => void;
+  /**
+   * Optional filter ID that should be rendered as an abort action.
+   */
   readonly abortFilter?: (() => void) | undefined;
 }
 
+/**
+ * Creates list filter buttons.
+ *
+ * @param options - Options for creating the list filter buttons.
+ */
 export function createListFilterButtons<
   TOption extends SupportListFilterOption,
 >({

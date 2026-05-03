@@ -5,6 +5,11 @@ import {
   joinMarkdownLines,
 } from '../../supportFlowUtils';
 
+/**
+ * Formats assigned work empty message for display in chat messages.
+ *
+ * @param agentLabel - Display label for the current support agent.
+ */
 export function formatAssignedWorkEmptyMessage(agentLabel: string): string {
   return joinMarkdownLines([
     `## ${escapeMarkdown(agentLabel)} does not have any assigned tickets right now`,
@@ -13,6 +18,11 @@ export function formatAssignedWorkEmptyMessage(agentLabel: string): string {
   ]);
 }
 
+/**
+ * Formats ticket unassigned message for display in chat messages.
+ *
+ * @param ticket - Support ticket to inspect, format, or update.
+ */
 export function formatTicketUnassignedMessage(ticket: SupportTicket): string {
   return joinMarkdownLines([
     `## ${escapeMarkdown(ticket.reference)} is now unassigned`,
@@ -22,6 +32,12 @@ export function formatTicketUnassignedMessage(ticket: SupportTicket): string {
   ]);
 }
 
+/**
+ * Formats ticket assigned message for display in chat messages.
+ *
+ * @param ticket - Support ticket to inspect, format, or update.
+ * @param assignee - Agent name or email assigned to the ticket.
+ */
 export function formatTicketAssignedMessage(
   ticket: SupportTicket,
   assignee: string
@@ -34,6 +50,11 @@ export function formatTicketAssignedMessage(
   ]);
 }
 
+/**
+ * Formats ticket priority changed message for display in chat messages.
+ *
+ * @param ticket - Support ticket to inspect, format, or update.
+ */
 export function formatTicketPriorityChangedMessage(
   ticket: SupportTicket
 ): string {
@@ -45,6 +66,13 @@ export function formatTicketPriorityChangedMessage(
   ]);
 }
 
+/**
+ * Formats ticket reply sent message for display in chat messages.
+ *
+ * @param ticket - Support ticket to inspect, format, or update.
+ * @param agentLabel - Display label for the current support agent.
+ * @param body - Message body being formatted or appended.
+ */
 export function formatTicketReplySentMessage(
   ticket: SupportTicket,
   agentLabel: string,
@@ -62,6 +90,12 @@ export function formatTicketReplySentMessage(
   ]);
 }
 
+/**
+ * Formats ticket reopened message for display in chat messages.
+ *
+ * @param ticket - Support ticket to inspect, format, or update.
+ * @param agentLabel - Display label for the current support agent.
+ */
 export function formatTicketReopenedMessage(
   ticket: SupportTicket,
   agentLabel: string
@@ -74,6 +108,12 @@ export function formatTicketReopenedMessage(
   ]);
 }
 
+/**
+ * Formats ticket resolved message for display in chat messages.
+ *
+ * @param ticket - Support ticket to inspect, format, or update.
+ * @param agentLabel - Display label for the current support agent.
+ */
 export function formatTicketResolvedMessage(
   ticket: SupportTicket,
   agentLabel: string

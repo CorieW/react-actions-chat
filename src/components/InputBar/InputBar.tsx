@@ -9,6 +9,9 @@ import {
 } from '../../lib/inputFieldStore';
 import { Button } from '../ui/button';
 
+/**
+ * Placeholder shown when visible action buttons block free-form input.
+ */
 const CONFIRMATION_PENDING_PLACEHOLDER =
   'Choose a confirmation option to continue.';
 
@@ -20,16 +23,36 @@ const CONFIRMATION_PENDING_PLACEHOLDER =
  * @property isInputBlocked Whether visible transcript actions are temporarily blocking free-form input.
  */
 interface InputBarProps {
+  /**
+   * Handles an attempted input submission.
+   *
+   * @param message - Message to add, inspect, or render.
+   * @param submission - Full input submission, including text and files.
+   */
   readonly onSend: (message: string, submission?: InputSubmission) => boolean;
+  /**
+   * Theme tokens used to style the rendered UI.
+   */
   readonly theme: ChatTheme;
+  /**
+   * Whether input blocked is true.
+   */
   readonly isInputBlocked: boolean;
 }
 
+/**
+ * Input element variants rendered by the shared input bar.
+ */
 type ChatInputElement =
   | HTMLInputElement
   | HTMLTextAreaElement
   | HTMLSelectElement;
 
+/**
+ * Formats file byte size metadata for display.
+ *
+ * @param sizeBytes - File size in bytes.
+ */
 function formatFileSize(sizeBytes: number): string {
   if (sizeBytes < 1024) {
     return `${sizeBytes} B`;
@@ -42,6 +65,12 @@ function formatFileSize(sizeBytes: number): string {
   return `${(sizeBytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+/**
+ * Merges newly selected files with the existing input file selection.
+ *
+ * @param currentFiles - Files already selected in the shared input.
+ * @param nextFiles - Newly selected files to merge into the input.
+ */
 function mergeSelectedFiles(
   currentFiles: readonly File[],
   nextFiles: readonly File[]
@@ -66,18 +95,38 @@ function mergeSelectedFiles(
   return mergedFiles;
 }
 
+/**
+ * Returns whether the active input mode should render as a multiline textarea.
+ *
+ * @param inputType - Input role or input control type to map.
+ */
 function isMultilineInputType(inputType: InputType): boolean {
   return inputType === 'textarea';
 }
 
+/**
+ * Returns whether the active input mode should render as a select control.
+ *
+ * @param inputType - Input role or input control type to map.
+ */
 function isSelectInputType(inputType: InputType): boolean {
   return inputType === 'select';
 }
 
+/**
+ * Builds the default invalid-file message for the current file count.
+ *
+ * @param fileCount - Number of files included in the validation attempt.
+ */
 function resolveInvalidFileMessage(fileCount: number): string {
   return `Please choose a valid file${fileCount === 1 ? '' : 's'} and try again.`;
 }
 
+/**
+ * Synchronizes textarea height with its current content.
+ *
+ * @param element - Registered input element to inspect or update.
+ */
 function syncTextareaHeight(element: ChatInputElement | null): void {
   if (!element || element.tagName !== 'TEXTAREA') {
     return;
@@ -91,7 +140,7 @@ function syncTextareaHeight(element: ChatInputElement | null): void {
 /**
  * Renders the shared chat input bar and submit button.
  *
- * @param props The `InputBarProps` object.
+ * @param props - The `InputBarProps` object.
  */
 export function InputBar({
   onSend,

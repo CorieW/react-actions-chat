@@ -3,6 +3,8 @@ import type { RequestInputRateLimit } from './types';
 /**
  * Builds the rate-limit message shown when too many submissions happen in the
  * active rolling window.
+ *
+ * @param rateLimit - Rate-limit settings used to build the message.
  */
 export function resolveTooManyMessagesMessage(
   rateLimit: RequestInputRateLimit
@@ -15,6 +17,8 @@ export function resolveTooManyMessagesMessage(
 
 /**
  * Builds the message shown when a submitted input exceeds the configured max length.
+ *
+ * @param rateLimit - Rate-limit settings used to build the message.
  */
 export function resolveTooLongMessageMessage(
   rateLimit: RequestInputRateLimit
@@ -27,6 +31,8 @@ export function resolveTooLongMessageMessage(
 
 /**
  * Builds the fallback message shown when an uploaded file is rejected.
+ *
+ * @param fileCount - Number of files included in the validation attempt.
  */
 export function resolveInvalidFileMessage(fileCount: number): string {
   return `Please choose a valid file${fileCount === 1 ? '' : 's'} and try again.`;
@@ -34,6 +40,8 @@ export function resolveInvalidFileMessage(fileCount: number): string {
 
 /**
  * Builds the message shown when a submitted input is shorter than required.
+ *
+ * @param minMessageLength - Minimum required message length.
  */
 export function resolveTooShortMessageMessage(
   minMessageLength: number
@@ -43,6 +51,8 @@ export function resolveTooShortMessageMessage(
 
 /**
  * Builds the message shown when the current input flow is cooling down.
+ *
+ * @param cooldownMs - Cooldown duration, in milliseconds.
  */
 export function resolveCooldownMessage(cooldownMs: number): string {
   return `Please wait ${cooldownMs}ms before trying again.`;
@@ -50,6 +60,8 @@ export function resolveCooldownMessage(cooldownMs: number): string {
 
 /**
  * Builds the message shown when the input flow times out before a valid reply arrives.
+ *
+ * @param inputTimeoutMs - Timeout duration, in milliseconds.
  */
 export function resolveInputTimeoutMessage(inputTimeoutMs: number): string {
   return `This request timed out after ${inputTimeoutMs}ms. Please start again.`;

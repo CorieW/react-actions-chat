@@ -8,30 +8,86 @@ import {
   parseJsonResponse,
 } from './shared';
 
+/**
+ * Configuration for the voyage text embedder.
+ */
 export interface VoyageTextEmbedderConfig {
+  /**
+   * Provider API key used for authenticated requests.
+   */
   readonly apiKey: string;
+  /**
+   * Provider model identifier used for generation or embeddings.
+   */
   readonly model?: string | undefined;
+  /**
+   * Base URL used when making provider requests.
+   */
   readonly baseUrl?: string | undefined;
+  /**
+   * Expected embedding vector dimension returned by the provider.
+   */
   readonly outputDimension?: 256 | 512 | 1024 | 2048 | undefined;
+  /**
+   * Voyage truncation strategy for long inputs.
+   */
   readonly truncation?: boolean | undefined;
+  /**
+   * Additional headers sent with provider requests.
+   */
   readonly headers?: Readonly<Record<string, string>> | undefined;
+  /**
+   * Fetch implementation used for HTTP requests.
+   */
   readonly fetch?: FetchLike | undefined;
 }
 
+/**
+ * Provider response shape returned by the voyage embeddings endpoint.
+ */
 interface VoyageEmbeddingsResponse {
+  /**
+   * Vector embeddings returned for the input texts.
+   */
   readonly embeddings?: readonly (readonly number[])[];
+  /**
+   * Provider response data returned by the request.
+   */
   readonly data?: readonly {
+    /**
+     * Vector embedding generated for the text.
+     */
     readonly embedding?: readonly number[];
   }[];
+  /**
+   * Detail formatter or detail content used by the flow.
+   */
   readonly detail?: string;
+  /**
+   * Error value raised by the operation.
+   */
   readonly error?: {
+    /**
+     * Message object handled by this contract.
+     */
     readonly message?: string;
   };
 }
 
+/**
+ * Default Voyage API base URL used by the text embedder.
+ */
 const DEFAULT_VOYAGE_BASE_URL = 'https://api.voyageai.com/v1';
+/**
+ * Default Voyage embedding model used by the text embedder.
+ */
 const DEFAULT_VOYAGE_MODEL = 'voyage-4-large';
 
+/**
+ * Maps the shared embedding input type to Voyage request values.
+ *
+ * @param inputType - Input role or input control type to map.
+ */
 function mapVoyageInputType(
   inputType: EmbeddingInputType | undefined
 ): 'query' | 'document' {
@@ -40,6 +96,8 @@ function mapVoyageInputType(
 
 /**
  * Creates a text embedder backed by Voyage's embeddings endpoint.
+ *
+ * @param config - Voyage API credentials, model, endpoint, headers, and fetch override.
  */
 export function createVoyageTextEmbedder(
   config: VoyageTextEmbedderConfig

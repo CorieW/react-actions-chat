@@ -17,6 +17,9 @@ import {
   type SupportTicket,
 } from 'react-actions-chat-support';
 
+/**
+ * Resets shared chat stores before support flow tests.
+ */
 function resetChatStores(): void {
   useChatGlobalsStore.getState().resetChatGlobals();
   useChatStore.getState().clearMessages();
@@ -36,11 +39,23 @@ function resetChatStores(): void {
   useInputFieldStore.getState().resetInputFieldDisabled();
 }
 
+/**
+ * Returns the latest rendered button with the provided label.
+ *
+ * @param label - Label value passed to the helper.
+ */
 function getLatestButton(label: string): HTMLElement {
   const buttons = screen.getAllByRole('button', { name: label });
   return buttons[buttons.length - 1]!;
 }
 
+/**
+ * Selects a support list filter through the rendered input.
+ *
+ * @param user - Testing-library user instance used to interact with the UI.
+ * @param activeFilterLabel - Current filter label shown on the filter button.
+ * @param nextFilterId - Filter identifier to select.
+ */
 async function chooseFilter(
   user: ReturnType<typeof userEvent.setup>,
   activeFilterLabel: string,
@@ -54,6 +69,12 @@ async function chooseFilter(
   await user.click(screen.getByRole('button', { name: 'Send message' }));
 }
 
+/**
+ * Opens and aborts a support list filter input.
+ *
+ * @param user - Testing-library user instance used to interact with the UI.
+ * @param activeFilterLabel - Current filter label shown on the filter button.
+ */
 async function abortFilter(
   user: ReturnType<typeof userEvent.setup>,
   activeFilterLabel: string
@@ -65,10 +86,21 @@ async function abortFilter(
   await user.click(screen.getByRole('button', { name: 'Abort' }));
 }
 
+/**
+ * Returns the number of rendered headings matching a name.
+ *
+ * @param name - Heading name matcher to query.
+ */
 function getHeadingCount(name: RegExp): number {
   return screen.queryAllByRole('heading', { name }).length;
 }
 
+/**
+ * Waits for a heading count to increase.
+ *
+ * @param name - Heading name matcher to query.
+ * @param previousCount - Heading count observed before the action.
+ */
 async function expectHeadingCountToIncrease(
   name: RegExp,
   previousCount: number
@@ -78,6 +110,11 @@ async function expectHeadingCountToIncrease(
   });
 }
 
+/**
+ * Wraps a support adapter with async methods for tests.
+ *
+ * @param adapter - Support adapter to wrap with async methods.
+ */
 function createAsyncSupportFlowAdapter(
   adapter: SupportFlowAdapter
 ): SupportFlowAdapter {
@@ -100,6 +137,11 @@ function createAsyncSupportFlowAdapter(
   };
 }
 
+/**
+ * Creates a support ticket fixture for queue sorting tests.
+ *
+ * @param options - Options object passed to the helper.
+ */
 function createQueueTestTicket({
   reference,
   priority,
@@ -107,10 +149,25 @@ function createQueueTestTicket({
   assignedTo,
   status = 'open',
 }: {
+  /**
+   * Ticket reference used by the queue fixture.
+   */
   readonly reference: string;
+  /**
+   * Ticket priority used by the queue fixture.
+   */
   readonly priority: SupportTicket['priority'];
+  /**
+   * Updated timestamp used by the queue fixture.
+   */
   readonly updatedAt: string;
+  /**
+   * Optional assignee label used by the queue fixture.
+   */
   readonly assignedTo?: string | undefined;
+  /**
+   * Support status used by the fixture.
+   */
   readonly status?: SupportTicket['status'] | undefined;
 }): SupportTicket {
   const createdAt = new Date('2026-04-30T12:00:00Z');
@@ -140,13 +197,27 @@ function createQueueTestTicket({
   };
 }
 
+/**
+ * Creates a live-chat fixture for queue sorting tests.
+ *
+ * @param options - Options object passed to the helper.
+ */
 function createQueueTestLiveChat({
   id,
   queuePosition,
   status = 'queued',
 }: {
+  /**
+   * Live-chat session identifier used by the queue fixture.
+   */
   readonly id: string;
+  /**
+   * Queue position used by the live-chat fixture.
+   */
   readonly queuePosition: number;
+  /**
+   * Support status used by the fixture.
+   */
   readonly status?: SupportLiveChatSession['status'] | undefined;
 }): SupportLiveChatSession {
   const createdAt = new Date('2026-04-30T12:00:00Z');

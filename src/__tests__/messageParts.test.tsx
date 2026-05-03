@@ -11,6 +11,11 @@ import { DARK_THEME } from '../lib/themes';
 import type { Message } from '../js/types';
 import { createMessagePartsFromFiles } from '../lib/messageParts';
 
+/**
+ * Creates a test message with the provided parts.
+ *
+ * @param parts - Parts value passed to the helper.
+ */
 function createMessage(parts: Message['parts']): Message {
   return {
     id: 1,

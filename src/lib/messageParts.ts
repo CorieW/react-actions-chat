@@ -6,10 +6,24 @@ import {
   type TextMessagePart,
 } from '../js/types';
 
+/**
+ * Shared fallback upload URL value used by this module.
+ */
 const FALLBACK_UPLOAD_URL = 'data:,';
+/**
+ * Default uploaded image max width px used when callers do not override it.
+ */
 const DEFAULT_UPLOADED_IMAGE_MAX_WIDTH_PX = 480;
+/**
+ * Default uploaded image max height px used when callers do not override it.
+ */
 const DEFAULT_UPLOADED_IMAGE_MAX_HEIGHT_PX = 320;
 
+/**
+ * Creates a local object URL for uploaded files when possible.
+ *
+ * @param file - File selected by the user.
+ */
 function createUploadUrl(file: File): string {
   if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
     return URL.createObjectURL(file);
@@ -18,6 +32,11 @@ function createUploadUrl(file: File): string {
   return FALLBACK_UPLOAD_URL;
 }
 
+/**
+ * Returns the raw text represented by one message part.
+ *
+ * @param part - Message part to inspect or render.
+ */
 function getPartRawText(part: MessagePart): string {
   switch (part.type) {
     case 'text':
@@ -85,6 +104,11 @@ export function createMessagePartsFromFiles(
   });
 }
 
+/**
+ * Returns the object URL owned by a message part when present.
+ *
+ * @param part - Message part to inspect or render.
+ */
 function getPartUploadUrl(part: MessagePart): string | undefined {
   if (
     (part.type === 'image' || part.type === 'file') &&
@@ -96,6 +120,11 @@ function getPartUploadUrl(part: MessagePart): string | undefined {
   return undefined;
 }
 
+/**
+ * Returns upload object URLs referenced by a message.
+ *
+ * @param messages - Messages to inspect, format, or convert.
+ */
 function getMessageUploadUrls(
   messages: readonly Pick<Message, 'parts'>[]
 ): Set<string> {

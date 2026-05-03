@@ -11,20 +11,58 @@ import type {
 } from '../types';
 import { formatTicketList, formatTicketSummary } from './formatters';
 
+/**
+ * Options used to create customer ticket formatters.
+ */
 interface CreateUserTicketFormattersOptions {
+  /**
+   * Flow or component configuration for this contract.
+   */
   readonly config: SupportUserFlowConfig;
+  /**
+   * Shared context passed to formatter functions.
+   */
   readonly formatterContext: SupportUserFormatterContext;
-  readonly recentActivityLimit: number;
+  /**
+   * Maximum number of recent activity entries included in formatted output.
+   */
+  readonly recentActivityLimit?: number | undefined;
 }
 
+/**
+ * Formatter overrides for messages produced by the customer ticket.
+ */
 interface UserTicketFormatters {
+  /**
+   * Formats user ticket summary.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly formatUserTicketSummary: (ticket: SupportTicket) => string;
+  /**
+   * Formats user ticket full activity.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly formatUserTicketFullActivity: (ticket: SupportTicket) => string;
+  /**
+   * Formats user ticket list.
+   *
+   * @param tickets - Support tickets to process.
+   * @param page - Pagination state for the current list.
+   * @param filterOptions - Available filter options for the list.
+   */
   readonly formatUserTicketList: (
     tickets: readonly SupportTicket[],
     page: SupportPaginationPage<SupportTicket>,
     filterOptions?: {
+      /**
+       * Currently selected filter state for the list.
+       */
       readonly activeFilter?: SupportUserTicketFilterOption | undefined;
+      /**
+       * Filter options available for the current list.
+       */
       readonly filterOptions:
         | readonly SupportUserTicketFilterOption[]
         | undefined;
@@ -32,6 +70,11 @@ interface UserTicketFormatters {
   ) => string;
 }
 
+/**
+ * Formatter overrides for messages produced by the customer ticket flow.
+ *
+ * @param options - Options for creating the customer ticket formatters.
+ */
 export function createUserTicketFormatters({
   config,
   formatterContext,
@@ -65,7 +108,13 @@ export function createUserTicketFormatters({
     tickets: readonly SupportTicket[],
     page: SupportPaginationPage<SupportTicket>,
     filterState?: {
+      /**
+       * Currently selected filter state for the list.
+       */
       readonly activeFilter?: SupportUserTicketFilterOption | undefined;
+      /**
+       * Filter options available for the current list.
+       */
       readonly filterOptions:
         | readonly SupportUserTicketFilterOption[]
         | undefined;

@@ -7,6 +7,9 @@ import {
 
 export { DEFAULT_PRIORITY_ORDER };
 
+/**
+ * Default admin labels used when callers do not override it.
+ */
 export const DEFAULT_ADMIN_LABELS: SupportAdminFlowLabels = {
   ...DEFAULT_ADMIN_TICKET_LABELS,
   ...DEFAULT_ADMIN_LIVE_CHAT_LABELS,

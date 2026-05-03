@@ -38,5 +38,6 @@ Workspace root for the published `react-actions-chat` package, its companion rec
 
 ## Writing Rules
 
-- No additional local writing rules.
+- Keep TypeScript and TSX source under `src/` and `packages/*/src` fully covered with JSDoc when adding or changing code: document top-level declarations, every interface/type-literal property or method, and every function/callback parameter with an `@param` description.
+- Avoid placeholder comments; write parameter and property descriptions that explain how the value is used in the surrounding contract.
 - Follow inherited AGENTS.md guidance when applicable.

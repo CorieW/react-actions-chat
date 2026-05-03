@@ -29,67 +29,199 @@ import type {
   SupportUserTicketFilterOption,
 } from '../types';
 
+/**
+ * Button customization hook scoped to customer flow internals.
+ *
+ * @param context - Context object available to this resolver.
+ */
 type CustomizeUserButtons = (
   context: Omit<SupportUserFlowButtonContext, 'customer'>
 ) => readonly MessageButton[];
 
+/**
+ * Options used to create customer ticket flow.
+ */
 interface CreateUserTicketFlowOptions {
+  /**
+   * Flow or component configuration for this contract.
+   */
   readonly config: SupportUserFlowConfig;
+  /**
+   * Customer identity associated with the flow or record.
+   */
   readonly customer: SupportUserIdentity;
+  /**
+   * Resolved labels used by this flow or helper.
+   */
   readonly labels: SupportUserFlowLabels;
+  /**
+   * Shared context passed to formatter functions.
+   */
   readonly formatterContext: SupportUserFormatterContext;
+  /**
+   * Maximum number of customer tickets shown in the flow.
+   */
   readonly ticketListLimit?: number | undefined;
+  /**
+   * Validation settings for ticket-summary input.
+   */
   readonly ticketSummaryValidation: SupportInputValidationSettings;
+  /**
+   * Validation settings for additional ticket details.
+   */
   readonly ticketDetailValidation: SupportInputValidationSettings;
+  /**
+   * Whether ticket creation is available.
+   */
   readonly canCreateTicket: boolean;
+  /**
+   * Whether ticket listing is available.
+   */
   readonly canListTickets: boolean;
+  /**
+   * Whether ticket message append actions are available.
+   */
   readonly canAppendTicketMessage: boolean;
+  /**
+   * Service used to create a support ticket.
+   */
   readonly createTicket: SupportUserFlowServices['createTicket'];
+  /**
+   * Service used to retrieve a support ticket.
+   */
   readonly getTicket: SupportUserFlowServices['getTicket'];
+  /**
+   * Service used to list customer tickets.
+   */
   readonly listTickets: SupportUserFlowServices['listTickets'];
+  /**
+   * Service used to append a message to a support ticket.
+   */
   readonly appendTicketMessage: SupportUserFlowServices['appendTicketMessage'];
+  /**
+   * Formats user ticket summary.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly formatUserTicketSummary: (ticket: SupportTicket) => string;
+  /**
+   * Formats user ticket full activity.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly formatUserTicketFullActivity: (ticket: SupportTicket) => string;
+  /**
+   * Formats user ticket list.
+   *
+   * @param tickets - Support tickets to process.
+   * @param page - Pagination state for the current list.
+   * @param filterState - Current filter state for the rendered list.
+   */
   readonly formatUserTicketList: (
     tickets: readonly SupportTicket[],
     page: SupportPaginationPage<SupportTicket>,
     filterState?: {
+      /**
+       * Currently selected filter state for the list.
+       */
       readonly activeFilter?: SupportUserTicketFilterOption | undefined;
+      /**
+       * Filter options available for the current list.
+       */
       readonly filterOptions:
         | readonly SupportUserTicketFilterOption[]
         | undefined;
     }
   ) => string;
+  /**
+   * Adds a support markdown message to the transcript.
+   *
+   * @param markdown - Markdown message body to add.
+   * @param buttons - Buttons to render, store, or customize.
+   */
   readonly addSupportMessage: (
     markdown: string,
     buttons: readonly MessageButton[]
   ) => void;
+  /**
+   * Adds a recovery message after a request-input flow is aborted.
+   *
+   * @param markdown - Markdown message body to add.
+   * @param buttons - Buttons to render, store, or customize.
+   */
   readonly addAbortRecoveryMessage: (
     markdown: string,
     buttons: readonly MessageButton[]
   ) => void;
+  /**
+   * Creates the primary action buttons for the current state.
+   *
+   * @param tickets - Support tickets to process.
+   * @param isTicketListPending - Whether the ticket list is still loading.
+   */
   readonly createPrimaryButtons: (
     tickets?: readonly SupportTicket[],
     isTicketListPending?: boolean
   ) => readonly MessageButton[];
+  /**
+   * Factory used to create the support options navigation button.
+   */
   readonly createBackToSupportOptionsButton: () => MessageButton;
+  /**
+   * Hook used to customize customer ticket buttons before rendering.
+   */
   readonly customizeButtons: CustomizeUserButtons;
 }
 
+/**
+ * Runtime API returned by the customer ticket factory.
+ */
 export interface UserTicketFlow {
+  /**
+   * Factory used to create the open-ticket action button.
+   */
   readonly createOpenTicketButton: () => MessageButton;
+  /**
+   * Creates ticket action buttons.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly createTicketButtons: (
     ticket: SupportTicket
   ) => readonly MessageButton[];
+  /**
+   * Creates the view tickets button.
+   */
   readonly createViewTicketsButton: () => MessageButton;
+  /**
+   * Shows full ticket activity.
+   *
+   * @param reference - Ticket reference to look up.
+   */
   readonly showFullActivity: (reference: string) => Promise<void>;
+  /**
+   * Shows the customer ticket list.
+   *
+   * @param pageIndex - Zero-based page index to show.
+   * @param activeFilterId - Identifier of the active filter.
+   */
   readonly showMyTickets: (
     pageIndex?: number,
     activeFilterId?: string
   ) => Promise<void>;
+  /**
+   * Shows a support ticket.
+   *
+   * @param reference - Ticket reference to look up.
+   */
   readonly showTicket: (reference: string) => Promise<void>;
 }
 
+/**
+ * Runtime API returned by the customer ticket workflow factory.
+ *
+ * @param options - Options for creating the customer ticket flow.
+ */
 export function createUserTicketFlow({
   config,
   customer,

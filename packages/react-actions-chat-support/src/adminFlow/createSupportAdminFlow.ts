@@ -5,10 +5,7 @@ import {
   type MessageButton,
   useChatStore,
 } from 'react-actions-chat';
-import {
-  deriveAgentLabel,
-  resolveValidationSettings,
-} from '../supportFlowUtils';
+import { deriveAgentLabel } from '../supportFlowUtils';
 import {
   createBackToAdminOptionsButton as createBackToAdminOptionsButtonBase,
   createRefreshLiveChatButton as createRefreshLiveChatButtonBase,
@@ -29,6 +26,11 @@ import type {
   SupportAdminFormatterContext,
 } from './types';
 
+/**
+ * Creates the admin-side support workflow from adapter, callbacks, labels, and behavior.
+ *
+ * @param config - Admin support flow configuration, including adapter, callbacks, labels, and behavior.
+ */
 export function createSupportAdminFlow(
   config: SupportAdminFlowConfig
 ): SupportAdminFlow {
@@ -47,8 +49,8 @@ export function createSupportAdminFlow(
   const queueLimit = behavior.queueLimit;
   const liveChatQueueLimit = behavior.liveChatQueueLimit;
   const assignedWorkLimit = behavior.assignedWorkLimit;
-  const recentActivityLimit = behavior.recentActivityLimit ?? 4;
-  const transcriptLimit = behavior.transcriptLimit ?? 8;
+  const recentActivityLimit = behavior.recentActivityLimit;
+  const transcriptLimit = behavior.transcriptLimit;
   const priorityOrder = behavior.priorityOrder ?? DEFAULT_PRIORITY_ORDER;
   const statusTransitions = behavior.statusTransitions ?? {};
   const {
@@ -83,8 +85,8 @@ export function createSupportAdminFlow(
     ...(queueLimit !== undefined ? { queueLimit } : {}),
     ...(liveChatQueueLimit !== undefined ? { liveChatQueueLimit } : {}),
     ...(assignedWorkLimit !== undefined ? { assignedWorkLimit } : {}),
-    recentActivityLimit,
-    transcriptLimit,
+    ...(recentActivityLimit !== undefined ? { recentActivityLimit } : {}),
+    ...(transcriptLimit !== undefined ? { transcriptLimit } : {}),
   };
   const {
     openingMessage,
@@ -100,25 +102,9 @@ export function createSupportAdminFlow(
     transcriptLimit,
   });
   const validation = config.validation ?? {};
-  const ticketAssignmentValidation = resolveValidationSettings(
-    {
-      minMessageLength: 1,
-      minMessageLengthMessage: 'Enter an agent name or email.',
-    },
-    validation.ticketAssignment
-  );
-  const ticketReplyValidation = resolveValidationSettings(
-    {
-      minMessageLength: 8,
-    },
-    validation.ticketReply
-  );
-  const liveChatMessageValidation = resolveValidationSettings(
-    {
-      minMessageLength: 1,
-    },
-    validation.liveChatMessage
-  );
+  const ticketAssignmentValidation = validation.ticketAssignment ?? {};
+  const ticketReplyValidation = validation.ticketReply ?? {};
+  const liveChatMessageValidation = validation.liveChatMessage ?? {};
 
   const customizeButtons = (
     context: Omit<SupportAdminFlowButtonContext, 'agent' | 'agentLabel'>

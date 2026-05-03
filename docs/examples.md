@@ -190,4 +190,4 @@ Run it:
 pnpm --filter support-desk-example dev
 ```
 
-The demo starts with seeded tickets, lets the customer side create new ones, and uses the same in-memory adapter when you switch to the admin console.
+The demo starts with an empty in-memory adapter, lets the customer side create tickets or live chats, and uses the same adapter when you switch to the admin console.

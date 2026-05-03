@@ -5,7 +5,7 @@ import {
   type MessageButton,
   useChatStore,
 } from 'react-actions-chat';
-import { isOpenLiveChat, resolveValidationSettings } from '../supportFlowUtils';
+import { isOpenLiveChat } from '../supportFlowUtils';
 import {
   createBackToSupportOptionsButton as createBackToSupportOptionsButtonBase,
   createRefreshLiveChatButton as createRefreshLiveChatButtonBase,
@@ -27,6 +27,11 @@ import type {
 } from './types';
 import type { SupportTicket } from '../supportFlowTypes';
 
+/**
+ * Creates the customer-side support workflow from adapter, callbacks, labels, and behavior.
+ *
+ * @param config - Customer support flow configuration, including adapter, callbacks, labels, and behavior.
+ */
 export function createSupportUserFlow(
   config: SupportUserFlowConfig
 ): SupportUserFlow {
@@ -41,12 +46,12 @@ export function createSupportUserFlow(
     ...config.labels,
   };
   const behavior = config.behavior ?? {};
-  const recentActivityLimit = behavior.recentActivityLimit ?? 3;
+  const recentActivityLimit = behavior.recentActivityLimit;
   const ticketListLimit = behavior.ticketListLimit;
   const formatterContext: SupportUserFormatterContext = {
     customer,
     brandName,
-    recentActivityLimit,
+    ...(recentActivityLimit !== undefined ? { recentActivityLimit } : {}),
     ...(ticketListLimit !== undefined ? { ticketListLimit } : {}),
   };
 
@@ -64,36 +69,11 @@ export function createSupportUserFlow(
     recentActivityLimit,
   });
   const validation = config.validation ?? {};
-  const ticketSummaryValidation = resolveValidationSettings(
-    {
-      minMessageLength: 12,
-      minMessageLengthMessage:
-        'Please share a little more detail so the ticket is actionable.',
-    },
-    validation.ticketSummary
-  );
-  const ticketDetailValidation = resolveValidationSettings(
-    {
-      minMessageLength: 10,
-      minMessageLengthMessage:
-        'Please add a little more detail so the support team can act on it.',
-    },
-    validation.ticketDetail
-  );
-  const liveChatInitialMessageValidation = resolveValidationSettings(
-    {
-      minMessageLength: 10,
-      minMessageLengthMessage:
-        'Please include a little more context so the handoff is useful.',
-    },
-    validation.liveChatInitialMessage
-  );
-  const liveChatMessageValidation = resolveValidationSettings(
-    {
-      minMessageLength: 1,
-    },
-    validation.liveChatMessage
-  );
+  const ticketSummaryValidation = validation.ticketSummary ?? {};
+  const ticketDetailValidation = validation.ticketDetail ?? {};
+  const liveChatInitialMessageValidation =
+    validation.liveChatInitialMessage ?? {};
+  const liveChatMessageValidation = validation.liveChatMessage ?? {};
 
   const {
     canCreateTicket,

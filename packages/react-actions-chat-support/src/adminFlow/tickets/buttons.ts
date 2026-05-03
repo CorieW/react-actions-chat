@@ -29,44 +29,132 @@ import {
   createSetPriorityButtonDef,
 } from './buttonDefs';
 
+/**
+ * Button customization hook scoped to admin flow internals.
+ *
+ * @param context - Context object available to this resolver.
+ */
 type CustomizeAdminButtons = (
   context: Omit<SupportAdminFlowButtonContext, 'agent' | 'agentLabel'>
 ) => readonly MessageButton[];
 
+/**
+ * Shared dependencies used while building admin ticket button.
+ */
 interface AdminTicketButtonEnvironment {
+  /**
+   * Support agent identity used by this flow or helper.
+   */
   readonly agent: SupportAgentIdentity;
+  /**
+   * Display label for the support agent in generated messages.
+   */
   readonly agentLabel: string;
+  /**
+   * Resolved labels used by this flow or helper.
+   */
   readonly labels: SupportAdminFlowLabels;
+  /**
+   * Shared context passed to formatter functions.
+   */
   readonly formatterContext: SupportAdminFormatterContext;
+  /**
+   * Formatter overrides used by this flow or helper.
+   */
   readonly formatters: SupportAdminFlowConfig['formatters'];
+  /**
+   * Request-input override settings used by the flow.
+   */
   readonly requestInputs: SupportAdminFlowConfig['requestInputs'];
+  /**
+   * Confirmation-button override settings used by the flow.
+   */
   readonly confirmations: SupportAdminFlowConfig['confirmations'];
+  /**
+   * Ticket status transitions applied by admin actions.
+   */
   readonly statusTransitions: SupportAdminStatusTransitions;
+  /**
+   * Priority ordering used for queue sorting and select options.
+   */
   readonly priorityOrder: readonly SupportTicketPriority[];
+  /**
+   * Validation settings for ticket-assignment input.
+   */
   readonly ticketAssignmentValidation: SupportInputValidationSettings;
+  /**
+   * Validation settings for ticket-reply input.
+   */
   readonly ticketReplyValidation: SupportInputValidationSettings;
+  /**
+   * Returns whether a ticket is considered resolved.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly isTicketResolved: (ticket: SupportTicket) => boolean;
+  /**
+   * Service used to update a support ticket.
+   */
   readonly updateTicket: SupportAdminFlowServices['updateTicket'];
+  /**
+   * Service used to append a message to a support ticket.
+   */
   readonly appendTicketMessage: SupportAdminFlowServices['appendTicketMessage'];
+  /**
+   * Adds a support markdown message to the transcript.
+   *
+   * @param markdown - Markdown message body to add.
+   * @param buttons - Buttons to render, store, or customize.
+   */
   readonly addSupportMessage: (
     markdown: string,
     buttons: readonly MessageButton[]
   ) => void;
+  /**
+   * Adds a recovery message after a request-input flow is aborted.
+   *
+   * @param markdown - Markdown message body to add.
+   * @param buttons - Buttons to render, store, or customize.
+   */
   readonly addAbortRecoveryMessage: (
     markdown: string,
     buttons: readonly MessageButton[]
   ) => void;
+  /**
+   * Creates ticket action buttons.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly createTicketButtons: (
     ticket: SupportTicket
   ) => readonly MessageButton[];
+  /**
+   * Factory used to create the primary flow action buttons.
+   */
   readonly createPrimaryButtons: () => readonly MessageButton[];
+  /**
+   * Shows a support ticket.
+   *
+   * @param reference - Ticket reference to look up.
+   */
   readonly showTicket: (reference: string) => void | Promise<void>;
 }
 
+/**
+ * Options used to create admin ticket action button.
+ */
 interface CreateAdminTicketActionButtonOptions extends AdminTicketButtonEnvironment {
+  /**
+   * Support ticket handled by this flow or helper.
+   */
   readonly ticket: SupportTicket;
 }
 
+/**
+ * Creates an admin assign button.
+ *
+ * @param options - Options for creating the admin assign button.
+ */
 export function createAdminAssignButton({
   ticket,
   labels,
@@ -108,6 +196,11 @@ export function createAdminAssignButton({
   });
 }
 
+/**
+ * Creates an admin assign-to-agent button.
+ *
+ * @param options - Options for creating the admin assign-to-agent button.
+ */
 export function createAdminAssignToAgentButton({
   ticket,
   agent,
@@ -167,6 +260,11 @@ export function createAdminAssignToAgentButton({
   );
 }
 
+/**
+ * Creates an admin set priority button.
+ *
+ * @param options - Options for creating the admin set priority button.
+ */
 export function createAdminSetPriorityButton({
   ticket,
   agent,
@@ -220,6 +318,11 @@ export function createAdminSetPriorityButton({
   );
 }
 
+/**
+ * Creates an admin reply button.
+ *
+ * @param options - Options for creating the admin reply button.
+ */
 export function createAdminReplyButton({
   ticket,
   agent,
@@ -283,6 +386,11 @@ export function createAdminReplyButton({
   );
 }
 
+/**
+ * Creates an admin resolve button.
+ *
+ * @param options - Options for creating the admin resolve button.
+ */
 export function createAdminResolveButton({
   ticket,
   agent,
@@ -355,6 +463,11 @@ export function createAdminResolveButton({
   );
 }
 
+/**
+ * Creates an admin review ticket button.
+ *
+ * @param options - Options for creating the admin review ticket button.
+ */
 export function createAdminReviewTicketButton({
   agent,
   agentLabel,
@@ -389,21 +502,77 @@ export function createAdminReviewTicketButton({
   );
 }
 
+/**
+ * Options used to create admin ticket buttons.
+ */
 interface CreateAdminTicketButtonsOptions {
+  /**
+   * Support ticket handled by this flow or helper.
+   */
   readonly ticket: SupportTicket;
+  /**
+   * Resolved labels used by this flow or helper.
+   */
   readonly labels: SupportAdminFlowLabels;
+  /**
+   * Whether ticket updates are available.
+   */
   readonly canUpdateTicket: boolean;
+  /**
+   * Whether ticket message append actions are available.
+   */
   readonly canAppendTicketMessage: boolean;
+  /**
+   * Creates the admin assign-to-me button for a ticket.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly createAssignButton: (ticket: SupportTicket) => MessageButton;
+  /**
+   * Creates the admin assign-to-agent button for a ticket.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly createAssignToAgentButton: (ticket: SupportTicket) => MessageButton;
+  /**
+   * Creates the admin set-priority button for a ticket.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly createSetPriorityButton: (ticket: SupportTicket) => MessageButton;
+  /**
+   * Creates the admin reply button for a ticket.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly createReplyButton: (ticket: SupportTicket) => MessageButton;
+  /**
+   * Creates the admin resolve button for a ticket.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly createResolveButton: (ticket: SupportTicket) => MessageButton;
+  /**
+   * Factory used to create the admin options navigation button.
+   */
   readonly createBackToAdminOptionsButton: () => MessageButton;
+  /**
+   * Shows full ticket activity.
+   *
+   * @param reference - Ticket reference to look up.
+   */
   readonly showFullActivity: (reference: string) => void;
+  /**
+   * Hook used to customize admin ticket buttons before rendering.
+   */
   readonly customizeButtons: CustomizeAdminButtons;
 }
 
+/**
+ * Creates admin ticket buttons.
+ *
+ * @param options - Options for creating the admin ticket buttons.
+ */
 export function createAdminTicketButtons({
   ticket,
   labels,

@@ -12,20 +12,46 @@ import {
   parseJsonResponse,
 } from '../embedders/shared';
 
+/**
+ * Request body shape asserted for Cohere embedding tests.
+ */
 interface CohereEmbeddingsRequestBody {
+  /**
+   * Provider input type sent in the embeddings request body.
+   */
   readonly input_type: string;
+  /**
+   * Texts sent in the embeddings request body.
+   */
   readonly texts: readonly string[];
 }
 
+/**
+ * Request body shape asserted for Voyage embedding tests.
+ */
 interface VoyageEmbeddingsRequestBody {
+  /**
+   * Provider input type sent in the embeddings request body.
+   */
   readonly input_type: string;
 }
 
+/**
+ * Fetch mock signature used by provider tests.
+ *
+ * @param input - Fetch request input passed to the mock.
+ * @param init - Fetch init object containing the request body.
+ */
 type FetchMock = (
   input: RequestInfo | URL,
   init?: RequestInit
 ) => Promise<Response>;
 
+/**
+ * Returns the raw JSON request body from a fetch init object.
+ *
+ * @param init - Fetch init object containing the request body.
+ */
 function getRequestBody(init?: RequestInit): string {
   if (typeof init?.body !== 'string') {
     throw new Error('Expected request body to be a JSON string.');
@@ -34,6 +60,11 @@ function getRequestBody(init?: RequestInit): string {
   return init.body;
 }
 
+/**
+ * Parses a JSON request body from a fetch init object.
+ *
+ * @param init - Fetch init object containing the request body.
+ */
 function parseRequestBody<T>(init?: RequestInit): T {
   return JSON.parse(getRequestBody(init)) as T;
 }
@@ -88,7 +119,12 @@ describe('Built-in Embedders', () => {
     globalThis.fetch = originalFetch;
 
     await expect(
-      parseJsonResponse<{ ok: boolean }>(
+      parseJsonResponse<{
+        /**
+         * Response ok flag used by the test mock.
+         */
+        ok: boolean;
+      }>(
         new Response('', {
           status: 200,
         })

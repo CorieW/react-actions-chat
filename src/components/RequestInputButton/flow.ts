@@ -33,6 +33,9 @@ import {
 } from './messageList';
 import type { RequestInputButtonConfig } from './types';
 
+/**
+ * Timer handle used for request-input timeout cleanup.
+ */
 type InputRequestTimer = ReturnType<typeof globalThis.setTimeout>;
 
 /**

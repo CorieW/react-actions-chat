@@ -25,8 +25,17 @@ import {
   type VectorSearchButtonSearchAdapter,
 } from 'react-actions-chat-recommended-actions';
 
+/**
+ * Batch embedding function type used by recommendation tests.
+ */
 type EmbedTexts = NonNullable<TextEmbedder['embedTexts']>;
 
+/**
+ * Creates a deterministic embedding vector for recommendation tests.
+ *
+ * @param normalizedText - Lowercase text used to choose a deterministic embedding.
+ * @param options - Options object passed to the helper.
+ */
 function createTestEmbedding(
   normalizedText: string,
   options?: EmbedTextOptions
@@ -38,6 +47,9 @@ function createTestEmbedding(
   return normalizedText.includes('sign out') ? [0, 0, 1] : [1, 0, 0];
 }
 
+/**
+ * Creates a spy that embeds text fixtures deterministically.
+ */
 function createEmbedTextsSpy() {
   return vi.fn<EmbedTexts>((texts, options) =>
     Promise.resolve(
@@ -46,6 +58,11 @@ function createEmbedTextsSpy() {
   );
 }
 
+/**
+ * Creates a text embedder backed by the provided batch embedder.
+ *
+ * @param embedTexts - Batch embedder used by the test embedder.
+ */
 function createTestEmbedder(embedTexts: EmbedTexts): TextEmbedder {
   return {
     embedText: async (text, options) => {
@@ -56,6 +73,12 @@ function createTestEmbedder(embedTexts: EmbedTexts): TextEmbedder {
   };
 }
 
+/**
+ * Creates an input message with a single text part for tests.
+ *
+ * @param text - Text content for the fixture.
+ * @param message - Message fields to merge into the fixture.
+ */
 function createInputMessage(
   text: string,
   message: Omit<InputMessage, 'parts'>
@@ -66,6 +89,11 @@ function createInputMessage(
   };
 }
 
+/**
+ * Returns the first text part from a test message.
+ *
+ * @param message - Message to inspect for text content.
+ */
 function getMessageText(message: Message | undefined): string {
   const firstPart = message?.parts[0];
   if (!firstPart || firstPart.type !== 'text') {

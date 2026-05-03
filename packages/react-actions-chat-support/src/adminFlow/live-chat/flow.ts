@@ -39,62 +39,189 @@ import type {
   SupportAdminLiveChatPersistentButtonContext,
 } from '../types';
 
+/**
+ * Button customization hook scoped to admin flow internals.
+ *
+ * @param context - Context object available to this resolver.
+ */
 type CustomizeAdminButtons = (
   context: Omit<SupportAdminFlowButtonContext, 'agent' | 'agentLabel'>
 ) => readonly MessageButton[];
 
+/**
+ * Options used to create admin live chat flow.
+ */
 interface CreateAdminLiveChatFlowOptions {
+  /**
+   * Flow or component configuration for this contract.
+   */
   readonly config: SupportAdminFlowConfig;
+  /**
+   * Support agent identity used by this flow or helper.
+   */
   readonly agent: SupportAgentIdentity;
+  /**
+   * Display label for the support agent in generated messages.
+   */
   readonly agentLabel: string;
+  /**
+   * Resolved labels used by this flow or helper.
+   */
   readonly labels: SupportAdminFlowLabels;
+  /**
+   * Input behavior settings applied by the flow.
+   */
   readonly behavior: NonNullable<SupportAdminFlowConfig['behavior']>;
+  /**
+   * Shared context passed to formatter functions.
+   */
   readonly formatterContext: SupportAdminFormatterContext;
+  /**
+   * Maximum number of live-chat sessions shown in the queue.
+   */
   readonly liveChatQueueLimit?: number | undefined;
+  /**
+   * Validation settings for live-chat messages.
+   */
   readonly liveChatMessageValidation: SupportInputValidationSettings;
+  /**
+   * Whether live-chat updates are available.
+   */
   readonly canUpdateLiveChat: boolean;
+  /**
+   * Whether live-chat message append actions are available.
+   */
   readonly canAppendLiveChatMessage: boolean;
+  /**
+   * Whether individual ticket lookup is available.
+   */
   readonly canGetTicket: boolean;
+  /**
+   * Whether opening the live-chat queue is available.
+   */
   readonly canOpenLiveChatQueue: boolean;
+  /**
+   * Service used to list live-chat queue sessions.
+   */
   readonly listLiveChatQueue: SupportAdminFlowServices['listLiveChatQueue'];
+  /**
+   * Service used to retrieve a live-chat session.
+   */
   readonly getLiveChat: SupportAdminFlowServices['getLiveChat'];
+  /**
+   * Service used to update a live-chat session.
+   */
   readonly updateLiveChat: SupportAdminFlowServices['updateLiveChat'];
+  /**
+   * Service used to append a message to a live-chat session.
+   */
   readonly appendLiveChatMessage: SupportAdminFlowServices['appendLiveChatMessage'];
+  /**
+   * Formats admin live chat queue.
+   *
+   * @param sessions - Live-chat sessions available to the formatter.
+   * @param page - Pagination state for the current list.
+   * @param filterState - Current filter state for the rendered list.
+   */
   readonly formatAdminLiveChatQueue: (
     sessions: readonly SupportLiveChatSession[],
     page: SupportPaginationPage<SupportLiveChatSession>,
     filterState?: {
+      /**
+       * Currently selected filter state for the list.
+       */
       readonly activeFilter?: SupportAdminLiveChatQueueFilterOption | undefined;
+      /**
+       * Filter options available for the current list.
+       */
       readonly filterOptions:
         | readonly SupportAdminLiveChatQueueFilterOption[]
         | undefined;
     }
   ) => string;
+  /**
+   * Formats admin live chat details.
+   *
+   * @param session - Live chat session to inspect or render.
+   */
   readonly formatAdminLiveChatDetails: (
     session: SupportLiveChatSession
   ) => string;
+  /**
+   * Adds a support markdown message to the transcript.
+   *
+   * @param markdown - Markdown message body to add.
+   * @param buttons - Buttons to render, store, or customize.
+   * @param userResponseCallback - Callback invoked with the submitted user response.
+   */
   readonly addSupportMessage: (
     markdown: string,
     buttons: readonly MessageButton[],
     userResponseCallback?: (submission?: InputSubmission) => void
   ) => void;
+  /**
+   * Factory used to create the primary flow action buttons.
+   */
   readonly createPrimaryButtons: () => readonly MessageButton[];
+  /**
+   * Creates a button that refreshes a live chat session.
+   *
+   * @param sessionId - Live chat session ID to look up.
+   */
   readonly createRefreshLiveChatButton: (sessionId: string) => MessageButton;
+  /**
+   * Factory used to create the admin options navigation button.
+   */
   readonly createBackToAdminOptionsButton: () => MessageButton;
+  /**
+   * Shows a support ticket.
+   *
+   * @param reference - Ticket reference to look up.
+   */
   readonly showTicket: (reference: string) => void | Promise<void>;
+  /**
+   * Hook used to customize admin live-chat buttons before rendering.
+   */
   readonly customizeButtons: CustomizeAdminButtons;
 }
 
+/**
+ * Runtime API returned by the admin live chat factory.
+ */
 export interface AdminLiveChatFlow {
+  /**
+   * Renders a live chat session into the transcript.
+   *
+   * @param session - Live chat session to inspect or render.
+   */
   readonly renderLiveChatSession: (session: SupportLiveChatSession) => void;
+  /**
+   * Resets the live chat state.
+   */
   readonly resetLiveChatState: () => void;
+  /**
+   * Shows a live chat session.
+   *
+   * @param sessionId - Live chat session ID to look up.
+   */
   readonly showLiveChat: (sessionId: string) => Promise<void>;
+  /**
+   * Shows the live chat queue.
+   *
+   * @param pageIndex - Zero-based page index to show.
+   * @param activeFilterId - Identifier of the active filter.
+   */
   readonly showLiveChatQueue: (
     pageIndex?: number,
     activeFilterId?: string
   ) => Promise<void>;
 }
 
+/**
+ * Runtime API returned by the admin live chat workflow factory.
+ *
+ * @param options - Options for creating the admin live chat flow.
+ */
 export function createAdminLiveChatFlow({
   config,
   agent,

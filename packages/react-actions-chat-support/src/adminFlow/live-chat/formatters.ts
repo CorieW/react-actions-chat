@@ -7,6 +7,11 @@ import {
   type SupportPaginationPage,
 } from '../../supportFlowUtils';
 
+/**
+ * Formats live chat message author for display in chat messages.
+ *
+ * @param message - Message to inspect, format, or clone.
+ */
 function formatLiveChatMessageAuthor(
   message: NonNullable<SupportLiveChatSession['messages']>[number]
 ): string {
@@ -21,6 +26,11 @@ function formatLiveChatMessageAuthor(
   return message.authorLabel ?? 'System';
 }
 
+/**
+ * Formats live chat queue summary for display in chat messages.
+ *
+ * @param page - Pagination state used to render the current view.
+ */
 export function formatLiveChatQueueSummary(
   page: SupportPaginationPage<SupportLiveChatSession>
 ): string {
@@ -42,11 +52,23 @@ export function formatLiveChatQueueSummary(
   ]);
 }
 
+/**
+ * Formats live chat details for display in chat messages.
+ *
+ * @param session - Live chat session to inspect, format, or update.
+ * @param transcriptLimit - Optional maximum number of transcript messages to include.
+ */
 export function formatLiveChatDetails(
   session: SupportLiveChatSession,
-  transcriptLimit: number
+  transcriptLimit?: number
 ): string {
   const messages = session.messages ?? [];
+  const safeTranscriptLimit =
+    transcriptLimit === undefined
+      ? messages.length
+      : Math.max(0, Math.floor(transcriptLimit));
+  const visibleMessages =
+    safeTranscriptLimit === 0 ? [] : messages.slice(-safeTranscriptLimit);
 
   return joinMarkdownLines([
     `## Live chat ${escapeMarkdown(session.id)}`,
@@ -70,13 +92,13 @@ export function formatLiveChatDetails(
     '',
     escapeMarkdown(session.summary),
     '',
-    messages.length ? '### Chat transcript' : undefined,
+    visibleMessages.length ? '### Chat transcript' : undefined,
     '',
-    ...messages.slice(-transcriptLimit).map(message => {
+    ...visibleMessages.map(message => {
       return `- **${escapeMarkdown(formatLiveChatMessageAuthor(message))}** (${escapeMarkdown(formatTimestamp(message.createdAt))}): ${escapeMarkdown(message.body)}`;
     }),
-    messages.length > transcriptLimit
-      ? `_Showing the ${transcriptLimit} most recent messages._`
+    messages.length > safeTranscriptLimit
+      ? `_Showing the ${safeTranscriptLimit} most recent messages._`
       : undefined,
   ]);
 }

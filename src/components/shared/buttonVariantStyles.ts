@@ -9,7 +9,16 @@ import type { ChatTheme, MessageButtonVariant } from '../../js/types';
 export function getButtonVariantStyles(
   variant: MessageButtonVariant,
   theme: ChatTheme
-): { backgroundColor: string; color: string } {
+): {
+  /**
+   * Background color token used by the rendered UI.
+   */
+  backgroundColor: string;
+  /**
+   * Resolved color for this button variant.
+   */
+  color: string;
+} {
   const defaultBackground = theme.buttonColor ?? '#3b82f6';
   const defaultColor = theme.buttonTextColor ?? '#ffffff';
 

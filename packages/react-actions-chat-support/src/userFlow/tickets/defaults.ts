@@ -1,5 +1,8 @@
 import type { SupportUserFlowLabels } from '../types';
 
+/**
+ * Defaultable label contract for the customer ticket.
+ */
 type UserTicketLabels = Pick<
   SupportUserFlowLabels,
   | 'startTicket'
@@ -11,6 +14,9 @@ type UserTicketLabels = Pick<
   | 'addDetail'
 >;
 
+/**
+ * Default customer ticket labels used when callers do not override it.
+ */
 export const DEFAULT_USER_TICKET_LABELS: UserTicketLabels = {
   startTicket: 'Start ticket',
   viewTickets: 'View tickets',

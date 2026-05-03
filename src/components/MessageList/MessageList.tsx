@@ -11,15 +11,24 @@ import { renderPart } from './parts/renderPart';
  * @property theme Theme tokens used to style message surfaces.
  */
 interface MessageListProps {
+  /**
+   * Messages associated with the transcript or support record.
+   */
   readonly messages: readonly ChatMessage[];
+  /**
+   * Whether loading is true.
+   */
   readonly isLoading?: boolean | undefined;
+  /**
+   * Theme tokens used to style the rendered UI.
+   */
   readonly theme: ChatTheme;
 }
 
 /**
  * Renders the chat transcript and keeps the latest content in view.
  *
- * @param props The `MessageListProps` object.
+ * @param props - The `MessageListProps` object.
  */
 export function MessageList({
   messages,

@@ -5,6 +5,11 @@ import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
 import type { ChatTheme, TextMessagePart } from '../../../js/types';
 
+/**
+ * Returns code language from class name.
+ *
+ * @param className - CSS class name to inspect.
+ */
 function getCodeLanguageFromClassName(
   className: string | undefined
 ): string | undefined {
@@ -13,11 +18,25 @@ function getCodeLanguageFromClassName(
     : undefined;
 }
 
+/**
+ * Shape for markdown text formatter props.
+ */
 interface MarkdownTextFormatterProps {
+  /**
+   * Message part rendered by this component.
+   */
   readonly part: TextMessagePart;
+  /**
+   * Theme tokens used to style the rendered UI.
+   */
   readonly theme: ChatTheme;
 }
 
+/**
+ * Returns text content.
+ *
+ * @param children - React children to inspect for text content.
+ */
 function getTextContent(children: React.ReactNode): string {
   if (typeof children === 'string' || typeof children === 'number') {
     return String(children);
@@ -27,7 +46,14 @@ function getTextContent(children: React.ReactNode): string {
     return children.map(getTextContent).join('');
   }
 
-  if (React.isValidElement<{ children?: React.ReactNode }>(children)) {
+  if (
+    React.isValidElement<{
+      /**
+       * Rendered child nodes supplied by react-markdown.
+       */
+      children?: React.ReactNode;
+    }>(children)
+  ) {
     return getTextContent(children.props.children);
   }
 
@@ -37,7 +63,7 @@ function getTextContent(children: React.ReactNode): string {
 /**
  * Renders markdown text parts with lightweight built-in styling.
  *
- * @param props The `MarkdownTextFormatterProps` object.
+ * @param props - The `MarkdownTextFormatterProps` object.
  */
 export function MarkdownTextFormatter({
   part,
@@ -159,7 +185,17 @@ export function MarkdownTextFormatter({
 
             const codeChild = Array.isArray(node?.children)
               ? (node.children[0] as
-                  | { properties?: { className?: string | string[] } }
+                  | {
+                      /**
+                       * Rendered code element props supplied by react-markdown.
+                       */
+                      properties?: {
+                        /**
+                         * Additional class name applied to the rendered element.
+                         */
+                        className?: string | string[];
+                      };
+                    }
                   | undefined)
               : undefined;
             const rawClassName = codeChild?.properties?.className;

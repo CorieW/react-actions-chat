@@ -4,6 +4,11 @@ import type {
   MessagePartRendererProps,
 } from '../../../js/types';
 
+/**
+ * Formats an optional image preview dimension for CSS.
+ *
+ * @param value - Value to inspect or resolve.
+ */
 function getPreviewDimension(value: number | undefined): string | undefined {
   if (value === undefined || !Number.isFinite(value) || value <= 0) {
     return undefined;
@@ -12,6 +17,11 @@ function getPreviewDimension(value: number | undefined): string | undefined {
   return `${value}px`;
 }
 
+/**
+ * Formats file byte size metadata for display.
+ *
+ * @param sizeBytes - File size in bytes.
+ */
 function formatFileSize(sizeBytes: number | undefined): string | null {
   if (sizeBytes === undefined) {
     return null;
@@ -31,7 +41,7 @@ function formatFileSize(sizeBytes: number | undefined): string | null {
 /**
  * Renders an image part inline inside a message bubble.
  *
- * @param props The `MessagePartRendererProps<ImageMessagePart>` object.
+ * @param props - The `MessagePartRendererProps<ImageMessagePart>` object.
  */
 export function ImagePart({
   part,

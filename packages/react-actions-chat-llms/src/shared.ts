@@ -1,8 +1,19 @@
+/**
+ * Minimal fetch-compatible function signature used by package clients.
+ *
+ * @param input - Request input passed to fetch.
+ * @param init - Request initialization options passed to fetch.
+ */
 export type FetchLike = (
   input: RequestInfo | URL,
   init?: RequestInit
 ) => Promise<Response>;
 
+/**
+ * Returns the configured fetch implementation or the global fetch fallback.
+ *
+ * @param fetchImpl - Optional fetch implementation override.
+ */
 export function getFetchImplementation(fetchImpl?: FetchLike): FetchLike {
   const resolvedFetch = fetchImpl ?? globalThis.fetch;
 
@@ -15,6 +26,11 @@ export function getFetchImplementation(fetchImpl?: FetchLike): FetchLike {
   return resolvedFetch;
 }
 
+/**
+ * Parses a JSON response body, returning null for empty bodies.
+ *
+ * @param response - Fetch response to parse.
+ */
 export async function parseJsonResponse<T>(
   response: Response
 ): Promise<T | null> {
@@ -27,6 +43,12 @@ export async function parseJsonResponse<T>(
   return JSON.parse(responseText) as T;
 }
 
+/**
+ * Extracts the most useful provider error message from a response payload.
+ *
+ * @param data - Response payload to inspect.
+ * @param fallbackMessage - Fallback error message used when no provider message is found.
+ */
 export function extractProviderErrorMessage(
   data: unknown,
   fallbackMessage: string

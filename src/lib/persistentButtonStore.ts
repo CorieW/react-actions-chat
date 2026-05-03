@@ -13,6 +13,9 @@ import type { MessageButton } from '../js/types';
  * @property id Unique identifier for the persistent button.
  */
 interface PersistentButton extends MessageButton {
+  /**
+   * Stable identifier for this value.
+   */
   readonly id: string;
 }
 
@@ -27,13 +30,49 @@ interface PersistentButton extends MessageButton {
  * @property clearButtons Removes all persistent buttons.
  */
 interface PersistentButtonStoreState {
+  /**
+   * Buttons rendered, stored, or customized by this contract.
+   */
   readonly buttons: readonly PersistentButton[];
+  /**
+   * Returns the buttons.
+   */
   readonly getButtons: () => readonly PersistentButton[];
-  readonly addButton: (button: MessageButton & { readonly id: string }) => void;
-  readonly removeButton: (id: string) => void;
-  readonly setButtons: (
-    buttons: readonly (MessageButton & { readonly id: string })[]
+  /**
+   * Adds or updates a persistent button.
+   *
+   * @param button - Button to store or update.
+   */
+  readonly addButton: (
+    button: MessageButton & {
+      /**
+       * Stable identifier for this value.
+       */
+      readonly id: string;
+    }
   ) => void;
+  /**
+   * Removes a persistent button.
+   *
+   * @param id - Persistent button identifier to remove.
+   */
+  readonly removeButton: (id: string) => void;
+  /**
+   * Replaces persistent buttons.
+   *
+   * @param buttons - Buttons to render, store, or customize.
+   */
+  readonly setButtons: (
+    buttons: readonly (MessageButton & {
+      /**
+       * Stable identifier for this value.
+       */
+      readonly id: string;
+    })[]
+  ) => void;
+  /**
+   * Clears the buttons.
+   */
   readonly clearButtons: () => void;
 }
 

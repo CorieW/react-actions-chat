@@ -192,42 +192,6 @@ code,
   background: linear-gradient(135deg, #72e2c2, #f4b860);
 }
 
-.support-desk-demo__ticket-cards {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.support-desk-demo__ticket-card {
-  padding: 0.95rem;
-  border: 1px solid rgba(244, 184, 96, 0.16);
-  border-radius: 18px;
-  background:
-    linear-gradient(180deg, rgba(27, 35, 32, 0.86), rgba(18, 23, 20, 0.86)),
-    rgba(18, 23, 20, 0.86);
-}
-
-.support-desk-demo__ticket-card strong,
-.support-desk-demo__ticket-card span {
-  display: block;
-}
-
-.support-desk-demo__ticket-card strong {
-  color: #fff4e7;
-  font-size: 1rem;
-}
-
-.support-desk-demo__ticket-card span {
-  margin-top: 0.2rem;
-  color: #8ce8cc;
-  font-size: 0.94rem;
-}
-
-.support-desk-demo__ticket-card p {
-  margin: 0.55rem 0 0;
-  color: rgba(239, 255, 251, 0.74);
-  line-height: 1.5;
-}
-
 .support-desk-demo__workspace {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);

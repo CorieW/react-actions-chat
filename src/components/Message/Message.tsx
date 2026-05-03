@@ -15,8 +15,21 @@ import { MessageButtons } from './MessageButtons';
  * @property renderPart Renders an individual message part.
  */
 interface MessageProps {
+  /**
+   * Message object handled by this contract.
+   */
   readonly message: ChatMessage;
+  /**
+   * Theme tokens used to style the rendered UI.
+   */
   readonly theme: ChatTheme;
+  /**
+   * Renders one message part.
+   *
+   * @param part - Message part to render.
+   * @param index - Zero-based index of the message part.
+   * @param message - Message to add, inspect, or render.
+   */
   readonly renderPart: (
     part: MessagePart,
     index: number,
@@ -27,7 +40,7 @@ interface MessageProps {
 /**
  * Renders a single chat message bubble with its timestamp and optional actions.
  *
- * @param props The `MessageProps` object.
+ * @param props - The `MessageProps` object.
  */
 export function Message({
   message,

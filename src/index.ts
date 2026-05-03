@@ -96,5 +96,8 @@ export type {
   TextMessageFormat,
   TextMessagePart,
 };
+/**
+ * Backward-compatible alias for the normalized chat message type.
+ */
 export type Message = MessageData;
 export * from './lib';

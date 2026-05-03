@@ -1,6 +1,9 @@
 import type { InputBarValidationConfig } from '../../../js/types';
 import type { useInputFieldStore } from '../../../lib/inputFieldStore';
 
+/**
+ * Resolved shared input field store state type.
+ */
 type InputFieldStoreState = ReturnType<typeof useInputFieldStore.getState>;
 
 /**

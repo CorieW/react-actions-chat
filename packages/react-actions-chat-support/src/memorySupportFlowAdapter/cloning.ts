@@ -6,6 +6,11 @@ import type {
   SupportUserIdentity,
 } from '../supportFlowTypes';
 
+/**
+ * Creates a defensive clone of identity.
+ *
+ * @param identity - Customer identity to clone, or undefined when absent.
+ */
 export function cloneIdentity(
   identity: SupportUserIdentity | undefined
 ): SupportUserIdentity | undefined {
@@ -18,6 +23,11 @@ export function cloneIdentity(
   };
 }
 
+/**
+ * Creates a defensive clone of a ticket message.
+ *
+ * @param message - Message to inspect, format, or clone.
+ */
 function cloneMessage(message: SupportTicketMessage): SupportTicketMessage {
   return {
     ...message,
@@ -25,6 +35,11 @@ function cloneMessage(message: SupportTicketMessage): SupportTicketMessage {
   };
 }
 
+/**
+ * Creates a defensive clone of a live chat message.
+ *
+ * @param message - Message to inspect, format, or clone.
+ */
 function cloneLiveChatMessage(
   message: SupportLiveChatMessage
 ): SupportLiveChatMessage {
@@ -34,6 +49,11 @@ function cloneLiveChatMessage(
   };
 }
 
+/**
+ * Creates a defensive clone of ticket.
+ *
+ * @param ticket - Support ticket to inspect, format, or update.
+ */
 export function cloneTicket(ticket: SupportTicket): SupportTicket {
   return {
     ...ticket,
@@ -47,6 +67,11 @@ export function cloneTicket(ticket: SupportTicket): SupportTicket {
   };
 }
 
+/**
+ * Creates a defensive clone of live chat.
+ *
+ * @param session - Live chat session to inspect, format, or update.
+ */
 export function cloneLiveChat(
   session: SupportLiveChatSession
 ): SupportLiveChatSession {

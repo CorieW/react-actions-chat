@@ -9,11 +9,22 @@ import {
   parseJsonResponse,
 } from '../shared';
 
+/**
+ * Fetch mock signature used by provider tests.
+ *
+ * @param input - Fetch request input passed to the mock.
+ * @param init - Fetch init object containing the request body.
+ */
 type FetchMock = (
   input: RequestInfo | URL,
   init?: RequestInit
 ) => Promise<Response>;
 
+/**
+ * Parses a JSON request body from a fetch init object.
+ *
+ * @param init - Fetch init object containing the request body.
+ */
 function parseRequestBody<T>(init?: RequestInit): T {
   if (typeof init?.body !== 'string') {
     throw new Error('Expected request body to be a JSON string.');
@@ -157,7 +168,12 @@ describe('createTextGenerationBackend', () => {
     globalThis.fetch = originalFetch;
 
     await expect(
-      parseJsonResponse<{ ok: boolean }>(
+      parseJsonResponse<{
+        /**
+         * Response ok flag used by the test mock.
+         */
+        ok: boolean;
+      }>(
         new Response('', {
           status: 200,
         })

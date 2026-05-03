@@ -6,6 +6,12 @@ import {
 } from 'react-actions-chat';
 import { createChatTextGenerationFlow } from 'react-actions-chat-llms';
 
+/**
+ * Creates an input message with a single text part for tests.
+ *
+ * @param text - Text content for the fixture.
+ * @param message - Message fields to merge into the fixture.
+ */
 function createInputMessage(
   text: string,
   message: Omit<InputMessage, 'parts'>
@@ -16,6 +22,9 @@ function createInputMessage(
   };
 }
 
+/**
+ * Returns the text from the last stored chat message.
+ */
 function getLastMessageText(): string {
   const message = useChatStore.getState().getPreviousMessage();
   const firstPart = message?.parts[0];

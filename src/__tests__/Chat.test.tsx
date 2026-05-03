@@ -15,6 +15,11 @@ import { useChatStore } from '../lib/chatStore';
 import { useInputFieldStore } from '../lib/inputFieldStore';
 import { usePersistentButtonStore } from '../lib/persistentButtonStore';
 
+/**
+ * Returns captured scroll options from the mocked DOM method.
+ *
+ * @param value - Value value passed to the helper.
+ */
 function getScrollToOptions(
   value: unknown[] | undefined
 ): Record<string, unknown> | null {
@@ -30,6 +35,12 @@ function getScrollToOptions(
   return firstArg as Record<string, unknown>;
 }
 
+/**
+ * Creates an input message with a single text part for tests.
+ *
+ * @param text - Text content for the fixture.
+ * @param message - Message fields to merge into the fixture.
+ */
 function createInputMessage(
   text: string,
   message: Omit<InputMessage, 'parts'>

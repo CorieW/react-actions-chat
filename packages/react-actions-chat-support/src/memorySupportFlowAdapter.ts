@@ -37,6 +37,11 @@ import {
   sortQueueTickets,
 } from './memorySupportFlowAdapter/index';
 
+/**
+ * Creates an in memory support flow adapter.
+ *
+ * @param options - In-memory adapter seed data, defaults, and factory overrides.
+ */
 export function createInMemorySupportFlowAdapter(
   options: InMemorySupportFlowAdapterOptions = {}
 ): SupportFlowAdapter {

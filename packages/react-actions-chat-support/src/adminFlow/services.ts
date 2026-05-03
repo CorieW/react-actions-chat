@@ -13,37 +13,97 @@ import type {
 import { sortTicketsByAssignment } from './tickets/queue';
 import type { SupportAdminFlowCapabilities } from './types';
 
+/**
+ * Options used to create support admin flow services.
+ */
 interface CreateSupportAdminFlowServicesOptions {
+  /**
+   * Support adapter used to fetch and persist support state.
+   */
   readonly adapter: SupportFlowAdapter | undefined;
+  /**
+   * Callback-backed service implementations provided by the consumer.
+   */
   readonly callbacks: SupportAdminFlowCallbacks;
 }
 
+/**
+ * Resolved service methods and capability flags for the support admin flow.
+ */
 export interface SupportAdminFlowServices {
+  /**
+   * Resolved backend capabilities available to the flow.
+   */
   readonly capabilities: SupportAdminFlowCapabilities;
+  /**
+   * Lists tickets for an admin queue.
+   *
+   * @param filter - Filter to apply to the list.
+   */
   readonly listTicketQueue: (
     filter?: SupportQueueFilter
   ) => Promise<readonly SupportTicket[]>;
+  /**
+   * Lists live chat sessions for an admin queue.
+   *
+   * @param filter - Filter to apply to the list.
+   */
   readonly listLiveChatQueue: (
     filter?: SupportLiveChatQueueFilter
   ) => Promise<readonly SupportLiveChatSession[]>;
+  /**
+   * Returns a support ticket by reference.
+   *
+   * @param reference - Ticket reference to look up.
+   */
   readonly getTicket: (reference: string) => Promise<SupportTicket | null>;
+  /**
+   * Updates a support ticket.
+   *
+   * @param input - Input payload for the operation.
+   */
   readonly updateTicket: (
     input: UpdateSupportTicketInput
   ) => Promise<SupportTicket>;
+  /**
+   * Appends a message to a support ticket.
+   *
+   * @param input - Input payload for the operation.
+   */
   readonly appendTicketMessage: (
     input: AppendSupportTicketMessageInput
   ) => Promise<SupportTicket>;
+  /**
+   * Returns a live chat session by ID.
+   *
+   * @param sessionId - Live chat session ID to look up.
+   */
   readonly getLiveChat: (
     sessionId: string
   ) => Promise<SupportLiveChatSession | null>;
+  /**
+   * Updates a live chat session.
+   *
+   * @param input - Input payload for the operation.
+   */
   readonly updateLiveChat: (
     input: UpdateSupportLiveChatInput
   ) => Promise<SupportLiveChatSession>;
+  /**
+   * Appends a message to a live chat session.
+   *
+   * @param input - Input payload for the operation.
+   */
   readonly appendLiveChatMessage: (
     input: AppendSupportLiveChatMessageInput
   ) => Promise<SupportLiveChatSession>;
 }
 
+/**
+ * Resolved service methods and capability flags for the create support admin flow.
+ *
+ * @param options - Options for creating the support admin flow services.
+ */
 export function createSupportAdminFlowServices({
   adapter,
   callbacks,

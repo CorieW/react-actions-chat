@@ -1,5 +1,8 @@
 import type { SupportUserFlowLabels } from '../types';
 
+/**
+ * Defaultable label contract for the user live chat.
+ */
 type UserLiveChatLabels = Pick<
   SupportUserFlowLabels,
   | 'startLiveChat'
@@ -11,6 +14,9 @@ type UserLiveChatLabels = Pick<
   | 'liveChatWaitingDescription'
 >;
 
+/**
+ * Default user live chat labels used when callers do not override it.
+ */
 export const DEFAULT_USER_LIVE_CHAT_LABELS: UserLiveChatLabels = {
   startLiveChat: 'Start live chat',
   refreshChat: 'Refresh chat',

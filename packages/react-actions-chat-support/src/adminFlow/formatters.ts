@@ -1,6 +1,11 @@
 import { escapeMarkdown, joinMarkdownLines } from '../supportFlowUtils';
 import type { SupportAdminFormatterContext } from './types';
 
+/**
+ * Formats admin opening message for display in chat messages.
+ *
+ * @param context - Context object available to this resolver.
+ */
 export function formatAdminOpeningMessage(
   context: SupportAdminFormatterContext
 ): string {

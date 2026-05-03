@@ -8,6 +8,12 @@ import {
 } from '../../supportFlowUtils';
 import type { SupportAdminTicketPage } from './queue';
 
+/**
+ * Formats queue summary for display in chat messages.
+ *
+ * @param tickets - Support tickets to sort, paginate, or render.
+ * @param page - Pagination state used to render the current view.
+ */
 export function formatQueueSummary(
   tickets: readonly SupportTicket[],
   page: SupportAdminTicketPage
@@ -28,9 +34,15 @@ export function formatQueueSummary(
   ]);
 }
 
+/**
+ * Formats ticket details for display in chat messages.
+ *
+ * @param ticket - Support ticket to inspect, format, or update.
+ * @param recentActivityLimit - Optional maximum number of recent activity entries to include.
+ */
 export function formatTicketDetails(
   ticket: SupportTicket,
-  recentActivityLimit: number
+  recentActivityLimit?: number
 ): string {
   const latestMessage = ticket.messages[ticket.messages.length - 1];
   return joinMarkdownLines([

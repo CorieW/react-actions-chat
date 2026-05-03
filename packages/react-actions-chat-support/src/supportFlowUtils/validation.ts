@@ -5,14 +5,30 @@ import type {
 } from 'react-actions-chat';
 import type { SupportInputValidationSettings } from '../supportFlowTypes';
 
+/**
+ * Builds the default validation message for too-short input.
+ *
+ * @param minMessageLength - Minimum required message length.
+ */
 function createTooShortMessage(minMessageLength: number): string {
   return `Please enter at least ${minMessageLength} character${minMessageLength === 1 ? '' : 's'}.`;
 }
 
+/**
+ * Builds the default validation message for too-long input.
+ *
+ * @param maxMessageLength - Maximum allowed message length.
+ */
 function createTooLongMessage(maxMessageLength: number): string {
   return `Please keep your message to ${maxMessageLength} character${maxMessageLength === 1 ? '' : 's'} or fewer.`;
 }
 
+/**
+ * Resolves validation settings from caller configuration and defaults.
+ *
+ * @param defaults - Default settings used when no override is supplied.
+ * @param override - Caller-provided settings that override the defaults.
+ */
 export function resolveValidationSettings(
   defaults: SupportInputValidationSettings,
   override: SupportInputValidationSettings | undefined
@@ -28,6 +44,13 @@ export function resolveValidationSettings(
   };
 }
 
+/**
+ * Validates support input against length settings and custom validators.
+ *
+ * @param value - Value to inspect or resolve.
+ * @param validation - Support input validation rules to apply.
+ * @param submission - Full input submission, including text and files.
+ */
 export function validateSupportInput(
   value: string,
   validation: SupportInputValidationSettings,
@@ -58,6 +81,11 @@ export function validateSupportInput(
   return validation.validator?.(value, submission) ?? true;
 }
 
+/**
+ * Creates a request input validator.
+ *
+ * @param validation - Support input validation rules to wrap in an input validator.
+ */
 export function createRequestInputValidator(
   validation: SupportInputValidationSettings
 ): InputValidator | undefined {

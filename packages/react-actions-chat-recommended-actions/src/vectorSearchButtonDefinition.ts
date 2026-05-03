@@ -6,12 +6,20 @@ import type { AnyButtonDefinition } from 'react-actions-chat';
 export type VectorSearchButtonDefinition<
   TButtonDefinition extends AnyButtonDefinition = AnyButtonDefinition,
 > = TButtonDefinition & {
+  /**
+   * Descriptive text shown to users or sent to a provider.
+   */
   readonly description?: string | undefined;
+  /**
+   * Example user queries that should surface this button definition.
+   */
   readonly exampleQueries?: readonly string[] | undefined;
 };
 
 /**
  * Builds the default semantic search text for a button definition.
+ *
+ * @param definition - Button definition to convert.
  */
 export function buildVectorSearchButtonText(
   definition: VectorSearchButtonDefinition

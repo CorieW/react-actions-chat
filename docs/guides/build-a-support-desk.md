@@ -67,11 +67,7 @@ function resetChatWorkspace(): void {
 export function App() {
   const [view, setView] = useState<View>('customer');
   const [chatKey, setChatKey] = useState(0);
-  const [adapter] = useState(() =>
-    createInMemorySupportFlowAdapter({
-      nextTicketNumber: 3001,
-    })
-  );
+  const [adapter] = useState(() => createInMemorySupportFlowAdapter());
 
   const flow =
     view === 'customer'

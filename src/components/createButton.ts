@@ -19,6 +19,9 @@ import {
  * @property id Optional id used when reusing the button in persistent button collections. Can be either defined in the definition or in the runtime config.
  */
 export interface ButtonDefinition extends MessageButton {
+  /**
+   * Stable identifier for this value.
+   */
   readonly id?: string | undefined;
 }
 
@@ -28,6 +31,9 @@ export interface ButtonDefinition extends MessageButton {
  * @property id Optional id that overrides the definition id when the button is created. Can be either defined in the definition or in the runtime config.
  */
 export interface ButtonRuntimeConfig {
+  /**
+   * Stable identifier for this value.
+   */
   readonly id?: string | undefined;
 }
 
@@ -45,9 +51,18 @@ export type AnyButtonDefinition =
  * @property id Optional id used when storing the button in persistent button collections.
  */
 export type CreatedButton = MessageButton & {
+  /**
+   * Stable identifier for this value.
+   */
   readonly id?: string | undefined;
 };
 
+/**
+ * Attaches an optional persistent-button ID to a created button.
+ *
+ * @param button - Button to transform or store.
+ * @param id - Optional persistent button ID.
+ */
 function withOptionalId(
   button: MessageButton,
   id: string | undefined
@@ -62,12 +77,22 @@ function withOptionalId(
   };
 }
 
+/**
+ * Returns whether a button definition starts a request-input flow.
+ *
+ * @param definition - Button definition to convert.
+ */
 function isRequestInputButtonDefinition(
   definition: AnyButtonDefinition
 ): definition is RequestInputButtonDefinition {
   return 'kind' in definition && definition.kind === 'request-input';
 }
 
+/**
+ * Returns whether a button definition starts a confirmation flow.
+ *
+ * @param definition - Button definition to convert.
+ */
 function isRequestConfirmationButtonDefinition(
   definition: AnyButtonDefinition
 ): definition is RequestConfirmationButtonDefinition {
@@ -84,10 +109,22 @@ export function createButton(
   definition: ButtonDefinition,
   runtimeConfig?: ButtonRuntimeConfig
 ): CreatedButton;
+/**
+ * Creates a button for the matching definition overload.
+ *
+ * @param definition - Button definition to convert.
+ * @param runtimeConfig - Runtime overrides applied while creating the button.
+ */
 export function createButton(
   definition: RequestInputButtonDefinition,
   runtimeConfig?: RequestInputButtonRuntimeConfig
 ): CreatedButton;
+/**
+ * Creates a button for the matching definition overload.
+ *
+ * @param definition - Button definition to convert.
+ * @param runtimeConfig - Runtime overrides applied while creating the button.
+ */
 export function createButton(
   definition: RequestConfirmationButtonDefinition,
   runtimeConfig?: RequestConfirmationButtonRuntimeConfig

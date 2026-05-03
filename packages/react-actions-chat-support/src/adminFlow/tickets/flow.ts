@@ -40,71 +40,215 @@ import type {
   SupportAdminTicketQueueFilterSlot,
 } from '../types';
 
+/**
+ * Button customization hook scoped to admin flow internals.
+ *
+ * @param context - Context object available to this resolver.
+ */
 type CustomizeAdminButtons = (
   context: Omit<SupportAdminFlowButtonContext, 'agent' | 'agentLabel'>
 ) => readonly MessageButton[];
 
+/**
+ * Options used to create admin ticket flow.
+ */
 interface CreateAdminTicketFlowOptions {
+  /**
+   * Flow or component configuration for this contract.
+   */
   readonly config: SupportAdminFlowConfig;
+  /**
+   * Support agent identity used by this flow or helper.
+   */
   readonly agent: SupportAgentIdentity;
+  /**
+   * Display label for the support agent in generated messages.
+   */
   readonly agentLabel: string;
+  /**
+   * Resolved labels used by this flow or helper.
+   */
   readonly labels: SupportAdminFlowLabels;
+  /**
+   * Input behavior settings applied by the flow.
+   */
   readonly behavior: NonNullable<SupportAdminFlowConfig['behavior']>;
+  /**
+   * Shared context passed to formatter functions.
+   */
   readonly formatterContext: SupportAdminFormatterContext;
+  /**
+   * Ticket status transitions applied by admin actions.
+   */
   readonly statusTransitions: SupportAdminStatusTransitions;
+  /**
+   * Priority ordering used for queue sorting and select options.
+   */
   readonly priorityOrder: readonly SupportTicketPriority[];
+  /**
+   * Maximum number of queued records shown by the admin flow.
+   */
   readonly queueLimit?: number | undefined;
+  /**
+   * Maximum number of assigned tickets shown in the admin flow.
+   */
   readonly assignedWorkLimit?: number | undefined;
+  /**
+   * Validation settings for ticket-assignment input.
+   */
   readonly ticketAssignmentValidation: SupportInputValidationSettings;
+  /**
+   * Validation settings for ticket-reply input.
+   */
   readonly ticketReplyValidation: SupportInputValidationSettings;
+  /**
+   * Whether ticket updates are available.
+   */
   readonly canUpdateTicket: boolean;
+  /**
+   * Whether ticket message append actions are available.
+   */
   readonly canAppendTicketMessage: boolean;
+  /**
+   * Service used to list ticket queue entries.
+   */
   readonly listTicketQueue: SupportAdminFlowServices['listTicketQueue'];
+  /**
+   * Service used to retrieve a support ticket.
+   */
   readonly getTicket: SupportAdminFlowServices['getTicket'];
+  /**
+   * Service used to update a support ticket.
+   */
   readonly updateTicket: SupportAdminFlowServices['updateTicket'];
+  /**
+   * Service used to append a message to a support ticket.
+   */
   readonly appendTicketMessage: SupportAdminFlowServices['appendTicketMessage'];
+  /**
+   * Formats admin ticket details.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly formatAdminTicketDetails: (ticket: SupportTicket) => string;
+  /**
+   * Formats admin ticket full activity.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly formatAdminTicketFullActivity: (ticket: SupportTicket) => string;
+  /**
+   * Formats admin ticket queue.
+   *
+   * @param tickets - Support tickets to process.
+   * @param page - Pagination state for the current list.
+   * @param filterState - Current filter state for the rendered list.
+   */
   readonly formatAdminTicketQueue: (
     tickets: readonly SupportTicket[],
     page: ReturnType<typeof paginateTickets>,
     filterState?: {
+      /**
+       * Currently selected filter state for the list.
+       */
       readonly activeFilter?: SupportAdminTicketQueueFilterOption | undefined;
+      /**
+       * Filter options available for the current list.
+       */
       readonly filterOptions:
         | readonly SupportAdminTicketQueueFilterOption[]
         | undefined;
     }
   ) => string;
+  /**
+   * Adds a support markdown message to the transcript.
+   *
+   * @param markdown - Markdown message body to add.
+   * @param buttons - Buttons to render, store, or customize.
+   */
   readonly addSupportMessage: (
     markdown: string,
     buttons: readonly MessageButton[]
   ) => void;
+  /**
+   * Adds a recovery message after a request-input flow is aborted.
+   *
+   * @param markdown - Markdown message body to add.
+   * @param buttons - Buttons to render, store, or customize.
+   */
   readonly addAbortRecoveryMessage: (
     markdown: string,
     buttons: readonly MessageButton[]
   ) => void;
+  /**
+   * Factory used to create the primary flow action buttons.
+   */
   readonly createPrimaryButtons: () => readonly MessageButton[];
+  /**
+   * Factory used to create the admin options navigation button.
+   */
   readonly createBackToAdminOptionsButton: () => MessageButton;
+  /**
+   * Hook used to customize admin ticket buttons before rendering.
+   */
   readonly customizeButtons: CustomizeAdminButtons;
 }
 
+/**
+ * Runtime API returned by the admin ticket factory.
+ */
 export interface AdminTicketFlow {
+  /**
+   * Factory used to create the review-ticket action button.
+   */
   readonly createReviewTicketButton: () => MessageButton;
+  /**
+   * Creates ticket action buttons.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
   readonly createTicketButtons: (
     ticket: SupportTicket
   ) => readonly MessageButton[];
+  /**
+   * Shows assigned work.
+   *
+   * @param pageIndex - Zero-based page index to show.
+   * @param activeFilterId - Identifier of the active filter.
+   */
   readonly showAssignedWork: (
     pageIndex?: number,
     activeFilterId?: string
   ) => Promise<void>;
+  /**
+   * Shows full ticket activity.
+   *
+   * @param reference - Ticket reference to look up.
+   */
   readonly showFullActivity: (reference: string) => Promise<void>;
+  /**
+   * Shows a support ticket.
+   *
+   * @param reference - Ticket reference to look up.
+   */
   readonly showTicket: (reference: string) => Promise<void>;
+  /**
+   * Shows the ticket queue.
+   *
+   * @param pageIndex - Zero-based page index to show.
+   * @param activeFilterId - Identifier of the active filter.
+   */
   readonly showTicketQueue: (
     pageIndex?: number,
     activeFilterId?: string
   ) => Promise<void>;
 }
 
+/**
+ * Runtime API returned by the admin ticket workflow factory.
+ *
+ * @param options - Options for creating the admin ticket flow.
+ */
 export function createAdminTicketFlow({
   config,
   agent,
@@ -323,13 +467,34 @@ export function createAdminTicketFlow({
     activeFilterId,
     baseFilter,
   }: {
+    /**
+     * Button slot where the override is applied.
+     */
     readonly slot: SupportAdminTicketQueueFilterSlot;
+    /**
+     * Identifier for the currently selected filter option.
+     */
     readonly activeFilterId: string | undefined;
+    /**
+     * Base filter applied before user-selected filters are resolved.
+     */
     readonly baseFilter?: SupportQueueFilter | undefined;
   }): {
+    /**
+     * Filter options available for the current list.
+     */
     readonly filterOptions: readonly SupportAdminTicketQueueFilterOption[];
+    /**
+     * Currently selected filter state for the list.
+     */
     readonly activeFilter: SupportAdminTicketQueueFilterOption | undefined;
+    /**
+     * Filter context value for this contract.
+     */
     readonly filterContext: SupportAdminTicketQueueFilterContext;
+    /**
+     * Queue filter value for this contract.
+     */
     readonly queueFilter: SupportQueueFilter | undefined;
   } => {
     const filterOptions =

@@ -17,16 +17,39 @@ import type {
   SupportUserTicketInputContext,
 } from '../types';
 
+/**
+ * Options used to create the add ticket detail request button definition.
+ */
 interface CreateAddTicketDetailButtonDefOptions {
+  /**
+   * Support ticket handled by this flow or helper.
+   */
   readonly ticket: SupportTicket;
+  /**
+   * Resolved labels used by this flow or helper.
+   */
   readonly labels: SupportUserFlowLabels;
+  /**
+   * Validation settings applied while collecting input.
+   */
   readonly validation: SupportInputValidationSettings;
+  /**
+   * Request-input override settings for this button definition.
+   */
   readonly inputOverrides:
     | SupportUserFlowRequestInputs['addTicketDetail']
     | undefined;
+  /**
+   * Context passed to request-input override resolvers.
+   */
   readonly inputContext: SupportUserTicketInputContext;
 }
 
+/**
+ * Creates the add ticket detail request button definition.
+ *
+ * @param options - Options for creating the add ticket detail button definition.
+ */
 export function createAddTicketDetailButtonDef({
   ticket,
   labels,
@@ -47,15 +70,35 @@ export function createAddTicketDetailButtonDef({
   });
 }
 
+/**
+ * Options used to create the open ticket request button definition.
+ */
 interface CreateOpenTicketButtonDefOptions {
+  /**
+   * Resolved labels used by this flow or helper.
+   */
   readonly labels: SupportUserFlowLabels;
+  /**
+   * Validation settings applied while collecting input.
+   */
   readonly validation: SupportInputValidationSettings;
+  /**
+   * Request-input override settings for this button definition.
+   */
   readonly inputOverrides:
     | SupportUserFlowRequestInputs['createTicket']
     | undefined;
+  /**
+   * Context passed to request-input override resolvers.
+   */
   readonly inputContext: SupportUserCreateTicketInputContext;
 }
 
+/**
+ * Creates the open ticket request button definition.
+ *
+ * @param options - Options for creating the open ticket button definition.
+ */
 export function createOpenTicketButtonDef({
   labels,
   validation,

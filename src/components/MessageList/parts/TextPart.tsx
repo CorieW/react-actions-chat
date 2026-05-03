@@ -8,7 +8,7 @@ import { FormattedTextPart } from '../../Message/formatters/FormattedTextPart';
 /**
  * Renders a text message part using the built-in formatter registry.
  *
- * @param props The `MessagePartRendererProps<TextMessagePart>` object.
+ * @param props - The `MessagePartRendererProps<TextMessagePart>` object.
  */
 export function TextPart({
   part,
