@@ -10,7 +10,6 @@ import {
   type SupportQueueFilter,
   type SupportTicket,
   type SupportTicketListRequest,
-  type SupportTicketListResponse,
   type SupportTicketListResult,
   type SupportUserIdentity,
   type UpdateSupportLiveChatInput,
@@ -101,19 +100,6 @@ function pageTickets(
 }
 
 /**
- * Extracts ticket rows from either ticket-list response shape.
- *
- * @param response - Ticket list response returned by the backing adapter.
- */
-function getTicketRows(
-  response: SupportTicketListResponse
-): readonly SupportTicket[] {
-  return Array.isArray(response)
-    ? response
-    : (response as SupportTicketListResult).tickets;
-}
-
-/**
  * Creates a limited fake database for the support-desk example.
  *
  * @param options - Seed data and factory options for the fake database.
@@ -156,7 +142,7 @@ export function createFakeSupportDatabase({
     ) {
       await waitForFakeDatabase(FAKE_DATABASE_READ_RESPONSE_MS);
       return pageTickets(
-        getTicketRows(await backingAdapter.listCustomerTickets(customer)),
+        (await backingAdapter.listCustomerTickets(customer)).tickets,
         request
       );
     },
@@ -173,7 +159,7 @@ export function createFakeSupportDatabase({
     ) {
       await waitForFakeDatabase(FAKE_DATABASE_READ_RESPONSE_MS);
       return pageTickets(
-        getTicketRows(await backingAdapter.listQueue(filter)),
+        (await backingAdapter.listQueue(filter)).tickets,
         request
       );
     },

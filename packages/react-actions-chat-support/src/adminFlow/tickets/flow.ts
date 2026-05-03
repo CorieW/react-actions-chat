@@ -11,8 +11,6 @@ import type {
 import {
   createPaginationPage,
   createListFilterButtons,
-  getSupportTicketListTickets,
-  isSupportTicketListResult,
   normalizeReference,
   resolveActiveListFilter,
 } from '../../supportFlowUtils';
@@ -35,7 +33,7 @@ import {
 import {
   createAdminTicketPage,
   getTicketQueueButtonVariant,
-  paginateTickets,
+  type SupportAdminTicketPage,
 } from './queue';
 import type { SupportAdminFlowServices } from '../services';
 import type {
@@ -155,7 +153,7 @@ interface CreateAdminTicketFlowOptions {
    */
   readonly formatAdminTicketQueue: (
     tickets: readonly SupportTicket[],
-    page: ReturnType<typeof paginateTickets>,
+    page: SupportAdminTicketPage,
     filterState?: {
       /**
        * Currently selected filter state for the list.
@@ -446,7 +444,7 @@ export function createAdminTicketFlow({
   };
 
   const createTicketQueueButtons = (
-    page: ReturnType<typeof paginateTickets>,
+    page: SupportAdminTicketPage,
     showPage: (nextPageIndex: number) => void
   ): readonly MessageButton[] => {
     return [
@@ -600,9 +598,8 @@ export function createAdminTicketFlow({
       queueLimit
     );
     const ticketResponse = await listTicketQueue(queueFilter, request);
-    const isPagedResponse = isSupportTicketListResult(ticketResponse);
     const tickets = applyTicketFilterPredicate(
-      getSupportTicketListTickets(ticketResponse),
+      ticketResponse.tickets,
       activeFilter,
       filterContext
     );
@@ -629,27 +626,23 @@ export function createAdminTicketFlow({
       return;
     }
 
-    const page = isPagedResponse
-      ? createAdminTicketPage(
-          createPaginationPage({
-            visibleItems: tickets,
-            pageIndex,
-            pageSize: ticketResponse.tickets.length || queueLimit,
-            offset: request.offset,
-            totalItems: ticketResponse.totalTickets,
-            hasMoreItems: ticketResponse.hasMore,
-          })
-        )
-      : paginateTickets(tickets, pageIndex, queueLimit);
+    const page = createAdminTicketPage(
+      createPaginationPage({
+        visibleItems: tickets,
+        pageIndex,
+        pageSize: ticketResponse.tickets.length || queueLimit,
+        offset: request.offset,
+        totalItems: ticketResponse.totalTickets,
+        hasMoreItems: ticketResponse.hasMore,
+      })
+    );
 
-    if (isPagedResponse) {
-      rememberTicketListPage(
-        'ticket-queue',
-        activeFilter?.id,
-        request,
-        ticketResponse
-      );
-    }
+    rememberTicketListPage(
+      'ticket-queue',
+      activeFilter?.id,
+      request,
+      ticketResponse
+    );
 
     const defaultButtons = [
       ...filterButtons,
@@ -723,9 +716,8 @@ export function createAdminTicketFlow({
       assignedWorkLimit
     );
     const ticketResponse = await listTicketQueue(queueFilter, request);
-    const isPagedResponse = isSupportTicketListResult(ticketResponse);
     const tickets = applyTicketFilterPredicate(
-      getSupportTicketListTickets(ticketResponse),
+      ticketResponse.tickets,
       activeFilter,
       filterContext
     );
@@ -751,27 +743,23 @@ export function createAdminTicketFlow({
       return;
     }
 
-    const page = isPagedResponse
-      ? createAdminTicketPage(
-          createPaginationPage({
-            visibleItems: tickets,
-            pageIndex,
-            pageSize: ticketResponse.tickets.length || assignedWorkLimit,
-            offset: request.offset,
-            totalItems: ticketResponse.totalTickets,
-            hasMoreItems: ticketResponse.hasMore,
-          })
-        )
-      : paginateTickets(tickets, pageIndex, assignedWorkLimit);
+    const page = createAdminTicketPage(
+      createPaginationPage({
+        visibleItems: tickets,
+        pageIndex,
+        pageSize: ticketResponse.tickets.length || assignedWorkLimit,
+        offset: request.offset,
+        totalItems: ticketResponse.totalTickets,
+        hasMoreItems: ticketResponse.hasMore,
+      })
+    );
 
-    if (isPagedResponse) {
-      rememberTicketListPage(
-        'assigned-work',
-        activeFilter?.id,
-        request,
-        ticketResponse
-      );
-    }
+    rememberTicketListPage(
+      'assigned-work',
+      activeFilter?.id,
+      request,
+      ticketResponse
+    );
 
     const assignedWorkButtons = [
       ...filterButtons,

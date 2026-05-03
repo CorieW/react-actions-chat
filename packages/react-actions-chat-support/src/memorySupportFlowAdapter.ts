@@ -15,6 +15,8 @@ import type {
   SupportLiveChatSession,
   SupportQueueFilter,
   SupportTicket,
+  SupportTicketListRequest,
+  SupportTicketListResult,
   SupportTicketMessage,
   SupportUserIdentity,
   UpdateSupportLiveChatInput,
@@ -36,6 +38,36 @@ import {
   sortLiveChatsByRecentActivity,
   sortQueueTickets,
 } from './memorySupportFlowAdapter/index';
+
+/**
+ * Creates a segmented ticket-list result from matching in-memory tickets.
+ *
+ * @param tickets - Matching tickets available in the adapter state.
+ * @param request - Optional segmented-list request from a support flow.
+ */
+function createTicketListResult(
+  tickets: readonly SupportTicket[],
+  request?: SupportTicketListRequest
+): SupportTicketListResult {
+  const offset = Math.max(0, Math.floor(request?.offset ?? 0));
+  const requestedLimit = request?.limit ?? request?.pageSize ?? tickets.length;
+  const limit = tickets.length
+    ? Math.max(
+        1,
+        Number.isFinite(requestedLimit)
+          ? Math.floor(requestedLimit)
+          : tickets.length
+      )
+    : 0;
+  const nextOffset = offset + limit;
+
+  return {
+    tickets: tickets.slice(offset, nextOffset).map(cloneTicket),
+    totalTickets: tickets.length,
+    hasMore: nextOffset < tickets.length,
+    nextOffset,
+  };
+}
 
 /**
  * Creates an in memory support flow adapter.
@@ -248,33 +280,41 @@ export function createInMemorySupportFlowAdapter(
     },
 
     listCustomerTickets(
-      customer: SupportUserIdentity
-    ): readonly SupportTicket[] {
-      return tickets
-        .filter(ticket => {
-          return matchesConfiguredIdentity(ticket.customer, customer);
-        })
-        .sort(options.sortTickets ?? sortByUpdatedAtDesc)
-        .map(cloneTicket);
+      customer: SupportUserIdentity,
+      request?: SupportTicketListRequest
+    ): SupportTicketListResult {
+      return createTicketListResult(
+        tickets
+          .filter(ticket => {
+            return matchesConfiguredIdentity(ticket.customer, customer);
+          })
+          .sort(options.sortTickets ?? sortByUpdatedAtDesc),
+        request
+      );
     },
 
-    listQueue(filter?: SupportQueueFilter): readonly SupportTicket[] {
+    listQueue(
+      filter?: SupportQueueFilter,
+      request?: SupportTicketListRequest
+    ): SupportTicketListResult {
       const allowedStatuses =
         filter?.statuses ??
         options.defaultQueueStatuses ??
         DEFAULT_OPEN_TICKET_STATUSES;
 
-      return tickets
-        .filter(ticket => allowedStatuses.includes(ticket.status))
-        .filter(ticket => {
-          if (!filter?.assignedTo) {
-            return true;
-          }
+      return createTicketListResult(
+        tickets
+          .filter(ticket => allowedStatuses.includes(ticket.status))
+          .filter(ticket => {
+            if (!filter?.assignedTo) {
+              return true;
+            }
 
-          return ticket.assignedTo === filter.assignedTo;
-        })
-        .sort(options.sortTickets ?? sortQueueTickets)
-        .map(cloneTicket);
+            return ticket.assignedTo === filter.assignedTo;
+          })
+          .sort(options.sortTickets ?? sortQueueTickets),
+        request
+      );
     },
 
     listLiveChatQueue(

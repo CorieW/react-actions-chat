@@ -15,6 +15,8 @@ import {
   type SupportFlowAdapter,
   type SupportLiveChatSession,
   type SupportTicket,
+  type SupportTicketListRequest,
+  type SupportTicketListResult,
 } from 'react-actions-chat-support';
 
 /**
@@ -134,6 +136,41 @@ function createAsyncSupportFlowAdapter(
     startLiveChat: async input => adapter.startLiveChat(input),
     updateLiveChat: async input => adapter.updateLiveChat(input),
     appendLiveChatMessage: async input => adapter.appendLiveChatMessage(input),
+  };
+}
+
+/**
+ * Creates a segmented ticket result for tests.
+ *
+ * @param tickets - Matching tickets available to the test callback.
+ * @param request - Optional paging request from the support flow.
+ * @param pageLimit - Optional hard segment size to apply instead of the request limit.
+ * @param includeTotalTickets - Whether to include an exact backend total.
+ */
+function createSegmentedTicketResult(
+  tickets: readonly SupportTicket[],
+  request?: SupportTicketListRequest,
+  pageLimit?: number,
+  includeTotalTickets = true
+): SupportTicketListResult {
+  const offset = Math.max(0, request?.offset ?? 0);
+  const requestedLimit =
+    pageLimit ?? request?.limit ?? request?.pageSize ?? tickets.length;
+  const limit = tickets.length
+    ? Math.max(
+        1,
+        Number.isFinite(requestedLimit)
+          ? Math.floor(requestedLimit)
+          : tickets.length
+      )
+    : 0;
+  const nextOffset = offset + limit;
+
+  return {
+    tickets: tickets.slice(offset, nextOffset),
+    ...(includeTotalTickets ? { totalTickets: tickets.length } : {}),
+    hasMore: nextOffset < tickets.length,
+    nextOffset,
   };
 }
 
@@ -526,7 +563,8 @@ describe('support flows package', () => {
     });
     const flow = createSupportUserFlow({
       callbacks: {
-        listTickets: () => Promise.resolve([ticket]),
+        listTickets: () =>
+          Promise.resolve(createSegmentedTicketResult([ticket])),
       },
       customer: {
         id: 'async-ticket-customer',
@@ -581,7 +619,8 @@ describe('support flows package', () => {
     ];
     const flow = createSupportUserFlow({
       callbacks: {
-        listTickets: () => tickets,
+        listTickets: (_customer, request) =>
+          createSegmentedTicketResult(tickets, request),
       },
       customer: {
         id: 'ticket-pagination-customer',
@@ -676,6 +715,8 @@ describe('support flows package', () => {
           return {
             tickets: tickets.slice(offset, offset + 2),
             totalTickets: tickets.length,
+            hasMore: offset + 2 < tickets.length,
+            nextOffset: offset + 2,
           };
         },
       },
@@ -748,7 +789,8 @@ describe('support flows package', () => {
     let formatterTicketListLimit: number | undefined = 1;
     const flow = createSupportUserFlow({
       callbacks: {
-        listTickets: () => tickets,
+        listTickets: (_customer, request) =>
+          createSegmentedTicketResult(tickets, request, undefined, false),
       },
       customer: {
         id: 'ticket-unlimited-customer',
@@ -805,7 +847,8 @@ describe('support flows package', () => {
     ];
     const flow = createSupportUserFlow({
       callbacks: {
-        listTickets: () => tickets,
+        listTickets: (_customer, request) =>
+          createSegmentedTicketResult(tickets, request, undefined, false),
       },
       customer: {
         id: 'ticket-filter-customer',
@@ -1253,9 +1296,7 @@ describe('support flows package', () => {
     });
 
     const queue = await adapter.listQueue();
-    const queueTickets: readonly SupportTicket[] = Array.isArray(queue)
-      ? queue
-      : (queue as { readonly tickets: readonly SupportTicket[] }).tickets;
+    const queueTickets = queue.tickets;
 
     expect(queueTickets.map(ticket => ticket.reference)).toEqual([
       'SUP-1001',
@@ -1293,7 +1334,8 @@ describe('support flows package', () => {
     ];
     const flow = createSupportAdminFlow({
       callbacks: {
-        listTicketQueue: () => tickets,
+        listTicketQueue: (_filter, request) =>
+          createSegmentedTicketResult(tickets, request),
         getTicket: reference => {
           return tickets.find(ticket => ticket.reference === reference) ?? null;
         },
@@ -1382,7 +1424,8 @@ describe('support flows package', () => {
     let formatterLiveChatQueueLimit: number | undefined = 1;
     const flow = createSupportAdminFlow({
       callbacks: {
-        listTicketQueue: () => tickets,
+        listTicketQueue: (_filter, request) =>
+          createSegmentedTicketResult(tickets, request),
         getTicket: reference => {
           return tickets.find(ticket => ticket.reference === reference) ?? null;
         },
@@ -1482,7 +1525,8 @@ describe('support flows package', () => {
     ];
     const flow = createSupportAdminFlow({
       callbacks: {
-        listTicketQueue: () => tickets,
+        listTicketQueue: (_filter, request) =>
+          createSegmentedTicketResult(tickets, request),
         getTicket: reference => {
           return tickets.find(ticket => ticket.reference === reference) ?? null;
         },
@@ -1583,6 +1627,8 @@ describe('support flows package', () => {
           return {
             tickets: tickets.slice(offset, offset + 2),
             totalTickets: tickets.length,
+            hasMore: offset + 2 < tickets.length,
+            nextOffset: offset + 2,
           };
         },
         getTicket: reference => {
@@ -1633,7 +1679,7 @@ describe('support flows package', () => {
       priority: 'normal',
       updatedAt: '2026-04-30T20:00:00Z',
     });
-    const queueRead = createDeferred<readonly SupportTicket[]>();
+    const queueRead = createDeferred<SupportTicketListResult>();
     const flow = createSupportAdminFlow({
       callbacks: {
         listTicketQueue: () => queueRead.promise,
@@ -1655,7 +1701,7 @@ describe('support flows package', () => {
       await screen.findByRole('status', { name: 'Loading' })
     ).toBeInTheDocument();
 
-    queueRead.resolve([ticket]);
+    queueRead.resolve(createSegmentedTicketResult([ticket]));
 
     expect(
       await screen.findByRole('button', { name: ticket.reference })
@@ -1691,10 +1737,12 @@ describe('support flows package', () => {
     ];
     const flow = createSupportAdminFlow({
       callbacks: {
-        listTicketQueue: filter => {
-          return filter?.assignedTo
+        listTicketQueue: (filter, request) => {
+          const matchingTickets = filter?.assignedTo
             ? tickets.filter(ticket => ticket.assignedTo === filter.assignedTo)
             : tickets;
+
+          return createSegmentedTicketResult(matchingTickets, request);
         },
         getTicket: reference => {
           return tickets.find(ticket => ticket.reference === reference) ?? null;
@@ -1760,10 +1808,17 @@ describe('support flows package', () => {
     ];
     const flow = createSupportAdminFlow({
       callbacks: {
-        listTicketQueue: filter => {
-          return filter?.assignedTo
+        listTicketQueue: (filter, request) => {
+          const matchingTickets = filter?.assignedTo
             ? tickets.filter(ticket => ticket.assignedTo === filter.assignedTo)
             : tickets;
+
+          return createSegmentedTicketResult(
+            matchingTickets,
+            request,
+            undefined,
+            false
+          );
         },
         getTicket: reference => {
           return tickets.find(ticket => ticket.reference === reference) ?? null;
@@ -2034,7 +2089,8 @@ describe('support flows package', () => {
   it('omits live-chat admin guidance when live chat is not configured', () => {
     const flow = createSupportAdminFlow({
       callbacks: {
-        listTicketQueue: () => [],
+        listTicketQueue: (_filter, request) =>
+          createSegmentedTicketResult([], request),
         getTicket: () => null,
       },
       agent: {

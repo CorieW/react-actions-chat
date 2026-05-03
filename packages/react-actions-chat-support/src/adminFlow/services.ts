@@ -8,11 +8,10 @@ import type {
   SupportQueueFilter,
   SupportTicket,
   SupportTicketListRequest,
-  SupportTicketListResponse,
+  SupportTicketListResult,
   UpdateSupportLiveChatInput,
   UpdateSupportTicketInput,
 } from '../supportFlowTypes';
-import { isSupportTicketListResult } from '../supportFlowUtils';
 import { sortTicketsByAssignment } from './tickets/queue';
 import type { SupportAdminFlowCapabilities } from './types';
 
@@ -50,11 +49,12 @@ export interface SupportAdminFlowServices {
    * Lists tickets for an admin queue.
    *
    * @param filter - Filter to apply to the list.
+   * @param request - Optional paging metadata for segmented backend reads.
    */
   readonly listTicketQueue: (
     filter?: SupportQueueFilter,
     request?: SupportTicketListRequest
-  ) => Promise<SupportTicketListResponse>;
+  ) => Promise<SupportTicketListResult>;
   /**
    * Lists live chat sessions for an admin queue.
    *
@@ -159,22 +159,18 @@ export function createSupportAdminFlowServices({
   };
 
   const sortTicketListResponse = (
-    response: SupportTicketListResponse
-  ): SupportTicketListResponse => {
-    if (isSupportTicketListResult(response)) {
-      return {
-        ...response,
-        tickets: sortTicketsByAssignment(response.tickets),
-      };
-    }
-
-    return sortTicketsByAssignment(response);
+    response: SupportTicketListResult
+  ): SupportTicketListResult => {
+    return {
+      ...response,
+      tickets: sortTicketsByAssignment(response.tickets),
+    };
   };
 
   const listTicketQueue = async (
     filter?: SupportQueueFilter,
     request?: SupportTicketListRequest
-  ): Promise<SupportTicketListResponse> => {
+  ): Promise<SupportTicketListResult> => {
     return runWithLoading(async () => {
       if (callbacks.listTicketQueue) {
         return sortTicketListResponse(
@@ -186,7 +182,11 @@ export function createSupportAdminFlowServices({
         return sortTicketListResponse(await adapter.listQueue(filter, request));
       }
 
-      return [];
+      return {
+        tickets: [],
+        totalTickets: 0,
+        hasMore: false,
+      };
     });
   };
 

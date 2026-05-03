@@ -230,9 +230,8 @@ createSupportAdminFlow({
 
 ### Page Tickets From A Backend
 
-Ticket-listing methods may return either the full legacy ticket array or a
-paged result. Use the second `request` argument when your database can only
-read part of a larger ticket set at one time.
+Ticket-listing methods return segmented `SupportTicketListResult` objects. Use
+the second `request` argument to read the requested segment from your backend.
 
 ```ts typecheck
 import {
@@ -251,6 +250,7 @@ createSupportAdminFlow({
       return {
         tickets: allTickets.slice(offset, offset + limit),
         totalTickets: allTickets.length,
+        hasMore: offset + limit < allTickets.length,
         nextOffset: offset + limit,
       };
     },
