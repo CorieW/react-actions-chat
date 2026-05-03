@@ -37,16 +37,17 @@ const AGENT_IDENTITY = {
   team: 'Revenue Ops',
 };
 
-const SUPPORT_PAGE_SIZE = 4;
+const SUPPORT_TICKET_PAGE_SIZE = 4;
+const SUPPORT_LIVE_CHAT_PAGE_SIZE = 2;
 
 const CUSTOMER_FLOW_BEHAVIOR: SupportUserFlowBehavior = {
-  ticketListLimit: SUPPORT_PAGE_SIZE,
+  ticketListLimit: SUPPORT_TICKET_PAGE_SIZE,
 };
 
 const ADMIN_FLOW_BEHAVIOR: SupportAdminFlowBehavior = {
-  queueLimit: SUPPORT_PAGE_SIZE,
-  assignedWorkLimit: SUPPORT_PAGE_SIZE,
-  liveChatQueueLimit: SUPPORT_PAGE_SIZE,
+  queueLimit: SUPPORT_TICKET_PAGE_SIZE,
+  assignedWorkLimit: SUPPORT_TICKET_PAGE_SIZE,
+  liveChatQueueLimit: SUPPORT_LIVE_CHAT_PAGE_SIZE,
 };
 
 const CUSTOMER_THEME: ChatTheme = {
