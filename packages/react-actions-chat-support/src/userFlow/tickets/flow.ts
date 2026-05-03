@@ -8,11 +8,8 @@ import type {
 } from '../../supportFlowTypes';
 import {
   createPaginationPage,
-  getSupportTicketListTickets,
   createListFilterButtons,
-  isSupportTicketListResult,
   normalizeReference,
-  paginateItems,
   resolveActiveListFilter,
   type SupportPaginationPage,
 } from '../../supportFlowUtils';
@@ -414,9 +411,8 @@ export function createUserTicketFlow({
     const isFiltered = Boolean(activeFilter?.predicate);
     const request = createTicketListRequest(pageIndex, activeFilter?.id);
     const ticketResponse = await listTickets(request);
-    const isPagedResponse = isSupportTicketListResult(ticketResponse);
     const tickets = applyTicketFilterPredicate(
-      getSupportTicketListTickets(ticketResponse),
+      ticketResponse.tickets,
       activeFilter,
       filterContext
     );
@@ -437,20 +433,16 @@ export function createUserTicketFlow({
       return;
     }
 
-    const page = isPagedResponse
-      ? createPaginationPage({
-          visibleItems: tickets,
-          pageIndex,
-          pageSize: ticketResponse.tickets.length || ticketListLimit,
-          offset: request.offset,
-          totalItems: ticketResponse.totalTickets,
-          hasMoreItems: ticketResponse.hasMore,
-        })
-      : paginateItems(tickets, pageIndex, ticketListLimit);
+    const page = createPaginationPage({
+      visibleItems: tickets,
+      pageIndex,
+      pageSize: ticketResponse.tickets.length || ticketListLimit,
+      offset: request.offset,
+      totalItems: ticketResponse.totalTickets,
+      hasMoreItems: ticketResponse.hasMore,
+    });
 
-    if (isPagedResponse) {
-      rememberTicketListPage(activeFilter?.id, request, ticketResponse);
-    }
+    rememberTicketListPage(activeFilter?.id, request, ticketResponse);
 
     const visibleTickets = page.visibleItems;
     const defaultButtons = [

@@ -139,9 +139,10 @@ value directly or a promise.
 - `createTicket(input)`: creates a ticket from customer, summary, optional
   subject, optional priority, and optional tags.
 - `getTicketByReference(reference)`: returns one ticket or `null`.
-- `listCustomerTickets(customer, request?)`: returns tickets owned by a
-  customer.
-- `listQueue(filter?, request?)`: returns tickets for admin queues.
+- `listCustomerTickets(customer, request?)`: returns a segmented ticket result
+  for tickets owned by a customer.
+- `listQueue(filter?, request?)`: returns a segmented ticket result for admin
+  queues.
 - `listLiveChatQueue(filter?)`: returns live-chat sessions for admin queues.
 - `getLiveChatById(sessionId)`: returns one live-chat session or `null`.
 - `listCustomerLiveChats(customer)`: returns live chats associated with a
@@ -175,8 +176,9 @@ needs directly.
 
 ### Paged Ticket Results
 
-Customer and admin ticket-listing methods can return either a complete
-`SupportTicket[]` or `SupportTicketListResult`.
+Customer and admin ticket-listing methods return `SupportTicketListResult`.
+Plain ticket arrays are not accepted because the flow treats every ticket list
+as a segment from a larger-capable backend.
 
 `SupportTicketListRequest` includes:
 
@@ -192,11 +194,11 @@ Customer and admin ticket-listing methods can return either a complete
 - `hasMore?`
 - `nextOffset?`
 
-Return the paged result shape when the backing database can only read part of a
-larger ticket set. The support flow passes `offset` and `limit` into the next
-call, uses `totalTickets` or `hasMore` to decide whether to show `Next tickets`,
-and falls back to `nextOffset` when the backend needs a custom offset for the
-next page.
+The support flow passes `offset` and `limit` into each call, uses
+`totalTickets` or `hasMore` to decide whether to show `Next tickets`, and falls
+back to `nextOffset` when the backend needs a custom offset for the next page.
+If `totalTickets` is omitted while `hasMore` is true, the rendered total is
+treated as a lower bound.
 
 ## Callback Contracts
 

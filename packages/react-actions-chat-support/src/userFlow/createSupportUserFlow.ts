@@ -7,7 +7,6 @@ import {
 } from 'react-actions-chat';
 import {
   createSupportLoadingController,
-  getSupportTicketListTickets,
   isOpenLiveChat,
 } from '../supportFlowUtils';
 import {
@@ -138,9 +137,7 @@ export function createSupportUserFlow(
   };
 
   const showInitialOptions = async (): Promise<void> => {
-    const tickets = canListTickets
-      ? getSupportTicketListTickets(await listTickets())
-      : [];
+    const tickets = canListTickets ? (await listTickets()).tickets : [];
     addSupportMessage(openingMessage, createPrimaryButtons(tickets, false));
   };
 

@@ -8,15 +8,12 @@ import type {
   SupportLiveChatSession,
   SupportTicket,
   SupportTicketListRequest,
-  SupportTicketListResponse,
+  SupportTicketListResult,
   SupportUserFlowCallbacks,
   SupportUserIdentity,
   UpdateSupportLiveChatInput,
 } from '../supportFlowTypes';
-import {
-  getSupportTicketListTickets,
-  isPromiseLike,
-} from '../supportFlowUtils';
+import { isPromiseLike } from '../supportFlowUtils';
 import type { InitialTicketListState } from './types';
 
 /**
@@ -92,11 +89,11 @@ export interface SupportUserFlowServices {
   /**
    * Lists the tickets.
    *
-   * @param request - Optional paging metadata for capped backend reads.
+   * @param request - Optional paging metadata for segmented backend reads.
    */
   readonly listTickets: (
     request?: SupportTicketListRequest
-  ) => Promise<SupportTicketListResponse>;
+  ) => Promise<SupportTicketListResult>;
   /**
    * Appends a message to a support ticket.
    *
@@ -220,7 +217,7 @@ export function createSupportUserFlowServices({
 
   const listTickets = async (
     request?: SupportTicketListRequest
-  ): Promise<SupportTicketListResponse> => {
+  ): Promise<SupportTicketListResult> => {
     return runWithLoading(async () => {
       if (callbacks.listTickets) {
         return callbacks.listTickets(customer, request);
@@ -230,7 +227,11 @@ export function createSupportUserFlowServices({
         return adapter.listCustomerTickets(customer, request);
       }
 
-      return [];
+      return {
+        tickets: [],
+        totalTickets: 0,
+        hasMore: false,
+      };
     });
   };
 
@@ -322,7 +323,7 @@ export function createSupportUserFlowServices({
       };
     }
 
-    let tickets: MaybePromise<SupportTicketListResponse> | undefined;
+    let tickets: MaybePromise<SupportTicketListResult> | undefined;
 
     try {
       tickets = callbacks.listTickets
@@ -346,7 +347,7 @@ export function createSupportUserFlowServices({
     }
 
     return {
-      tickets: getSupportTicketListTickets(tickets),
+      tickets: tickets.tickets,
       isPending: false,
     };
   };

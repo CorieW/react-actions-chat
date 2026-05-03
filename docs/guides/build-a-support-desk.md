@@ -465,6 +465,8 @@ import type {
   SupportLiveChatSession,
   SupportQueueFilter,
   SupportTicket,
+  SupportTicketListRequest,
+  SupportTicketListResult,
   SupportUserIdentity,
   UpdateSupportLiveChatInput,
   UpdateSupportTicketInput,
@@ -502,13 +504,22 @@ export const supportAdapter: SupportFlowAdapter = {
     getJson<SupportTicket>(
       `/api/support/tickets/${encodeURIComponent(reference)}`
     ),
-  listCustomerTickets: (customer: SupportUserIdentity) =>
-    postJson<readonly SupportTicket[]>(
-      '/api/support/tickets/customer',
-      customer
-    ),
-  listQueue: (filter?: SupportQueueFilter) =>
-    postJson<readonly SupportTicket[]>('/api/support/tickets/queue', filter),
+  listCustomerTickets: (
+    customer: SupportUserIdentity,
+    request?: SupportTicketListRequest
+  ) =>
+    postJson<SupportTicketListResult>('/api/support/tickets/customer', {
+      customer,
+      request,
+    }),
+  listQueue: (
+    filter?: SupportQueueFilter,
+    request?: SupportTicketListRequest
+  ) =>
+    postJson<SupportTicketListResult>('/api/support/tickets/queue', {
+      filter,
+      request,
+    }),
   listLiveChatQueue: (filter?: SupportLiveChatQueueFilter) =>
     postJson<readonly SupportLiveChatSession[]>(
       '/api/support/live-chats/queue',

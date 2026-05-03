@@ -439,7 +439,7 @@ export interface SupportTicketListRequest {
 }
 
 /**
- * Paged ticket-listing result returned by ticket adapters and callbacks.
+ * Segmented ticket-listing result returned by ticket adapters and callbacks.
  */
 export interface SupportTicketListResult {
   /**
@@ -461,11 +461,9 @@ export interface SupportTicketListResult {
 }
 
 /**
- * Ticket-listing response accepted by support flows.
+ * Compatibility alias for segmented ticket-listing results accepted by support flows.
  */
-export type SupportTicketListResponse =
-  | readonly SupportTicket[]
-  | SupportTicketListResult;
+export type SupportTicketListResponse = SupportTicketListResult;
 
 /**
  * Filter shape used when listing live chat sessions for admin queues.
@@ -509,32 +507,32 @@ export interface SupportFlowAdapter {
    * Lists tickets for a customer.
    *
    * @param customer - Customer identity used for the lookup.
-   * @param request - Optional paging metadata for capped backend reads.
+   * @param request - Optional paging metadata for segmented backend reads.
    */
   readonly listCustomerTickets:
     | ((
         customer: SupportUserIdentity,
         request?: SupportTicketListRequest
-      ) => Promise<SupportTicketListResponse>)
+      ) => Promise<SupportTicketListResult>)
     | ((
         customer: SupportUserIdentity,
         request?: SupportTicketListRequest
-      ) => SupportTicketListResponse);
+      ) => SupportTicketListResult);
   /**
    * Lists tickets for an admin queue.
    *
    * @param filter - Filter to apply to the list.
-   * @param request - Optional paging metadata for capped backend reads.
+   * @param request - Optional paging metadata for segmented backend reads.
    */
   readonly listQueue:
     | ((
         filter?: SupportQueueFilter,
         request?: SupportTicketListRequest
-      ) => Promise<SupportTicketListResponse>)
+      ) => Promise<SupportTicketListResult>)
     | ((
         filter?: SupportQueueFilter,
         request?: SupportTicketListRequest
-      ) => SupportTicketListResponse);
+      ) => SupportTicketListResult);
   /**
    * Lists live chat sessions for an admin queue.
    *
@@ -699,13 +697,13 @@ export interface SupportUserFlowCallbacks {
    * Handles list tickets.
    *
    * @param customer - Customer identity used for the lookup.
-   * @param request - Optional paging metadata for capped backend reads.
+   * @param request - Optional paging metadata for segmented backend reads.
    */
   readonly listTickets?:
     | ((
         customer: SupportUserIdentity,
         request?: SupportTicketListRequest
-      ) => MaybePromise<SupportTicketListResponse>)
+      ) => MaybePromise<SupportTicketListResult>)
     | undefined;
   /**
    * Appends a message to a support ticket.
@@ -773,13 +771,13 @@ export interface SupportAdminFlowCallbacks {
    * Lists tickets for an admin queue.
    *
    * @param filter - Filter to apply to the list.
-   * @param request - Optional paging metadata for capped backend reads.
+   * @param request - Optional paging metadata for segmented backend reads.
    */
   readonly listTicketQueue?:
     | ((
         filter?: SupportQueueFilter,
         request?: SupportTicketListRequest
-      ) => MaybePromise<SupportTicketListResponse>)
+      ) => MaybePromise<SupportTicketListResult>)
     | undefined;
   /**
    * Lists live chat sessions for an admin queue.

@@ -1,9 +1,6 @@
 import type { MessageButton } from 'react-actions-chat';
 import type { SupportTicket } from '../../supportFlowTypes';
-import {
-  paginateItems,
-  type SupportPaginationPage,
-} from '../../supportFlowUtils';
+import type { SupportPaginationPage } from '../../supportFlowUtils';
 
 /**
  * Paginated result shape for support admin ticket.
@@ -101,19 +98,4 @@ export function createAdminTicketPage(
     firstVisibleTicketNumber: page.firstVisibleItemNumber,
     lastVisibleTicketNumber: page.lastVisibleItemNumber,
   };
-}
-
-/**
- * Paginates tickets into a bounded page result.
- *
- * @param tickets - Support tickets to sort, paginate, or render.
- * @param pageIndex - Zero-based page index to display.
- * @param pageSize - Optional number of items to show per page.
- */
-export function paginateTickets(
-  tickets: readonly SupportTicket[],
-  pageIndex: number,
-  pageSize?: number
-): SupportAdminTicketPage {
-  return createAdminTicketPage(paginateItems(tickets, pageIndex, pageSize));
 }

@@ -1,9 +1,3 @@
-import type {
-  SupportTicket,
-  SupportTicketListResponse,
-  SupportTicketListResult,
-} from '../supportFlowTypes';
-
 /**
  * Paginated result shape for support pagination.
  */
@@ -82,28 +76,6 @@ interface CreatePaginationPageOptions<TItem> {
    * Whether another page is available after the current page.
    */
   readonly hasMoreItems?: boolean | undefined;
-}
-
-/**
- * Returns whether a ticket listing response includes backend pagination metadata.
- *
- * @param response - Ticket listing response returned by an adapter or callback.
- */
-export function isSupportTicketListResult(
-  response: SupportTicketListResponse
-): response is SupportTicketListResult {
-  return !Array.isArray(response);
-}
-
-/**
- * Returns the tickets contained in either supported ticket-list response shape.
- *
- * @param response - Ticket listing response returned by an adapter or callback.
- */
-export function getSupportTicketListTickets(
-  response: SupportTicketListResponse
-): readonly SupportTicket[] {
-  return isSupportTicketListResult(response) ? response.tickets : response;
 }
 
 /**
