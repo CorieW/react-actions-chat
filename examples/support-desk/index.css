@@ -1,19 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap');
 
 :root {
-  color: #effffb;
+  color: #f4f4f5;
   background:
     radial-gradient(
       circle at top left,
-      rgba(88, 194, 164, 0.14),
+      rgba(139, 92, 246, 0.16),
       transparent 28%
     ),
     radial-gradient(
       circle at 82% 10%,
-      rgba(244, 184, 96, 0.18),
+      rgba(113, 113, 122, 0.18),
       transparent 26%
     ),
-    linear-gradient(180deg, #071417 0%, #091c20 48%, #120b08 100%);
+    linear-gradient(180deg, #050507 0%, #0b0b0f 48%, #18181b 100%);
   font-family: 'Space Grotesk', 'Avenir Next', 'Segoe UI', sans-serif;
 }
 
@@ -65,7 +65,7 @@ code,
 
 .support-desk-demo__sidebar,
 .support-desk-demo__workspace {
-  border: 1px solid rgba(183, 230, 217, 0.14);
+  border: 1px solid rgba(161, 161, 170, 0.16);
   border-radius: 28px;
   backdrop-filter: blur(16px);
   box-shadow:
@@ -81,13 +81,13 @@ code,
   padding: 1.35rem;
   overflow: auto;
   background:
-    linear-gradient(180deg, rgba(9, 26, 30, 0.96), rgba(15, 11, 9, 0.92)),
-    rgba(9, 26, 30, 0.92);
+    linear-gradient(180deg, rgba(18, 18, 22, 0.96), rgba(9, 9, 11, 0.94)),
+    rgba(12, 12, 15, 0.94);
 }
 
 .support-desk-demo__eyebrow {
   margin: 0;
-  color: #72e2c2;
+  color: #a78bfa;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -96,23 +96,23 @@ code,
 
 .support-desk-demo__title {
   margin: 0.3rem 0 0;
-  color: #fff8f1;
+  color: #fafafa;
   font-size: clamp(2rem, 3vw, 2.7rem);
   line-height: 0.96;
 }
 
 .support-desk-demo__description {
   margin: 0;
-  color: rgba(239, 255, 251, 0.78);
+  color: rgba(244, 244, 245, 0.76);
   line-height: 1.65;
 }
 
 .support-desk-demo__description code {
   padding: 0.12rem 0.45rem;
-  border: 1px solid rgba(244, 184, 96, 0.3);
+  border: 1px solid rgba(139, 92, 246, 0.34);
   border-radius: 999px;
-  background: rgba(244, 184, 96, 0.08);
-  color: #ffd49d;
+  background: rgba(139, 92, 246, 0.12);
+  color: #c4b5fd;
   font-size: 0.92em;
 }
 
@@ -121,14 +121,13 @@ code,
   gap: 0.75rem;
 }
 
-.support-desk-demo__view-button,
-.support-desk-demo__reset-button {
+.support-desk-demo__view-button {
   width: 100%;
   padding: 0.9rem 1rem;
-  border: 1px solid rgba(183, 230, 217, 0.18);
+  border: 1px solid rgba(161, 161, 170, 0.2);
   border-radius: 18px;
-  color: #fff7f0;
-  background: rgba(9, 28, 32, 0.72);
+  color: #f4f4f5;
+  background: rgba(24, 24, 27, 0.74);
   text-align: left;
   transition:
     transform 160ms ease,
@@ -136,33 +135,28 @@ code,
     background-color 160ms ease;
 }
 
-.support-desk-demo__view-button:hover,
-.support-desk-demo__reset-button:hover {
+.support-desk-demo__view-button:hover {
   transform: translateY(-1px);
-  border-color: rgba(244, 184, 96, 0.4);
+  border-color: rgba(139, 92, 246, 0.48);
 }
 
 .support-desk-demo__view-button.is-active {
-  border-color: rgba(114, 226, 194, 0.54);
+  border-color: rgba(139, 92, 246, 0.68);
   background:
-    linear-gradient(135deg, rgba(23, 88, 80, 0.88), rgba(19, 44, 49, 0.88)),
-    rgba(19, 44, 49, 0.88);
-}
-
-.support-desk-demo__reset-button {
-  background: rgba(47, 23, 13, 0.72);
+    linear-gradient(135deg, rgba(76, 29, 149, 0.86), rgba(39, 39, 42, 0.88)),
+    rgba(39, 39, 42, 0.88);
 }
 
 .support-desk-demo__panel {
   padding: 1rem;
-  border: 1px solid rgba(183, 230, 217, 0.1);
+  border: 1px solid rgba(161, 161, 170, 0.12);
   border-radius: 22px;
-  background: rgba(9, 28, 32, 0.48);
+  background: rgba(18, 18, 22, 0.58);
 }
 
 .support-desk-demo__panel h2 {
   margin: 0 0 0.75rem;
-  color: #fff8f1;
+  color: #fafafa;
   font-size: 1rem;
 }
 
@@ -177,7 +171,7 @@ code,
 .support-desk-demo__checklist li {
   position: relative;
   padding-left: 1.3rem;
-  color: rgba(239, 255, 251, 0.78);
+  color: rgba(244, 244, 245, 0.76);
   line-height: 1.55;
 }
 
@@ -189,7 +183,7 @@ code,
   width: 0.55rem;
   height: 0.55rem;
   border-radius: 999px;
-  background: linear-gradient(135deg, #72e2c2, #f4b860);
+  background: linear-gradient(135deg, #8b5cf6, #71717a);
 }
 
 .support-desk-demo__workspace {
@@ -201,8 +195,8 @@ code,
   min-width: 0;
   overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(9, 26, 30, 0.52), rgba(18, 11, 8, 0.72)),
-    rgba(9, 26, 30, 0.56);
+    linear-gradient(180deg, rgba(24, 24, 27, 0.5), rgba(9, 9, 11, 0.78)),
+    rgba(18, 18, 22, 0.58);
 }
 
 .support-desk-demo__workspace-header {
@@ -215,7 +209,7 @@ code,
 
 .support-desk-demo__workspace-label {
   margin: 0;
-  color: #f4b860;
+  color: #a78bfa;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -224,7 +218,7 @@ code,
 
 .support-desk-demo__workspace-title {
   margin: 0.35rem 0 0;
-  color: #fff8f1;
+  color: #fafafa;
   font-size: clamp(1.35rem, 2.5vw, 2rem);
   line-height: 1.08;
 }
@@ -238,21 +232,21 @@ code,
 
 .support-desk-demo__pills span {
   padding: 0.45rem 0.7rem;
-  border: 1px solid rgba(183, 230, 217, 0.16);
+  border: 1px solid rgba(161, 161, 170, 0.18);
   border-radius: 999px;
-  color: rgba(239, 255, 251, 0.82);
-  background: rgba(10, 32, 37, 0.76);
+  color: rgba(244, 244, 245, 0.82);
+  background: rgba(24, 24, 27, 0.76);
   font-size: 0.72rem;
 }
 
 .support-desk-demo__chat-frame {
   min-height: 0;
   overflow: hidden;
-  border: 1px solid rgba(183, 230, 217, 0.14);
+  border: 1px solid rgba(161, 161, 170, 0.16);
   border-radius: 24px;
   background:
-    linear-gradient(180deg, rgba(11, 31, 36, 0.78), rgba(16, 11, 9, 0.92)),
-    rgba(11, 31, 36, 0.82);
+    linear-gradient(180deg, rgba(24, 24, 27, 0.78), rgba(5, 5, 7, 0.94)),
+    rgba(12, 12, 15, 0.86);
 }
 
 .support-desk-demo__chat-frame .asc-chat-wrapper,
