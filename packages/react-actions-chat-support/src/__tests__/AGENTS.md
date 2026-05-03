@@ -8,6 +8,7 @@ Automated tests for the support companion package.
 
 ## Files
 
+- `hubspotSupportFlowProvider.test.ts`: Unit tests for the HubSpot support provider request mapping and callback behavior.
 - `supportFlows.test.tsx`: Integration tests for the user and admin support flows, including shared adapter behavior.
 
 ## Writing Rules

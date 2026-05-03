@@ -13,6 +13,7 @@ Published source for the support companion package, including customer/admin flo
 ## Files
 
 - `adminSupportFlow.ts`: Builds the admin-side support queue flow with ticket triage, assignment, reply, live-chat queue review, and resolution actions.
+- `hubspotSupportFlowProvider.ts`: HubSpot CRM ticket-backed callback provider for ticket workflows.
 - `index.ts`: Public export barrel for the support companion package.
 - `memorySupportFlowAdapter.ts`: In-memory support adapter that simulates tickets and live-chat queue state.
 - `supportFlowTypes.ts`: Shared support-domain types and adapter contracts used by both flows.

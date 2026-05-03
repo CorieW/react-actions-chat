@@ -33,6 +33,7 @@
     "src/supportFlowUtils/*.ts",
     "src/memorySupportFlowAdapter.ts",
     "src/memorySupportFlowAdapter/*.ts",
+    "src/hubspotSupportFlowProvider.ts",
     "src/userSupportFlow.ts",
     "src/userFlow/*.ts",
     "src/userFlow/buttons/*.ts",

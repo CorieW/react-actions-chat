@@ -13,6 +13,7 @@ npm install react-actions-chat react-actions-chat-support
 - `createSupportUserFlow`
 - `createSupportAdminFlow`
 - `createInMemorySupportFlowAdapter`
+- `createHubSpotSupportFlowProvider`
 
 The package ships a shared adapter contract plus an in-memory implementation so
 you can prototype ticketing, ticket queue review, live-chat queue review,
@@ -53,3 +54,10 @@ The in-memory adapter is also configurable through factories for ticket
 references, message IDs, live-chat IDs, timestamps, default statuses and
 priorities, customer matching, queue status filters, queue positions, estimated
 wait times, and sorting.
+
+For production ticketing, `createHubSpotSupportFlowProvider` creates HubSpot
+CRM ticket-backed callback sets for both flows. It uses ticket create, read,
+search, and update requests for ticket creation, lookup, customer ticket lists,
+admin queues, replies, status updates, priorities, and owner assignment. It
+returns `userCallbacks` and `adminCallbacks` instead of a full adapter because
+HubSpot tickets do not satisfy this package's live-chat session contract.

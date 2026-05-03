@@ -1,5 +1,22 @@
 export { createInMemorySupportFlowAdapter } from './memorySupportFlowAdapter';
 export {
+  createHubSpotSupportFlowProvider,
+  type HubSpotAssociationInput,
+  type HubSpotCustomerTicketSearchContext,
+  type HubSpotFetchLike,
+  type HubSpotOwnerContext,
+  type HubSpotOwnerLabelContext,
+  type HubSpotSearchFilter,
+  type HubSpotSupportFlowProvider,
+  type HubSpotSupportFlowProviderConfig,
+  type HubSpotTicketAssociationsContext,
+  type HubSpotTicketPriorityMap,
+  type HubSpotTicketPropertiesContext,
+  type HubSpotTicketQueueSearchContext,
+  type HubSpotTicketRecord,
+  type HubSpotTicketStageMap,
+} from './hubspotSupportFlowProvider';
+export {
   createSupportAdminFlow,
   type SupportAdminFlow,
   type SupportAdminFlowBehavior,

@@ -107,6 +107,28 @@ Important options:
 - `sortTickets`
 - `sortLiveChats`
 
+### `createHubSpotSupportFlowProvider(config)`
+
+Creates HubSpot CRM ticket-backed callback sets for the customer and admin
+flows. Use `provider.userCallbacks` with `createSupportUserFlow(...)` and
+`provider.adminCallbacks` with `createSupportAdminFlow(...)`.
+
+Important config fields:
+
+- `accessToken` or `authorization`
+- `baseUrl`
+- `ticketsPath`
+- `pageSize`
+- `pipelineId`
+- `statusStageMap`
+- `priorityMap`
+- `customerEmailPropertyName`
+- `resolveTicketAssociations`
+- `resolveCustomerTicketFilter`
+- `resolveTicketQueueFilters`
+- `resolveOwnerId`
+- `resolveOwnerLabel`
+
 ## Core Types
 
 ### `SupportFlowAdapter`
