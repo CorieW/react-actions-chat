@@ -859,6 +859,145 @@ describe('support flows package', () => {
     ).toBeInTheDocument();
   });
 
+  it('shows loading while a customer ticket list read is pending', async () => {
+    const user = userEvent.setup();
+    const ticket = createQueueTestTicket({
+      reference: 'SUP-3080',
+      priority: 'normal',
+      updatedAt: '2026-04-30T20:00:00Z',
+    });
+    const ticketRead = createDeferred<readonly SupportTicket[]>();
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: (_customer, request) => {
+          return request ? ticketRead.promise : [ticket];
+        },
+      },
+      customer: {
+        id: 'ticket-loading-customer',
+        name: 'Ari Kim',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+
+    expect(
+      await screen.findByRole('status', { name: 'Loading' })
+    ).toBeInTheDocument();
+
+    act(() => {
+      ticketRead.resolve([ticket]);
+    });
+
+    expect(
+      await screen.findByRole('button', { name: ticket.reference })
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('status', { name: 'Loading' })
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it('shows loading while a customer ticket creation is pending', async () => {
+    const user = userEvent.setup();
+    const ticket = createQueueTestTicket({
+      reference: 'SUP-3081',
+      priority: 'normal',
+      updatedAt: '2026-04-30T20:00:00Z',
+    });
+    const ticketCreation = createDeferred<SupportTicket>();
+    const flow = createSupportUserFlow({
+      callbacks: {
+        createTicket: () => ticketCreation.promise,
+      },
+      customer: {
+        id: 'ticket-write-loading-customer',
+        name: 'Ari Kim',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'Start ticket' }));
+    await user.type(
+      screen.getByPlaceholderText(
+        'Our team cannot invite new users after enabling SSO.'
+      ),
+      'Our admins cannot invite new users after enabling SSO in production.'
+    );
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByRole('status', { name: 'Loading' })
+    ).toBeInTheDocument();
+
+    act(() => {
+      ticketCreation.resolve(ticket);
+    });
+
+    expect(
+      await screen.findByRole('heading', { name: /SUP-3081 is open/i })
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('status', { name: 'Loading' })
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it('keeps external loading visible after a customer ticket read finishes', async () => {
+    const user = userEvent.setup();
+    const ticket = createQueueTestTicket({
+      reference: 'SUP-3082',
+      priority: 'normal',
+      updatedAt: '2026-04-30T20:00:00Z',
+    });
+    const ticketRead = createDeferred<readonly SupportTicket[]>();
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: (_customer, request) => {
+          return request ? ticketRead.promise : [ticket];
+        },
+      },
+      customer: {
+        id: 'ticket-loading-owner-customer',
+        name: 'Ari Kim',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+
+    expect(
+      await screen.findByRole('status', { name: 'Loading' })
+    ).toBeInTheDocument();
+
+    act(() => {
+      useChatStore.getState().setLoading(true);
+    });
+    act(() => {
+      ticketRead.resolve([ticket]);
+    });
+
+    expect(
+      await screen.findByRole('button', { name: ticket.reference })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
+
+    act(() => {
+      useChatStore.getState().clearLoading();
+    });
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('status', { name: 'Loading' })
+      ).not.toBeInTheDocument();
+    });
+  });
+
   it('shows every customer ticket when no ticket list limit is configured', async () => {
     const user = userEvent.setup();
     const tickets = [
