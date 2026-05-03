@@ -158,14 +158,31 @@ export function createSupportAdminFlowServices({
     canOpenLiveChatQueue,
   };
 
-  const sortTicketListResponse = (
-    response: SupportTicketListResponse
+  const sortCompleteTicketListResponse = (
+    response: SupportTicketListResponse,
+    request: SupportTicketListRequest | undefined
   ): SupportTicketListResponse => {
-    if (isSupportTicketListResult(response)) {
+    if (!isSupportTicketListResult(response)) {
+      return sortTicketsByAssignment(response);
+    }
+
+    const isPagedResponse =
+      request?.limit !== undefined ||
+      request?.pageSize !== undefined ||
+      (request?.offset ?? 0) > 0 ||
+      response.hasMore === true ||
+      (response.totalTickets !== undefined &&
+        response.tickets.length < response.totalTickets) ||
+      (response.hasMore === undefined && response.nextOffset !== undefined);
+
+    if (isPagedResponse) {
       return response;
     }
 
-    return sortTicketsByAssignment(response);
+    return {
+      ...response,
+      tickets: sortTicketsByAssignment(response.tickets),
+    };
   };
 
   const listTicketQueue = async (
@@ -174,13 +191,17 @@ export function createSupportAdminFlowServices({
   ): Promise<SupportTicketListResponse> => {
     return runWithLoading(async () => {
       if (callbacks.listTicketQueue) {
-        return sortTicketListResponse(
-          await callbacks.listTicketQueue(filter, request)
+        return sortCompleteTicketListResponse(
+          await callbacks.listTicketQueue(filter, request),
+          request
         );
       }
 
       if (adapter?.listQueue) {
-        return sortTicketListResponse(await adapter.listQueue(filter, request));
+        return sortCompleteTicketListResponse(
+          await adapter.listQueue(filter, request),
+          request
+        );
       }
 
       return [];

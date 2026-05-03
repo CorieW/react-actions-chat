@@ -13,8 +13,9 @@ import {
   createPaginationPage,
   createSupportTicketListRequest,
   createListFilterButtons,
-  getSupportTicketListTickets,
   getSupportTicketListNextOffset,
+  getSupportTicketListPageSize,
+  getSupportTicketListTickets,
   hasSupportTicketListNextPage,
   isSupportTicketListResult,
   normalizeReference,
@@ -298,6 +299,10 @@ export function createAdminTicketFlow({
   };
   const ticketPageOffsets = new Map<string, number>();
 
+  const resetTicketPageOffsets = (): void => {
+    ticketPageOffsets.clear();
+  };
+
   const getTicketPageKey = (
     slot: SupportAdminTicketQueueFilterSlot,
     activeFilterId: string | undefined,
@@ -312,6 +317,10 @@ export function createAdminTicketFlow({
     activeFilterId: string | undefined,
     pageSize: number | undefined
   ): SupportTicketListRequest => {
+    if (pageIndex <= 0) {
+      resetTicketPageOffsets();
+    }
+
     const offset =
       pageIndex <= 0
         ? 0
@@ -343,6 +352,22 @@ export function createAdminTicketFlow({
     }
   };
 
+  const updateTicketWithOffsetReset: SupportAdminFlowServices['updateTicket'] =
+    async input => {
+      const ticket = await updateTicket(input);
+      resetTicketPageOffsets();
+
+      return ticket;
+    };
+
+  const appendTicketMessageWithOffsetReset: SupportAdminFlowServices['appendTicketMessage'] =
+    async input => {
+      const ticket = await appendTicketMessage(input);
+      resetTicketPageOffsets();
+
+      return ticket;
+    };
+
   const createTicketButtonEnvironment = () => {
     return {
       agent,
@@ -357,8 +382,8 @@ export function createAdminTicketFlow({
       ticketAssignmentValidation,
       ticketReplyValidation,
       isTicketResolved,
-      updateTicket,
-      appendTicketMessage,
+      updateTicket: updateTicketWithOffsetReset,
+      appendTicketMessage: appendTicketMessageWithOffsetReset,
       addSupportMessage,
       addAbortRecoveryMessage,
       createTicketButtons,
@@ -637,6 +662,7 @@ export function createAdminTicketFlow({
                 labels,
                 pageIndex: 0,
                 showTicketQueue: nextPageIndex => {
+                  resetTicketPageOffsets();
                   void showTicketQueue(nextPageIndex, activeFilter?.id);
                 },
               }),
@@ -654,7 +680,11 @@ export function createAdminTicketFlow({
             createPaginationPage({
               visibleItems: tickets,
               pageIndex,
-              pageSize: ticketResponse.tickets.length || queueLimit,
+              pageSize: getSupportTicketListPageSize(
+                request,
+                queueLimit,
+                ticketResponse.tickets.length
+              ),
               offset: request.offset,
               totalItems: ticketResponse.totalTickets,
               hasMoreItems: hasSupportTicketListNextPage(
@@ -681,8 +711,9 @@ export function createAdminTicketFlow({
       }),
       createRefreshTicketQueueButton({
         labels,
-        pageIndex: page.pageIndex,
+        pageIndex: 0,
         showTicketQueue: nextPageIndex => {
+          resetTicketPageOffsets();
           void showTicketQueue(nextPageIndex, activeFilter?.id);
         },
       }),
@@ -780,6 +811,7 @@ export function createAdminTicketFlow({
               createViewTicketQueueButton({
                 labels,
                 showTicketQueue: () => {
+                  resetTicketPageOffsets();
                   void showTicketQueue();
                 },
               }),
@@ -797,7 +829,11 @@ export function createAdminTicketFlow({
             createPaginationPage({
               visibleItems: tickets,
               pageIndex,
-              pageSize: ticketResponse.tickets.length || assignedWorkLimit,
+              pageSize: getSupportTicketListPageSize(
+                request,
+                assignedWorkLimit,
+                ticketResponse.tickets.length
+              ),
               offset: request.offset,
               totalItems: ticketResponse.totalTickets,
               hasMoreItems: hasSupportTicketListNextPage(
@@ -825,6 +861,7 @@ export function createAdminTicketFlow({
       createViewTicketQueueButton({
         labels,
         showTicketQueue: () => {
+          resetTicketPageOffsets();
           void showTicketQueue();
         },
       }),

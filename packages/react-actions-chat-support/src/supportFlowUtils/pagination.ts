@@ -217,6 +217,23 @@ export function hasSupportTicketListNextPage(
 }
 
 /**
+ * Returns the UI page size requested for a paged ticket response.
+ *
+ * @param request - Ticket-list request that produced the response.
+ * @param fallbackPageSize - Configured UI page size for the current list.
+ * @param visibleItemCount - Number of items returned by the backend response.
+ */
+export function getSupportTicketListPageSize(
+  request: SupportTicketListRequest,
+  fallbackPageSize: number | undefined,
+  visibleItemCount: number
+): number {
+  return (
+    request.pageSize ?? request.limit ?? fallbackPageSize ?? visibleItemCount
+  );
+}
+
+/**
  * Normalizes a requested page size into a positive integer.
  *
  * @param pageSize - Optional page size requested by the flow or backend.
@@ -283,7 +300,7 @@ export function createPaginationPage<TItem>({
 }
 
 /**
- * Collects all backend pages required to apply a local ticket predicate exactly.
+ * Collects only the backend pages needed to apply a local ticket predicate for one UI page.
  *
  * @param options - Options used to fetch, filter, and paginate tickets.
  */
@@ -293,6 +310,98 @@ export async function collectFilteredSupportTicketListPage({
   listTickets,
   filterTickets,
 }: CollectFilteredSupportTicketListOptions): Promise<FilteredSupportTicketListPage> {
+  if (pageSize === undefined) {
+    const filteredTickets = await collectAllFilteredSupportTickets({
+      listTickets,
+      filterTickets,
+      pageSize,
+    });
+
+    return {
+      tickets: filteredTickets,
+      page: paginateItems(filteredTickets, pageIndex, pageSize),
+    };
+  }
+
+  const safePageIndex = Math.max(0, Math.floor(pageIndex));
+  const safePageSize = normalizePageSize(pageSize, 1);
+  const firstVisibleItemIndex = safePageIndex * safePageSize;
+  const visibleItemLimit = firstVisibleItemIndex + safePageSize;
+  const collectedItemLimit = visibleItemLimit + 1;
+  const filteredTickets: SupportTicket[] = [];
+  const seenOffsets = new Set<number>();
+  let backendPageIndex = 0;
+  let offset = 0;
+  let exhausted = false;
+
+  while (
+    !seenOffsets.has(offset) &&
+    filteredTickets.length < collectedItemLimit
+  ) {
+    seenOffsets.add(offset);
+
+    const request = createSupportTicketListRequest(
+      backendPageIndex,
+      offset,
+      safePageSize
+    );
+    const response = await listTickets(request);
+    filteredTickets.push(
+      ...filterTickets(getSupportTicketListTickets(response))
+    );
+
+    if (!isSupportTicketListResult(response)) {
+      exhausted = true;
+      break;
+    }
+
+    const nextOffset = getSupportTicketListNextOffset(request, response);
+
+    if (nextOffset === undefined) {
+      exhausted = true;
+      break;
+    }
+
+    offset = nextOffset;
+    backendPageIndex += 1;
+  }
+
+  if (exhausted) {
+    return {
+      tickets: filteredTickets,
+      page: paginateItems(filteredTickets, safePageIndex, safePageSize),
+    };
+  }
+
+  const visibleItems = filteredTickets.slice(
+    firstVisibleItemIndex,
+    visibleItemLimit
+  );
+
+  return {
+    tickets: filteredTickets.slice(0, visibleItemLimit),
+    page: createPaginationPage({
+      visibleItems,
+      pageIndex: safePageIndex,
+      pageSize: safePageSize,
+      offset: firstVisibleItemIndex,
+      hasMoreItems: filteredTickets.length > visibleItemLimit,
+    }),
+  };
+}
+
+/**
+ * Collects every backend page so unlimited filtered views can show all matches.
+ *
+ * @param options - Options used to fetch and filter tickets.
+ */
+async function collectAllFilteredSupportTickets({
+  pageSize,
+  listTickets,
+  filterTickets,
+}: Omit<CollectFilteredSupportTicketListOptions, 'pageIndex'>): Promise<
+  readonly SupportTicket[]
+> {
   const filteredTickets: SupportTicket[] = [];
   const seenOffsets = new Set<number>();
   let backendPageIndex = 0;
@@ -325,10 +434,7 @@ export async function collectFilteredSupportTicketListPage({
     backendPageIndex += 1;
   }
 
-  return {
-    tickets: filteredTickets,
-    page: paginateItems(filteredTickets, pageIndex, pageSize),
-  };
+  return filteredTickets;
 }
 
 /**

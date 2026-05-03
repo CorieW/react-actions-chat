@@ -10,9 +10,10 @@ import {
   collectFilteredSupportTicketListPage,
   createPaginationPage,
   createSupportTicketListRequest,
-  getSupportTicketListTickets,
   createListFilterButtons,
   getSupportTicketListNextOffset,
+  getSupportTicketListPageSize,
+  getSupportTicketListTickets,
   hasSupportTicketListNextPage,
   isSupportTicketListResult,
   normalizeReference,
@@ -257,6 +258,10 @@ export function createUserTicketFlow({
 }: CreateUserTicketFlowOptions): UserTicketFlow {
   const ticketListPageOffsets = new Map<string, number>();
 
+  const resetTicketListPageOffsets = (): void => {
+    ticketListPageOffsets.clear();
+  };
+
   const getTicketListPageKey = (
     activeFilterId: string | undefined,
     pageIndex: number
@@ -268,6 +273,10 @@ export function createUserTicketFlow({
     pageIndex: number,
     activeFilterId: string | undefined
   ): SupportTicketListRequest => {
+    if (pageIndex <= 0) {
+      resetTicketListPageOffsets();
+    }
+
     const offset =
       pageIndex <= 0
         ? 0
@@ -298,6 +307,22 @@ export function createUserTicketFlow({
     }
   };
 
+  const createTicketWithOffsetReset: SupportUserFlowServices['createTicket'] =
+    async input => {
+      const ticket = await createTicket(input);
+      resetTicketListPageOffsets();
+
+      return ticket;
+    };
+
+  const appendTicketMessageWithOffsetReset: SupportUserFlowServices['appendTicketMessage'] =
+    async input => {
+      const ticket = await appendTicketMessage(input);
+      resetTicketListPageOffsets();
+
+      return ticket;
+    };
+
   const createTicketButtonEnvironment = () => {
     return {
       customer,
@@ -307,8 +332,8 @@ export function createUserTicketFlow({
       requestInputs: config.requestInputs,
       ticketSummaryValidation,
       ticketDetailValidation,
-      createTicket,
-      appendTicketMessage,
+      createTicket: createTicketWithOffsetReset,
+      appendTicketMessage: appendTicketMessageWithOffsetReset,
       addSupportMessage,
       addAbortRecoveryMessage,
       createTicketButtons,
@@ -338,6 +363,7 @@ export function createUserTicketFlow({
         void showFullActivity(reference);
       },
       showMyTickets: () => {
+        resetTicketListPageOffsets();
         void showMyTickets();
       },
       customizeButtons,
@@ -457,7 +483,11 @@ export function createUserTicketFlow({
         ? createPaginationPage({
             visibleItems: tickets,
             pageIndex,
-            pageSize: ticketResponse.tickets.length || ticketListLimit,
+            pageSize: getSupportTicketListPageSize(
+              request,
+              ticketListLimit,
+              ticketResponse.tickets.length
+            ),
             offset: request.offset,
             totalItems: ticketResponse.totalTickets,
             hasMoreItems: hasSupportTicketListNextPage(request, ticketResponse),
@@ -519,6 +549,7 @@ export function createUserTicketFlow({
     return createViewTicketsButton({
       labels,
       showMyTickets: () => {
+        resetTicketListPageOffsets();
         void showMyTickets();
       },
     });
