@@ -78,7 +78,7 @@ Make sure you have Node.js and `pnpm` available. If needed, run `corepack enable
 
 6. If you are running the `uploads` example, the chat starts with action buttons that enable the upload control only while an active request-input flow is collecting screenshots or documents.
 
-7. If you are running the `support-desk` example, the workspace starts with seeded tickets for both the customer and admin views. Create a new ticket in the customer inbox, then switch to the admin console to work the same issue from the shared in-memory queue.
+7. If you are running the `support-desk` example, the workspace starts with paginated seeded tickets and live chats for the customer and admin views. Create a new ticket in the customer inbox, then switch to the admin console to work the same issue from the shared in-memory queue.
 
 8. If you are running the `settings` example, create `examples/settings/.env.local` with a real OpenAI API key:
 

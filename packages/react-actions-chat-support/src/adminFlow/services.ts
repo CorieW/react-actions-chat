@@ -7,9 +7,12 @@ import type {
   SupportLiveChatSession,
   SupportQueueFilter,
   SupportTicket,
+  SupportTicketListRequest,
+  SupportTicketListResponse,
   UpdateSupportLiveChatInput,
   UpdateSupportTicketInput,
 } from '../supportFlowTypes';
+import { isSupportTicketListResult } from '../supportFlowUtils';
 import { sortTicketsByAssignment } from './tickets/queue';
 import type { SupportAdminFlowCapabilities } from './types';
 
@@ -25,6 +28,14 @@ interface CreateSupportAdminFlowServicesOptions {
    * Callback-backed service implementations provided by the consumer.
    */
   readonly callbacks: SupportAdminFlowCallbacks;
+  /**
+   * Runs async support operations with delayed loading indicator handling.
+   *
+   * @param operation - Async operation to run.
+   */
+  readonly runWithLoading: <TResult>(
+    operation: () => Promise<TResult>
+  ) => Promise<TResult>;
 }
 
 /**
@@ -41,8 +52,9 @@ export interface SupportAdminFlowServices {
    * @param filter - Filter to apply to the list.
    */
   readonly listTicketQueue: (
-    filter?: SupportQueueFilter
-  ) => Promise<readonly SupportTicket[]>;
+    filter?: SupportQueueFilter,
+    request?: SupportTicketListRequest
+  ) => Promise<SupportTicketListResponse>;
   /**
    * Lists live chat sessions for an admin queue.
    *
@@ -107,6 +119,7 @@ export interface SupportAdminFlowServices {
 export function createSupportAdminFlowServices({
   adapter,
   callbacks,
+  runWithLoading,
 }: CreateSupportAdminFlowServicesOptions): SupportAdminFlowServices {
   const canListTicketQueue = Boolean(
     callbacks.listTicketQueue ?? adapter?.listQueue
@@ -145,116 +158,148 @@ export function createSupportAdminFlowServices({
     canOpenLiveChatQueue,
   };
 
+  const sortTicketListResponse = (
+    response: SupportTicketListResponse
+  ): SupportTicketListResponse => {
+    if (isSupportTicketListResult(response)) {
+      return {
+        ...response,
+        tickets: sortTicketsByAssignment(response.tickets),
+      };
+    }
+
+    return sortTicketsByAssignment(response);
+  };
+
   const listTicketQueue = async (
-    filter?: SupportQueueFilter
-  ): Promise<readonly SupportTicket[]> => {
-    if (callbacks.listTicketQueue) {
-      return sortTicketsByAssignment(await callbacks.listTicketQueue(filter));
-    }
+    filter?: SupportQueueFilter,
+    request?: SupportTicketListRequest
+  ): Promise<SupportTicketListResponse> => {
+    return runWithLoading(async () => {
+      if (callbacks.listTicketQueue) {
+        return sortTicketListResponse(
+          await callbacks.listTicketQueue(filter, request)
+        );
+      }
 
-    if (adapter?.listQueue) {
-      return sortTicketsByAssignment(await adapter.listQueue(filter));
-    }
+      if (adapter?.listQueue) {
+        return sortTicketListResponse(await adapter.listQueue(filter, request));
+      }
 
-    return [];
+      return [];
+    });
   };
 
   const listLiveChatQueue = async (
     filter?: SupportLiveChatQueueFilter
   ): Promise<readonly SupportLiveChatSession[]> => {
-    if (callbacks.listLiveChatQueue) {
-      return callbacks.listLiveChatQueue(filter);
-    }
+    return runWithLoading(async () => {
+      if (callbacks.listLiveChatQueue) {
+        return callbacks.listLiveChatQueue(filter);
+      }
 
-    if (adapter?.listLiveChatQueue) {
-      return adapter.listLiveChatQueue(filter);
-    }
+      if (adapter?.listLiveChatQueue) {
+        return adapter.listLiveChatQueue(filter);
+      }
 
-    return [];
+      return [];
+    });
   };
 
   const getTicket = async (
     reference: string
   ): Promise<SupportTicket | null> => {
-    if (callbacks.getTicket) {
-      return callbacks.getTicket(reference);
-    }
+    return runWithLoading(async () => {
+      if (callbacks.getTicket) {
+        return callbacks.getTicket(reference);
+      }
 
-    if (adapter?.getTicketByReference) {
-      return adapter.getTicketByReference(reference);
-    }
+      if (adapter?.getTicketByReference) {
+        return adapter.getTicketByReference(reference);
+      }
 
-    return null;
+      return null;
+    });
   };
 
   const updateTicket = async (
     input: UpdateSupportTicketInput
   ): Promise<SupportTicket> => {
-    if (callbacks.updateTicket) {
-      return callbacks.updateTicket(input);
-    }
+    return runWithLoading(async () => {
+      if (callbacks.updateTicket) {
+        return callbacks.updateTicket(input);
+      }
 
-    if (adapter?.updateTicket) {
-      return adapter.updateTicket(input);
-    }
+      if (adapter?.updateTicket) {
+        return adapter.updateTicket(input);
+      }
 
-    throw new Error('No support ticket update callback was provided.');
+      throw new Error('No support ticket update callback was provided.');
+    });
   };
 
   const appendTicketMessage = async (
     input: AppendSupportTicketMessageInput
   ): Promise<SupportTicket> => {
-    if (callbacks.appendTicketMessage) {
-      return callbacks.appendTicketMessage(input);
-    }
+    return runWithLoading(async () => {
+      if (callbacks.appendTicketMessage) {
+        return callbacks.appendTicketMessage(input);
+      }
 
-    if (adapter?.appendTicketMessage) {
-      return adapter.appendTicketMessage(input);
-    }
+      if (adapter?.appendTicketMessage) {
+        return adapter.appendTicketMessage(input);
+      }
 
-    throw new Error('No support ticket message callback was provided.');
+      throw new Error('No support ticket message callback was provided.');
+    });
   };
 
   const getLiveChat = async (
     sessionId: string
   ): Promise<SupportLiveChatSession | null> => {
-    if (callbacks.getLiveChat) {
-      return callbacks.getLiveChat(sessionId);
-    }
+    return runWithLoading(async () => {
+      if (callbacks.getLiveChat) {
+        return callbacks.getLiveChat(sessionId);
+      }
 
-    if (adapter?.getLiveChatById) {
-      return adapter.getLiveChatById(sessionId);
-    }
+      if (adapter?.getLiveChatById) {
+        return adapter.getLiveChatById(sessionId);
+      }
 
-    return null;
+      return null;
+    });
   };
 
   const updateLiveChat = async (
     input: UpdateSupportLiveChatInput
   ): Promise<SupportLiveChatSession> => {
-    if (callbacks.updateLiveChat) {
-      return callbacks.updateLiveChat(input);
-    }
+    return runWithLoading(async () => {
+      if (callbacks.updateLiveChat) {
+        return callbacks.updateLiveChat(input);
+      }
 
-    if (adapter?.updateLiveChat) {
-      return adapter.updateLiveChat(input);
-    }
+      if (adapter?.updateLiveChat) {
+        return adapter.updateLiveChat(input);
+      }
 
-    throw new Error('No live chat update callback was provided.');
+      throw new Error('No live chat update callback was provided.');
+    });
   };
 
   const appendLiveChatMessage = async (
     input: AppendSupportLiveChatMessageInput
   ): Promise<SupportLiveChatSession> => {
-    if (callbacks.appendLiveChatMessage) {
-      return callbacks.appendLiveChatMessage(input);
-    }
+    return runWithLoading(async () => {
+      if (callbacks.appendLiveChatMessage) {
+        return callbacks.appendLiveChatMessage(input);
+      }
 
-    if (adapter?.appendLiveChatMessage) {
-      return adapter.appendLiveChatMessage(input);
-    }
+      if (adapter?.appendLiveChatMessage) {
+        return adapter.appendLiveChatMessage(input);
+      }
 
-    throw new Error('No live chat message callback was provided.');
+      throw new Error('No live chat message callback was provided.');
+    });
   };
 
   return {

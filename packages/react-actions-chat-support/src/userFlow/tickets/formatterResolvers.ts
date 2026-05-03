@@ -129,6 +129,8 @@ export function createUserTicketFormatters({
         pageCount: page.pageCount,
         pageSize: page.pageSize,
         totalTickets: page.totalItems,
+        hasMoreTickets: page.hasMoreItems,
+        isTotalTicketsExact: page.isTotalItemsExact,
         activeFilterId: filterState?.activeFilter?.id,
         activeFilterLabel: filterState?.activeFilter?.label,
         filterOptions: filterState?.filterOptions,

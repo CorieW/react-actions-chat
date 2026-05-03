@@ -2,10 +2,15 @@ import type { MessageButton } from 'react-actions-chat';
 import type {
   SupportInputValidationSettings,
   SupportTicket,
+  SupportTicketListRequest,
+  SupportTicketListResult,
   SupportUserIdentity,
 } from '../../supportFlowTypes';
 import {
+  createPaginationPage,
+  getSupportTicketListTickets,
   createListFilterButtons,
+  isSupportTicketListResult,
   normalizeReference,
   paginateItems,
   resolveActiveListFilter,
@@ -246,6 +251,53 @@ export function createUserTicketFlow({
   createBackToSupportOptionsButton,
   customizeButtons,
 }: CreateUserTicketFlowOptions): UserTicketFlow {
+  const ticketListPageOffsets = new Map<string, number>();
+
+  const getTicketListPageKey = (
+    activeFilterId: string | undefined,
+    pageIndex: number
+  ): string => {
+    return `${activeFilterId ?? 'all'}:${pageIndex}`;
+  };
+
+  const createTicketListRequest = (
+    pageIndex: number,
+    activeFilterId: string | undefined
+  ): SupportTicketListRequest => {
+    const offset =
+      pageIndex <= 0
+        ? 0
+        : (ticketListPageOffsets.get(
+            getTicketListPageKey(activeFilterId, pageIndex)
+          ) ?? pageIndex * (ticketListLimit ?? 0));
+
+    return {
+      pageIndex,
+      offset,
+      ...(ticketListLimit !== undefined
+        ? { pageSize: ticketListLimit, limit: ticketListLimit }
+        : {}),
+    };
+  };
+
+  const rememberTicketListPage = (
+    activeFilterId: string | undefined,
+    request: SupportTicketListRequest,
+    result: SupportTicketListResult
+  ): void => {
+    ticketListPageOffsets.set(
+      getTicketListPageKey(activeFilterId, request.pageIndex),
+      request.offset
+    );
+
+    if (result.hasMore ?? result.totalTickets !== undefined) {
+      ticketListPageOffsets.set(
+        getTicketListPageKey(activeFilterId, request.pageIndex + 1),
+        result.nextOffset ?? request.offset + result.tickets.length
+      );
+    }
+  };
+
   const createTicketButtonEnvironment = () => {
     return {
       customer,
@@ -360,8 +412,11 @@ export function createUserTicketFlow({
       },
     });
     const isFiltered = Boolean(activeFilter?.predicate);
+    const request = createTicketListRequest(pageIndex, activeFilter?.id);
+    const ticketResponse = await listTickets(request);
+    const isPagedResponse = isSupportTicketListResult(ticketResponse);
     const tickets = applyTicketFilterPredicate(
-      await listTickets(),
+      getSupportTicketListTickets(ticketResponse),
       activeFilter,
       filterContext
     );
@@ -382,7 +437,21 @@ export function createUserTicketFlow({
       return;
     }
 
-    const page = paginateItems(tickets, pageIndex, ticketListLimit);
+    const page = isPagedResponse
+      ? createPaginationPage({
+          visibleItems: tickets,
+          pageIndex,
+          pageSize: ticketResponse.tickets.length || ticketListLimit,
+          offset: request.offset,
+          totalItems: ticketResponse.totalTickets,
+          hasMoreItems: ticketResponse.hasMore,
+        })
+      : paginateItems(tickets, pageIndex, ticketListLimit);
+
+    if (isPagedResponse) {
+      rememberTicketListPage(activeFilter?.id, request, ticketResponse);
+    }
+
     const visibleTickets = page.visibleItems;
     const defaultButtons = [
       ...filterButtons,
@@ -417,6 +486,8 @@ export function createUserTicketFlow({
         pageCount: page.pageCount,
         pageSize: page.pageSize,
         totalTickets: page.totalItems,
+        hasMoreTickets: page.hasMoreItems,
+        isTotalTicketsExact: page.isTotalItemsExact,
         activeFilterId: activeFilter?.id,
         activeFilterLabel: activeFilter?.label,
         filterOptions,

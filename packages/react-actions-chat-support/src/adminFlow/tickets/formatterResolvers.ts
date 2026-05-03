@@ -127,6 +127,8 @@ export function createAdminTicketFormatters({
         pageCount: page.pageCount,
         pageSize: page.pageSize,
         totalTickets: page.totalTickets,
+        hasMoreTickets: page.hasMoreTickets,
+        isTotalTicketsExact: page.isTotalTicketsExact,
         activeFilterId: filterState?.activeFilter?.id,
         activeFilterLabel: filterState?.activeFilter?.label,
         filterOptions: filterState?.filterOptions,

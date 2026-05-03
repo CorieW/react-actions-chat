@@ -122,9 +122,9 @@ function createAsyncSupportFlowAdapter(
     createTicket: async input => adapter.createTicket(input),
     getTicketByReference: async reference =>
       adapter.getTicketByReference(reference),
-    listCustomerTickets: async customer =>
-      adapter.listCustomerTickets(customer),
-    listQueue: async filter => adapter.listQueue(filter),
+    listCustomerTickets: async (customer, request) =>
+      adapter.listCustomerTickets(customer, request),
+    listQueue: async (filter, request) => adapter.listQueue(filter, request),
     listLiveChatQueue: async filter => adapter.listLiveChatQueue(filter),
     getLiveChatById: async sessionId => adapter.getLiveChatById(sessionId),
     listCustomerLiveChats: async customer =>
@@ -242,6 +242,37 @@ function createQueueTestLiveChat({
         createdAt,
       },
     ],
+  };
+}
+
+/**
+ * Deferred promise helper used to hold async support operations open.
+ */
+interface Deferred<TResult> {
+  /**
+   * Promise exposed to the async operation under test.
+   */
+  readonly promise: Promise<TResult>;
+  /**
+   * Resolves the pending promise with a result value.
+   *
+   * @param value - Result passed back to the waiting operation.
+   */
+  readonly resolve: (value: TResult | PromiseLike<TResult>) => void;
+}
+
+/**
+ * Creates a promise that tests can resolve after asserting pending UI state.
+ */
+function createDeferred<TResult>(): Deferred<TResult> {
+  let resolve: (value: TResult | PromiseLike<TResult>) => void = () => {};
+  const promise = new Promise<TResult>(nextResolve => {
+    resolve = nextResolve;
+  });
+
+  return {
+    promise,
+    resolve,
   };
 }
 
@@ -602,6 +633,88 @@ describe('support flows package', () => {
     expect(getLatestButton('SUP-3002')).toBeInTheDocument();
     expect(getLatestButton('SUP-3003')).toBeInTheDocument();
   });
+
+  it('paginates customer ticket lists returned in backend-limited pages', async () => {
+    const user = userEvent.setup();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-3050',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3051',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3052',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3053',
+        priority: 'normal',
+        updatedAt: '2026-04-30T17:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3054',
+        priority: 'normal',
+        updatedAt: '2026-04-30T16:00:00Z',
+      }),
+    ];
+    const requestedOffsets: number[] = [];
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: (_customer, request) => {
+          const offset = request?.offset ?? 0;
+
+          if (request) {
+            requestedOffsets.push(offset);
+          }
+
+          return {
+            tickets: tickets.slice(offset, offset + 2),
+            totalTickets: tickets.length,
+          };
+        },
+      },
+      customer: {
+        id: 'ticket-backend-page-customer',
+        name: 'Ari Kim',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 1-2 of 5/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-3050' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-3051' })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 3-4 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-3052')).toBeInTheDocument();
+    expect(getLatestButton('SUP-3053')).toBeInTheDocument();
+
+    await user.click(getLatestButton('Next tickets'));
+
+    expect(
+      await screen.findByText(/Showing tickets 5-5 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-3054')).toBeInTheDocument();
+    expect(requestedOffsets).toEqual([0, 2, 4]);
+  }, 10000);
 
   it('shows every customer ticket when no ticket list limit is configured', async () => {
     const user = userEvent.setup();
@@ -1140,8 +1253,11 @@ describe('support flows package', () => {
     });
 
     const queue = await adapter.listQueue();
+    const queueTickets: readonly SupportTicket[] = Array.isArray(queue)
+      ? queue
+      : (queue as { readonly tickets: readonly SupportTicket[] }).tickets;
 
-    expect(queue.map(ticket => ticket.reference)).toEqual([
+    expect(queueTickets.map(ticket => ticket.reference)).toEqual([
       'SUP-1001',
       'SUP-1002',
       'SUP-1000',
@@ -1423,6 +1539,132 @@ describe('support flows package', () => {
 
     expect(getLatestButton('SUP-1002')).toBeInTheDocument();
     expect(getLatestButton('SUP-1003')).toBeInTheDocument();
+  });
+
+  it('paginates admin ticket queues returned in backend-limited pages', async () => {
+    const user = userEvent.setup();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-1050',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1051',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1052',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1053',
+        priority: 'normal',
+        updatedAt: '2026-04-30T17:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1054',
+        priority: 'normal',
+        updatedAt: '2026-04-30T16:00:00Z',
+      }),
+    ];
+    const requestedOffsets: number[] = [];
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: (_filter, request) => {
+          const offset = request?.offset ?? 0;
+
+          if (request) {
+            requestedOffsets.push(offset);
+          }
+
+          return {
+            tickets: tickets.slice(offset, offset + 2),
+            totalTickets: tickets.length,
+          };
+        },
+        getTicket: reference => {
+          return tickets.find(ticket => ticket.reference === reference) ?? null;
+        },
+      },
+      agent: {
+        id: 'queue-backend-page-agent',
+        name: 'Priya Admin',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 1-2 of 5/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-1050' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-1051' })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 3-4 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-1052')).toBeInTheDocument();
+    expect(getLatestButton('SUP-1053')).toBeInTheDocument();
+
+    await user.click(getLatestButton('Next tickets'));
+
+    expect(
+      await screen.findByText(/Showing tickets 5-5 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-1054')).toBeInTheDocument();
+    expect(requestedOffsets).toEqual([0, 2, 4]);
+  });
+
+  it('shows loading while an admin ticket queue database read is pending', async () => {
+    const user = userEvent.setup();
+    const ticket = createQueueTestTicket({
+      reference: 'SUP-1060',
+      priority: 'normal',
+      updatedAt: '2026-04-30T20:00:00Z',
+    });
+    const queueRead = createDeferred<readonly SupportTicket[]>();
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: () => queueRead.promise,
+        getTicket: reference => {
+          return reference === ticket.reference ? ticket : null;
+        },
+      },
+      agent: {
+        id: 'queue-loading-agent',
+        name: 'Priya Admin',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+
+    expect(
+      await screen.findByRole('status', { name: 'Loading' })
+    ).toBeInTheDocument();
+
+    queueRead.resolve([ticket]);
+
+    expect(
+      await screen.findByRole('button', { name: ticket.reference })
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('status', { name: 'Loading' })
+      ).not.toBeInTheDocument();
+    });
   });
 
   it('paginates admin assigned work beyond the configured limit', async () => {

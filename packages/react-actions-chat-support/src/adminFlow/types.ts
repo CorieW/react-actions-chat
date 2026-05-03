@@ -354,6 +354,14 @@ export interface SupportAdminTicketsFormatterContext extends SupportAdminFormatt
    */
   readonly totalTickets?: number | undefined;
   /**
+   * Whether another ticket page is available after the current page.
+   */
+  readonly hasMoreTickets?: boolean | undefined;
+  /**
+   * Whether totalTickets is the exact total rather than a lower bound.
+   */
+  readonly isTotalTicketsExact?: boolean | undefined;
+  /**
    * Identifier for the currently selected filter option.
    */
   readonly activeFilterId?: string | undefined;
@@ -862,6 +870,14 @@ export interface SupportAdminFlowButtonContext {
    * Total number of support tickets before pagination.
    */
   readonly totalTickets?: number | undefined;
+  /**
+   * Whether another ticket page is available after the current page.
+   */
+  readonly hasMoreTickets?: boolean | undefined;
+  /**
+   * Whether totalTickets is the exact total rather than a lower bound.
+   */
+  readonly isTotalTicketsExact?: boolean | undefined;
   /**
    * Identifier for the currently selected filter option.
    */

@@ -5,7 +5,10 @@ import {
   type MessageButton,
   useChatStore,
 } from 'react-actions-chat';
-import { deriveAgentLabel } from '../supportFlowUtils';
+import {
+  createSupportLoadingController,
+  deriveAgentLabel,
+} from '../supportFlowUtils';
 import {
   createBackToAdminOptionsButton as createBackToAdminOptionsButtonBase,
   createRefreshLiveChatButton as createRefreshLiveChatButtonBase,
@@ -53,6 +56,7 @@ export function createSupportAdminFlow(
   const transcriptLimit = behavior.transcriptLimit;
   const priorityOrder = behavior.priorityOrder ?? DEFAULT_PRIORITY_ORDER;
   const statusTransitions = behavior.statusTransitions ?? {};
+  const loadingController = createSupportLoadingController();
   const {
     capabilities,
     listTicketQueue,
@@ -66,6 +70,7 @@ export function createSupportAdminFlow(
   } = createSupportAdminFlowServices({
     adapter,
     callbacks,
+    runWithLoading: loadingController.runWithLoading,
   });
   const {
     canListTicketQueue,

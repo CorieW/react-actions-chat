@@ -5,7 +5,11 @@ import {
   type MessageButton,
   useChatStore,
 } from 'react-actions-chat';
-import { isOpenLiveChat } from '../supportFlowUtils';
+import {
+  createSupportLoadingController,
+  getSupportTicketListTickets,
+  isOpenLiveChat,
+} from '../supportFlowUtils';
 import {
   createBackToSupportOptionsButton as createBackToSupportOptionsButtonBase,
   createRefreshLiveChatButton as createRefreshLiveChatButtonBase,
@@ -74,6 +78,7 @@ export function createSupportUserFlow(
   const liveChatInitialMessageValidation =
     validation.liveChatInitialMessage ?? {};
   const liveChatMessageValidation = validation.liveChatMessage ?? {};
+  const loadingController = createSupportLoadingController();
 
   const {
     canCreateTicket,
@@ -96,6 +101,7 @@ export function createSupportUserFlow(
     callbacks,
     customer,
     isOpenLiveChat: behavior.isOpenLiveChat ?? isOpenLiveChat,
+    runWithLoading: loadingController.runWithLoading,
   });
 
   const customizeButtons = (
@@ -132,7 +138,9 @@ export function createSupportUserFlow(
   };
 
   const showInitialOptions = async (): Promise<void> => {
-    const tickets = canListTickets ? await listTickets() : [];
+    const tickets = canListTickets
+      ? getSupportTicketListTickets(await listTickets())
+      : [];
     addSupportMessage(openingMessage, createPrimaryButtons(tickets, false));
   };
 

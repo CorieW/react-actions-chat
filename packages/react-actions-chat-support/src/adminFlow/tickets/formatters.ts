@@ -18,11 +18,15 @@ export function formatQueueSummary(
   tickets: readonly SupportTicket[],
   page: SupportAdminTicketPage
 ): string {
+  const totalText = page.isTotalTicketsExact
+    ? `${page.totalTickets}`
+    : `at least ${page.totalTickets}`;
+
   return joinMarkdownLines([
     '## Ticket queue',
     '',
     page.pageCount > 1
-      ? `_Showing tickets ${page.firstVisibleTicketNumber}-${page.lastVisibleTicketNumber} of ${page.totalTickets}._`
+      ? `_Showing tickets ${page.firstVisibleTicketNumber}-${page.lastVisibleTicketNumber} of ${totalText}._`
       : undefined,
     '',
     ...tickets.map(ticket => {

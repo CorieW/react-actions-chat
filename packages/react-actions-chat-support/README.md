@@ -26,6 +26,8 @@ and expose persistent end-chat actions. Admin flows let agents join live chats,
 reply through the shared input, and inject persistent live-chat actions. Ticket
 review stays focused on ticket triage: assign to yourself or a named agent,
 raise priority, reply, inspect activity, resolve, or return to admin options.
+Async adapter and callback operations use the core chat loading indicator when
+database reads or writes stay pending long enough to need feedback.
 
 Both user and admin flows are designed to be extended instead of forked. Host
 applications can pass:
@@ -40,6 +42,8 @@ applications can pass:
 - `filterOptions` to add optional, configurable filter buttons for admin
   ticket queues, admin assigned work, admin live-chat queues, and customer
   ticket lists using backend filters, local predicates, or both
+- paged ticket-list responses so customer ticket lists and admin queues can
+  keep fetching when a backend returns only part of a larger result set
 - `behavior` to adjust queue limits, recent-activity limits, live-chat
   send/open predicates, priority order, status transitions, queue button
   variants, assigned-work filters, and live-chat requeue math

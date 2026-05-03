@@ -9,6 +9,7 @@ Runnable support-desk demo that showcases the customer and admin flows from `rea
 ## Files
 
 - `App.tsx`: Main example UI and role-switching demo logic for the support-desk example.
+- `fakeSupportDatabase.ts`: Limited fake database adapter that adds read/write latency and capped ticket pages for the support-desk example.
 - `index.css`: Example-specific styling for the support-desk demo shell and layout.
 - `index.html`: Vite HTML entry point for the support-desk example.
 - `main.tsx`: React bootstrap for the support-desk example.
