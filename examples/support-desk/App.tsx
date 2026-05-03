@@ -96,7 +96,7 @@ function resetChatStores(): void {
 
 export function App(): React.JSX.Element {
   const [activeView, setActiveView] = useState<DemoView>('customer');
-  const [adapter] = useState(() => createDemoSupportAdapter());
+  const [adapter, setAdapter] = useState(() => createDemoSupportAdapter());
   const [chatInstance, setChatInstance] = useState(0);
 
   const flow =
@@ -129,6 +129,12 @@ export function App(): React.JSX.Element {
 
     remountChat(() => {
       setActiveView(nextView);
+    });
+  }
+
+  function resetWorkspace(): void {
+    remountChat(() => {
+      setAdapter(createDemoSupportAdapter());
     });
   }
 
@@ -203,13 +209,25 @@ export function App(): React.JSX.Element {
               </h2>
             </div>
             <div
-              className='support-desk-demo__pills'
-              aria-label='Demo highlights'
+              className='support-desk-demo__workspace-actions'
+              aria-label='Workspace actions'
             >
-              <span>Shared adapter</span>
-              <span>Limited fake DB</span>
-              <span>Ticketing</span>
-              <span>Live chat</span>
+              <div
+                className='support-desk-demo__pills'
+                aria-label='Demo highlights'
+              >
+                <span>Shared adapter</span>
+                <span>Limited fake DB</span>
+                <span>Ticketing</span>
+                <span>Live chat</span>
+              </div>
+              <button
+                type='button'
+                className='support-desk-demo__reset-button'
+                onClick={resetWorkspace}
+              >
+                Reset workspace
+              </button>
             </div>
           </header>
 

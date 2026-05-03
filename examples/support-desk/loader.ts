@@ -107,7 +107,7 @@ interface SupportDeskSampleDataSeed {
 /**
  * Parsed support-desk sample data ready for the support adapter.
  */
-export interface SupportDeskSampleData {
+interface SupportDeskSampleData {
   /**
    * Customer identity used by the customer support flow.
    */
