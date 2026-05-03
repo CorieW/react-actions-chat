@@ -95,8 +95,11 @@ export function formatTicketRecentActivity(
   ticket: SupportTicket,
   limit?: number
 ): string | undefined {
+  const requestedLimit = limit ?? ticket.messages.length;
   const safeLimit =
-    limit === undefined ? ticket.messages.length : Math.max(0, Math.floor(limit));
+    Number.isFinite(requestedLimit) && requestedLimit >= 0
+      ? Math.floor(requestedLimit)
+      : ticket.messages.length;
 
   if (safeLimit === 0) {
     return undefined;

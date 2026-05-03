@@ -909,6 +909,80 @@ describe('support flows package', () => {
     ).toBeInTheDocument();
   });
 
+  it('does not apply built-in minimum validation to customer ticket summaries', async () => {
+    const user = userEvent.setup();
+    const adapter = createInMemorySupportFlowAdapter();
+    const flow = createSupportUserFlow({
+      adapter,
+      customer: {
+        id: 'customer-no-default-validation',
+        name: 'Riley Chen',
+        email: 'riley@example.com',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'Start ticket' }));
+    await user.type(
+      screen.getByPlaceholderText(
+        'Our team cannot invite new users after enabling SSO.'
+      ),
+      'Short'
+    );
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /SUP-1000 is open for Riley Chen/i,
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Please share a little more detail/i)
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not apply built-in minimum validation to admin ticket replies', async () => {
+    const user = userEvent.setup();
+    const adapter = createInMemorySupportFlowAdapter();
+    const ticket = await adapter.createTicket({
+      customer: {
+        id: 'admin-no-default-validation-customer',
+        name: 'Alex Morgan',
+      },
+      summary: 'Admin reply defaults should not block short replies.',
+    });
+    const flow = createSupportAdminFlow({
+      adapter,
+      agent: {
+        id: 'admin-no-default-validation',
+        name: 'Priya Admin',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+    await user.click(getLatestButton(ticket.reference));
+    await user.click(screen.getByRole('button', { name: 'Reply to customer' }));
+    await user.type(
+      screen.getByPlaceholderText(
+        'We reproduced the issue and are working on a fix.'
+      ),
+      'Ok'
+    );
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByRole('heading', {
+        name: new RegExp(`Sent your reply on ${ticket.reference}`, 'i'),
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Please enter at least/i)
+    ).not.toBeInTheDocument();
+  });
+
   it('allows customer flows to customize prompts, rendering, and button slots', async () => {
     const user = userEvent.setup();
     const adapter = createInMemorySupportFlowAdapter();

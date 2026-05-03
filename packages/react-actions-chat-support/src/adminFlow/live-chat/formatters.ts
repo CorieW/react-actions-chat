@@ -63,10 +63,11 @@ export function formatLiveChatDetails(
   transcriptLimit?: number
 ): string {
   const messages = session.messages ?? [];
+  const requestedTranscriptLimit = transcriptLimit ?? messages.length;
   const safeTranscriptLimit =
-    transcriptLimit === undefined
-      ? messages.length
-      : Math.max(0, Math.floor(transcriptLimit));
+    Number.isFinite(requestedTranscriptLimit) && requestedTranscriptLimit >= 0
+      ? Math.floor(requestedTranscriptLimit)
+      : messages.length;
   const visibleMessages =
     safeTranscriptLimit === 0 ? [] : messages.slice(-safeTranscriptLimit);
 
@@ -97,7 +98,7 @@ export function formatLiveChatDetails(
     ...visibleMessages.map(message => {
       return `- **${escapeMarkdown(formatLiveChatMessageAuthor(message))}** (${escapeMarkdown(formatTimestamp(message.createdAt))}): ${escapeMarkdown(message.body)}`;
     }),
-    messages.length > safeTranscriptLimit
+    safeTranscriptLimit > 0 && messages.length > safeTranscriptLimit
       ? `_Showing the ${safeTranscriptLimit} most recent messages._`
       : undefined,
   ]);
