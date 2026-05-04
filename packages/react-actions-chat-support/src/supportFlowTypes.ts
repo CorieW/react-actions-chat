@@ -417,6 +417,57 @@ export interface SupportQueueFilter {
 }
 
 /**
+ * Page request passed to ticket-listing adapters and callbacks.
+ */
+export interface SupportTicketListRequest {
+  /**
+   * Zero-based page index requested by the current support flow.
+   */
+  readonly pageIndex: number;
+  /**
+   * Number of tickets the flow would like to display in one page.
+   */
+  readonly pageSize?: number | undefined;
+  /**
+   * Zero-based ticket offset to request from an offset-based backend.
+   */
+  readonly offset: number;
+  /**
+   * Maximum number of tickets the backend should return for this request.
+   */
+  readonly limit?: number | undefined;
+}
+
+/**
+ * Paged ticket-listing result returned by ticket adapters and callbacks.
+ */
+export interface SupportTicketListResult {
+  /**
+   * Tickets returned for the requested page.
+   */
+  readonly tickets: readonly SupportTicket[];
+  /**
+   * Exact total number of matching tickets when the backend knows it.
+   */
+  readonly totalTickets?: number | undefined;
+  /**
+   * Whether another ticket page is available after this result.
+   */
+  readonly hasMore?: boolean | undefined;
+  /**
+   * Zero-based offset to use when requesting the next page.
+   */
+  readonly nextOffset?: number | undefined;
+}
+
+/**
+ * Ticket-listing response accepted by support flows.
+ */
+export type SupportTicketListResponse =
+  | readonly SupportTicket[]
+  | SupportTicketListResult;
+
+/**
  * Filter shape used when listing live chat sessions for admin queues.
  */
 export interface SupportLiveChatQueueFilter {
@@ -458,18 +509,32 @@ export interface SupportFlowAdapter {
    * Lists tickets for a customer.
    *
    * @param customer - Customer identity used for the lookup.
+   * @param request - Optional paging metadata for capped backend reads.
    */
   readonly listCustomerTickets:
-    | ((customer: SupportUserIdentity) => Promise<readonly SupportTicket[]>)
-    | ((customer: SupportUserIdentity) => readonly SupportTicket[]);
+    | ((
+        customer: SupportUserIdentity,
+        request?: SupportTicketListRequest
+      ) => Promise<SupportTicketListResponse>)
+    | ((
+        customer: SupportUserIdentity,
+        request?: SupportTicketListRequest
+      ) => SupportTicketListResponse);
   /**
    * Lists tickets for an admin queue.
    *
    * @param filter - Filter to apply to the list.
+   * @param request - Optional paging metadata for capped backend reads.
    */
   readonly listQueue:
-    | ((filter?: SupportQueueFilter) => Promise<readonly SupportTicket[]>)
-    | ((filter?: SupportQueueFilter) => readonly SupportTicket[]);
+    | ((
+        filter?: SupportQueueFilter,
+        request?: SupportTicketListRequest
+      ) => Promise<SupportTicketListResponse>)
+    | ((
+        filter?: SupportQueueFilter,
+        request?: SupportTicketListRequest
+      ) => SupportTicketListResponse);
   /**
    * Lists live chat sessions for an admin queue.
    *
@@ -634,11 +699,13 @@ export interface SupportUserFlowCallbacks {
    * Handles list tickets.
    *
    * @param customer - Customer identity used for the lookup.
+   * @param request - Optional paging metadata for capped backend reads.
    */
   readonly listTickets?:
     | ((
-        customer: SupportUserIdentity
-      ) => MaybePromise<readonly SupportTicket[]>)
+        customer: SupportUserIdentity,
+        request?: SupportTicketListRequest
+      ) => MaybePromise<SupportTicketListResponse>)
     | undefined;
   /**
    * Appends a message to a support ticket.
@@ -706,9 +773,13 @@ export interface SupportAdminFlowCallbacks {
    * Lists tickets for an admin queue.
    *
    * @param filter - Filter to apply to the list.
+   * @param request - Optional paging metadata for capped backend reads.
    */
   readonly listTicketQueue?:
-    | ((filter?: SupportQueueFilter) => MaybePromise<readonly SupportTicket[]>)
+    | ((
+        filter?: SupportQueueFilter,
+        request?: SupportTicketListRequest
+      ) => MaybePromise<SupportTicketListResponse>)
     | undefined;
   /**
    * Lists live chat sessions for an admin queue.

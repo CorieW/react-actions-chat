@@ -1,6 +1,9 @@
 import type { MessageButton } from 'react-actions-chat';
 import type { SupportTicket } from '../../supportFlowTypes';
-import { paginateItems } from '../../supportFlowUtils';
+import {
+  paginateItems,
+  type SupportPaginationPage,
+} from '../../supportFlowUtils';
 
 /**
  * Paginated result shape for support admin ticket.
@@ -27,9 +30,21 @@ export interface SupportAdminTicketPage {
    */
   readonly pageSize: number;
   /**
+   * Zero-based ticket offset for the first visible ticket.
+   */
+  readonly offset: number;
+  /**
    * Total number of support tickets before pagination.
    */
   readonly totalTickets: number;
+  /**
+   * Whether totalTickets is the exact total rather than a lower bound.
+   */
+  readonly isTotalTicketsExact: boolean;
+  /**
+   * Whether another ticket page is available after the current page.
+   */
+  readonly hasMoreTickets: boolean;
   /**
    * One-based ticket number for the first visible ticket on the page.
    */
@@ -66,6 +81,29 @@ export function sortTicketsByAssignment(
 }
 
 /**
+ * Converts a shared pagination page into the admin ticket page shape.
+ *
+ * @param page - Shared pagination page to adapt for admin ticket queues.
+ */
+export function createAdminTicketPage(
+  page: SupportPaginationPage<SupportTicket>
+): SupportAdminTicketPage {
+  return {
+    visibleTickets: page.visibleItems,
+    pageIndex: page.pageIndex,
+    currentPage: page.currentPage,
+    pageCount: page.pageCount,
+    pageSize: page.pageSize,
+    offset: page.offset,
+    totalTickets: page.totalItems,
+    isTotalTicketsExact: page.isTotalItemsExact,
+    hasMoreTickets: page.hasMoreItems,
+    firstVisibleTicketNumber: page.firstVisibleItemNumber,
+    lastVisibleTicketNumber: page.lastVisibleItemNumber,
+  };
+}
+
+/**
  * Paginates tickets into a bounded page result.
  *
  * @param tickets - Support tickets to sort, paginate, or render.
@@ -77,16 +115,5 @@ export function paginateTickets(
   pageIndex: number,
   pageSize?: number
 ): SupportAdminTicketPage {
-  const page = paginateItems(tickets, pageIndex, pageSize);
-
-  return {
-    visibleTickets: page.visibleItems,
-    pageIndex: page.pageIndex,
-    currentPage: page.currentPage,
-    pageCount: page.pageCount,
-    pageSize: page.pageSize,
-    totalTickets: page.totalItems,
-    firstVisibleTicketNumber: page.firstVisibleItemNumber,
-    lastVisibleTicketNumber: page.lastVisibleItemNumber,
-  };
+  return createAdminTicketPage(paginateItems(tickets, pageIndex, pageSize));
 }

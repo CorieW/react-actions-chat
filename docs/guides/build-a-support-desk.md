@@ -1,22 +1,29 @@
 # Build a Support Desk
 
-Use `react-actions-chat-support` when you want customer and admin chat flows to operate on the same underlying ticketing system.
+Use `react-actions-chat-support` when the chat should become a real support
+workspace: customers create tickets and request live chat, while agents triage
+the same records from an admin queue.
 
-The best runnable reference in this repo is [examples/support-desk/App.tsx](https://github.com/CorieW/react-actions-chat/blob/main/examples/support-desk/App.tsx).
+The runnable reference in this repo is
+[examples/support-desk/App.tsx](https://github.com/CorieW/react-actions-chat/blob/main/examples/support-desk/App.tsx).
 
-## The Model
+## The Finished Shape
 
-The support package is built around one shared adapter:
+A support desk has three moving pieces:
 
-- `createSupportUserFlow(...)` builds the customer-facing workflow
-- `createSupportAdminFlow(...)` builds the agent/admin workflow
-- `SupportFlowAdapter` is the contract both flows read and write through
+- `createSupportUserFlow(...)` renders the customer experience.
+- `createSupportAdminFlow(...)` renders the agent experience.
+- `SupportFlowAdapter` is the shared data boundary behind both flows.
 
-If both flows share the same adapter instance, a ticket created in the customer view is immediately visible in the admin queue.
+When both flows share one adapter instance, a customer-created ticket appears in
+the admin queue, admin replies update the ticket transcript, and live-chat
+sessions can move from queued to active to ended without rewriting the UI flow.
 
-## Start With an In-Memory Adapter
+## Start With An In-Memory Desk
 
-For prototypes, demos, and tests, start with `createInMemorySupportFlowAdapter(...)`:
+Keep the adapter stable with state, context, or another long-lived container.
+If you recreate the in-memory adapter on every render, its tickets and live
+chats reset too.
 
 ```tsx typecheck
 import { useState } from 'react';
@@ -59,6 +66,9 @@ function resetChatWorkspace(): void {
   useInputFieldStore.getState().resetInputFieldType();
   useInputFieldStore.getState().resetInputFieldValidator();
   useInputFieldStore.getState().resetInputFieldSubmitGuard();
+  useInputFieldStore.getState().resetInputFieldFiles();
+  useInputFieldStore.getState().resetInputFieldOptions();
+  useInputFieldStore.getState().resetInputFieldFileUploadEnabled();
   useInputFieldStore.getState().resetInputFieldDisabledDefault();
   useInputFieldStore.getState().resetInputFieldDisabledPlaceholderDefault();
   useInputFieldStore.getState().resetInputFieldDisabled();
@@ -120,25 +130,20 @@ export function App() {
 }
 ```
 
-## Why The Adapter Lives In State
+The reset helper matters only when multiple support workspaces reuse the same
+mounted chat stores. If customer and admin views live on separate routes and
+the old chat unmounts cleanly, a smaller reset may be enough.
 
-Keep the adapter instance stable with state, context, or another long-lived container.
+## Seed A Queue That Looks Real
 
-If you recreate the adapter on every render, its in-memory tickets and live chats reset too.
+Seeded state makes demos and tests easier to understand. Use it for existing
+backlogs, live-chat queues, or deterministic snapshots.
 
-## Why The Store Reset Matters
+```ts typecheck
+import { createInMemorySupportFlowAdapter } from 'react-actions-chat-support';
 
-The chat package uses shared Zustand stores for transcript, input state, globals, and persistent buttons.
+const createdAt = new Date('2026-04-30T12:00:00Z');
 
-If you switch between multiple support workspaces inside the same mounted UI, clear those stores before remounting the next `Chat`.
-
-If each support view lives on its own route and the previous chat unmounts cleanly, you may not need the explicit reset helper.
-
-## Seed Tickets And Articles
-
-The in-memory adapter accepts initial state:
-
-```ts
 const adapter = createInMemorySupportFlowAdapter({
   tickets: [
     {
@@ -149,18 +154,21 @@ const adapter = createInMemorySupportFlowAdapter({
         id: 'customer-1',
         name: 'Alex Morgan',
         email: 'alex@example.com',
+        company: 'Northstar Labs',
       },
       status: 'open',
       priority: 'high',
+      assignedTo: 'Morgan Admin',
       liveChatOffered: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt,
+      updatedAt: createdAt,
+      tags: ['billing', 'renewal'],
       messages: [
         {
           id: 'seed-message-1',
           author: 'customer',
           body: 'The workspace was charged twice after a seat change.',
-          createdAt: new Date(),
+          createdAt,
         },
       ],
     },
@@ -169,86 +177,385 @@ const adapter = createInMemorySupportFlowAdapter({
 });
 ```
 
-This is a good way to demo an existing backlog or start tests from a known queue state.
+Useful in-memory options include `now`, ID factories, default ticket status,
+default priority, default queue statuses, customer matching, queue-position
+math, wait-time math, and ticket/live-chat sorting.
 
-## Replacing The In-Memory Adapter
+## Add Filters For Work Modes
 
-When you are ready for a real backend, replace the in-memory adapter with your own `SupportFlowAdapter` implementation:
+Filters show as selectable request-input buttons. A filter can send a backend
+filter object, apply a local predicate to returned records, or combine both.
+With backend-paged ticket responses, local predicates read through later backend
+pages so matching tickets remain reachable.
 
-```ts
-import type { SupportFlowAdapter } from 'react-actions-chat-support';
+```ts typecheck
+import {
+  createSupportAdminFlow,
+  type SupportFlowAdapter,
+} from 'react-actions-chat-support';
 
-const adapter: SupportFlowAdapter = {
-  createTicket: async input => {
-    const response = await fetch('/api/support/tickets', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(input),
-    });
+declare const adapter: SupportFlowAdapter;
 
-    return response.json();
+createSupportAdminFlow({
+  adapter,
+  agent: {
+    id: 'agent-1',
+    name: 'Morgan Admin',
   },
-  getTicketByReference: async reference => {
-    const response = await fetch(`/api/support/tickets/${reference}`);
+  filterOptions: {
+    ticketQueue: [
+      {
+        id: 'all-open',
+        label: 'All open',
+        isDefault: true,
+      },
+      {
+        id: 'urgent',
+        label: 'Urgent',
+        filter: {
+          statuses: ['new', 'open', 'pending-internal'],
+        },
+        predicate: ticket => ticket.priority === 'urgent',
+        variant: 'error',
+        activeVariant: 'error',
+      },
+    ],
+    assignedWork: [
+      {
+        id: 'mine-waiting',
+        label: 'Waiting on customer',
+        filter: ({ agentLabel }) => ({
+          assignedTo: agentLabel,
+          statuses: ['pending-customer'],
+        }),
+      },
+    ],
+    liveChatQueue: [
+      {
+        id: 'queued',
+        label: 'Queued',
+        isDefault: true,
+        filter: {
+          statuses: ['queued'],
+        },
+      },
+      {
+        id: 'customer-started',
+        label: 'Customer started',
+        filter: {
+          requestedBy: 'customer',
+          statuses: ['queued', 'active'],
+        },
+      },
+    ],
+  },
+});
+```
 
-    if (response.status === 404) {
-      return null;
+Customer ticket lists support the same pattern through
+`filterOptions.tickets`, using predicates that receive each ticket and the
+customer context.
+
+## Tune The Customer Moment
+
+`requestInputs` controls the actual collection step. This is where you can
+change placeholders, descriptions, uploads, validation, cooldowns, timeouts,
+input type, and button styling.
+
+```ts typecheck
+import {
+  createSupportUserFlow,
+  type SupportFlowAdapter,
+} from 'react-actions-chat-support';
+
+declare const adapter: SupportFlowAdapter;
+
+createSupportUserFlow({
+  adapter,
+  customer: {
+    id: 'customer-1',
+    name: 'Alex Morgan',
+  },
+  labels: {
+    startTicket: 'Report an issue',
+  },
+  validation: {
+    ticketSummary: {
+      minMessageLength: 20,
+      minMessageLengthMessage:
+        'Add a few more details so the support team can route this correctly.',
+    },
+  },
+  requestInputs: {
+    createTicket: {
+      inputPromptMessage:
+        'Tell us what happened, what you expected, and any account or workspace details that matter.',
+      placeholder: ({ customer }) =>
+        `Describe the issue for ${customer.name ?? 'the support team'}`,
+      inputDescription: 'Screenshots or receipts can be attached here.',
+      allowFileUpload: true,
+      showAbort: true,
+      abortLabel: 'Cancel ticket',
+      variant: 'info',
+    },
+  },
+});
+```
+
+The same override shape is available for customer ticket details, customer
+live-chat starts, admin ticket review, assignment, replies, and priority
+changes.
+
+## Shape Admin Operations
+
+Admin behavior controls queue size, transcript size, priority order, status
+transitions, queue button variants, assigned-work filters, and live-chat
+requeue math.
+
+```ts typecheck
+import {
+  createSupportAdminFlow,
+  type SupportFlowAdapter,
+} from 'react-actions-chat-support';
+
+declare const adapter: SupportFlowAdapter;
+
+createSupportAdminFlow({
+  adapter,
+  agent: {
+    id: 'agent-1',
+    name: 'Morgan Admin',
+  },
+  behavior: {
+    queueLimit: 6,
+    assignedWorkLimit: 6,
+    transcriptLimit: 12,
+    priorityOrder: ['urgent', 'high', 'normal', 'low'],
+    statusTransitions: {
+      assignedTicketStatus: 'open',
+      repliedTicketStatus: 'pending-customer',
+      reopenedTicketStatus: 'open',
+      resolvedTicketStatus: 'resolved',
+    },
+    getTicketQueueButtonVariant: ticket => {
+      if (ticket.priority === 'urgent') {
+        return 'error';
+      }
+
+      if (ticket.priority === 'high') {
+        return 'warning';
+      }
+
+      return 'default';
+    },
+  },
+  confirmations: {
+    resolveTicket: {
+      confirmationMessage: ({ ticket }) =>
+        `Resolve ${ticket.reference}? The customer will still be able to view the ticket history.`,
+      confirmLabel: 'Resolve ticket',
+      rejectLabel: 'Keep open',
+      variant: 'success',
+    },
+  },
+});
+```
+
+Admin priority changes use the shared input as a dropdown, so the transcript
+records the action without adding a custom select component.
+
+## Replace Markdown With Your Voice
+
+Every support message is markdown. Replace only the formatter you need and keep
+the rest of the package defaults.
+
+```ts typecheck
+import {
+  createSupportAdminFlow,
+  type SupportFlowAdapter,
+} from 'react-actions-chat-support';
+
+declare const adapter: SupportFlowAdapter;
+
+createSupportAdminFlow({
+  adapter,
+  agent: {
+    id: 'agent-1',
+    name: 'Morgan Admin',
+  },
+  formatters: {
+    ticketQueue: ({
+      activeFilterLabel,
+      totalTickets = 0,
+      visibleTickets = [],
+    }) => {
+      const rows = visibleTickets.map(ticket => {
+        return `- **${ticket.reference}** · ${ticket.priority} · ${ticket.subject}`;
+      });
+
+      return [
+        `### Ticket queue${activeFilterLabel ? `: ${activeFilterLabel}` : ''}`,
+        `${totalTickets} ticket${totalTickets === 1 ? '' : 's'} match this view.`,
+        '',
+        ...rows,
+      ].join('\n');
+    },
+  },
+});
+```
+
+Formatter context includes the flow identity, brand name, active filters,
+pagination metadata, limits, and the current ticket or live-chat record.
+
+## Customize Buttons Without Forking
+
+Use `customizeButtons` when the default action set is mostly right, but a
+specific slot needs one extra action or a different order.
+
+```ts typecheck
+import {
+  createSupportAdminFlow,
+  type SupportFlowAdapter,
+} from 'react-actions-chat-support';
+
+declare const adapter: SupportFlowAdapter;
+
+createSupportAdminFlow({
+  adapter,
+  agent: {
+    id: 'agent-1',
+    name: 'Morgan Admin',
+  },
+  customizeButtons: context => {
+    if (context.slot !== 'ticket' || !context.ticket) {
+      return context.defaultButtons;
     }
 
-    return response.json();
-  },
-  listCustomerTickets: async customer => {
-    const response = await fetch(
-      `/api/support/tickets?customerId=${customer.id ?? ''}`
-    );
-    return response.json();
-  },
-  listQueue: async () => {
-    const response = await fetch('/api/support/queue');
-    return response.json();
-  },
-  updateTicket: async input => {
-    const response = await fetch('/api/support/tickets/update', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    return [
+      ...context.defaultButtons,
+      {
+        label: `Copy ${context.ticket.reference}`,
+        variant: 'info',
+        onClick: () => {
+          void navigator.clipboard.writeText(context.ticket!.reference);
+        },
       },
-      body: JSON.stringify(input),
-    });
-
-    return response.json();
+    ];
   },
-  appendTicketMessage: async input => {
-    const response = await fetch('/api/support/tickets/message', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(input),
-    });
+});
+```
 
-    return response.json();
-  },
-  startLiveChat: async input => {
-    const response = await fetch('/api/support/live-chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(input),
-    });
+Customer slots include `primary`, `ticket`, `ticket-list`,
+`live-chat-active`, `live-chat-waiting`, `live-chat-ended`, and
+`live-chat-persistent`. Admin slots include `primary`, `ticket`,
+`ticket-queue`, `assigned-work`, `live-chat`, `live-chat-queue`, and
+`live-chat-persistent`.
 
-    return response.json();
-  },
+## Move To A Backend
+
+When the prototype is ready, keep the flow configuration and replace the
+adapter. The full adapter can be synchronous or async.
+
+```ts
+import type {
+  AppendSupportLiveChatMessageInput,
+  AppendSupportTicketMessageInput,
+  CreateSupportTicketInput,
+  StartSupportLiveChatInput,
+  SupportFlowAdapter,
+  SupportLiveChatQueueFilter,
+  SupportLiveChatSession,
+  SupportQueueFilter,
+  SupportTicket,
+  SupportTicketListRequest,
+  SupportTicketListResponse,
+  SupportUserIdentity,
+  UpdateSupportLiveChatInput,
+  UpdateSupportTicketInput,
+} from 'react-actions-chat-support';
+
+async function postJson<TResponse>(
+  path: string,
+  body: unknown
+): Promise<TResponse> {
+  const response = await fetch(path, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  return response.json();
+}
+
+async function getJson<TResponse>(path: string): Promise<TResponse | null> {
+  const response = await fetch(path);
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  return response.json();
+}
+
+export const supportAdapter: SupportFlowAdapter = {
+  createTicket: (input: CreateSupportTicketInput) =>
+    postJson<SupportTicket>('/api/support/tickets', input),
+  getTicketByReference: (reference: string) =>
+    getJson<SupportTicket>(
+      `/api/support/tickets/${encodeURIComponent(reference)}`
+    ),
+  listCustomerTickets: (
+    customer: SupportUserIdentity,
+    request?: SupportTicketListRequest
+  ) =>
+    postJson<SupportTicketListResponse>('/api/support/tickets/customer', {
+      customer,
+      request,
+    }),
+  listQueue: (
+    filter?: SupportQueueFilter,
+    request?: SupportTicketListRequest
+  ) =>
+    postJson<SupportTicketListResponse>('/api/support/tickets/queue', {
+      filter,
+      request,
+    }),
+  listLiveChatQueue: (filter?: SupportLiveChatQueueFilter) =>
+    postJson<readonly SupportLiveChatSession[]>(
+      '/api/support/live-chats/queue',
+      filter
+    ),
+  getLiveChatById: (sessionId: string) =>
+    getJson<SupportLiveChatSession>(
+      `/api/support/live-chats/${encodeURIComponent(sessionId)}`
+    ),
+  listCustomerLiveChats: (customer: SupportUserIdentity) =>
+    postJson<readonly SupportLiveChatSession[]>(
+      '/api/support/live-chats/customer',
+      customer
+    ),
+  updateTicket: (input: UpdateSupportTicketInput) =>
+    postJson<SupportTicket>('/api/support/tickets/update', input),
+  appendTicketMessage: (input: AppendSupportTicketMessageInput) =>
+    postJson<SupportTicket>('/api/support/tickets/message', input),
+  startLiveChat: (input: StartSupportLiveChatInput) =>
+    postJson<SupportLiveChatSession>('/api/support/live-chats', input),
+  updateLiveChat: (input: UpdateSupportLiveChatInput) =>
+    postJson<SupportLiveChatSession>('/api/support/live-chats/update', input),
+  appendLiveChatMessage: (input: AppendSupportLiveChatMessageInput) =>
+    postJson<SupportLiveChatSession>('/api/support/live-chats/message', input),
 };
 ```
 
-You do not need to rewrite the customer or admin flow helpers when you swap adapters. That separation is the main benefit of the package.
+If one flow needs a special route, use `callbacks` to override only that
+operation. For example, customer ticket creation can call a public endpoint
+while the admin flow keeps using an authenticated adapter.
 
 ## Read Next
 
-- [react-actions-chat-support](../sub-packages/react-actions-chat-support.md)
+- [`react-actions-chat-support`](../sub-packages/react-actions-chat-support.md)
 - [Support API reference](../reference/support-api.md)
 - [Using chat globals and defaults](./using-chat-globals-and-defaults.md)
+- [Examples guide](../examples.md)

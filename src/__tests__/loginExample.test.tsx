@@ -74,7 +74,12 @@ describe('login example', () => {
       screen.getByRole('button', { name: 'Sign in with email' })
     );
 
-    await user.click(screen.getByRole('button', { name: 'Abort' }));
+    const abortButton = screen.getByRole('button', { name: 'Abort' });
+
+    await waitFor(() => {
+      expect(abortButton).toBeEnabled();
+    });
+    await user.click(abortButton);
 
     expect(
       await screen.findByText(

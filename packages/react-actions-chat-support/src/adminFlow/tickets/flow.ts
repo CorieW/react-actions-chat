@@ -4,10 +4,20 @@ import type {
   SupportInputValidationSettings,
   SupportQueueFilter,
   SupportTicket,
+  SupportTicketListRequest,
+  SupportTicketListResult,
   SupportTicketPriority,
 } from '../../supportFlowTypes';
 import {
+  collectFilteredSupportTicketListPage,
+  createPaginationPage,
+  createSupportTicketListRequest,
   createListFilterButtons,
+  getSupportTicketListNextOffset,
+  getSupportTicketListPageSize,
+  getSupportTicketListTickets,
+  hasSupportTicketListNextPage,
+  isSupportTicketListResult,
   normalizeReference,
   resolveActiveListFilter,
 } from '../../supportFlowUtils';
@@ -27,7 +37,11 @@ import {
   createTicketReferenceButtons,
   createViewTicketQueueButton,
 } from './queueButtons';
-import { getTicketQueueButtonVariant, paginateTickets } from './queue';
+import {
+  createAdminTicketPage,
+  getTicketQueueButtonVariant,
+  paginateTickets,
+} from './queue';
 import type { SupportAdminFlowServices } from '../services';
 import type {
   SupportAdminFlowButtonContext,
@@ -283,6 +297,111 @@ export function createAdminTicketFlow({
       (ticket.status === 'resolved' || ticket.status === 'closed')
     );
   };
+  const ticketPageOffsets = new Map<string, number>();
+
+  /**
+   * Clears every remembered admin ticket list offset.
+   */
+  const resetAllTicketPageOffsets = (): void => {
+    ticketPageOffsets.clear();
+  };
+
+  const getTicketPageKey = (
+    slot: SupportAdminTicketQueueFilterSlot,
+    activeFilterId: string | undefined,
+    pageIndex: number
+  ): string => {
+    return `${slot}:${activeFilterId ?? 'all'}:${pageIndex}`;
+  };
+
+  /**
+   * Returns the key prefix shared by offsets for one ticket list state.
+   *
+   * @param slot - Admin ticket list that owns the remembered offsets.
+   * @param activeFilterId - Filter option currently applied to the list.
+   */
+  const getTicketPageKeyPrefix = (
+    slot: SupportAdminTicketQueueFilterSlot,
+    activeFilterId: string | undefined
+  ): string => {
+    return `${slot}:${activeFilterId ?? 'all'}:`;
+  };
+
+  /**
+   * Clears remembered offsets for one admin ticket list state.
+   *
+   * @param slot - Admin ticket list whose offsets should reset.
+   * @param activeFilterId - Filter option currently applied to the list.
+   */
+  const resetTicketPageOffsets = (
+    slot: SupportAdminTicketQueueFilterSlot,
+    activeFilterId: string | undefined
+  ): void => {
+    const keyPrefix = getTicketPageKeyPrefix(slot, activeFilterId);
+
+    for (const key of ticketPageOffsets.keys()) {
+      if (key.startsWith(keyPrefix)) {
+        ticketPageOffsets.delete(key);
+      }
+    }
+  };
+
+  const createTicketListRequest = (
+    slot: SupportAdminTicketQueueFilterSlot,
+    pageIndex: number,
+    activeFilterId: string | undefined,
+    pageSize: number | undefined
+  ): SupportTicketListRequest => {
+    if (pageIndex <= 0) {
+      resetTicketPageOffsets(slot, activeFilterId);
+    }
+
+    const offset =
+      pageIndex <= 0
+        ? 0
+        : (ticketPageOffsets.get(
+            getTicketPageKey(slot, activeFilterId, pageIndex)
+          ) ?? pageIndex * (pageSize ?? 0));
+
+    return createSupportTicketListRequest(pageIndex, offset, pageSize);
+  };
+
+  const rememberTicketListPage = (
+    slot: SupportAdminTicketQueueFilterSlot,
+    activeFilterId: string | undefined,
+    request: SupportTicketListRequest,
+    result: SupportTicketListResult
+  ): void => {
+    ticketPageOffsets.set(
+      getTicketPageKey(slot, activeFilterId, request.pageIndex),
+      request.offset
+    );
+
+    const nextOffset = getSupportTicketListNextOffset(request, result);
+
+    if (nextOffset !== undefined) {
+      ticketPageOffsets.set(
+        getTicketPageKey(slot, activeFilterId, request.pageIndex + 1),
+        nextOffset
+      );
+    }
+  };
+
+  const updateTicketWithOffsetReset: SupportAdminFlowServices['updateTicket'] =
+    async input => {
+      const ticket = await updateTicket(input);
+      resetAllTicketPageOffsets();
+
+      return ticket;
+    };
+
+  const appendTicketMessageWithOffsetReset: SupportAdminFlowServices['appendTicketMessage'] =
+    async input => {
+      const ticket = await appendTicketMessage(input);
+      resetAllTicketPageOffsets();
+
+      return ticket;
+    };
 
   const createTicketButtonEnvironment = () => {
     return {
@@ -298,8 +417,8 @@ export function createAdminTicketFlow({
       ticketAssignmentValidation,
       ticketReplyValidation,
       isTicketResolved,
-      updateTicket,
-      appendTicketMessage,
+      updateTicket: updateTicketWithOffsetReset,
+      appendTicketMessage: appendTicketMessageWithOffsetReset,
       addSupportMessage,
       addAbortRecoveryMessage,
       createTicketButtons,
@@ -389,13 +508,9 @@ export function createAdminTicketFlow({
   };
 
   const createTicketQueueButtons = (
-    tickets: readonly SupportTicket[],
-    pageIndex: number,
-    pageSize: number | undefined,
+    page: ReturnType<typeof paginateTickets>,
     showPage: (nextPageIndex: number) => void
   ): readonly MessageButton[] => {
-    const page = paginateTickets(tickets, pageIndex, pageSize);
-
     return [
       ...createTicketReferenceButtons({
         tickets: page.visibleTickets,
@@ -540,11 +655,35 @@ export function createAdminTicketFlow({
       },
     });
     const isFiltered = Boolean(activeFilter?.filter ?? activeFilter?.predicate);
-    const tickets = applyTicketFilterPredicate(
-      await listTicketQueue(queueFilter),
-      activeFilter,
-      filterContext
-    );
+    const filteredTicketPage = activeFilter?.predicate
+      ? await collectFilteredSupportTicketListPage({
+          pageIndex,
+          pageSize: queueLimit,
+          listTickets: request => listTicketQueue(queueFilter, request),
+          filterTickets: tickets =>
+            applyTicketFilterPredicate(tickets, activeFilter, filterContext),
+        })
+      : undefined;
+    const request = filteredTicketPage
+      ? undefined
+      : createTicketListRequest(
+          'ticket-queue',
+          pageIndex,
+          activeFilter?.id,
+          queueLimit
+        );
+    const ticketResponse = request
+      ? await listTicketQueue(queueFilter, request)
+      : undefined;
+    const isPagedResponse =
+      ticketResponse !== undefined && isSupportTicketListResult(ticketResponse);
+    const tickets =
+      filteredTicketPage?.tickets ??
+      applyTicketFilterPredicate(
+        getSupportTicketListTickets(ticketResponse ?? []),
+        activeFilter,
+        filterContext
+      );
 
     if (!tickets.length) {
       addSupportMessage(
@@ -558,6 +697,7 @@ export function createAdminTicketFlow({
                 labels,
                 pageIndex: 0,
                 showTicketQueue: nextPageIndex => {
+                  resetTicketPageOffsets('ticket-queue', activeFilter?.id);
                   void showTicketQueue(nextPageIndex, activeFilter?.id);
                 },
               }),
@@ -568,21 +708,47 @@ export function createAdminTicketFlow({
       return;
     }
 
-    const page = paginateTickets(tickets, pageIndex, queueLimit);
+    const page = filteredTicketPage
+      ? createAdminTicketPage(filteredTicketPage.page)
+      : isPagedResponse && request
+        ? createAdminTicketPage(
+            createPaginationPage({
+              visibleItems: tickets,
+              pageIndex,
+              pageSize: getSupportTicketListPageSize(
+                request,
+                queueLimit,
+                ticketResponse.tickets.length
+              ),
+              offset: request.offset,
+              totalItems: ticketResponse.totalTickets,
+              hasMoreItems: hasSupportTicketListNextPage(
+                request,
+                ticketResponse
+              ),
+            })
+          )
+        : paginateTickets(tickets, pageIndex, queueLimit);
+
+    if (isPagedResponse && request) {
+      rememberTicketListPage(
+        'ticket-queue',
+        activeFilter?.id,
+        request,
+        ticketResponse
+      );
+    }
+
     const defaultButtons = [
       ...filterButtons,
-      ...createTicketQueueButtons(
-        tickets,
-        page.pageIndex,
-        queueLimit,
-        nextPageIndex => {
-          void showTicketQueue(nextPageIndex, activeFilter?.id);
-        }
-      ),
+      ...createTicketQueueButtons(page, nextPageIndex => {
+        void showTicketQueue(nextPageIndex, activeFilter?.id);
+      }),
       createRefreshTicketQueueButton({
         labels,
-        pageIndex: page.pageIndex,
+        pageIndex: 0,
         showTicketQueue: nextPageIndex => {
+          resetTicketPageOffsets('ticket-queue', activeFilter?.id);
           void showTicketQueue(nextPageIndex, activeFilter?.id);
         },
       }),
@@ -603,6 +769,8 @@ export function createAdminTicketFlow({
         pageCount: page.pageCount,
         pageSize: page.pageSize,
         totalTickets: page.totalTickets,
+        hasMoreTickets: page.hasMoreTickets,
+        isTotalTicketsExact: page.isTotalTicketsExact,
         activeFilterId: activeFilter?.id,
         activeFilterLabel: activeFilter?.label,
         filterOptions,
@@ -637,11 +805,35 @@ export function createAdminTicketFlow({
       },
     });
     const isFiltered = Boolean(activeFilter?.filter ?? activeFilter?.predicate);
-    const tickets = applyTicketFilterPredicate(
-      await listTicketQueue(queueFilter),
-      activeFilter,
-      filterContext
-    );
+    const filteredTicketPage = activeFilter?.predicate
+      ? await collectFilteredSupportTicketListPage({
+          pageIndex,
+          pageSize: assignedWorkLimit,
+          listTickets: request => listTicketQueue(queueFilter, request),
+          filterTickets: tickets =>
+            applyTicketFilterPredicate(tickets, activeFilter, filterContext),
+        })
+      : undefined;
+    const request = filteredTicketPage
+      ? undefined
+      : createTicketListRequest(
+          'assigned-work',
+          pageIndex,
+          activeFilter?.id,
+          assignedWorkLimit
+        );
+    const ticketResponse = request
+      ? await listTicketQueue(queueFilter, request)
+      : undefined;
+    const isPagedResponse =
+      ticketResponse !== undefined && isSupportTicketListResult(ticketResponse);
+    const tickets =
+      filteredTicketPage?.tickets ??
+      applyTicketFilterPredicate(
+        getSupportTicketListTickets(ticketResponse ?? []),
+        activeFilter,
+        filterContext
+      );
 
     if (!tickets.length) {
       addSupportMessage(
@@ -654,6 +846,7 @@ export function createAdminTicketFlow({
               createViewTicketQueueButton({
                 labels,
                 showTicketQueue: () => {
+                  resetTicketPageOffsets('ticket-queue', undefined);
                   void showTicketQueue();
                 },
               }),
@@ -664,20 +857,46 @@ export function createAdminTicketFlow({
       return;
     }
 
-    const page = paginateTickets(tickets, pageIndex, assignedWorkLimit);
+    const page = filteredTicketPage
+      ? createAdminTicketPage(filteredTicketPage.page)
+      : isPagedResponse && request
+        ? createAdminTicketPage(
+            createPaginationPage({
+              visibleItems: tickets,
+              pageIndex,
+              pageSize: getSupportTicketListPageSize(
+                request,
+                assignedWorkLimit,
+                ticketResponse.tickets.length
+              ),
+              offset: request.offset,
+              totalItems: ticketResponse.totalTickets,
+              hasMoreItems: hasSupportTicketListNextPage(
+                request,
+                ticketResponse
+              ),
+            })
+          )
+        : paginateTickets(tickets, pageIndex, assignedWorkLimit);
+
+    if (isPagedResponse && request) {
+      rememberTicketListPage(
+        'assigned-work',
+        activeFilter?.id,
+        request,
+        ticketResponse
+      );
+    }
+
     const assignedWorkButtons = [
       ...filterButtons,
-      ...createTicketQueueButtons(
-        tickets,
-        page.pageIndex,
-        assignedWorkLimit,
-        nextPageIndex => {
-          void showAssignedWork(nextPageIndex, activeFilter?.id);
-        }
-      ),
+      ...createTicketQueueButtons(page, nextPageIndex => {
+        void showAssignedWork(nextPageIndex, activeFilter?.id);
+      }),
       createViewTicketQueueButton({
         labels,
         showTicketQueue: () => {
+          resetTicketPageOffsets('ticket-queue', undefined);
           void showTicketQueue();
         },
       }),
@@ -698,6 +917,8 @@ export function createAdminTicketFlow({
         pageCount: page.pageCount,
         pageSize: page.pageSize,
         totalTickets: page.totalTickets,
+        hasMoreTickets: page.hasMoreTickets,
+        isTotalTicketsExact: page.isTotalTicketsExact,
         activeFilterId: activeFilter?.id,
         activeFilterLabel: activeFilter?.label,
         filterOptions,

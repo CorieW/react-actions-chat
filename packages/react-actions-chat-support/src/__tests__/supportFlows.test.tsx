@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   Chat,
@@ -16,6 +16,7 @@ import {
   type SupportLiveChatSession,
   type SupportTicket,
 } from 'react-actions-chat-support';
+import { createSupportLoadingController } from '../supportFlowUtils';
 
 /**
  * Resets shared chat stores before support flow tests.
@@ -47,6 +48,50 @@ function resetChatStores(): void {
 function getLatestButton(label: string): HTMLElement {
   const buttons = screen.getAllByRole('button', { name: label });
   return buttons[buttons.length - 1]!;
+}
+
+/**
+ * Creates a test user that waits for button action locks before clicking.
+ */
+function setupSupportUser(): ReturnType<typeof userEvent.setup> {
+  const user = userEvent.setup();
+  const click = user.click.bind(user);
+
+  return {
+    ...user,
+    /**
+     * Clicks an element after rendered buttons leave the action-locked state.
+     *
+     * @param element - Rendered element targeted by the click.
+     */
+    click: async (element: Element): Promise<void> => {
+      if (element instanceof HTMLButtonElement) {
+        await waitFor(() => {
+          expect(element).toBeEnabled();
+        });
+      }
+
+      await click(element);
+    },
+  };
+}
+
+/**
+ * Clicks the latest rendered button after the action lock releases it.
+ *
+ * @param user - Testing-library user instance used to interact with the UI.
+ * @param label - Accessible button label to click.
+ */
+async function clickLatestButtonWhenEnabled(
+  user: ReturnType<typeof userEvent.setup>,
+  label: string
+): Promise<void> {
+  const button = getLatestButton(label);
+
+  await waitFor(() => {
+    expect(button).toBeEnabled();
+  });
+  await user.click(button);
 }
 
 /**
@@ -83,7 +128,7 @@ async function abortFilter(
   expect(
     screen.getByRole('combobox', { name: 'Chat input' })
   ).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: 'Abort' }));
+  await clickLatestButtonWhenEnabled(user, 'Abort');
 }
 
 /**
@@ -122,9 +167,9 @@ function createAsyncSupportFlowAdapter(
     createTicket: async input => adapter.createTicket(input),
     getTicketByReference: async reference =>
       adapter.getTicketByReference(reference),
-    listCustomerTickets: async customer =>
-      adapter.listCustomerTickets(customer),
-    listQueue: async filter => adapter.listQueue(filter),
+    listCustomerTickets: async (customer, request) =>
+      adapter.listCustomerTickets(customer, request),
+    listQueue: async (filter, request) => adapter.listQueue(filter, request),
     listLiveChatQueue: async filter => adapter.listLiveChatQueue(filter),
     getLiveChatById: async sessionId => adapter.getLiveChatById(sessionId),
     listCustomerLiveChats: async customer =>
@@ -245,13 +290,130 @@ function createQueueTestLiveChat({
   };
 }
 
+/**
+ * Deferred promise helper used to hold async support operations open.
+ */
+interface Deferred<TResult> {
+  /**
+   * Promise exposed to the async operation under test.
+   */
+  readonly promise: Promise<TResult>;
+  /**
+   * Resolves the pending promise with a result value.
+   *
+   * @param value - Result passed back to the waiting operation.
+   */
+  readonly resolve: (value: TResult | PromiseLike<TResult>) => void;
+}
+
+/**
+ * Creates a promise that tests can resolve after asserting pending UI state.
+ */
+function createDeferred<TResult>(): Deferred<TResult> {
+  let resolve: (value: TResult | PromiseLike<TResult>) => void = () => {};
+  const promise = new Promise<TResult>(nextResolve => {
+    resolve = nextResolve;
+  });
+
+  return {
+    promise,
+    resolve,
+  };
+}
+
 describe('support flows package', () => {
   beforeEach(() => {
     resetChatStores();
   });
 
+  it('keeps support loading visible when an earlier loading owner clears first', async () => {
+    const loadingController = createSupportLoadingController();
+    const operation = createDeferred<string>();
+
+    act(() => {
+      useChatStore.getState().setLoading(true);
+    });
+
+    const result = loadingController.runWithLoading(() => operation.promise);
+
+    await new Promise<void>(resolve => {
+      globalThis.setTimeout(resolve, 200);
+    });
+    expect(useChatStore.getState().isLoading).toBe(true);
+
+    act(() => {
+      useChatStore.getState().clearLoading();
+    });
+    expect(useChatStore.getState().isLoading).toBe(true);
+
+    await act(async () => {
+      operation.resolve('done');
+      await result;
+    });
+    expect(useChatStore.getState().isLoading).toBe(false);
+  });
+
+  it('does not reclaim loading after the chat is reset', async () => {
+    const loadingController = createSupportLoadingController();
+    const operation = createDeferred<string>();
+
+    const result = loadingController.runWithLoading(() => operation.promise);
+
+    await new Promise<void>(resolve => {
+      globalThis.setTimeout(resolve, 200);
+    });
+    expect(useChatStore.getState().isLoading).toBe(true);
+
+    act(() => {
+      useChatStore.getState().clearMessages();
+    });
+    expect(useChatStore.getState().isLoading).toBe(false);
+
+    await act(async () => {
+      operation.resolve('done');
+      await result;
+    });
+    expect(useChatStore.getState().isLoading).toBe(false);
+  });
+
+  it('clears support-owned loading after the transcript is replaced', async () => {
+    const loadingController = createSupportLoadingController();
+    const operation = createDeferred<string>();
+
+    const result = loadingController.runWithLoading(() => operation.promise);
+
+    await new Promise<void>(resolve => {
+      globalThis.setTimeout(resolve, 200);
+    });
+    expect(useChatStore.getState().isLoading).toBe(true);
+
+    act(() => {
+      useChatStore.getState().setMessages([
+        {
+          id: 1,
+          type: 'other',
+          rawContent: 'Transcript replaced while support work is pending.',
+          parts: [
+            {
+              type: 'text',
+              text: 'Transcript replaced while support work is pending.',
+            },
+          ],
+          timestamp: new Date(),
+        },
+      ]);
+    });
+    expect(useChatStore.getState().isLoading).toBe(true);
+
+    await act(async () => {
+      operation.resolve('done');
+      await result;
+    });
+    expect(useChatStore.getState().isLoading).toBe(false);
+  });
+
   it('handles the customer support flow for tickets and live chat', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const flow = createSupportUserFlow({
       adapter,
@@ -456,10 +618,10 @@ describe('support flows package', () => {
     expect(
       screen.queryByRole('button', { name: 'End live chat' })
     ).not.toBeInTheDocument();
-  }, 25_000);
+  }, 60_000);
 
   it('restores customer guidance after an input flow is aborted', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const flow = createSupportUserFlow({
       adapter,
@@ -473,7 +635,7 @@ describe('support flows package', () => {
     render(<Chat initialMessages={flow.initialMessages} />);
 
     await user.click(screen.getByRole('button', { name: 'Start ticket' }));
-    await user.click(screen.getByRole('button', { name: 'Abort' }));
+    await clickLatestButtonWhenEnabled(user, 'Abort');
 
     expect(
       await screen.findByText(/Ticket creation cancelled\./i)
@@ -487,7 +649,7 @@ describe('support flows package', () => {
   });
 
   it('shows ticket lookup on initial customer messages when tickets load asynchronously', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const ticket = createQueueTestTicket({
       reference: 'SUP-2000',
       priority: 'normal',
@@ -520,7 +682,7 @@ describe('support flows package', () => {
   });
 
   it('paginates customer ticket lists beyond the configured limit', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-3000',
@@ -603,8 +765,372 @@ describe('support flows package', () => {
     expect(getLatestButton('SUP-3003')).toBeInTheDocument();
   });
 
+  it('paginates customer ticket lists returned in backend-limited pages', async () => {
+    const user = setupSupportUser();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-3050',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3051',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3052',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3053',
+        priority: 'normal',
+        updatedAt: '2026-04-30T17:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3054',
+        priority: 'normal',
+        updatedAt: '2026-04-30T16:00:00Z',
+      }),
+    ];
+    const requestedOffsets: number[] = [];
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: (_customer, request) => {
+          const offset = request?.offset ?? 0;
+
+          if (request) {
+            requestedOffsets.push(offset);
+          }
+
+          return {
+            tickets: tickets.slice(offset, offset + 2),
+            totalTickets: tickets.length,
+          };
+        },
+      },
+      customer: {
+        id: 'ticket-backend-page-customer',
+        name: 'Ari Kim',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 1-2 of 5/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-3050' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-3051' })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 3-4 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-3052')).toBeInTheDocument();
+    expect(getLatestButton('SUP-3053')).toBeInTheDocument();
+
+    await user.click(getLatestButton('Next tickets'));
+
+    expect(
+      await screen.findByText(/Showing tickets 5-5 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-3054')).toBeInTheDocument();
+    expect(requestedOffsets).toEqual([0, 2, 4]);
+  }, 10000);
+
+  it('paginates customer ticket lists with next offsets alone', async () => {
+    const user = setupSupportUser();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-3060',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3061',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3062',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+    ];
+    const requestedOffsets: number[] = [];
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: (_customer, request) => {
+          const offset = request?.offset ?? 0;
+          const nextOffset = offset + 1;
+          requestedOffsets.push(offset);
+
+          return {
+            tickets: tickets.slice(offset, nextOffset),
+            nextOffset: nextOffset < tickets.length ? nextOffset : undefined,
+          };
+        },
+      },
+      customer: {
+        id: 'ticket-next-offset-customer',
+        name: 'Ari Kim',
+      },
+      behavior: {
+        ticketListLimit: 1,
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 1-1 of at least 2/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-3060' })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 2-2 of at least 3/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-3061')).toBeInTheDocument();
+
+    await user.click(getLatestButton('Next tickets'));
+
+    expect(
+      await screen.findByText(/Showing tickets 3-3 of 3/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-3062')).toBeInTheDocument();
+    expect(requestedOffsets).toEqual([0, 0, 1, 2]);
+  });
+
+  it('keeps the requested customer ticket page size for short backend pages', async () => {
+    const user = setupSupportUser();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-3070',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3071',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3072',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3073',
+        priority: 'normal',
+        updatedAt: '2026-04-30T17:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3074',
+        priority: 'normal',
+        updatedAt: '2026-04-30T16:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-3075',
+        priority: 'normal',
+        updatedAt: '2026-04-30T15:00:00Z',
+      }),
+    ];
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: (_customer, request) => {
+          const offset = request?.offset ?? 0;
+          const requestedLimit = request?.limit ?? 3;
+          const nextOffset = offset + requestedLimit;
+
+          return {
+            tickets: tickets.slice(offset, offset + 1),
+            totalTickets: tickets.length,
+            hasMore: nextOffset < tickets.length,
+            nextOffset,
+          };
+        },
+      },
+      customer: {
+        id: 'ticket-short-page-customer',
+        name: 'Ari Kim',
+      },
+      behavior: {
+        ticketListLimit: 3,
+      },
+      formatters: {
+        ticketList: ({ pageCount, pageSize }) => {
+          return `## Customer ticket page ${pageSize}/${pageCount}`;
+        },
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /Customer ticket page 3\/2/i,
+      })
+    ).toBeInTheDocument();
+  });
+
+  it('shows loading while a customer ticket list read is pending', async () => {
+    const user = setupSupportUser();
+    const ticket = createQueueTestTicket({
+      reference: 'SUP-3080',
+      priority: 'normal',
+      updatedAt: '2026-04-30T20:00:00Z',
+    });
+    const ticketRead = createDeferred<readonly SupportTicket[]>();
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: (_customer, request) => {
+          return request ? ticketRead.promise : [ticket];
+        },
+      },
+      customer: {
+        id: 'ticket-loading-customer',
+        name: 'Ari Kim',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+
+    expect(
+      await screen.findByRole('status', { name: 'Loading' })
+    ).toBeInTheDocument();
+
+    act(() => {
+      ticketRead.resolve([ticket]);
+    });
+
+    expect(
+      await screen.findByRole('button', { name: ticket.reference })
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('status', { name: 'Loading' })
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it('shows loading while a customer ticket creation is pending', async () => {
+    const user = setupSupportUser();
+    const ticket = createQueueTestTicket({
+      reference: 'SUP-3081',
+      priority: 'normal',
+      updatedAt: '2026-04-30T20:00:00Z',
+    });
+    const ticketCreation = createDeferred<SupportTicket>();
+    const flow = createSupportUserFlow({
+      callbacks: {
+        createTicket: () => ticketCreation.promise,
+      },
+      customer: {
+        id: 'ticket-write-loading-customer',
+        name: 'Ari Kim',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'Start ticket' }));
+    await user.type(
+      screen.getByPlaceholderText(
+        'Our team cannot invite new users after enabling SSO.'
+      ),
+      'Our admins cannot invite new users after enabling SSO in production.'
+    );
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByRole('status', { name: 'Loading' })
+    ).toBeInTheDocument();
+
+    act(() => {
+      ticketCreation.resolve(ticket);
+    });
+
+    expect(
+      await screen.findByRole('heading', { name: /SUP-3081 is open/i })
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('status', { name: 'Loading' })
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it('keeps external loading visible after a customer ticket read finishes', async () => {
+    const user = setupSupportUser();
+    const ticket = createQueueTestTicket({
+      reference: 'SUP-3082',
+      priority: 'normal',
+      updatedAt: '2026-04-30T20:00:00Z',
+    });
+    const ticketRead = createDeferred<readonly SupportTicket[]>();
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: (_customer, request) => {
+          return request ? ticketRead.promise : [ticket];
+        },
+      },
+      customer: {
+        id: 'ticket-loading-owner-customer',
+        name: 'Ari Kim',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+
+    expect(
+      await screen.findByRole('status', { name: 'Loading' })
+    ).toBeInTheDocument();
+
+    act(() => {
+      useChatStore.getState().setLoading(true);
+    });
+    act(() => {
+      ticketRead.resolve([ticket]);
+    });
+
+    expect(
+      await screen.findByRole('button', { name: ticket.reference })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
+
+    act(() => {
+      useChatStore.getState().clearLoading();
+    });
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('status', { name: 'Loading' })
+      ).not.toBeInTheDocument();
+    });
+  });
+
   it('shows every customer ticket when no ticket list limit is configured', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-3100',
@@ -671,7 +1197,7 @@ describe('support flows package', () => {
   });
 
   it('filters customer ticket lists with custom local predicates', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-4000',
@@ -746,8 +1272,87 @@ describe('support flows package', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('filters customer backend-paged ticket lists beyond the first backend page', async () => {
+    const user = setupSupportUser();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-4050',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+        status: 'resolved',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-4051',
+        priority: 'high',
+        updatedAt: '2026-04-30T19:00:00Z',
+        status: 'resolved',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-4052',
+        priority: 'urgent',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-4053',
+        priority: 'normal',
+        updatedAt: '2026-04-30T17:00:00Z',
+      }),
+    ];
+    const flow = createSupportUserFlow({
+      callbacks: {
+        listTickets: (_customer, request) => {
+          const offset = request?.offset ?? 0;
+          const limit = request?.limit ?? 2;
+          const nextOffset = offset + limit;
+
+          return {
+            tickets: tickets.slice(offset, nextOffset),
+            hasMore: nextOffset < tickets.length,
+            nextOffset: nextOffset < tickets.length ? nextOffset : undefined,
+          };
+        },
+      },
+      customer: {
+        id: 'ticket-backend-filter-customer',
+        name: 'Ari Kim',
+      },
+      filterOptions: {
+        tickets: [
+          {
+            id: 'all',
+            label: 'All cases',
+          },
+          {
+            id: 'open',
+            label: 'Open cases',
+            predicate: ticket => ticket.status === 'open',
+          },
+        ],
+      },
+      formatters: {
+        ticketList: ({ activeFilterLabel, totalTickets, visibleTickets }) => {
+          return `## ${activeFilterLabel ?? 'Tickets'} (${totalTickets})\n\n${visibleTickets?.map(ticket => ticket.reference).join(', ')}`;
+        },
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+    await chooseFilter(user, 'All cases', 'open');
+
+    expect(
+      await screen.findByRole('heading', { name: /Open cases \(2\)/i })
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-4052')).toBeInTheDocument();
+    expect(getLatestButton('SUP-4053')).toBeInTheDocument();
+    expect(
+      screen.queryByText(/No tickets match Open cases/i)
+    ).not.toBeInTheDocument();
+  });
+
   it('handles customer tickets and live chat through async adapter methods', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const asyncAdapter = createAsyncSupportFlowAdapter(adapter);
     const flow = createSupportUserFlow({
@@ -858,10 +1463,10 @@ describe('support flows package', () => {
     expect(
       await screen.findByRole('heading', { name: /^Ended live chat$/i })
     ).toBeInTheDocument();
-  }, 12_000);
+  }, 30_000);
 
   it('allows library users to customize support input validation', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const flow = createSupportUserFlow({
       adapter,
@@ -910,7 +1515,7 @@ describe('support flows package', () => {
   });
 
   it('does not apply built-in minimum validation to customer ticket summaries', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const flow = createSupportUserFlow({
       adapter,
@@ -943,7 +1548,7 @@ describe('support flows package', () => {
   });
 
   it('does not apply built-in minimum validation to admin ticket replies', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const ticket = await adapter.createTicket({
       customer: {
@@ -984,7 +1589,7 @@ describe('support flows package', () => {
   });
 
   it('allows customer flows to customize prompts, rendering, and button slots', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const flow = createSupportUserFlow({
       adapter,
@@ -1140,8 +1745,11 @@ describe('support flows package', () => {
     });
 
     const queue = await adapter.listQueue();
+    const queueTickets: readonly SupportTicket[] = Array.isArray(queue)
+      ? queue
+      : (queue as { readonly tickets: readonly SupportTicket[] }).tickets;
 
-    expect(queue.map(ticket => ticket.reference)).toEqual([
+    expect(queueTickets.map(ticket => ticket.reference)).toEqual([
       'SUP-1001',
       'SUP-1002',
       'SUP-1000',
@@ -1150,7 +1758,7 @@ describe('support flows package', () => {
   });
 
   it('shows unassigned tickets before assigned tickets in admin queues', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-1000',
@@ -1212,7 +1820,7 @@ describe('support flows package', () => {
   });
 
   it('shows every admin ticket and live chat when no queue limits are configured', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-1100',
@@ -1336,7 +1944,7 @@ describe('support flows package', () => {
   });
 
   it('paginates admin ticket queues beyond the configured limit', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-1000',
@@ -1425,8 +2033,581 @@ describe('support flows package', () => {
     expect(getLatestButton('SUP-1003')).toBeInTheDocument();
   });
 
+  it('paginates admin ticket queues returned in backend-limited pages', async () => {
+    const user = setupSupportUser();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-1050',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1051',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1052',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1053',
+        priority: 'normal',
+        updatedAt: '2026-04-30T17:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1054',
+        priority: 'normal',
+        updatedAt: '2026-04-30T16:00:00Z',
+      }),
+    ];
+    const requestedOffsets: number[] = [];
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: (_filter, request) => {
+          const offset = request?.offset ?? 0;
+
+          if (request) {
+            requestedOffsets.push(offset);
+          }
+
+          return {
+            tickets: tickets.slice(offset, offset + 2),
+            totalTickets: tickets.length,
+          };
+        },
+        getTicket: reference => {
+          return tickets.find(ticket => ticket.reference === reference) ?? null;
+        },
+      },
+      agent: {
+        id: 'queue-backend-page-agent',
+        name: 'Priya Admin',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 1-2 of 5/i)
+    ).toBeInTheDocument();
+    const firstBackendTicket = screen.getByText(/SUP-1050 \(normal\):/i);
+    const secondBackendTicket = screen.getByText(/SUP-1051 \(normal\):/i);
+    expect(
+      screen.getByRole('button', { name: 'SUP-1050' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-1051' })
+    ).toBeInTheDocument();
+    expect(
+      firstBackendTicket.compareDocumentPosition(secondBackendTicket) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+
+    await user.click(screen.getByRole('button', { name: 'Next tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 3-4 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-1052')).toBeInTheDocument();
+    expect(getLatestButton('SUP-1053')).toBeInTheDocument();
+
+    await user.click(getLatestButton('Next tickets'));
+
+    expect(
+      await screen.findByText(/Showing tickets 5-5 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-1054')).toBeInTheDocument();
+    expect(requestedOffsets).toEqual([0, 2, 4]);
+  });
+
+  it('paginates admin ticket queues with next offsets alone', async () => {
+    const user = setupSupportUser();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-1070',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1071',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1072',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+    ];
+    const requestedOffsets: number[] = [];
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: (_filter, request) => {
+          const offset = request?.offset ?? 0;
+          const nextOffset = offset + 1;
+          requestedOffsets.push(offset);
+
+          return {
+            tickets: tickets.slice(offset, nextOffset),
+            nextOffset: nextOffset < tickets.length ? nextOffset : undefined,
+          };
+        },
+        getTicket: reference => {
+          return tickets.find(ticket => ticket.reference === reference) ?? null;
+        },
+      },
+      agent: {
+        id: 'queue-next-offset-agent',
+        name: 'Priya Admin',
+      },
+      behavior: {
+        queueLimit: 1,
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 1-1 of at least 2/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-1070' })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next tickets' }));
+
+    expect(
+      await screen.findByText(/Showing tickets 2-2 of at least 3/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-1071')).toBeInTheDocument();
+
+    await user.click(getLatestButton('Next tickets'));
+
+    expect(
+      await screen.findByText(/Showing tickets 3-3 of 3/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-1072')).toBeInTheDocument();
+    expect(requestedOffsets).toEqual([0, 1, 2]);
+  });
+
+  it('keeps admin ticket queue offsets when assigned work opens page zero', async () => {
+    const user = setupSupportUser();
+    const queuePages = [
+      {
+        offset: 0,
+        ticket: createQueueTestTicket({
+          reference: 'SUP-1080',
+          priority: 'normal',
+          updatedAt: '2026-04-30T20:00:00Z',
+        }),
+        nextOffset: 10,
+      },
+      {
+        offset: 10,
+        ticket: createQueueTestTicket({
+          reference: 'SUP-1081',
+          priority: 'normal',
+          updatedAt: '2026-04-30T19:00:00Z',
+        }),
+        nextOffset: 20,
+      },
+      {
+        offset: 20,
+        ticket: createQueueTestTicket({
+          reference: 'SUP-1082',
+          priority: 'normal',
+          updatedAt: '2026-04-30T18:00:00Z',
+        }),
+      },
+    ];
+    const queueTicketsByOffset = new Map(
+      queuePages.map(page => [page.offset, page] as const)
+    );
+    const assignedTicket = createQueueTestTicket({
+      reference: 'SUP-2080',
+      priority: 'normal',
+      updatedAt: '2026-04-30T17:00:00Z',
+      assignedTo: 'Priya Admin',
+    });
+    const requestedQueueOffsets: number[] = [];
+    const requestedAssignedOffsets: number[] = [];
+    let showQueueThirdPage:
+      | (() => PromiseLike<unknown> | void | undefined)
+      | undefined;
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: (filter, request) => {
+          const offset = request?.offset ?? 0;
+
+          if (filter?.assignedTo === 'Priya Admin') {
+            requestedAssignedOffsets.push(offset);
+
+            return {
+              tickets: offset === 0 ? [assignedTicket] : [],
+            };
+          }
+
+          requestedQueueOffsets.push(offset);
+          const page = queueTicketsByOffset.get(offset);
+
+          return {
+            tickets: page ? [page.ticket] : [],
+            nextOffset: page?.nextOffset,
+          };
+        },
+        getTicket: reference => {
+          const queueTicket = Array.from(queueTicketsByOffset.values()).find(
+            page => page.ticket.reference === reference
+          )?.ticket;
+
+          if (queueTicket) {
+            return queueTicket;
+          }
+
+          return assignedTicket.reference === reference ? assignedTicket : null;
+        },
+      },
+      agent: {
+        id: 'queue-assigned-offset-agent',
+        name: 'Priya Admin',
+      },
+      behavior: {
+        queueLimit: 1,
+        assignedWorkLimit: 1,
+      },
+      customizeButtons: context => {
+        if (
+          context.slot === 'ticket-queue' &&
+          context.visibleTickets?.some(
+            ticket => ticket.reference === 'SUP-1081'
+          ) === true
+        ) {
+          showQueueThirdPage = context.defaultButtons.find(
+            button => button.label === 'Next tickets'
+          )?.onClick;
+        }
+
+        return context.defaultButtons;
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+    expect(
+      await screen.findByText(/Showing tickets 1-1 of at least 2/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-1080' })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next tickets' }));
+    expect(
+      await screen.findByText(/Showing tickets 11-11 of at least 12/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-1081')).toBeInTheDocument();
+    expect(showQueueThirdPage).toBeDefined();
+
+    await user.click(getLatestButton('Back to admin options'));
+    await user.click(getLatestButton('My assigned work'));
+    expect(
+      await screen.findByRole('button', { name: 'SUP-2080' })
+    ).toBeInTheDocument();
+
+    await act(async () => {
+      showQueueThirdPage?.();
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(requestedQueueOffsets).toEqual([0, 10, 20]);
+    });
+    expect(
+      await screen.findByRole('button', { name: 'SUP-1082' })
+    ).toBeInTheDocument();
+    expect(requestedQueueOffsets).toEqual([0, 10, 20]);
+    expect(requestedAssignedOffsets).toEqual([0]);
+  });
+
+  it('keeps requested admin ticket page sizes for short backend pages', async () => {
+    const user = setupSupportUser();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-1060',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1061',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1062',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1063',
+        priority: 'normal',
+        updatedAt: '2026-04-30T17:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1064',
+        priority: 'normal',
+        updatedAt: '2026-04-30T16:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1065',
+        priority: 'normal',
+        updatedAt: '2026-04-30T15:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+    ];
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: (filter, request) => {
+          const matchingTickets = filter?.assignedTo
+            ? tickets.filter(ticket => ticket.assignedTo === filter.assignedTo)
+            : tickets;
+          const offset = request?.offset ?? 0;
+          const requestedLimit = request?.limit ?? 3;
+          const nextOffset = offset + requestedLimit;
+
+          return {
+            tickets: matchingTickets.slice(offset, offset + 1),
+            totalTickets: matchingTickets.length,
+            hasMore: nextOffset < matchingTickets.length,
+            nextOffset,
+          };
+        },
+        getTicket: reference => {
+          return tickets.find(ticket => ticket.reference === reference) ?? null;
+        },
+      },
+      agent: {
+        id: 'queue-short-page-agent',
+        name: 'Priya Admin',
+      },
+      behavior: {
+        queueLimit: 3,
+        assignedWorkLimit: 2,
+      },
+      formatters: {
+        ticketQueue: ({ pageCount, pageSize }) => {
+          return `## Admin ticket page ${pageSize}/${pageCount}`;
+        },
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /Admin ticket page 3\/2/i,
+      })
+    ).toBeInTheDocument();
+
+    await user.click(getLatestButton('Back to admin options'));
+    await user.click(getLatestButton('My assigned work'));
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /Admin ticket page 2\/3/i,
+      })
+    ).toBeInTheDocument();
+  });
+
+  it('resets admin ticket offsets when refreshing the queue', async () => {
+    const user = setupSupportUser();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-1070',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1071',
+        priority: 'normal',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1072',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-1073',
+        priority: 'normal',
+        updatedAt: '2026-04-30T17:00:00Z',
+      }),
+    ];
+    const requestedOffsets: number[] = [];
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: (_filter, request) => {
+          const offset = request?.offset ?? 0;
+          const limit = request?.limit ?? tickets.length;
+          const nextOffset = offset + limit;
+          requestedOffsets.push(offset);
+
+          return {
+            tickets: tickets.slice(offset, nextOffset),
+            totalTickets: tickets.length,
+            hasMore: nextOffset < tickets.length,
+            nextOffset: nextOffset < tickets.length ? nextOffset : undefined,
+          };
+        },
+        getTicket: reference => {
+          return tickets.find(ticket => ticket.reference === reference) ?? null;
+        },
+      },
+      agent: {
+        id: 'queue-refresh-agent',
+        name: 'Priya Admin',
+      },
+      behavior: {
+        queueLimit: 2,
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+    expect(
+      await screen.findByText(/Showing tickets 1-2 of 4/i)
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next tickets' }));
+    expect(
+      await screen.findByText(/Showing tickets 3-4 of 4/i)
+    ).toBeInTheDocument();
+
+    tickets.unshift(
+      createQueueTestTicket({
+        reference: 'SUP-1069',
+        priority: 'urgent',
+        updatedAt: '2026-04-30T21:00:00Z',
+      })
+    );
+
+    await user.click(getLatestButton('Refresh ticket queue'));
+
+    expect(
+      await screen.findByText(/Showing tickets 1-2 of 5/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-1069')).toBeInTheDocument();
+    expect(requestedOffsets).toEqual([0, 2, 0]);
+  });
+
+  it('shows loading while an admin ticket queue database read is pending', async () => {
+    const user = setupSupportUser();
+    const ticket = createQueueTestTicket({
+      reference: 'SUP-1060',
+      priority: 'normal',
+      updatedAt: '2026-04-30T20:00:00Z',
+    });
+    const queueRead = createDeferred<readonly SupportTicket[]>();
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: () => queueRead.promise,
+        getTicket: reference => {
+          return reference === ticket.reference ? ticket : null;
+        },
+      },
+      agent: {
+        id: 'queue-loading-agent',
+        name: 'Priya Admin',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+
+    expect(
+      await screen.findByRole('status', { name: 'Loading' })
+    ).toBeInTheDocument();
+
+    queueRead.resolve([ticket]);
+
+    expect(
+      await screen.findByRole('button', { name: ticket.reference })
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('status', { name: 'Loading' })
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it('keeps external loading visible after a support read finishes', async () => {
+    const user = setupSupportUser();
+    const ticket = createQueueTestTicket({
+      reference: 'SUP-1080',
+      priority: 'normal',
+      updatedAt: '2026-04-30T20:00:00Z',
+    });
+    const queueRead = createDeferred<readonly SupportTicket[]>();
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: () => queueRead.promise,
+        getTicket: reference => {
+          return reference === ticket.reference ? ticket : null;
+        },
+      },
+      agent: {
+        id: 'queue-loading-owner-agent',
+        name: 'Priya Admin',
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+
+    expect(
+      await screen.findByRole('status', { name: 'Loading' })
+    ).toBeInTheDocument();
+
+    act(() => {
+      useChatStore.getState().setLoading(true);
+    });
+    act(() => {
+      queueRead.resolve([ticket]);
+    });
+
+    expect(
+      await screen.findByRole('button', { name: ticket.reference })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
+
+    act(() => {
+      useChatStore.getState().clearLoading();
+    });
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('status', { name: 'Loading' })
+      ).not.toBeInTheDocument();
+    });
+  });
+
   it('paginates admin assigned work beyond the configured limit', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-2000',
@@ -1491,7 +2672,7 @@ describe('support flows package', () => {
   });
 
   it('filters admin ticket queue and assigned work with custom options', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-5000',
@@ -1615,8 +2796,120 @@ describe('support flows package', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('filters admin backend-paged ticket queues beyond the first backend page', async () => {
+    const user = setupSupportUser();
+    const tickets = [
+      createQueueTestTicket({
+        reference: 'SUP-5100',
+        priority: 'normal',
+        updatedAt: '2026-04-30T20:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-5101',
+        priority: 'low',
+        updatedAt: '2026-04-30T19:00:00Z',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-5102',
+        priority: 'normal',
+        updatedAt: '2026-04-30T18:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+      createQueueTestTicket({
+        reference: 'SUP-5103',
+        priority: 'urgent',
+        updatedAt: '2026-04-30T17:00:00Z',
+        assignedTo: 'Priya Admin',
+      }),
+    ];
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: (filter, request) => {
+          const offset = request?.offset ?? 0;
+          const limit = request?.limit ?? 2;
+          const filteredTickets = filter?.assignedTo
+            ? tickets.filter(ticket => ticket.assignedTo === filter.assignedTo)
+            : tickets;
+          const nextOffset = offset + limit;
+
+          return {
+            tickets: filteredTickets.slice(offset, nextOffset),
+            hasMore: nextOffset < filteredTickets.length,
+            nextOffset:
+              nextOffset < filteredTickets.length ? nextOffset : undefined,
+          };
+        },
+        getTicket: reference => {
+          return tickets.find(ticket => ticket.reference === reference) ?? null;
+        },
+      },
+      agent: {
+        id: 'ticket-backend-filter-agent',
+        name: 'Priya Admin',
+      },
+      behavior: {
+        assignedWorkLimit: 1,
+        queueLimit: 2,
+      },
+      filterOptions: {
+        ticketQueue: [
+          {
+            id: 'all',
+            label: 'All tickets',
+          },
+          {
+            id: 'urgent',
+            label: 'Urgent tickets',
+            predicate: ticket => ticket.priority === 'urgent',
+          },
+        ],
+        assignedWork: [
+          {
+            id: 'assigned-all',
+            label: 'All assigned',
+          },
+          {
+            id: 'assigned-urgent',
+            label: 'Urgent assigned',
+            predicate: ticket => ticket.priority === 'urgent',
+          },
+        ],
+      },
+      formatters: {
+        ticketQueue: ({ activeFilterLabel, totalTickets, visibleTickets }) => {
+          return `## ${activeFilterLabel ?? 'Ticket queue'} (${totalTickets})\n\n${visibleTickets?.map(ticket => ticket.reference).join(', ')}`;
+        },
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+    await chooseFilter(user, 'All tickets', 'urgent');
+
+    expect(
+      await screen.findByRole('heading', { name: /Urgent tickets \(1\)/i })
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-5103')).toBeInTheDocument();
+    expect(
+      screen.queryByText(/No tickets match Urgent tickets/i)
+    ).not.toBeInTheDocument();
+
+    await user.click(getLatestButton('Back to admin options'));
+    await user.click(getLatestButton('My assigned work'));
+    await chooseFilter(user, 'All assigned', 'assigned-urgent');
+
+    expect(
+      await screen.findByRole('heading', { name: /Urgent assigned \(1\)/i })
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-5103')).toBeInTheDocument();
+    expect(
+      screen.queryByText(/No assigned tickets match Urgent assigned/i)
+    ).not.toBeInTheDocument();
+  });
+
   it('paginates admin live chat queues beyond the configured limit', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const sessions = [
       createQueueTestLiveChat({
         id: 'chat-1000',
@@ -1700,7 +2993,7 @@ describe('support flows package', () => {
   });
 
   it('filters admin live chat queues with custom backend filters', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const sessions = [
       createQueueTestLiveChat({
         id: 'chat-2000',
@@ -1857,7 +3150,7 @@ describe('support flows package', () => {
   });
 
   it('handles admin tickets and live chat through async adapter methods', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const asyncAdapter = createAsyncSupportFlowAdapter(adapter);
     const ticket = await asyncAdapter.createTicket({
@@ -2002,10 +3295,10 @@ describe('support flows package', () => {
         name: new RegExp(`Ended live chat ${session.id}`, 'i'),
       })
     ).toBeInTheDocument();
-  }, 12_000);
+  }, 30_000);
 
   it('allows admin flows to customize labels, rendering, behavior, and button slots', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const ticket = await adapter.createTicket({
       customer: {
@@ -2064,7 +3357,7 @@ describe('support flows package', () => {
   });
 
   it('lets an admin unassign themselves from a ticket', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const ticket = await adapter.createTicket({
       customer: {
@@ -2109,7 +3402,7 @@ describe('support flows package', () => {
   });
 
   it('lets an admin set ticket priority from a dropdown', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const ticket = await adapter.createTicket({
       customer: {
@@ -2158,7 +3451,7 @@ describe('support flows package', () => {
   });
 
   it('redirects customers to an existing open live chat instead of starting another', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const customer = {
       id: 'customer-active-chat',
       name: 'Casey Lee',
@@ -2244,7 +3537,7 @@ describe('support flows package', () => {
   });
 
   it('lets an admin triage tickets created through the shared adapter', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const customer = {
       id: 'customer-2',
@@ -2432,10 +3725,10 @@ describe('support flows package', () => {
         })
       ).toBe(true);
     });
-  }, 12_000);
+  }, 20_000);
 
   it('lets an admin triage live chats created through the shared adapter', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const customer = {
       id: 'customer-2',
@@ -2597,10 +3890,10 @@ describe('support flows package', () => {
         })
       ).toBe(true);
     });
-  }, 12_000);
+  }, 20_000);
 
   it('restores admin guidance after an input flow is aborted', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const flow = createSupportAdminFlow({
       adapter,
@@ -2614,7 +3907,7 @@ describe('support flows package', () => {
     render(<Chat initialMessages={flow.initialMessages} />);
 
     await user.click(screen.getByRole('button', { name: 'Review a ticket' }));
-    await user.click(screen.getByRole('button', { name: 'Abort' }));
+    await clickLatestButtonWhenEnabled(user, 'Abort');
 
     expect(
       await screen.findByText(/Ticket review cancelled\./i)

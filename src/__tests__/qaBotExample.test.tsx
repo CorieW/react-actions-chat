@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '../../examples/qa-bot/App';
 import { useChatGlobalsStore } from '../lib/chatGlobalsStore';
@@ -32,7 +32,12 @@ describe('qa bot example', () => {
     render(<App />);
 
     await user.click(screen.getByRole('button', { name: 'Track an order' }));
-    await user.click(screen.getByRole('button', { name: 'Abort' }));
+    const abortButton = screen.getByRole('button', { name: 'Abort' });
+
+    await waitFor(() => {
+      expect(abortButton).toBeEnabled();
+    });
+    await user.click(abortButton);
 
     expect(
       await screen.findByText(
@@ -45,7 +50,7 @@ describe('qa bot example', () => {
     expect(
       screen.getByRole('button', { name: 'Talk to a person' })
     ).toBeInTheDocument();
-  });
+  }, 10_000);
 
   it('restores quick actions when support handoff is aborted', async () => {
     const user = userEvent.setup();
@@ -53,7 +58,12 @@ describe('qa bot example', () => {
     render(<App />);
 
     await user.click(screen.getByRole('button', { name: 'Talk to a person' }));
-    await user.click(screen.getByRole('button', { name: 'Abort' }));
+    const abortButton = screen.getByRole('button', { name: 'Abort' });
+
+    await waitFor(() => {
+      expect(abortButton).toBeEnabled();
+    });
+    await user.click(abortButton);
 
     expect(
       await screen.findByText(

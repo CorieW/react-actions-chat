@@ -8,6 +8,7 @@ Small cross-component helpers shared by multiple UI pieces.
 
 ## Files
 
+- `actionButtonLock.ts`: Coordinates the short shared lock that prevents duplicate action-button activations.
 - `buttonVariantStyles.ts`: Resolves theme-aware colors for button variants.
 
 ## Writing Rules

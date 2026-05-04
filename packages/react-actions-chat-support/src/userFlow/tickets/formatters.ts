@@ -45,6 +45,9 @@ export function formatTicketSummary(
 export function formatTicketList(
   page: SupportPaginationPage<SupportTicket>
 ): string {
+  const totalText = page.isTotalItemsExact
+    ? `${page.totalItems}`
+    : `at least ${page.totalItems}`;
   const ticketLines = page.visibleItems
     .map(ticket => {
       return `- **${escapeMarkdown(ticket.reference)} (${escapeMarkdown(ticket.priority)}):** ${escapeMarkdown(ticket.subject)} (${escapeMarkdown(formatTicketStatusLabel(ticket.status))})`;
@@ -55,7 +58,7 @@ export function formatTicketList(
     '## Here are your latest tickets:',
     '',
     page.pageCount > 1
-      ? `_Showing tickets ${page.firstVisibleItemNumber}-${page.lastVisibleItemNumber} of ${page.totalItems}._`
+      ? `_Showing tickets ${page.firstVisibleItemNumber}-${page.lastVisibleItemNumber} of ${totalText}._`
       : undefined,
     ticketLines,
   ]);

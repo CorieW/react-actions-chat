@@ -161,6 +161,19 @@ describe('Chat Store Unit Tests', () => {
 
       expect(persistentStore.getButtons()).toHaveLength(0);
     });
+
+    it('should keep action buttons locked when adding a message', () => {
+      const store = useChatStore.getState();
+
+      store.lockActions();
+      store.addMessage(
+        createInputMessage('Async update', {
+          type: 'other',
+        })
+      );
+
+      expect(useChatStore.getState().isActionLocked).toBe(true);
+    });
   });
 
   describe('addMessages', () => {
@@ -203,6 +216,22 @@ describe('Chat Store Unit Tests', () => {
       store.addMessages(newMessages);
 
       expect(store.getMessages()).toHaveLength(2);
+    });
+
+    it('should keep action buttons locked when adding multiple messages', () => {
+      const store = useChatStore.getState();
+
+      store.lockActions();
+      store.addMessages([
+        createInputMessage('First async update', {
+          type: 'other',
+        }),
+        createInputMessage('Second async update', {
+          type: 'other',
+        }),
+      ]);
+
+      expect(useChatStore.getState().isActionLocked).toBe(true);
     });
   });
 
@@ -285,11 +314,13 @@ describe('Chat Store Unit Tests', () => {
       ];
 
       store.setChatState({
+        isActionLocked: true,
         messages,
         isLoading: true,
       });
 
       expect(store.getMessages()).toEqual(messages);
+      expect(useChatStore.getState().isActionLocked).toBe(true);
       expect(useChatStore.getState().isLoading).toBe(true);
     });
 
@@ -362,6 +393,26 @@ describe('Chat Store Unit Tests', () => {
       expect(useChatStore.getState().isLoading).toBe(false);
     });
 
+    it('should clear the temporary action lock', () => {
+      const store = useChatStore.getState();
+
+      store.lockActions();
+      store.clearMessages();
+
+      expect(useChatStore.getState().isActionLocked).toBe(false);
+    });
+
+    it('should increment the chat lifecycle id', () => {
+      const store = useChatStore.getState();
+      const initialChatLifecycleId = store.chatLifecycleId;
+
+      store.clearMessages();
+
+      expect(useChatStore.getState().chatLifecycleId).toBe(
+        initialChatLifecycleId + 1
+      );
+    });
+
     it('should revoke blob upload URLs when uploaded messages are removed', () => {
       const store = useChatStore.getState();
       const revokeSpy = vi
@@ -396,6 +447,40 @@ describe('Chat Store Unit Tests', () => {
       store.clearLoading();
 
       expect(useChatStore.getState().isLoading).toBe(false);
+    });
+
+    it('should increment the loading mutation id for every loading write', () => {
+      const store = useChatStore.getState();
+      const initialLoadingMutationId = store.loadingMutationId;
+
+      store.setLoading(true);
+      expect(useChatStore.getState().loadingMutationId).toBe(
+        initialLoadingMutationId + 1
+      );
+
+      useChatStore.getState().setLoading(true);
+      expect(useChatStore.getState().loadingMutationId).toBe(
+        initialLoadingMutationId + 2
+      );
+
+      useChatStore.getState().clearLoading();
+      expect(useChatStore.getState().loadingMutationId).toBe(
+        initialLoadingMutationId + 3
+      );
+    });
+  });
+
+  describe('action lock state', () => {
+    it('should set and clear the temporary action lock', () => {
+      const store = useChatStore.getState();
+
+      store.lockActions();
+
+      expect(useChatStore.getState().isActionLocked).toBe(true);
+
+      store.unlockActions();
+
+      expect(useChatStore.getState().isActionLocked).toBe(false);
     });
   });
 

@@ -8,62 +8,75 @@ import {
   usePersistentButtonStore,
 } from 'react-actions-chat';
 import {
-  createInMemorySupportFlowAdapter,
   createSupportAdminFlow,
   createSupportUserFlow,
+  type SupportAdminFlowBehavior,
+  type SupportUserFlowBehavior,
 } from 'react-actions-chat-support';
+import {
+  createFakeSupportDatabase,
+  FAKE_DATABASE_MAX_TICKET_ROWS,
+} from './fakeSupportDatabase';
+import { loadSupportDeskSampleData } from './loader';
 
 type DemoView = 'customer' | 'admin';
 
-const CUSTOMER_IDENTITY = {
-  id: 'customer-alex',
-  name: 'Alex Morgan',
-  email: 'alex@harborhq.test',
-  company: 'Harbor HQ',
+const SUPPORT_DESK_SAMPLE_DATA = loadSupportDeskSampleData();
+const CUSTOMER_IDENTITY = SUPPORT_DESK_SAMPLE_DATA.customerIdentity;
+const AGENT_IDENTITY = SUPPORT_DESK_SAMPLE_DATA.agentIdentity;
+
+const SUPPORT_TICKET_PAGE_SIZE = 4;
+const SUPPORT_LIVE_CHAT_PAGE_SIZE = 2;
+
+const CUSTOMER_FLOW_BEHAVIOR: SupportUserFlowBehavior = {
+  ticketListLimit: SUPPORT_TICKET_PAGE_SIZE,
 };
 
-const AGENT_IDENTITY = {
-  id: 'agent-morgan',
-  name: 'Morgan Admin',
-  email: 'morgan@harborhq.test',
-  team: 'Revenue Ops',
+const ADMIN_FLOW_BEHAVIOR: SupportAdminFlowBehavior = {
+  queueLimit: SUPPORT_TICKET_PAGE_SIZE,
+  assignedWorkLimit: SUPPORT_TICKET_PAGE_SIZE,
+  liveChatQueueLimit: SUPPORT_LIVE_CHAT_PAGE_SIZE,
 };
 
-const CUSTOMER_THEME: ChatTheme = {
-  primaryColor: '#0f766e',
-  secondaryColor: '#0b1f24',
-  backgroundColor: '#06171a',
-  textColor: '#e6fffb',
-  borderColor: '#155e63',
-  inputBackgroundColor: '#0d2a31',
-  inputTextColor: '#f5fffd',
-  buttonColor: '#f4b860',
-  buttonTextColor: '#211405',
-};
-
-const ADMIN_THEME: ChatTheme = {
-  primaryColor: '#b45309',
-  secondaryColor: '#23140a',
-  backgroundColor: '#170b05',
-  textColor: '#fff4ea',
-  borderColor: '#7c3f12',
-  inputBackgroundColor: '#29140b',
-  inputTextColor: '#fff8f2',
-  buttonColor: '#58c2a4',
-  buttonTextColor: '#082019',
+const SUPPORT_DESK_THEME: ChatTheme = {
+  primaryColor: '#8b5cf6',
+  secondaryColor: '#18181b',
+  backgroundColor: '#09090b',
+  textColor: '#f4f4f5',
+  borderColor: '#3f3f46',
+  inputBackgroundColor: '#18181b',
+  inputTextColor: '#fafafa',
+  buttonColor: '#8b5cf6',
+  buttonTextColor: '#ffffff',
 };
 
 const CUSTOMER_NOTES = [
   'Open a ticket and switch to the admin console to review it.',
   'Start a live chat and watch the same session appear in the admin queue.',
-  'Reset the workspace whenever you want a fresh in-memory adapter.',
+  `Ticket reads are capped at ${FAKE_DATABASE_MAX_TICKET_ROWS} rows to mimic a constrained database.`,
 ];
 
 const ADMIN_NOTES = [
-  'Review the shared ticket queue from the same adapter instance.',
+  'Review the shared ticket queue from the same fake database.',
   'Assign ownership, reply to customers, and resolve tickets.',
-  'Join queued live chats without extra example-level glue code.',
+  `Queue pagination keeps fetching through ${FAKE_DATABASE_MAX_TICKET_ROWS}-ticket database pages.`,
+  'Join queued live chats after the fake read delay resolves.',
 ];
+
+function createDemoSupportAdapter(): ReturnType<
+  typeof createFakeSupportDatabase
+> {
+  return createFakeSupportDatabase({
+    adapterOptions: {
+      tickets: SUPPORT_DESK_SAMPLE_DATA.tickets,
+      liveChats: SUPPORT_DESK_SAMPLE_DATA.liveChats,
+      nextTicketNumber: 1000,
+      nextLiveChatNumber: 1,
+      getLiveChatQueuePosition: () => 1,
+      getEstimatedWaitMinutes: () => 4,
+    },
+  });
+}
 
 function resetChatStores(): void {
   useChatGlobalsStore.getState().resetChatGlobals();
@@ -83,9 +96,7 @@ function resetChatStores(): void {
 
 export function App(): React.JSX.Element {
   const [activeView, setActiveView] = useState<DemoView>('customer');
-  const [adapter, setAdapter] = useState(() =>
-    createInMemorySupportFlowAdapter()
-  );
+  const [adapter, setAdapter] = useState(() => createDemoSupportAdapter());
   const [chatInstance, setChatInstance] = useState(0);
 
   const flow =
@@ -94,14 +105,15 @@ export function App(): React.JSX.Element {
           adapter,
           customer: CUSTOMER_IDENTITY,
           brandName: 'Harbor Support',
+          behavior: CUSTOMER_FLOW_BEHAVIOR,
         })
       : createSupportAdminFlow({
           adapter,
           agent: AGENT_IDENTITY,
           brandName: 'Harbor Ops',
+          behavior: ADMIN_FLOW_BEHAVIOR,
         });
 
-  const activeTheme = activeView === 'customer' ? CUSTOMER_THEME : ADMIN_THEME;
   const activeNotes = activeView === 'customer' ? CUSTOMER_NOTES : ADMIN_NOTES;
 
   function remountChat(update?: () => void): void {
@@ -122,7 +134,7 @@ export function App(): React.JSX.Element {
 
   function resetWorkspace(): void {
     remountChat(() => {
-      setAdapter(createInMemorySupportFlowAdapter());
+      setAdapter(createDemoSupportAdapter());
     });
   }
 
@@ -133,9 +145,10 @@ export function App(): React.JSX.Element {
           <p className='support-desk-demo__eyebrow'>Support Package Demo</p>
           <h1 className='support-desk-demo__title'>Harbor Support Desk</h1>
           <p className='support-desk-demo__description'>
-            This example demos the shared adapter and both exported flows from{' '}
-            <code>react-actions-chat-support</code>. Start in the customer
-            inbox, then flip to the admin console to work the same tickets.
+            This example demos a limited fake database and both exported flows
+            from <code>react-actions-chat-support</code>. Start in the customer
+            inbox, then flip to the admin console to work the same tickets after
+            paged reads and delayed writes.
           </p>
 
           <div className='support-desk-demo__controls'>
@@ -169,15 +182,6 @@ export function App(): React.JSX.Element {
             >
               Admin console
             </button>
-            <button
-              type='button'
-              className='support-desk-demo__reset-button'
-              onClick={() => {
-                resetWorkspace();
-              }}
-            >
-              Reset workspace
-            </button>
           </div>
 
           <section className='support-desk-demo__panel'>
@@ -205,13 +209,25 @@ export function App(): React.JSX.Element {
               </h2>
             </div>
             <div
-              className='support-desk-demo__pills'
-              aria-label='Demo highlights'
+              className='support-desk-demo__workspace-actions'
+              aria-label='Workspace actions'
             >
-              <span>Shared adapter</span>
-              <span>Ticketing</span>
-              <span>Live chat</span>
-              <span>Queue actions</span>
+              <div
+                className='support-desk-demo__pills'
+                aria-label='Demo highlights'
+              >
+                <span>Shared adapter</span>
+                <span>Limited fake DB</span>
+                <span>Ticketing</span>
+                <span>Live chat</span>
+              </div>
+              <button
+                type='button'
+                className='support-desk-demo__reset-button'
+                onClick={resetWorkspace}
+              >
+                Reset workspace
+              </button>
             </div>
           </header>
 
@@ -219,7 +235,7 @@ export function App(): React.JSX.Element {
             <Chat
               key={`${activeView}-${chatInstance}`}
               initialMessages={flow.initialMessages}
-              theme={activeTheme}
+              theme={SUPPORT_DESK_THEME}
             />
           </div>
         </section>

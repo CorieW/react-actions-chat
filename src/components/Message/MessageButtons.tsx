@@ -1,6 +1,8 @@
 import React from 'react';
 import type { ChatTheme, InputMessage } from '../../js/types';
+import { useChatStore } from '../../lib';
 import { cn } from '../../lib/utils';
+import { runWithActionButtonLock } from '../shared/actionButtonLock';
 import { getButtonVariantStyles } from '../shared/buttonVariantStyles';
 
 /**
@@ -35,6 +37,10 @@ export function MessageButtons({
   messageType,
   theme,
 }: MessageButtonsProps): React.JSX.Element | null {
+  const isActionLocked = useChatStore(state => state.isActionLocked);
+  const isLoading = useChatStore(state => state.isLoading);
+  const actionsDisabled = isActionLocked || isLoading;
+
   if (!buttons || buttons.length === 0) {
     return null;
   }
@@ -53,13 +59,15 @@ export function MessageButtons({
         const variantStyles = getButtonVariantStyles(variant, theme);
         const buttonStyles = { ...variantStyles, ...button.style };
         const baseClassName =
-          'rounded-lg px-3 py-1.5 text-xs font-medium transition-[transform,opacity,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:opacity-90 focus-visible:outline-none focus-visible:ring-1';
+          'rounded-lg px-3 py-1.5 text-xs font-medium transition-[transform,opacity,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:opacity-90 focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-40';
         const buttonClassName = cn(baseClassName, button.className);
 
         return (
           <button
             key={`${button.label}-${index}`}
-            onClick={() => button.onClick?.()}
+            type='button'
+            disabled={actionsDisabled}
+            onClick={() => runWithActionButtonLock(button.onClick)}
             className={buttonClassName}
             style={buttonStyles}
           >

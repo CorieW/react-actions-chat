@@ -1,0 +1,125 @@
+{
+  "customerIdentity": {
+    "id": "customer-alex",
+    "name": "Alex Morgan",
+    "email": "alex@harborhq.test",
+    "company": "Harbor HQ"
+  },
+  "agentIdentity": {
+    "id": "agent-morgan",
+    "name": "Morgan Admin",
+    "email": "morgan@harborhq.test",
+    "team": "Revenue Ops"
+  },
+  "tickets": [
+    {
+      "reference": "SUP-0995",
+      "subject": "Invoice PDF export fails after SSO rollout",
+      "summary": "Finance cannot download the invoice PDF after switching the workspace to SSO.",
+      "status": "new",
+      "priority": "normal",
+      "updatedAt": "2026-04-30T20:00:00Z"
+    },
+    {
+      "reference": "SUP-0996",
+      "subject": "Renewal approval notification missing",
+      "summary": "The revenue team expected renewal approval emails but no notifications were delivered.",
+      "status": "open",
+      "priority": "normal",
+      "updatedAt": "2026-04-30T19:00:00Z"
+    },
+    {
+      "reference": "SUP-0997",
+      "subject": "Seat provisioning delayed for analysts",
+      "summary": "Three analysts were added to the workspace but still cannot access reporting.",
+      "status": "pending-internal",
+      "priority": "normal",
+      "updatedAt": "2026-04-30T18:00:00Z",
+      "assignedTo": "Morgan Admin"
+    },
+    {
+      "reference": "SUP-0998",
+      "subject": "Usage dashboard totals look stale",
+      "summary": "The admin dashboard has not reflected the last import of usage records.",
+      "status": "open",
+      "priority": "normal",
+      "updatedAt": "2026-04-30T17:00:00Z",
+      "assignedTo": "Morgan Admin"
+    },
+    {
+      "reference": "SUP-0999",
+      "subject": "Webhook retry settings need review",
+      "summary": "Ops needs help confirming whether failed billing webhooks are retrying.",
+      "status": "pending-customer",
+      "priority": "normal",
+      "updatedAt": "2026-04-30T16:00:00Z",
+      "assignedTo": "Morgan Admin"
+    }
+  ],
+  "liveChats": [
+    {
+      "id": "chat-demo-01",
+      "summary": "Billing approver is blocked on a renewal exception review.",
+      "requestedBy": "customer",
+      "queuePosition": 2,
+      "estimatedWaitMinutes": 4,
+      "status": "queued",
+      "createdAt": "2026-04-30T20:10:00Z",
+      "updatedAt": "2026-04-30T20:10:00Z",
+      "customer": {
+        "id": "customer-jordan",
+        "name": "Jordan Lee",
+        "email": "jordan@harborhq.test",
+        "company": "Harbor HQ"
+      }
+    },
+    {
+      "id": "chat-demo-02",
+      "summary": "Customer success needs confirmation before reopening a closed workspace.",
+      "requestedBy": "customer",
+      "queuePosition": 3,
+      "estimatedWaitMinutes": 7,
+      "status": "queued",
+      "createdAt": "2026-04-30T20:05:00Z",
+      "updatedAt": "2026-04-30T20:05:00Z",
+      "customer": {
+        "id": "customer-riley",
+        "name": "Riley Chen",
+        "email": "riley@harborhq.test",
+        "company": "Harbor HQ"
+      }
+    },
+    {
+      "id": "chat-demo-03",
+      "summary": "Implementation is waiting for a webhook retry answer.",
+      "requestedBy": "customer",
+      "queuePosition": 4,
+      "estimatedWaitMinutes": 10,
+      "status": "queued",
+      "createdAt": "2026-04-30T20:00:00Z",
+      "updatedAt": "2026-04-30T20:00:00Z",
+      "customer": {
+        "id": "customer-sam",
+        "name": "Sam Rivera",
+        "email": "sam@harborhq.test",
+        "company": "Harbor HQ"
+      }
+    },
+    {
+      "id": "chat-demo-04",
+      "summary": "Finance needs a handoff before they approve the credit memo.",
+      "requestedBy": "customer",
+      "queuePosition": 5,
+      "estimatedWaitMinutes": 13,
+      "status": "queued",
+      "createdAt": "2026-04-30T19:55:00Z",
+      "updatedAt": "2026-04-30T19:55:00Z",
+      "customer": {
+        "id": "customer-taylor",
+        "name": "Taylor Brooks",
+        "email": "taylor@harborhq.test",
+        "company": "Harbor HQ"
+      }
+    }
+  ]
+}

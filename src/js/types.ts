@@ -215,9 +215,11 @@ export interface MessageButton {
    */
   readonly label: string;
   /**
-   * Callback invoked when click.
+   * Callback invoked when the button is clicked; async callbacks keep buttons locked until they settle.
    */
-  readonly onClick?: () => void | undefined;
+  readonly onClick?:
+    | (() => PromiseLike<unknown> | void | undefined)
+    | undefined;
   /**
    * Visual variant used when rendering the button.
    */

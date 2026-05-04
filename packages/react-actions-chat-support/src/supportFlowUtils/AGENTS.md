@@ -12,6 +12,7 @@ Internal pure utility modules re-exported through `../supportFlowUtils.ts` for b
 - `buttons.ts`: Request/confirmation button override resolution and persistent button ID helpers.
 - `formatting.ts`: Shared markdown escaping, labels, timestamps, activity formatting, and identity labels.
 - `index.ts`: Internal barrel for shared support flow utilities.
+- `loading.ts`: Delayed loading indicator controller for async support operations.
 - `pagination.ts`: Shared page-window calculations for ticket and live-chat lists.
 - `validation.ts`: Shared support input validation setting resolution and validator builders.
 

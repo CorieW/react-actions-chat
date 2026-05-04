@@ -2,10 +2,20 @@ import type { MessageButton } from 'react-actions-chat';
 import type {
   SupportInputValidationSettings,
   SupportTicket,
+  SupportTicketListRequest,
+  SupportTicketListResult,
   SupportUserIdentity,
 } from '../../supportFlowTypes';
 import {
+  collectFilteredSupportTicketListPage,
+  createPaginationPage,
+  createSupportTicketListRequest,
   createListFilterButtons,
+  getSupportTicketListNextOffset,
+  getSupportTicketListPageSize,
+  getSupportTicketListTickets,
+  hasSupportTicketListNextPage,
+  isSupportTicketListResult,
   normalizeReference,
   paginateItems,
   resolveActiveListFilter,
@@ -246,6 +256,73 @@ export function createUserTicketFlow({
   createBackToSupportOptionsButton,
   customizeButtons,
 }: CreateUserTicketFlowOptions): UserTicketFlow {
+  const ticketListPageOffsets = new Map<string, number>();
+
+  const resetTicketListPageOffsets = (): void => {
+    ticketListPageOffsets.clear();
+  };
+
+  const getTicketListPageKey = (
+    activeFilterId: string | undefined,
+    pageIndex: number
+  ): string => {
+    return `${activeFilterId ?? 'all'}:${pageIndex}`;
+  };
+
+  const createTicketListRequest = (
+    pageIndex: number,
+    activeFilterId: string | undefined
+  ): SupportTicketListRequest => {
+    if (pageIndex <= 0) {
+      resetTicketListPageOffsets();
+    }
+
+    const offset =
+      pageIndex <= 0
+        ? 0
+        : (ticketListPageOffsets.get(
+            getTicketListPageKey(activeFilterId, pageIndex)
+          ) ?? pageIndex * (ticketListLimit ?? 0));
+
+    return createSupportTicketListRequest(pageIndex, offset, ticketListLimit);
+  };
+
+  const rememberTicketListPage = (
+    activeFilterId: string | undefined,
+    request: SupportTicketListRequest,
+    result: SupportTicketListResult
+  ): void => {
+    ticketListPageOffsets.set(
+      getTicketListPageKey(activeFilterId, request.pageIndex),
+      request.offset
+    );
+
+    const nextOffset = getSupportTicketListNextOffset(request, result);
+
+    if (nextOffset !== undefined) {
+      ticketListPageOffsets.set(
+        getTicketListPageKey(activeFilterId, request.pageIndex + 1),
+        nextOffset
+      );
+    }
+  };
+
+  const createTicketWithOffsetReset: SupportUserFlowServices['createTicket'] =
+    async input => {
+      const ticket = await createTicket(input);
+      resetTicketListPageOffsets();
+
+      return ticket;
+    };
+
+  const appendTicketMessageWithOffsetReset: SupportUserFlowServices['appendTicketMessage'] =
+    async input => {
+      const ticket = await appendTicketMessage(input);
+      resetTicketListPageOffsets();
+
+      return ticket;
+    };
+
   const createTicketButtonEnvironment = () => {
     return {
       customer,
@@ -255,8 +332,8 @@ export function createUserTicketFlow({
       requestInputs: config.requestInputs,
       ticketSummaryValidation,
       ticketDetailValidation,
-      createTicket,
-      appendTicketMessage,
+      createTicket: createTicketWithOffsetReset,
+      appendTicketMessage: appendTicketMessageWithOffsetReset,
       addSupportMessage,
       addAbortRecoveryMessage,
       createTicketButtons,
@@ -286,6 +363,7 @@ export function createUserTicketFlow({
         void showFullActivity(reference);
       },
       showMyTickets: () => {
+        resetTicketListPageOffsets();
         void showMyTickets();
       },
       customizeButtons,
@@ -360,11 +438,28 @@ export function createUserTicketFlow({
       },
     });
     const isFiltered = Boolean(activeFilter?.predicate);
-    const tickets = applyTicketFilterPredicate(
-      await listTickets(),
-      activeFilter,
-      filterContext
-    );
+    const filteredTicketPage = activeFilter?.predicate
+      ? await collectFilteredSupportTicketListPage({
+          pageIndex,
+          pageSize: ticketListLimit,
+          listTickets,
+          filterTickets: tickets =>
+            applyTicketFilterPredicate(tickets, activeFilter, filterContext),
+        })
+      : undefined;
+    const request = filteredTicketPage
+      ? undefined
+      : createTicketListRequest(pageIndex, activeFilter?.id);
+    const ticketResponse = request ? await listTickets(request) : undefined;
+    const isPagedResponse =
+      ticketResponse !== undefined && isSupportTicketListResult(ticketResponse);
+    const tickets =
+      filteredTicketPage?.tickets ??
+      applyTicketFilterPredicate(
+        getSupportTicketListTickets(ticketResponse ?? []),
+        activeFilter,
+        filterContext
+      );
 
     if (!tickets.length) {
       addSupportMessage(
@@ -382,7 +477,27 @@ export function createUserTicketFlow({
       return;
     }
 
-    const page = paginateItems(tickets, pageIndex, ticketListLimit);
+    const page =
+      filteredTicketPage?.page ??
+      (isPagedResponse && request
+        ? createPaginationPage({
+            visibleItems: tickets,
+            pageIndex,
+            pageSize: getSupportTicketListPageSize(
+              request,
+              ticketListLimit,
+              ticketResponse.tickets.length
+            ),
+            offset: request.offset,
+            totalItems: ticketResponse.totalTickets,
+            hasMoreItems: hasSupportTicketListNextPage(request, ticketResponse),
+          })
+        : paginateItems(tickets, pageIndex, ticketListLimit));
+
+    if (isPagedResponse && request) {
+      rememberTicketListPage(activeFilter?.id, request, ticketResponse);
+    }
+
     const visibleTickets = page.visibleItems;
     const defaultButtons = [
       ...filterButtons,
@@ -417,6 +532,8 @@ export function createUserTicketFlow({
         pageCount: page.pageCount,
         pageSize: page.pageSize,
         totalTickets: page.totalItems,
+        hasMoreTickets: page.hasMoreItems,
+        isTotalTicketsExact: page.isTotalItemsExact,
         activeFilterId: activeFilter?.id,
         activeFilterLabel: activeFilter?.label,
         filterOptions,
@@ -432,6 +549,7 @@ export function createUserTicketFlow({
     return createViewTicketsButton({
       labels,
       showMyTickets: () => {
+        resetTicketListPageOffsets();
         void showMyTickets();
       },
     });
