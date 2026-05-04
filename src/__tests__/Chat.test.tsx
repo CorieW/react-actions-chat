@@ -1010,6 +1010,26 @@ describe('Chat Component Integration Tests', () => {
     expect(secondClick).not.toHaveBeenCalled();
   });
 
+  it('does not lock message action buttons without click handlers', () => {
+    render(
+      <Chat
+        initialMessages={[
+          createInputMessage('Read-only action', {
+            id: 1,
+            type: 'other',
+            timestamp: new Date(),
+            buttons: [{ label: 'Read only' }],
+          }),
+        ]}
+        allowFreeTextInput
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Read only' }));
+
+    expect(useChatStore.getState().isActionLocked).toBe(false);
+  });
+
   it('keeps stale async actions from unlocking a newer action lock', async () => {
     let resolveFirstAction: () => void = () => {};
     const firstActionPromise = new Promise<void>(resolve => {
@@ -1099,6 +1119,19 @@ describe('Chat Component Integration Tests', () => {
 
     expect(firstClick).toHaveBeenCalledTimes(1);
     expect(secondClick).not.toHaveBeenCalled();
+  });
+
+  it('does not lock persistent action buttons without click handlers', () => {
+    usePersistentButtonStore.getState().addButton({
+      id: 'read-only-action',
+      label: 'Read only',
+    });
+
+    render(<Chat allowFreeTextInput />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Read only' }));
+
+    expect(useChatStore.getState().isActionLocked).toBe(false);
   });
 
   it('disables message action buttons while chat is loading', async () => {

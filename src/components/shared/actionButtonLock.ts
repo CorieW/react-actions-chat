@@ -81,6 +81,10 @@ function scheduleActionButtonUnlock(lockId: number): void {
 export function runWithActionButtonLock(
   action: (() => PromiseLike<unknown> | void | undefined) | undefined
 ): void {
+  if (action === undefined) {
+    return;
+  }
+
   const chatStore = useChatStore.getState();
 
   if (chatStore.isActionLocked || chatStore.isLoading) {
