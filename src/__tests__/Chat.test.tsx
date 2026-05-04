@@ -431,7 +431,12 @@ describe('Chat Component Integration Tests', () => {
       'Choose a confirmation option to continue.'
     );
 
-    await user.click(screen.getByRole('button', { name: 'Keep it' }));
+    const rejectButton = screen.getByRole('button', { name: 'Keep it' });
+
+    await waitFor(() => {
+      expect(rejectButton).toBeEnabled();
+    });
+    await user.click(rejectButton);
 
     expect(onReject).toHaveBeenCalledTimes(1);
 
@@ -1129,6 +1134,52 @@ describe('Chat Component Integration Tests', () => {
     });
 
     expect(useChatStore.getState().isActionLocked).toBe(false);
+  });
+
+  it('keeps persistent action buttons locked when async actions append messages before settling', async () => {
+    let resolveAction: () => void = () => {};
+    const actionPromise = new Promise<void>(resolve => {
+      resolveAction = resolve;
+    });
+    const firstClick = vi.fn(() => {
+      useChatStore.getState().addMessage(
+        createInputMessage('Still working', {
+          type: 'other',
+        })
+      );
+
+      return actionPromise;
+    });
+    const secondClick = vi.fn();
+
+    usePersistentButtonStore.getState().addButton({
+      id: 'long-action',
+      label: 'Long action',
+      onClick: firstClick,
+    });
+    usePersistentButtonStore.getState().addButton({
+      id: 'other-action',
+      label: 'Other action',
+      onClick: secondClick,
+    });
+
+    render(<Chat allowFreeTextInput />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Long action' }));
+
+    expect(firstClick).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText('Still working')).toBeInTheDocument();
+    expect(useChatStore.getState().isActionLocked).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Other action' }));
+
+    expect(secondClick).not.toHaveBeenCalled();
+
+    await act(async () => {
+      resolveAction();
+      await actionPromise;
+      await Promise.resolve();
+    });
   });
 
   it('locks persistent action buttons immediately after an action click', () => {

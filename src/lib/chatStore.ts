@@ -206,7 +206,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     set(state => ({
       // Clear buttons from all previous messages before adding the new one
-      isActionLocked: false,
       messages: [
         ...state.messages.map(message => ({ ...message, buttons: [] })),
         newMessage,
@@ -230,7 +229,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
         return msg;
       });
       return {
-        isActionLocked: false,
         messages: [...currentMessages, ...newMessages],
       };
     });

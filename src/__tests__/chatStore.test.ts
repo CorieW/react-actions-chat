@@ -161,6 +161,19 @@ describe('Chat Store Unit Tests', () => {
 
       expect(persistentStore.getButtons()).toHaveLength(0);
     });
+
+    it('should keep action buttons locked when adding a message', () => {
+      const store = useChatStore.getState();
+
+      store.lockActions();
+      store.addMessage(
+        createInputMessage('Async update', {
+          type: 'other',
+        })
+      );
+
+      expect(useChatStore.getState().isActionLocked).toBe(true);
+    });
   });
 
   describe('addMessages', () => {
@@ -203,6 +216,22 @@ describe('Chat Store Unit Tests', () => {
       store.addMessages(newMessages);
 
       expect(store.getMessages()).toHaveLength(2);
+    });
+
+    it('should keep action buttons locked when adding multiple messages', () => {
+      const store = useChatStore.getState();
+
+      store.lockActions();
+      store.addMessages([
+        createInputMessage('First async update', {
+          type: 'other',
+        }),
+        createInputMessage('Second async update', {
+          type: 'other',
+        }),
+      ]);
+
+      expect(useChatStore.getState().isActionLocked).toBe(true);
     });
   });
 
