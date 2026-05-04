@@ -376,6 +376,42 @@ describe('support flows package', () => {
     expect(useChatStore.getState().isLoading).toBe(false);
   });
 
+  it('clears support-owned loading after the transcript is replaced', async () => {
+    const loadingController = createSupportLoadingController();
+    const operation = createDeferred<string>();
+
+    const result = loadingController.runWithLoading(() => operation.promise);
+
+    await new Promise<void>(resolve => {
+      globalThis.setTimeout(resolve, 200);
+    });
+    expect(useChatStore.getState().isLoading).toBe(true);
+
+    act(() => {
+      useChatStore.getState().setMessages([
+        {
+          id: 1,
+          type: 'other',
+          rawContent: 'Transcript replaced while support work is pending.',
+          parts: [
+            {
+              type: 'text',
+              text: 'Transcript replaced while support work is pending.',
+            },
+          ],
+          timestamp: new Date(),
+        },
+      ]);
+    });
+    expect(useChatStore.getState().isLoading).toBe(true);
+
+    await act(async () => {
+      operation.resolve('done');
+      await result;
+    });
+    expect(useChatStore.getState().isLoading).toBe(false);
+  });
+
   it('handles the customer support flow for tickets and live chat', async () => {
     const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();

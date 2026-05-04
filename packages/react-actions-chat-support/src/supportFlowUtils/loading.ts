@@ -136,7 +136,6 @@ export function createSupportLoadingController(): SupportLoadingController {
 
       didSetLoading = false;
       if (
-        chatStore.chatLifecycleId === chatLifecycleId &&
         chatStore.isLoading &&
         chatStore.loadingMutationId === loadingMutationId
       ) {
