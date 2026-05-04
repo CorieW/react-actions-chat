@@ -180,6 +180,7 @@ describe('Query Recommended Actions Flow', () => {
     const recommendationButton = screen.getByRole('button', {
       name: 'Reset password',
     });
+    await waitFor(() => expect(recommendationButton).toBeEnabled());
     await user.click(recommendationButton);
 
     expect(handleRecommendation).toHaveBeenCalledTimes(1);
@@ -716,6 +717,7 @@ describe('Query Recommended Actions Flow', () => {
     const recommendationButton = screen.getByRole('button', {
       name: 'Recommended for change email',
     });
+    await waitFor(() => expect(recommendationButton).toBeEnabled());
     await user.click(recommendationButton);
 
     expect(handleRecommendation).toHaveBeenCalledTimes(1);
