@@ -1,6 +1,6 @@
 ---
 'react-actions-chat': patch
-'react-actions-chat-support': patch
+'react-actions-chat-support': minor
 ---
 
 - Track chat loading-state writes and chat lifecycle resets so delayed support loaders do not clear or reclaim newer loading owners.
