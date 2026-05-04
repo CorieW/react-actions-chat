@@ -1,6 +1,6 @@
 {
   "name": "react-actions-chat-support",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Support-desk flow helpers and in-memory adapters for react-actions-chat.",
   "keywords": [
     "react",
