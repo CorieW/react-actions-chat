@@ -1,5 +1,18 @@
 # react-actions-chat-support
 
+## 2.1.0
+
+### Minor Changes
+
+- 1cbb427: - Track chat loading-state writes and chat lifecycle resets so delayed support loaders do not clear or reclaim newer loading owners.
+  - Add paged ticket-list responses with request offsets so customer and admin flows can continue through backend-limited ticket result sets.
+  - Show the chat loading indicator while support adapter and callback operations stay pending.
+
+### Patch Changes
+
+- 1c7d39e: - Remove built-in support flow limit and minimum validation defaults so callers only get configured behavior and validation.
+  - Treat omitted recent activity and transcript limits as unbounded in default support formatters.
+
 ## 2.0.2
 
 ### Patch Changes

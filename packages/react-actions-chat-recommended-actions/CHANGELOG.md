@@ -1,5 +1,11 @@
 # react-actions-chat-recommended-actions
 
+## 1.0.4
+
+### Patch Changes
+
+- 4160950: - Publish companion packages with changelog notes for the latest `react-actions-chat` loading-state and action-button lock updates.
+
 ## 1.0.3
 
 ### Patch Changes
