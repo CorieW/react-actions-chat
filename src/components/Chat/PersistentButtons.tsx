@@ -1,7 +1,8 @@
 import React from 'react';
 import type { ChatTheme } from '../../js/types';
-import { usePersistentButtonStore } from '../../lib';
+import { useChatStore, usePersistentButtonStore } from '../../lib';
 import { cn } from '../../lib/utils';
+import { runWithActionButtonLock } from '../shared/actionButtonLock';
 import { getButtonVariantStyles } from '../shared/buttonVariantStyles';
 
 /**
@@ -25,6 +26,9 @@ export function PersistentButtons({
   theme,
 }: PersistentButtonsProps): React.JSX.Element | null {
   const buttons = usePersistentButtonStore(state => state.buttons);
+  const isActionLocked = useChatStore(state => state.isActionLocked);
+  const isLoading = useChatStore(state => state.isLoading);
+  const actionsDisabled = isActionLocked || isLoading;
 
   if (buttons.length === 0) {
     return null;
@@ -46,13 +50,15 @@ export function PersistentButtons({
         const variantStyles = getButtonVariantStyles(variant, theme);
         const buttonStyles = { ...variantStyles, ...button.style };
         const baseClassName =
-          'rounded-lg px-4 py-2 text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-1';
+          'rounded-lg px-4 py-2 text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-40';
         const buttonClassName = cn(baseClassName, button.className);
 
         return (
           <button
             key={button.id}
-            onClick={() => button.onClick?.()}
+            type='button'
+            disabled={actionsDisabled}
+            onClick={() => runWithActionButtonLock(button.onClick)}
             className={buttonClassName}
             style={buttonStyles}
           >

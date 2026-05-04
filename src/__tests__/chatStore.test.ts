@@ -285,11 +285,13 @@ describe('Chat Store Unit Tests', () => {
       ];
 
       store.setChatState({
+        isActionLocked: true,
         messages,
         isLoading: true,
       });
 
       expect(store.getMessages()).toEqual(messages);
+      expect(useChatStore.getState().isActionLocked).toBe(true);
       expect(useChatStore.getState().isLoading).toBe(true);
     });
 
@@ -362,6 +364,15 @@ describe('Chat Store Unit Tests', () => {
       expect(useChatStore.getState().isLoading).toBe(false);
     });
 
+    it('should clear the temporary action lock', () => {
+      const store = useChatStore.getState();
+
+      store.lockActions();
+      store.clearMessages();
+
+      expect(useChatStore.getState().isActionLocked).toBe(false);
+    });
+
     it('should revoke blob upload URLs when uploaded messages are removed', () => {
       const store = useChatStore.getState();
       const revokeSpy = vi
@@ -416,6 +427,20 @@ describe('Chat Store Unit Tests', () => {
       expect(useChatStore.getState().loadingMutationId).toBe(
         initialLoadingMutationId + 3
       );
+    });
+  });
+
+  describe('action lock state', () => {
+    it('should set and clear the temporary action lock', () => {
+      const store = useChatStore.getState();
+
+      store.lockActions();
+
+      expect(useChatStore.getState().isActionLocked).toBe(true);
+
+      store.unlockActions();
+
+      expect(useChatStore.getState().isActionLocked).toBe(false);
     });
   });
 

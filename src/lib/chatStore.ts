@@ -20,6 +20,10 @@ const ABORT_BUTTON_ID = 'input-request-abort';
  */
 export interface ChatStateParams {
   /**
+   * Whether action buttons are temporarily locked after a click.
+   */
+  readonly isActionLocked?: boolean | undefined;
+  /**
    * Whether loading is true.
    */
   readonly isLoading?: boolean | undefined;
@@ -33,6 +37,10 @@ export interface ChatStateParams {
  * Internal partial state patch applied to the chat store.
  */
 type ChatStatePatch = {
+  /**
+   * Whether action buttons are temporarily locked after a click.
+   */
+  isActionLocked?: boolean;
   /**
    * Whether loading is true.
    */
@@ -51,6 +59,7 @@ type ChatStatePatch = {
  * Internal chat store shape.
  *
  * @property messages Current chat transcript.
+ * @property isActionLocked Whether action buttons are temporarily locked after a click.
  * @property isLoading Whether the chat is currently waiting on async work.
  * @property loadingMutationId Monotonic counter for loading-state writes.
  * @property getMessages Returns the current chat transcript.
@@ -58,6 +67,8 @@ type ChatStatePatch = {
  * @property addMessage Adds one message to the transcript.
  * @property addMessages Adds multiple messages to the transcript.
  * @property setMessages Replaces the transcript with a new message list.
+ * @property lockActions Temporarily locks chat action buttons.
+ * @property unlockActions Releases the temporary action button lock.
  * @property setLoading Sets the loading state.
  * @property setChatState Applies multiple chat state updates in one call.
  * @property clearLoading Clears the loading state.
@@ -71,6 +82,10 @@ interface ChatState {
    * Messages associated with the transcript or support record.
    */
   readonly messages: readonly Message[];
+  /**
+   * Whether action buttons are temporarily locked after a click.
+   */
+  readonly isActionLocked: boolean;
   /**
    * Whether loading is true.
    */
@@ -105,6 +120,14 @@ interface ChatState {
    * @param messages - Messages to process.
    */
   readonly setMessages: (messages: readonly Message[]) => void;
+  /**
+   * Temporarily locks chat action buttons.
+   */
+  readonly lockActions: () => void;
+  /**
+   * Releases the temporary action button lock.
+   */
+  readonly unlockActions: () => void;
   /**
    * Sets loading.
    *
@@ -144,6 +167,7 @@ interface ChatState {
  */
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
+  isActionLocked: false,
   isLoading: false,
   loadingMutationId: 0,
 
@@ -172,6 +196,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     set(state => ({
       // Clear buttons from all previous messages before adding the new one
+      isActionLocked: false,
       messages: [
         ...state.messages.map(message => ({ ...message, buttons: [] })),
         newMessage,
@@ -195,6 +220,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         return msg;
       });
       return {
+        isActionLocked: false,
         messages: [...currentMessages, ...newMessages],
       };
     });
@@ -202,6 +228,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setMessages: newMessages => {
     get().setChatState({ messages: newMessages });
+  },
+
+  lockActions: () => {
+    get().setChatState({ isActionLocked: true });
+  },
+
+  unlockActions: () => {
+    get().setChatState({ isActionLocked: false });
   },
 
   setLoading: isLoading => {
@@ -216,6 +250,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
         revokeMessagePartUploadUrls(get().messages, params.messages);
       }
       nextState.messages = params.messages;
+    }
+
+    if (params.isActionLocked !== undefined) {
+      nextState.isActionLocked = params.isActionLocked;
     }
 
     if (params.isLoading !== undefined) {
@@ -233,6 +271,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   clearMessages: () => {
     get().setChatState({
       messages: [],
+      isActionLocked: false,
       isLoading: false,
     });
   },

@@ -360,6 +360,10 @@
     inset-inline-end: var(--spacing);
   }
 
+  .isolate {
+    isolation: isolate;
+  }
+
   .container {
     width: 100%;
   }

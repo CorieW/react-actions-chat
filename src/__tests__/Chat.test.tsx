@@ -1,5 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   Chat,
@@ -961,6 +968,148 @@ describe('Chat Component Integration Tests', () => {
     await user.click(button);
 
     expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('locks message action buttons immediately after an action click', () => {
+    const firstClick = vi.fn();
+    const secondClick = vi.fn();
+
+    render(
+      <Chat
+        initialMessages={[
+          createInputMessage('Pick one action', {
+            id: 1,
+            type: 'other',
+            timestamp: new Date(),
+            buttons: [
+              { label: 'First action', onClick: firstClick },
+              { label: 'Second action', onClick: secondClick },
+            ],
+          }),
+        ]}
+        allowFreeTextInput
+      />
+    );
+
+    const firstButton = screen.getByRole('button', {
+      name: 'First action',
+    });
+    const secondButton = screen.getByRole('button', {
+      name: 'Second action',
+    });
+
+    fireEvent.click(firstButton);
+
+    expect(firstClick).toHaveBeenCalledTimes(1);
+    expect(useChatStore.getState().isActionLocked).toBe(true);
+
+    fireEvent.click(firstButton);
+    fireEvent.click(secondButton);
+
+    expect(firstClick).toHaveBeenCalledTimes(1);
+    expect(secondClick).not.toHaveBeenCalled();
+  });
+
+  it('locks persistent action buttons immediately after an action click', () => {
+    const firstClick = vi.fn();
+    const secondClick = vi.fn();
+
+    usePersistentButtonStore.getState().addButton({
+      id: 'first-action',
+      label: 'First action',
+      onClick: firstClick,
+    });
+    usePersistentButtonStore.getState().addButton({
+      id: 'second-action',
+      label: 'Second action',
+      onClick: secondClick,
+    });
+
+    render(<Chat allowFreeTextInput />);
+
+    const firstButton = screen.getByRole('button', {
+      name: 'First action',
+    });
+    const secondButton = screen.getByRole('button', {
+      name: 'Second action',
+    });
+
+    fireEvent.click(firstButton);
+
+    expect(firstClick).toHaveBeenCalledTimes(1);
+    expect(useChatStore.getState().isActionLocked).toBe(true);
+
+    fireEvent.click(firstButton);
+    fireEvent.click(secondButton);
+
+    expect(firstClick).toHaveBeenCalledTimes(1);
+    expect(secondClick).not.toHaveBeenCalled();
+  });
+
+  it('disables message action buttons while chat is loading', async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+
+    render(
+      <Chat
+        initialMessages={[
+          createInputMessage('Click the button', {
+            id: 1,
+            type: 'other',
+            timestamp: new Date(),
+            buttons: [{ label: 'Click Me', onClick }],
+          }),
+        ]}
+        allowFreeTextInput
+      />
+    );
+
+    const button = screen.getByRole('button', { name: 'Click Me' });
+    expect(button).toBeEnabled();
+
+    act(() => {
+      useChatStore.getState().setLoading(true);
+    });
+
+    expect(button).toBeDisabled();
+    await user.click(button);
+    expect(onClick).not.toHaveBeenCalled();
+
+    act(() => {
+      useChatStore.getState().clearLoading();
+    });
+
+    expect(button).toBeEnabled();
+  });
+
+  it('disables persistent action buttons while chat is loading', async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+
+    usePersistentButtonStore.getState().addButton({
+      id: 'persistent-action',
+      label: 'Persistent action',
+      onClick,
+    });
+
+    render(<Chat allowFreeTextInput />);
+
+    const button = screen.getByRole('button', { name: 'Persistent action' });
+    expect(button).toBeEnabled();
+
+    act(() => {
+      useChatStore.getState().setLoading(true);
+    });
+
+    expect(button).toBeDisabled();
+    await user.click(button);
+    expect(onClick).not.toHaveBeenCalled();
+
+    act(() => {
+      useChatStore.getState().clearLoading();
+    });
+
+    expect(button).toBeEnabled();
   });
 
   it('should clear previous message buttons when new message is sent', async () => {

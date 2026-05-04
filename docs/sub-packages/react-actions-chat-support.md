@@ -248,11 +248,12 @@ createSupportAdminFlow({
     listTicketQueue: (_filter, request) => {
       const offset = request?.offset ?? 0;
       const limit = request?.limit ?? 50;
+      const nextOffset = offset + limit;
 
       return {
         tickets: allTickets.slice(offset, offset + limit),
         totalTickets: allTickets.length,
-        nextOffset: offset + limit,
+        nextOffset: nextOffset < allTickets.length ? nextOffset : undefined,
       };
     },
   },

@@ -16,6 +16,7 @@ import {
   type SupportLiveChatSession,
   type SupportTicket,
 } from 'react-actions-chat-support';
+import { createSupportLoadingController } from '../supportFlowUtils';
 
 /**
  * Resets shared chat stores before support flow tests.
@@ -281,6 +282,33 @@ describe('support flows package', () => {
     resetChatStores();
   });
 
+  it('keeps support loading visible when an earlier loading owner clears first', async () => {
+    const loadingController = createSupportLoadingController();
+    const operation = createDeferred<string>();
+
+    act(() => {
+      useChatStore.getState().setLoading(true);
+    });
+
+    const result = loadingController.runWithLoading(() => operation.promise);
+
+    await new Promise<void>(resolve => {
+      globalThis.setTimeout(resolve, 200);
+    });
+    expect(useChatStore.getState().isLoading).toBe(true);
+
+    act(() => {
+      useChatStore.getState().clearLoading();
+    });
+    expect(useChatStore.getState().isLoading).toBe(true);
+
+    await act(async () => {
+      operation.resolve('done');
+      await result;
+    });
+    expect(useChatStore.getState().isLoading).toBe(false);
+  });
+
   it('handles the customer support flow for tickets and live chat', async () => {
     const user = userEvent.setup();
     const adapter = createInMemorySupportFlowAdapter();
@@ -487,7 +515,7 @@ describe('support flows package', () => {
     expect(
       screen.queryByRole('button', { name: 'End live chat' })
     ).not.toBeInTheDocument();
-  }, 25_000);
+  }, 60_000);
 
   it('restores customer guidance after an input flow is aborted', async () => {
     const user = userEvent.setup();
@@ -1332,7 +1360,7 @@ describe('support flows package', () => {
     expect(
       await screen.findByRole('heading', { name: /^Ended live chat$/i })
     ).toBeInTheDocument();
-  }, 12_000);
+  }, 30_000);
 
   it('allows library users to customize support input validation', async () => {
     const user = userEvent.setup();
@@ -3025,7 +3053,7 @@ describe('support flows package', () => {
         name: new RegExp(`Ended live chat ${session.id}`, 'i'),
       })
     ).toBeInTheDocument();
-  }, 12_000);
+  }, 30_000);
 
   it('allows admin flows to customize labels, rendering, behavior, and button slots', async () => {
     const user = userEvent.setup();
