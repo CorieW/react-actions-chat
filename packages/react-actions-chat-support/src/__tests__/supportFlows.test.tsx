@@ -51,6 +51,50 @@ function getLatestButton(label: string): HTMLElement {
 }
 
 /**
+ * Creates a test user that waits for button action locks before clicking.
+ */
+function setupSupportUser(): ReturnType<typeof userEvent.setup> {
+  const user = userEvent.setup();
+  const click = user.click.bind(user);
+
+  return {
+    ...user,
+    /**
+     * Clicks an element after rendered buttons leave the action-locked state.
+     *
+     * @param element - Rendered element targeted by the click.
+     */
+    click: async (element: Element): Promise<void> => {
+      if (element instanceof HTMLButtonElement) {
+        await waitFor(() => {
+          expect(element).toBeEnabled();
+        });
+      }
+
+      await click(element);
+    },
+  };
+}
+
+/**
+ * Clicks the latest rendered button after the action lock releases it.
+ *
+ * @param user - Testing-library user instance used to interact with the UI.
+ * @param label - Accessible button label to click.
+ */
+async function clickLatestButtonWhenEnabled(
+  user: ReturnType<typeof userEvent.setup>,
+  label: string
+): Promise<void> {
+  const button = getLatestButton(label);
+
+  await waitFor(() => {
+    expect(button).toBeEnabled();
+  });
+  await user.click(button);
+}
+
+/**
  * Selects a support list filter through the rendered input.
  *
  * @param user - Testing-library user instance used to interact with the UI.
@@ -84,7 +128,7 @@ async function abortFilter(
   expect(
     screen.getByRole('combobox', { name: 'Chat input' })
   ).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: 'Abort' }));
+  await clickLatestButtonWhenEnabled(user, 'Abort');
 }
 
 /**
@@ -333,7 +377,7 @@ describe('support flows package', () => {
   });
 
   it('handles the customer support flow for tickets and live chat', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const flow = createSupportUserFlow({
       adapter,
@@ -541,7 +585,7 @@ describe('support flows package', () => {
   }, 60_000);
 
   it('restores customer guidance after an input flow is aborted', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const flow = createSupportUserFlow({
       adapter,
@@ -555,7 +599,7 @@ describe('support flows package', () => {
     render(<Chat initialMessages={flow.initialMessages} />);
 
     await user.click(screen.getByRole('button', { name: 'Start ticket' }));
-    await user.click(screen.getByRole('button', { name: 'Abort' }));
+    await clickLatestButtonWhenEnabled(user, 'Abort');
 
     expect(
       await screen.findByText(/Ticket creation cancelled\./i)
@@ -569,7 +613,7 @@ describe('support flows package', () => {
   });
 
   it('shows ticket lookup on initial customer messages when tickets load asynchronously', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const ticket = createQueueTestTicket({
       reference: 'SUP-2000',
       priority: 'normal',
@@ -602,7 +646,7 @@ describe('support flows package', () => {
   });
 
   it('paginates customer ticket lists beyond the configured limit', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-3000',
@@ -686,7 +730,7 @@ describe('support flows package', () => {
   });
 
   it('paginates customer ticket lists returned in backend-limited pages', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-3050',
@@ -768,7 +812,7 @@ describe('support flows package', () => {
   }, 10000);
 
   it('paginates customer ticket lists with next offsets alone', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-3060',
@@ -837,7 +881,7 @@ describe('support flows package', () => {
   });
 
   it('keeps the requested customer ticket page size for short backend pages', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-3070',
@@ -911,7 +955,7 @@ describe('support flows package', () => {
   });
 
   it('shows loading while a customer ticket list read is pending', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const ticket = createQueueTestTicket({
       reference: 'SUP-3080',
       priority: 'normal',
@@ -953,7 +997,7 @@ describe('support flows package', () => {
   });
 
   it('shows loading while a customer ticket creation is pending', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const ticket = createQueueTestTicket({
       reference: 'SUP-3081',
       priority: 'normal',
@@ -1000,7 +1044,7 @@ describe('support flows package', () => {
   });
 
   it('keeps external loading visible after a customer ticket read finishes', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const ticket = createQueueTestTicket({
       reference: 'SUP-3082',
       priority: 'normal',
@@ -1050,7 +1094,7 @@ describe('support flows package', () => {
   });
 
   it('shows every customer ticket when no ticket list limit is configured', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-3100',
@@ -1117,7 +1161,7 @@ describe('support flows package', () => {
   });
 
   it('filters customer ticket lists with custom local predicates', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-4000',
@@ -1193,7 +1237,7 @@ describe('support flows package', () => {
   });
 
   it('filters customer backend-paged ticket lists beyond the first backend page', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-4050',
@@ -1272,7 +1316,7 @@ describe('support flows package', () => {
   });
 
   it('handles customer tickets and live chat through async adapter methods', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const asyncAdapter = createAsyncSupportFlowAdapter(adapter);
     const flow = createSupportUserFlow({
@@ -1386,7 +1430,7 @@ describe('support flows package', () => {
   }, 30_000);
 
   it('allows library users to customize support input validation', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const flow = createSupportUserFlow({
       adapter,
@@ -1435,7 +1479,7 @@ describe('support flows package', () => {
   });
 
   it('does not apply built-in minimum validation to customer ticket summaries', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const flow = createSupportUserFlow({
       adapter,
@@ -1468,7 +1512,7 @@ describe('support flows package', () => {
   });
 
   it('does not apply built-in minimum validation to admin ticket replies', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const ticket = await adapter.createTicket({
       customer: {
@@ -1509,7 +1553,7 @@ describe('support flows package', () => {
   });
 
   it('allows customer flows to customize prompts, rendering, and button slots', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const flow = createSupportUserFlow({
       adapter,
@@ -1678,7 +1722,7 @@ describe('support flows package', () => {
   });
 
   it('shows unassigned tickets before assigned tickets in admin queues', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-1000',
@@ -1740,7 +1784,7 @@ describe('support flows package', () => {
   });
 
   it('shows every admin ticket and live chat when no queue limits are configured', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-1100',
@@ -1864,7 +1908,7 @@ describe('support flows package', () => {
   });
 
   it('paginates admin ticket queues beyond the configured limit', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-1000',
@@ -1954,7 +1998,7 @@ describe('support flows package', () => {
   });
 
   it('paginates admin ticket queues returned in backend-limited pages', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-1050',
@@ -2046,7 +2090,7 @@ describe('support flows package', () => {
   });
 
   it('paginates admin ticket queues with next offsets alone', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-1070',
@@ -2118,7 +2162,7 @@ describe('support flows package', () => {
   });
 
   it('keeps admin ticket queue offsets when assigned work opens page zero', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const queuePages = [
       {
         offset: 0,
@@ -2257,7 +2301,7 @@ describe('support flows package', () => {
   });
 
   it('keeps requested admin ticket page sizes for short backend pages', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-1060',
@@ -2353,7 +2397,7 @@ describe('support flows package', () => {
   });
 
   it('resets admin ticket offsets when refreshing the queue', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-1070',
@@ -2435,7 +2479,7 @@ describe('support flows package', () => {
   });
 
   it('shows loading while an admin ticket queue database read is pending', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const ticket = createQueueTestTicket({
       reference: 'SUP-1060',
       priority: 'normal',
@@ -2476,7 +2520,7 @@ describe('support flows package', () => {
   });
 
   it('keeps external loading visible after a support read finishes', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const ticket = createQueueTestTicket({
       reference: 'SUP-1080',
       priority: 'normal',
@@ -2527,7 +2571,7 @@ describe('support flows package', () => {
   });
 
   it('paginates admin assigned work beyond the configured limit', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-2000',
@@ -2592,7 +2636,7 @@ describe('support flows package', () => {
   });
 
   it('filters admin ticket queue and assigned work with custom options', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-5000',
@@ -2717,7 +2761,7 @@ describe('support flows package', () => {
   });
 
   it('filters admin backend-paged ticket queues beyond the first backend page', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const tickets = [
       createQueueTestTicket({
         reference: 'SUP-5100',
@@ -2829,7 +2873,7 @@ describe('support flows package', () => {
   });
 
   it('paginates admin live chat queues beyond the configured limit', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const sessions = [
       createQueueTestLiveChat({
         id: 'chat-1000',
@@ -2913,7 +2957,7 @@ describe('support flows package', () => {
   });
 
   it('filters admin live chat queues with custom backend filters', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const sessions = [
       createQueueTestLiveChat({
         id: 'chat-2000',
@@ -3070,7 +3114,7 @@ describe('support flows package', () => {
   });
 
   it('handles admin tickets and live chat through async adapter methods', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const asyncAdapter = createAsyncSupportFlowAdapter(adapter);
     const ticket = await asyncAdapter.createTicket({
@@ -3218,7 +3262,7 @@ describe('support flows package', () => {
   }, 30_000);
 
   it('allows admin flows to customize labels, rendering, behavior, and button slots', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const ticket = await adapter.createTicket({
       customer: {
@@ -3277,7 +3321,7 @@ describe('support flows package', () => {
   });
 
   it('lets an admin unassign themselves from a ticket', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const ticket = await adapter.createTicket({
       customer: {
@@ -3322,7 +3366,7 @@ describe('support flows package', () => {
   });
 
   it('lets an admin set ticket priority from a dropdown', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const ticket = await adapter.createTicket({
       customer: {
@@ -3371,7 +3415,7 @@ describe('support flows package', () => {
   });
 
   it('redirects customers to an existing open live chat instead of starting another', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const customer = {
       id: 'customer-active-chat',
       name: 'Casey Lee',
@@ -3457,7 +3501,7 @@ describe('support flows package', () => {
   });
 
   it('lets an admin triage tickets created through the shared adapter', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const customer = {
       id: 'customer-2',
@@ -3648,7 +3692,7 @@ describe('support flows package', () => {
   }, 20_000);
 
   it('lets an admin triage live chats created through the shared adapter', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const customer = {
       id: 'customer-2',
@@ -3813,7 +3857,7 @@ describe('support flows package', () => {
   }, 20_000);
 
   it('restores admin guidance after an input flow is aborted', async () => {
-    const user = userEvent.setup();
+    const user = setupSupportUser();
     const adapter = createInMemorySupportFlowAdapter();
     const flow = createSupportAdminFlow({
       adapter,
@@ -3827,7 +3871,7 @@ describe('support flows package', () => {
     render(<Chat initialMessages={flow.initialMessages} />);
 
     await user.click(screen.getByRole('button', { name: 'Review a ticket' }));
-    await user.click(screen.getByRole('button', { name: 'Abort' }));
+    await clickLatestButtonWhenEnabled(user, 'Abort');
 
     expect(
       await screen.findByText(/Ticket review cancelled\./i)
