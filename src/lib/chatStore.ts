@@ -50,6 +50,10 @@ type ChatStatePatch = {
    */
   loadingMutationId?: number;
   /**
+   * Monotonic counter for transcript replacements.
+   */
+  chatLifecycleId?: number;
+  /**
    * Messages associated with the transcript or support record.
    */
   messages?: readonly Message[];
@@ -62,6 +66,7 @@ type ChatStatePatch = {
  * @property isActionLocked Whether action buttons are temporarily locked after a click.
  * @property isLoading Whether the chat is currently waiting on async work.
  * @property loadingMutationId Monotonic counter for loading-state writes.
+ * @property chatLifecycleId Monotonic counter for transcript replacements.
  * @property getMessages Returns the current chat transcript.
  * @property getPreviousMessage Returns the latest message in the transcript.
  * @property addMessage Adds one message to the transcript.
@@ -94,6 +99,10 @@ interface ChatState {
    * Monotonic counter incremented whenever loading state is explicitly written.
    */
   readonly loadingMutationId: number;
+  /**
+   * Monotonic counter incremented whenever the transcript is replaced.
+   */
+  readonly chatLifecycleId: number;
   /**
    * Returns the messages.
    */
@@ -170,6 +179,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isActionLocked: false,
   isLoading: false,
   loadingMutationId: 0,
+  chatLifecycleId: 0,
 
   getMessages: () => {
     return get().messages;
@@ -248,6 +258,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     if (params.messages !== undefined) {
       if (params.messages !== get().messages) {
         revokeMessagePartUploadUrls(get().messages, params.messages);
+        nextState.chatLifecycleId = get().chatLifecycleId + 1;
       }
       nextState.messages = params.messages;
     }

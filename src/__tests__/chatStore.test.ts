@@ -373,6 +373,17 @@ describe('Chat Store Unit Tests', () => {
       expect(useChatStore.getState().isActionLocked).toBe(false);
     });
 
+    it('should increment the chat lifecycle id', () => {
+      const store = useChatStore.getState();
+      const initialChatLifecycleId = store.chatLifecycleId;
+
+      store.clearMessages();
+
+      expect(useChatStore.getState().chatLifecycleId).toBe(
+        initialChatLifecycleId + 1
+      );
+    });
+
     it('should revoke blob upload URLs when uploaded messages are removed', () => {
       const store = useChatStore.getState();
       const revokeSpy = vi

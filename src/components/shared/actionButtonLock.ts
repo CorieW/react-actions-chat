@@ -11,6 +11,16 @@ const ACTION_BUTTON_LOCK_MS = 250;
 let actionButtonLockTimer: ReturnType<typeof globalThis.setTimeout> | undefined;
 
 /**
+ * Monotonic identifier assigned to every action-button lock owner.
+ */
+let actionButtonLockId = 0;
+
+/**
+ * Identifier for the callback that currently owns the shared lock.
+ */
+let activeActionButtonLockId: number | undefined;
+
+/**
  * Clears any pending action-button lock release timer.
  */
 function clearActionButtonLockTimer(): void {
@@ -37,13 +47,29 @@ function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
 }
 
 /**
- * Schedules the temporary action-button lock to be released.
+ * Releases the action-button lock when the calling owner still owns it.
+ *
+ * @param lockId - Identifier for the action callback releasing the lock.
  */
-function scheduleActionButtonUnlock(): void {
+function unlockActionButtonLock(lockId: number): void {
+  if (activeActionButtonLockId !== lockId) {
+    return;
+  }
+
+  activeActionButtonLockId = undefined;
+  useChatStore.getState().unlockActions();
+}
+
+/**
+ * Schedules the temporary action-button lock to be released.
+ *
+ * @param lockId - Identifier for the action callback that owns the lock.
+ */
+function scheduleActionButtonUnlock(lockId: number): void {
   clearActionButtonLockTimer();
   actionButtonLockTimer = globalThis.setTimeout(() => {
     actionButtonLockTimer = undefined;
-    useChatStore.getState().unlockActions();
+    unlockActionButtonLock(lockId);
   }, ACTION_BUTTON_LOCK_MS);
 }
 
@@ -63,22 +89,25 @@ export function runWithActionButtonLock(
 
   chatStore.lockActions();
   clearActionButtonLockTimer();
+  actionButtonLockId += 1;
+  const lockId = actionButtonLockId;
+  activeActionButtonLockId = lockId;
 
   let result: PromiseLike<unknown> | void | undefined;
 
   try {
     result = action?.();
   } catch (error) {
-    scheduleActionButtonUnlock();
+    scheduleActionButtonUnlock(lockId);
     throw error;
   }
 
   if (isPromiseLike(result)) {
     void Promise.resolve(result).finally(() => {
-      useChatStore.getState().unlockActions();
+      unlockActionButtonLock(lockId);
     });
     return;
   }
 
-  scheduleActionButtonUnlock();
+  scheduleActionButtonUnlock(lockId);
 }

@@ -309,6 +309,29 @@ describe('support flows package', () => {
     expect(useChatStore.getState().isLoading).toBe(false);
   });
 
+  it('does not reclaim loading after the chat is reset', async () => {
+    const loadingController = createSupportLoadingController();
+    const operation = createDeferred<string>();
+
+    const result = loadingController.runWithLoading(() => operation.promise);
+
+    await new Promise<void>(resolve => {
+      globalThis.setTimeout(resolve, 200);
+    });
+    expect(useChatStore.getState().isLoading).toBe(true);
+
+    act(() => {
+      useChatStore.getState().clearMessages();
+    });
+    expect(useChatStore.getState().isLoading).toBe(false);
+
+    await act(async () => {
+      operation.resolve('done');
+      await result;
+    });
+    expect(useChatStore.getState().isLoading).toBe(false);
+  });
+
   it('handles the customer support flow for tickets and live chat', async () => {
     const user = userEvent.setup();
     const adapter = createInMemorySupportFlowAdapter();

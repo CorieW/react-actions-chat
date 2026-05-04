@@ -28,6 +28,7 @@ export function createSupportLoadingController(): SupportLoadingController {
   let unsubscribeLoading: (() => void) | undefined;
   let didSetLoading = false;
   let loadingMutationId: number | undefined;
+  let chatLifecycleId: number | undefined;
 
   /**
    * Clears a pending delayed loading timer before it can show the indicator.
@@ -47,6 +48,10 @@ export function createSupportLoadingController(): SupportLoadingController {
   const claimLoading = (): void => {
     const chatStore = useChatStore.getState();
 
+    if (chatStore.chatLifecycleId !== chatLifecycleId) {
+      return;
+    }
+
     if (chatStore.isLoading) {
       return;
     }
@@ -65,6 +70,11 @@ export function createSupportLoadingController(): SupportLoadingController {
     }
 
     unsubscribeLoading = useChatStore.subscribe(state => {
+      if (state.chatLifecycleId !== chatLifecycleId) {
+        stopWatchingLoading();
+        return;
+      }
+
       if (pendingOperations <= 0 || state.isLoading) {
         return;
       }
@@ -89,6 +99,10 @@ export function createSupportLoadingController(): SupportLoadingController {
    * Starts delayed loading tracking for one support operation.
    */
   const startLoading = (): void => {
+    if (pendingOperations === 0) {
+      chatLifecycleId = useChatStore.getState().chatLifecycleId;
+    }
+
     pendingOperations += 1;
 
     if (pendingOperations > 1 || loadingTimer !== undefined) {
@@ -97,6 +111,9 @@ export function createSupportLoadingController(): SupportLoadingController {
 
     loadingTimer = globalThis.setTimeout(() => {
       loadingTimer = undefined;
+      if (useChatStore.getState().chatLifecycleId !== chatLifecycleId) {
+        return;
+      }
       startWatchingLoading();
       claimLoading();
     }, SUPPORT_LOADING_DELAY_MS);
@@ -119,6 +136,7 @@ export function createSupportLoadingController(): SupportLoadingController {
 
       didSetLoading = false;
       if (
+        chatStore.chatLifecycleId === chatLifecycleId &&
         chatStore.isLoading &&
         chatStore.loadingMutationId === loadingMutationId
       ) {
@@ -126,6 +144,7 @@ export function createSupportLoadingController(): SupportLoadingController {
       }
       loadingMutationId = undefined;
     }
+    chatLifecycleId = undefined;
   };
 
   return {

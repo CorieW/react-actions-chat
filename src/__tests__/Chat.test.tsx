@@ -1010,6 +1010,61 @@ describe('Chat Component Integration Tests', () => {
     expect(secondClick).not.toHaveBeenCalled();
   });
 
+  it('keeps stale async actions from unlocking a newer action lock', async () => {
+    let resolveFirstAction: () => void = () => {};
+    const firstActionPromise = new Promise<void>(resolve => {
+      resolveFirstAction = resolve;
+    });
+    const secondActionPromise = new Promise<void>(() => {});
+    const firstClick = vi.fn(() => firstActionPromise);
+    const secondClick = vi.fn(() => secondActionPromise);
+    const firstMessages = [
+      createInputMessage('Pick the first action', {
+        id: 1,
+        type: 'other',
+        timestamp: new Date(),
+        buttons: [{ label: 'Old action', onClick: firstClick }],
+      }),
+    ];
+    const secondMessages = [
+      createInputMessage('Pick the second action', {
+        id: 1,
+        type: 'other',
+        timestamp: new Date(),
+        buttons: [{ label: 'New action', onClick: secondClick }],
+      }),
+    ];
+
+    const { rerender } = render(
+      <Chat
+        initialMessages={firstMessages}
+        allowFreeTextInput
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Old action' }));
+    expect(firstClick).toHaveBeenCalledTimes(1);
+    expect(useChatStore.getState().isActionLocked).toBe(true);
+
+    rerender(
+      <Chat
+        initialMessages={secondMessages}
+        allowFreeTextInput
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'New action' }));
+    expect(secondClick).toHaveBeenCalledTimes(1);
+    expect(useChatStore.getState().isActionLocked).toBe(true);
+
+    await act(async () => {
+      resolveFirstAction();
+      await firstActionPromise;
+      await Promise.resolve();
+    });
+
+    expect(useChatStore.getState().isActionLocked).toBe(true);
+  });
+
   it('locks persistent action buttons immediately after an action click', () => {
     const firstClick = vi.fn();
     const secondClick = vi.fn();
