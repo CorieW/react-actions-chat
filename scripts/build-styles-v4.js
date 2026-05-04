@@ -4,8 +4,8 @@
  * Generates standalone package CSS with the Tailwind v4 Vite plugin.
  *
  * Steps:
- * 1. Create temporary entry files that import the source CSS and reference the
- *    component tree so Tailwind scans the right files.
+ * 1. Create a temporary CSS entry that imports the source CSS and restricts
+ *    Tailwind scanning to package source folders.
  * 2. Run a Vite build with `@tailwindcss/vite` to emit the compiled CSS.
  * 3. Read the generated CSS, prepend the generated-file header, and write the
  *    result to `src/styles.css`.
@@ -25,7 +25,6 @@ async function buildStyles() {
   console.log('🎨 Building standalone CSS from Tailwind v4...');
 
   const tempDir = path.resolve(rootDir, '.temp-styles-build');
-  const tempHtml = path.resolve(tempDir, 'index.html');
   const tempEntry = path.resolve(tempDir, 'entry.css');
   const targetCssPath = path.resolve(rootDir, 'src/styles.css');
 
@@ -35,10 +34,15 @@ async function buildStyles() {
       fs.mkdirSync(tempDir, { recursive: true });
     }
 
-    // Create CSS entry point that imports the source CSS and includes all components
+    // Create CSS entry point that imports the source CSS and pins Tailwind's
+    // scan scope to package sources, keeping local helper files out of output.
     fs.writeFileSync(
       tempEntry,
-      `@import '../src/index.css';
+      `@import '../src/index.css' source(none);
+
+@source '../src/components';
+@source '../src/lib';
+@source '../src/js';
 
 /* Force Tailwind to scan and include all classes used in components */
 @tailwind components;
@@ -46,28 +50,9 @@ async function buildStyles() {
 `
     );
 
-    // Create HTML that references all component files to ensure Tailwind scans them
-    const componentFiles = getAllFiles(path.resolve(rootDir, 'src/components'))
-      .filter(f => f.endsWith('.tsx'))
-      .map(f => path.relative(tempDir, f));
-
-    fs.writeFileSync(
-      tempHtml,
-      `<!DOCTYPE html>
-<html>
-<head>
-  <link rel="stylesheet" href="./entry.css">
-</head>
-<body>
-  <!-- Reference component files so Tailwind scans them -->
-  ${componentFiles.map(f => `<!-- ${f} -->`).join('\n  ')}
-</body>
-</html>`
-    );
-
     // Build with Vite + Tailwind with explicit config
     await build({
-      root: rootDir, // Use root directory so Tailwind can find all files
+      root: rootDir, // Use root directory so imports and build paths resolve consistently
       plugins: [tailwindcss()],
       build: {
         outDir: path.resolve(tempDir, 'dist'),
@@ -128,31 +113,6 @@ async function buildStyles() {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
   }
-}
-
-/**
- * Recursively collects all files in a directory tree for the temporary
- * Tailwind scan manifest.
- */
-function getAllFiles(dir) {
-  const files = [];
-
-  if (!fs.existsSync(dir)) {
-    return files;
-  }
-
-  const items = fs.readdirSync(dir, { withFileTypes: true });
-
-  for (const item of items) {
-    const fullPath = path.resolve(dir, item.name);
-    if (item.isDirectory()) {
-      files.push(...getAllFiles(fullPath));
-    } else {
-      files.push(fullPath);
-    }
-  }
-
-  return files;
 }
 
 buildStyles();
