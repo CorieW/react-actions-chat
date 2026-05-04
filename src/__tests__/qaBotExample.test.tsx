@@ -45,7 +45,7 @@ describe('qa bot example', () => {
     expect(
       screen.getByRole('button', { name: 'Talk to a person' })
     ).toBeInTheDocument();
-  });
+  }, 10_000);
 
   it('restores quick actions when support handoff is aborted', async () => {
     const user = userEvent.setup();

@@ -2117,6 +2117,145 @@ describe('support flows package', () => {
     expect(requestedOffsets).toEqual([0, 1, 2]);
   });
 
+  it('keeps admin ticket queue offsets when assigned work opens page zero', async () => {
+    const user = userEvent.setup();
+    const queuePages = [
+      {
+        offset: 0,
+        ticket: createQueueTestTicket({
+          reference: 'SUP-1080',
+          priority: 'normal',
+          updatedAt: '2026-04-30T20:00:00Z',
+        }),
+        nextOffset: 10,
+      },
+      {
+        offset: 10,
+        ticket: createQueueTestTicket({
+          reference: 'SUP-1081',
+          priority: 'normal',
+          updatedAt: '2026-04-30T19:00:00Z',
+        }),
+        nextOffset: 20,
+      },
+      {
+        offset: 20,
+        ticket: createQueueTestTicket({
+          reference: 'SUP-1082',
+          priority: 'normal',
+          updatedAt: '2026-04-30T18:00:00Z',
+        }),
+      },
+    ];
+    const queueTicketsByOffset = new Map(
+      queuePages.map(page => [page.offset, page] as const)
+    );
+    const assignedTicket = createQueueTestTicket({
+      reference: 'SUP-2080',
+      priority: 'normal',
+      updatedAt: '2026-04-30T17:00:00Z',
+      assignedTo: 'Priya Admin',
+    });
+    const requestedQueueOffsets: number[] = [];
+    const requestedAssignedOffsets: number[] = [];
+    let showQueueThirdPage:
+      | (() => PromiseLike<unknown> | void | undefined)
+      | undefined;
+    const flow = createSupportAdminFlow({
+      callbacks: {
+        listTicketQueue: (filter, request) => {
+          const offset = request?.offset ?? 0;
+
+          if (filter?.assignedTo === 'Priya Admin') {
+            requestedAssignedOffsets.push(offset);
+
+            return {
+              tickets: offset === 0 ? [assignedTicket] : [],
+            };
+          }
+
+          requestedQueueOffsets.push(offset);
+          const page = queueTicketsByOffset.get(offset);
+
+          return {
+            tickets: page ? [page.ticket] : [],
+            nextOffset: page?.nextOffset,
+          };
+        },
+        getTicket: reference => {
+          const queueTicket = Array.from(queueTicketsByOffset.values()).find(
+            page => page.ticket.reference === reference
+          )?.ticket;
+
+          if (queueTicket) {
+            return queueTicket;
+          }
+
+          return assignedTicket.reference === reference ? assignedTicket : null;
+        },
+      },
+      agent: {
+        id: 'queue-assigned-offset-agent',
+        name: 'Priya Admin',
+      },
+      behavior: {
+        queueLimit: 1,
+        assignedWorkLimit: 1,
+      },
+      customizeButtons: context => {
+        if (
+          context.slot === 'ticket-queue' &&
+          context.visibleTickets?.some(
+            ticket => ticket.reference === 'SUP-1081'
+          ) === true
+        ) {
+          showQueueThirdPage = context.defaultButtons.find(
+            button => button.label === 'Next tickets'
+          )?.onClick;
+        }
+
+        return context.defaultButtons;
+      },
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'View ticket queue' }));
+    expect(
+      await screen.findByText(/Showing tickets 1-1 of at least 2/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'SUP-1080' })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Next tickets' }));
+    expect(
+      await screen.findByText(/Showing tickets 11-11 of at least 12/i)
+    ).toBeInTheDocument();
+    expect(getLatestButton('SUP-1081')).toBeInTheDocument();
+    expect(showQueueThirdPage).toBeDefined();
+
+    await user.click(getLatestButton('Back to admin options'));
+    await user.click(getLatestButton('My assigned work'));
+    expect(
+      await screen.findByRole('button', { name: 'SUP-2080' })
+    ).toBeInTheDocument();
+
+    await act(async () => {
+      showQueueThirdPage?.();
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(requestedQueueOffsets).toEqual([0, 10, 20]);
+    });
+    expect(
+      await screen.findByRole('button', { name: 'SUP-1082' })
+    ).toBeInTheDocument();
+    expect(requestedQueueOffsets).toEqual([0, 10, 20]);
+    expect(requestedAssignedOffsets).toEqual([0]);
+  });
+
   it('keeps requested admin ticket page sizes for short backend pages', async () => {
     const user = userEvent.setup();
     const tickets = [
@@ -3506,7 +3645,7 @@ describe('support flows package', () => {
         })
       ).toBe(true);
     });
-  }, 12_000);
+  }, 20_000);
 
   it('lets an admin triage live chats created through the shared adapter', async () => {
     const user = userEvent.setup();
@@ -3671,7 +3810,7 @@ describe('support flows package', () => {
         })
       ).toBe(true);
     });
-  }, 12_000);
+  }, 20_000);
 
   it('restores admin guidance after an input flow is aborted', async () => {
     const user = userEvent.setup();

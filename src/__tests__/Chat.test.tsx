@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   act,
   fireEvent,
@@ -77,6 +77,10 @@ describe('Chat Component Integration Tests', () => {
     useInputFieldStore.getState().resetInputFieldDisabledDefault();
     useInputFieldStore.getState().resetInputFieldDisabledPlaceholderDefault();
     useInputFieldStore.getState().resetInputFieldDisabled();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('should render empty chat', () => {
@@ -1083,6 +1087,48 @@ describe('Chat Component Integration Tests', () => {
     });
 
     expect(useChatStore.getState().isActionLocked).toBe(true);
+  });
+
+  it('keeps message action buttons locked for the minimum time after fast async actions', async () => {
+    vi.useFakeTimers();
+    const onClick = vi.fn(() => Promise.resolve());
+
+    render(
+      <Chat
+        initialMessages={[
+          createInputMessage('Pick one action', {
+            id: 1,
+            type: 'other',
+            timestamp: new Date(),
+            buttons: [{ label: 'Fast action', onClick }],
+          }),
+        ]}
+        allowFreeTextInput
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fast action' }));
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(useChatStore.getState().isActionLocked).toBe(true);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(useChatStore.getState().isActionLocked).toBe(true);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(249);
+    });
+
+    expect(useChatStore.getState().isActionLocked).toBe(true);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+
+    expect(useChatStore.getState().isActionLocked).toBe(false);
   });
 
   it('locks persistent action buttons immediately after an action click', () => {

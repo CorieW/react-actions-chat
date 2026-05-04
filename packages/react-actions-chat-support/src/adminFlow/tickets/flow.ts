@@ -299,7 +299,10 @@ export function createAdminTicketFlow({
   };
   const ticketPageOffsets = new Map<string, number>();
 
-  const resetTicketPageOffsets = (): void => {
+  /**
+   * Clears every remembered admin ticket list offset.
+   */
+  const resetAllTicketPageOffsets = (): void => {
     ticketPageOffsets.clear();
   };
 
@@ -311,6 +314,38 @@ export function createAdminTicketFlow({
     return `${slot}:${activeFilterId ?? 'all'}:${pageIndex}`;
   };
 
+  /**
+   * Returns the key prefix shared by offsets for one ticket list state.
+   *
+   * @param slot - Admin ticket list that owns the remembered offsets.
+   * @param activeFilterId - Filter option currently applied to the list.
+   */
+  const getTicketPageKeyPrefix = (
+    slot: SupportAdminTicketQueueFilterSlot,
+    activeFilterId: string | undefined
+  ): string => {
+    return `${slot}:${activeFilterId ?? 'all'}:`;
+  };
+
+  /**
+   * Clears remembered offsets for one admin ticket list state.
+   *
+   * @param slot - Admin ticket list whose offsets should reset.
+   * @param activeFilterId - Filter option currently applied to the list.
+   */
+  const resetTicketPageOffsets = (
+    slot: SupportAdminTicketQueueFilterSlot,
+    activeFilterId: string | undefined
+  ): void => {
+    const keyPrefix = getTicketPageKeyPrefix(slot, activeFilterId);
+
+    for (const key of ticketPageOffsets.keys()) {
+      if (key.startsWith(keyPrefix)) {
+        ticketPageOffsets.delete(key);
+      }
+    }
+  };
+
   const createTicketListRequest = (
     slot: SupportAdminTicketQueueFilterSlot,
     pageIndex: number,
@@ -318,7 +353,7 @@ export function createAdminTicketFlow({
     pageSize: number | undefined
   ): SupportTicketListRequest => {
     if (pageIndex <= 0) {
-      resetTicketPageOffsets();
+      resetTicketPageOffsets(slot, activeFilterId);
     }
 
     const offset =
@@ -355,7 +390,7 @@ export function createAdminTicketFlow({
   const updateTicketWithOffsetReset: SupportAdminFlowServices['updateTicket'] =
     async input => {
       const ticket = await updateTicket(input);
-      resetTicketPageOffsets();
+      resetAllTicketPageOffsets();
 
       return ticket;
     };
@@ -363,7 +398,7 @@ export function createAdminTicketFlow({
   const appendTicketMessageWithOffsetReset: SupportAdminFlowServices['appendTicketMessage'] =
     async input => {
       const ticket = await appendTicketMessage(input);
-      resetTicketPageOffsets();
+      resetAllTicketPageOffsets();
 
       return ticket;
     };
@@ -662,7 +697,7 @@ export function createAdminTicketFlow({
                 labels,
                 pageIndex: 0,
                 showTicketQueue: nextPageIndex => {
-                  resetTicketPageOffsets();
+                  resetTicketPageOffsets('ticket-queue', activeFilter?.id);
                   void showTicketQueue(nextPageIndex, activeFilter?.id);
                 },
               }),
@@ -713,7 +748,7 @@ export function createAdminTicketFlow({
         labels,
         pageIndex: 0,
         showTicketQueue: nextPageIndex => {
-          resetTicketPageOffsets();
+          resetTicketPageOffsets('ticket-queue', activeFilter?.id);
           void showTicketQueue(nextPageIndex, activeFilter?.id);
         },
       }),
@@ -811,7 +846,7 @@ export function createAdminTicketFlow({
               createViewTicketQueueButton({
                 labels,
                 showTicketQueue: () => {
-                  resetTicketPageOffsets();
+                  resetTicketPageOffsets('ticket-queue', undefined);
                   void showTicketQueue();
                 },
               }),
@@ -861,7 +896,7 @@ export function createAdminTicketFlow({
       createViewTicketQueueButton({
         labels,
         showTicketQueue: () => {
-          resetTicketPageOffsets();
+          resetTicketPageOffsets('ticket-queue', undefined);
           void showTicketQueue();
         },
       }),

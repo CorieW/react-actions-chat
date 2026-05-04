@@ -33,6 +33,13 @@ function clearActionButtonLockTimer(): void {
 }
 
 /**
+ * Returns the current timestamp used to measure the minimum lock duration.
+ */
+function getActionButtonLockTimestamp(): number {
+  return Date.now();
+}
+
+/**
  * Returns whether a callback result can be awaited for lock release.
  *
  * @param value - Callback result to inspect.
@@ -64,13 +71,46 @@ function unlockActionButtonLock(lockId: number): void {
  * Schedules the temporary action-button lock to be released.
  *
  * @param lockId - Identifier for the action callback that owns the lock.
+ * @param delayMs - Milliseconds to wait before releasing the lock.
  */
-function scheduleActionButtonUnlock(lockId: number): void {
+function scheduleActionButtonUnlock(
+  lockId: number,
+  delayMs = ACTION_BUTTON_LOCK_MS
+): void {
+  if (activeActionButtonLockId !== lockId) {
+    return;
+  }
+
   clearActionButtonLockTimer();
   actionButtonLockTimer = globalThis.setTimeout(() => {
     actionButtonLockTimer = undefined;
     unlockActionButtonLock(lockId);
-  }, ACTION_BUTTON_LOCK_MS);
+  }, delayMs);
+}
+
+/**
+ * Releases the lock after the action has run for at least the minimum duration.
+ *
+ * @param lockId - Identifier for the action callback that owns the lock.
+ * @param lockedAt - Timestamp captured when the lock began.
+ */
+function releaseActionButtonLockAfterMinimumDelay(
+  lockId: number,
+  lockedAt: number
+): void {
+  if (activeActionButtonLockId !== lockId) {
+    return;
+  }
+
+  const elapsedMs = getActionButtonLockTimestamp() - lockedAt;
+  const remainingMs = ACTION_BUTTON_LOCK_MS - elapsedMs;
+
+  if (remainingMs <= 0) {
+    unlockActionButtonLock(lockId);
+    return;
+  }
+
+  scheduleActionButtonUnlock(lockId, remainingMs);
 }
 
 /**
@@ -95,6 +135,7 @@ export function runWithActionButtonLock(
   clearActionButtonLockTimer();
   actionButtonLockId += 1;
   const lockId = actionButtonLockId;
+  const lockedAt = getActionButtonLockTimestamp();
   activeActionButtonLockId = lockId;
 
   let result: PromiseLike<unknown> | void | undefined;
@@ -102,16 +143,16 @@ export function runWithActionButtonLock(
   try {
     result = action?.();
   } catch (error) {
-    scheduleActionButtonUnlock(lockId);
+    releaseActionButtonLockAfterMinimumDelay(lockId, lockedAt);
     throw error;
   }
 
   if (isPromiseLike(result)) {
     void Promise.resolve(result).finally(() => {
-      unlockActionButtonLock(lockId);
+      releaseActionButtonLockAfterMinimumDelay(lockId, lockedAt);
     });
     return;
   }
 
-  scheduleActionButtonUnlock(lockId);
+  releaseActionButtonLockAfterMinimumDelay(lockId, lockedAt);
 }
