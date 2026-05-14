@@ -2,6 +2,7 @@ import type {
   AppendSupportLiveChatMessageInput,
   AppendSupportTicketMessageInput,
   CreateSupportTicketInput,
+  DeleteSupportTicketInput,
   MaybePromise,
   StartSupportLiveChatInput,
   SupportFlowAdapter,
@@ -68,6 +69,10 @@ export interface SupportUserFlowServices {
    */
   readonly canAppendTicketMessage: boolean;
   /**
+   * Whether ticket deletion is available.
+   */
+  readonly canDeleteTicket: boolean;
+  /**
    * Whether the current customer can use live chat.
    */
   readonly canUseLiveChat: boolean;
@@ -105,6 +110,12 @@ export interface SupportUserFlowServices {
   readonly appendTicketMessage: (
     input: AppendSupportTicketMessageInput
   ) => Promise<SupportTicket>;
+  /**
+   * Deletes a customer's support ticket.
+   *
+   * @param input - Input payload for the operation.
+   */
+  readonly deleteTicket: (input: DeleteSupportTicketInput) => Promise<boolean>;
   /**
    * Starts a support live chat.
    *
@@ -167,6 +178,9 @@ export function createSupportUserFlowServices({
   );
   const canAppendTicketMessage = Boolean(
     callbacks.appendTicketMessage ?? adapter?.appendTicketMessage
+  );
+  const canDeleteTicket = Boolean(
+    callbacks.deleteTicket ?? adapter?.deleteTicket
   );
   const canStartLiveChat = Boolean(
     callbacks.startLiveChat ?? adapter?.startLiveChat
@@ -247,6 +261,22 @@ export function createSupportUserFlowServices({
       }
 
       throw new Error('No support ticket message callback was provided.');
+    });
+  };
+
+  const deleteTicket = async (
+    input: DeleteSupportTicketInput
+  ): Promise<boolean> => {
+    return runWithLoading(async () => {
+      if (callbacks.deleteTicket) {
+        return callbacks.deleteTicket(input);
+      }
+
+      if (adapter?.deleteTicket) {
+        return adapter.deleteTicket(input);
+      }
+
+      throw new Error('No support ticket delete callback was provided.');
     });
   };
 
@@ -370,12 +400,14 @@ export function createSupportUserFlowServices({
     canCreateTicket,
     canListTickets,
     canAppendTicketMessage,
+    canDeleteTicket,
     canUseLiveChat,
     canGetLiveChat,
     createTicket,
     getTicket,
     listTickets,
     appendTicketMessage,
+    deleteTicket,
     startLiveChat,
     updateLiveChat,
     appendLiveChatMessage,

@@ -1,5 +1,7 @@
 import {
+  createRequestConfirmationButtonDef,
   createRequestInputButtonDef,
+  type RequestConfirmationButtonDefinition,
   type RequestInputButtonDefinition,
 } from 'react-actions-chat';
 import type {
@@ -67,6 +69,38 @@ export function createAddTicketDetailButtonDef({
     minMessageLengthMessage: validation.minMessageLengthMessage,
     validator: createRequestInputValidator(validation),
     ...resolveRequestInputButtonOverrides(inputOverrides, inputContext),
+  });
+}
+
+/**
+ * Options used to create the delete ticket confirmation button definition.
+ */
+interface CreateDeleteTicketButtonDefOptions {
+  /**
+   * Support ticket handled by this flow or helper.
+   */
+  readonly ticket: SupportTicket;
+  /**
+   * Resolved labels used by this flow or helper.
+   */
+  readonly labels: SupportUserFlowLabels;
+}
+
+/**
+ * Creates the delete ticket confirmation button definition.
+ *
+ * @param options - Options for creating the delete ticket button definition.
+ */
+export function createDeleteTicketButtonDef({
+  ticket,
+  labels,
+}: CreateDeleteTicketButtonDefOptions): RequestConfirmationButtonDefinition {
+  return createRequestConfirmationButtonDef({
+    initialLabel: labels.deleteTicket,
+    confirmationMessage: `Delete ${ticket.reference} permanently?`,
+    confirmLabel: labels.deleteConfirm,
+    rejectLabel: labels.deleteReject,
+    variant: 'error',
   });
 }
 

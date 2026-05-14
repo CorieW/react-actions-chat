@@ -20,7 +20,8 @@ two-sided live-chat transcripts, assignment, and resolution flows without
 wiring a backend first.
 
 User flows show capability-driven entry actions: start a ticket, start a live
-chat, and view existing tickets when tickets exist. Live-chat requests collect
+chat, and view tickets. When the backend exposes ticket deletion, customers can
+delete their own ticket behind a confirmation step. Live-chat requests collect
 an initial customer message, keep the customer input locked until an agent joins,
 and expose persistent end-chat actions. Admin flows let agents join live chats,
 reply through the shared input, and inject persistent live-chat actions. Ticket

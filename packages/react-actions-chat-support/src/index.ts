@@ -57,6 +57,7 @@ export type {
   AppendSupportLiveChatMessageInput,
   AppendSupportTicketMessageInput,
   CreateSupportTicketInput,
+  DeleteSupportTicketInput,
   InMemorySupportLiveChatIdContext,
   InMemorySupportLiveChatMessageIdContext,
   InMemorySupportLiveChatQueueContext,

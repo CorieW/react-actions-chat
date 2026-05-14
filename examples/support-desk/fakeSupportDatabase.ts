@@ -3,6 +3,7 @@ import {
   type AppendSupportLiveChatMessageInput,
   type AppendSupportTicketMessageInput,
   type CreateSupportTicketInput,
+  type DeleteSupportTicketInput,
   type InMemorySupportFlowAdapterOptions,
   type StartSupportLiveChatInput,
   type SupportFlowAdapter,
@@ -159,6 +160,16 @@ export function createFakeSupportDatabase({
         getTicketRows(await backingAdapter.listCustomerTickets(customer)),
         request
       );
+    },
+
+    /**
+     * Deletes a customer's ticket after the fake write latency has elapsed.
+     *
+     * @param input - Ticket deletion payload from the customer support flow.
+     */
+    async deleteTicket(input: DeleteSupportTicketInput) {
+      await waitForFakeDatabase(FAKE_DATABASE_WRITE_RESPONSE_MS);
+      return backingAdapter.deleteTicket?.(input) ?? false;
     },
 
     /**

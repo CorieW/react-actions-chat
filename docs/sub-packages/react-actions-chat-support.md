@@ -33,9 +33,9 @@ npm install react-actions-chat react-actions-chat-support
 
 The customer flow starts with support options that reflect what the backend can
 do. If ticket creation is available, customers see `Start ticket`. If live chat
-is available, they see `Start live chat`. If the customer already has tickets,
-they can reopen a ticket summary, inspect recent activity, add more detail, or
-refresh status.
+is available, they see `Start live chat`. If ticket listing is available, they
+can view tickets even when the current list is empty. When ticket deletion is
+available, they can delete their own ticket behind a confirmation step.
 
 Live chat is also stateful. Customers submit an opening message, enter a queue,
 see their position and wait estimate, and keep persistent actions such as

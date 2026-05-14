@@ -19,6 +19,7 @@ import type {
 } from '../types';
 import {
   createAddTicketDetailButtonDef,
+  createDeleteTicketButtonDef,
   createOpenTicketButtonDef,
 } from './buttonDefs';
 
@@ -71,6 +72,10 @@ interface UserTicketButtonEnvironment {
    * Service used to append a message to a support ticket.
    */
   readonly appendTicketMessage: SupportUserFlowServices['appendTicketMessage'];
+  /**
+   * Service used to delete a support ticket.
+   */
+  readonly deleteTicket: SupportUserFlowServices['deleteTicket'];
   /**
    * Adds a support markdown message to the transcript.
    *
@@ -250,6 +255,55 @@ export function createUserOpenTicketButton({
 }
 
 /**
+ * Creates a customer delete-ticket button.
+ *
+ * @param options - Options for creating the customer delete-ticket button.
+ */
+export function createUserDeleteTicketButton({
+  ticket,
+  customer,
+  labels,
+  deleteTicket,
+  addSupportMessage,
+  createTicketButtons,
+  createPrimaryButtons,
+}: CreateUserTicketActionButtonOptions): MessageButton {
+  return createButton(
+    createDeleteTicketButtonDef({
+      ticket,
+      labels,
+    }),
+    {
+      onConfirm: () => {
+        void (async () => {
+          const didDelete = await deleteTicket({
+            reference: ticket.reference,
+            customer,
+          });
+
+          addSupportMessage(
+            didDelete
+              ? joinMarkdownLines([
+                  `## Deleted ticket ${escapeMarkdown(ticket.reference)}`,
+                  '',
+                  'It no longer appears in your ticket list.',
+                ])
+              : `Ticket ${escapeMarkdown(ticket.reference)} could not be deleted. It may have already been removed.`,
+            createPrimaryButtons()
+          );
+        })();
+      },
+      onReject: () => {
+        addSupportMessage(
+          `Ticket ${escapeMarkdown(ticket.reference)} was not deleted.`,
+          createTicketButtons(ticket)
+        );
+      },
+    }
+  );
+}
+
+/**
  * Options used to create view tickets button.
  */
 interface CreateViewTicketsButtonOptions {
@@ -295,6 +349,10 @@ interface CreateUserTicketButtonsOptions {
    */
   readonly canAppendTicketMessage: boolean;
   /**
+   * Whether ticket deletion is available.
+   */
+  readonly canDeleteTicket: boolean;
+  /**
    * Whether ticket listing is available.
    */
   readonly canListTickets: boolean;
@@ -304,6 +362,12 @@ interface CreateUserTicketButtonsOptions {
    * @param ticket - Support ticket to inspect or render.
    */
   readonly createAddDetailButton: (ticket: SupportTicket) => MessageButton;
+  /**
+   * Creates the customer delete button for a ticket.
+   *
+   * @param ticket - Support ticket to inspect or render.
+   */
+  readonly createDeleteTicketButton: (ticket: SupportTicket) => MessageButton;
   /**
    * Factory used to create the support options navigation button.
    */
@@ -339,8 +403,10 @@ export function createUserTicketButtons({
   ticket,
   labels,
   canAppendTicketMessage,
+  canDeleteTicket,
   canListTickets,
   createAddDetailButton,
+  createDeleteTicketButton,
   createBackToSupportOptionsButton,
   showTicket,
   showFullActivity,
@@ -361,6 +427,7 @@ export function createUserTicketButtons({
       },
     }),
     ...(canAppendTicketMessage ? [createAddDetailButton(ticket)] : []),
+    ...(canDeleteTicket ? [createDeleteTicketButton(ticket)] : []),
     ...(canListTickets
       ? [
           createButton({

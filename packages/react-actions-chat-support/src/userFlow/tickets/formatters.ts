@@ -57,6 +57,7 @@ export function formatTicketList(
   return joinMarkdownLines([
     '## Here are your latest tickets:',
     '',
+    page.totalItems === 0 ? 'No tickets to show.' : undefined,
     page.pageCount > 1
       ? `_Showing tickets ${page.firstVisibleItemNumber}-${page.lastVisibleItemNumber} of ${totalText}._`
       : undefined,

@@ -2,6 +2,7 @@ import type {
   AppendSupportLiveChatMessageInput,
   AppendSupportTicketMessageInput,
   CreateSupportTicketInput,
+  DeleteSupportTicketInput,
   InMemorySupportFlowAdapterOptions,
   InMemorySupportLiveChatIdContext,
   InMemorySupportLiveChatMessageIdContext,
@@ -256,6 +257,22 @@ export function createInMemorySupportFlowAdapter(
         })
         .sort(options.sortTickets ?? sortByUpdatedAtDesc)
         .map(cloneTicket);
+    },
+
+    deleteTicket(input: DeleteSupportTicketInput): boolean {
+      const ticketIndex = getTicketIndex(input.reference);
+      const ticket = ticketIndex >= 0 ? tickets[ticketIndex] : undefined;
+
+      if (
+        !ticket ||
+        !matchesConfiguredIdentity(ticket.customer, input.customer)
+      ) {
+        return false;
+      }
+
+      tickets = tickets.filter((_, index) => index !== ticketIndex);
+
+      return true;
     },
 
     listQueue(filter?: SupportQueueFilter): readonly SupportTicket[] {
