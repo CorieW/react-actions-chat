@@ -2,11 +2,15 @@ name: E2E
 
 on:
   schedule:
-    - cron: '0 6 * * *'
+    - cron: "0 6 * * *"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: e2e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   deterministic-matrix:
@@ -25,8 +29,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.13.0'
-          cache: 'pnpm'
+          node-version: "22.13.0"
+          cache: "pnpm"
           cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
@@ -80,8 +84,8 @@ jobs:
         if: ${{ steps.live-settings-api-key.outputs.available == 'true' }}
         uses: actions/setup-node@v4
         with:
-          node-version: '22.13.0'
-          cache: 'pnpm'
+          node-version: "22.13.0"
+          cache: "pnpm"
           cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
