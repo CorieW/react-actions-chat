@@ -34,8 +34,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.13.0"
-          cache: "pnpm"
+          node-version: '22.13.0'
+          cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
@@ -47,5 +47,5 @@ jobs:
       - name: Report Coverage
         uses: davelosert/vitest-coverage-report-action@v2
         with:
-          json-summary-path: "./coverage/coverage-summary.json"
-          json-final-path: "./coverage/coverage-final.json"
+          json-summary-path: './coverage/coverage-summary.json'
+          json-final-path: './coverage/coverage-final.json'
