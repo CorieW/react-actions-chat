@@ -81,7 +81,6 @@ Live demos:
 - `login`: https://coriew.github.io/react-actions-chat/examples/login/
 - `support-desk`: https://coriew.github.io/react-actions-chat/examples/support-desk/
 - `llm-support`: https://coriew.github.io/react-actions-chat/examples/llm-support/ (starts locked until you enter an API key in chat)
-- `settings`: https://coriew.github.io/react-actions-chat/examples/settings/ (published without `VITE_OPENAI_API_KEY`, so live recommendations stay disabled there)
 
 Start one from the repo root after `pnpm install`:
 
