@@ -442,12 +442,41 @@ export interface Message extends Omit<
 }
 
 /**
+ * Layout sizing mode used by the Chat component.
+ */
+export type ChatLayout = 'fill' | 'viewport';
+
+/**
+ * Inline styles accepted by the Chat root wrapper.
+ *
+ * @property --asc-chat-height CSS length used as the rendered chat height.
+ * @property --asc-chat-min-height CSS length used as the rendered chat minimum height.
+ */
+export interface ChatStyleProperties extends React.CSSProperties {
+  /**
+   * CSS custom property that controls the rendered chat height.
+   */
+  '--asc-chat-height'?: React.CSSProperties['height'];
+  /**
+   * CSS custom property that controls the rendered chat minimum height.
+   */
+  '--asc-chat-min-height'?: React.CSSProperties['minHeight'];
+}
+
+/**
  * Props for the Chat component.
  *
  * @property initialMessages Optional messages shown when the chat first renders.
  * @property allowFreeTextInput When true, keeps the shared input enabled outside input-request flows.
  * @property globals Optional Chat-level defaults applied to helper flows such as request-input buttons.
  * @property theme Optional theme configuration for the chat UI.
+ * @property layout Size behavior for the rendered chat container.
+ * @property className Additional classes applied to the root wrapper.
+ * @property style Inline styles and supported CSS variables applied to the root wrapper.
+ * @property containerClassName Additional classes applied to the themed chat container.
+ * @property contentClassName Additional classes applied to the scrollable transcript region.
+ * @property height Value assigned to `--asc-chat-height` on the root wrapper; numeric values are treated as pixels.
+ * @property minHeight Value assigned to `--asc-chat-min-height` on the root wrapper; numeric values are treated as pixels.
  */
 export interface ChatProps {
   /**
@@ -466,6 +495,34 @@ export interface ChatProps {
    * Theme tokens used to style the rendered UI.
    */
   readonly theme?: ChatTheme;
+  /**
+   * Size behavior for the rendered chat container.
+   */
+  readonly layout?: ChatLayout | undefined;
+  /**
+   * Additional classes applied to the root wrapper.
+   */
+  readonly className?: string | undefined;
+  /**
+   * Inline styles and supported CSS variables applied to the root wrapper.
+   */
+  readonly style?: ChatStyleProperties | undefined;
+  /**
+   * Additional classes applied to the themed chat container.
+   */
+  readonly containerClassName?: string | undefined;
+  /**
+   * Additional classes applied to the scrollable transcript region.
+   */
+  readonly contentClassName?: string | undefined;
+  /**
+   * Value assigned to `--asc-chat-height` on the root wrapper; numeric values are treated as pixels.
+   */
+  readonly height?: React.CSSProperties['height'] | undefined;
+  /**
+   * Value assigned to `--asc-chat-min-height` on the root wrapper; numeric values are treated as pixels.
+   */
+  readonly minHeight?: React.CSSProperties['minHeight'] | undefined;
 }
 
 /**

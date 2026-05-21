@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import {
   createTextPart,
   type ChatPropsWithFlexibleTheme,
+  type ChatStyleProperties,
   type MessagePart,
 } from '../../js/types';
 import {
@@ -14,9 +15,25 @@ import {
 import { createMessagePartsFromFiles } from '../../lib/messageParts';
 import type { InputSubmission } from '../../lib/inputFieldStore';
 import { hasInputBlockingButtons } from '../../lib/messageButtons';
+import { cn } from '../../lib/utils';
 import { InputBar } from '../InputBar/InputBar';
 import { MessageList } from '../MessageList/MessageList';
 import { PersistentButtons } from './PersistentButtons';
+
+/**
+ * Converts React numeric length props into CSS-variable-safe pixel values.
+ *
+ * @param value - Length value supplied through the Chat sizing props.
+ */
+function toCssLengthVariableValue(
+  value: React.CSSProperties['height']
+): React.CSSProperties['height'] {
+  if (typeof value === 'number') {
+    return `${value}px`;
+  }
+
+  return value;
+}
 
 /**
  * Renders the chat UI and wires user input into the shared chat state.
@@ -25,8 +42,15 @@ import { PersistentButtons } from './PersistentButtons';
  */
 export function Chat({
   allowFreeTextInput = false,
+  className,
+  containerClassName,
+  contentClassName,
   globals = {},
+  height,
   initialMessages = [],
+  layout = 'viewport',
+  minHeight,
+  style,
   theme,
 }: ChatPropsWithFlexibleTheme): React.JSX.Element {
   const {
@@ -46,6 +70,21 @@ export function Chat({
 
   const mergedTheme = getResolvedTheme(theme);
   const inputBlockedByVisibleButtons = hasInputBlockingButtons(messages);
+  const rootStyle: ChatStyleProperties = { ...style };
+  const rootClassName = cn('asc-chat-wrapper', className);
+  const chatContainerClassName = cn(
+    'asc-chat-container flex min-h-0 flex-col',
+    layout === 'fill' ? 'h-full' : undefined,
+    containerClassName
+  );
+
+  if (height !== undefined) {
+    rootStyle['--asc-chat-height'] = toCssLengthVariableValue(height);
+  }
+
+  if (minHeight !== undefined) {
+    rootStyle['--asc-chat-min-height'] = toCssLengthVariableValue(minHeight);
+  }
 
   useEffect(() => {
     const inputFieldStore = useInputFieldStore.getState();
@@ -131,9 +170,15 @@ export function Chat({
   };
 
   return (
-    <div className='asc-chat-wrapper'>
+    <div
+      className={rootClassName}
+      data-asc-region='root'
+      style={Object.keys(rootStyle).length > 0 ? rootStyle : undefined}
+    >
       <div
-        className='flex h-screen flex-col'
+        className={chatContainerClassName}
+        data-asc-layout={layout}
+        data-asc-region='container'
         style={{
           ...getThemeStyles(mergedTheme),
           backgroundColor: mergedTheme.backgroundColor,
@@ -144,13 +189,19 @@ export function Chat({
           messages={messages}
           isLoading={isLoading}
           theme={mergedTheme}
+          className={contentClassName}
         />
-        <PersistentButtons theme={mergedTheme} />
-        <InputBar
-          onSend={handleSend}
-          theme={mergedTheme}
-          isInputBlocked={inputBlockedByVisibleButtons}
-        />
+        <div
+          className='shrink-0'
+          data-asc-region='input'
+        >
+          <PersistentButtons theme={mergedTheme} />
+          <InputBar
+            onSend={handleSend}
+            theme={mergedTheme}
+            isInputBlocked={inputBlockedByVisibleButtons}
+          />
+        </div>
       </div>
     </div>
   );

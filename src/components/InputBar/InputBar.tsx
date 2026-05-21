@@ -319,7 +319,8 @@ export function InputBar({
 
   return (
     <div
-      className='border-t p-4'
+      className='shrink-0 border-t p-4'
+      data-asc-region='input-bar'
       style={{
         borderColor: `${theme.borderColor}40`,
         backgroundColor: theme.backgroundColor,

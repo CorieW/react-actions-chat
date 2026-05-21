@@ -14,6 +14,15 @@ Props:
 - `allowFreeTextInput?: boolean`
 - `globals?: ChatGlobals`
 - `theme?: 'light' | 'dark' | ChatTheme`
+- `layout?: 'fill' | 'viewport'`
+- `className?: string`
+- `style?: ChatStyleProperties`
+- `containerClassName?: string`
+- `contentClassName?: string`
+- `height?: CSSProperties['height']`
+- `minHeight?: CSSProperties['minHeight']`
+
+`layout='viewport'` is the default for backward compatibility. Use `layout='fill'` for embedded panels where a parent element owns the height. The root wrapper also supports `--asc-chat-height` and `--asc-chat-min-height` through `style` or the `height` and `minHeight` props.
 
 ### `MessageList`
 

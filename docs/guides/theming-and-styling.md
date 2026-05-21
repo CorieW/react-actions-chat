@@ -51,6 +51,24 @@ export function App() {
 
 For the full `ChatTheme` shape and token list, see [`ChatTheme`](../types/chat-theme.md).
 
+## Layout Styling
+
+`Chat` preserves the legacy viewport-height layout by default. For embedded panels, pass `layout='fill'` and give the parent a definite height:
+
+```tsx typecheck
+import { Chat } from 'react-actions-chat';
+
+export function EmbeddedPanel() {
+  return (
+    <div style={{ height: 480, minHeight: 0 }}>
+      <Chat layout='fill' />
+    </div>
+  );
+}
+```
+
+The root wrapper accepts `className`, `style`, `height`, and `minHeight`. The themed container accepts `containerClassName`, and the transcript accepts `contentClassName`. For CSS-only sizing, set `--asc-chat-height` and `--asc-chat-min-height` on the root wrapper or an ancestor.
+
 ## Theme Helpers
 
 The library also exports:

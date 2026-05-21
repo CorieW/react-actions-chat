@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import type { ChatTheme, Message as ChatMessage } from '../../js/types';
+import { cn } from '../../lib/utils';
 import { Message } from '../Message/Message';
 import { renderPart } from './parts/renderPart';
 
@@ -9,6 +10,7 @@ import { renderPart } from './parts/renderPart';
  * @property messages Messages to render in the chat transcript.
  * @property isLoading Shows the loading indicator below the transcript when true.
  * @property theme Theme tokens used to style message surfaces.
+ * @property className Additional classes applied to the scrollable transcript region.
  */
 interface MessageListProps {
   /**
@@ -23,6 +25,10 @@ interface MessageListProps {
    * Theme tokens used to style the rendered UI.
    */
   readonly theme: ChatTheme;
+  /**
+   * Additional classes applied to the scrollable transcript region.
+   */
+  readonly className?: string | undefined;
 }
 
 /**
@@ -34,6 +40,7 @@ export function MessageList({
   messages,
   isLoading = false,
   theme,
+  className,
 }: MessageListProps): React.JSX.Element {
   const messageListRef = useRef<HTMLDivElement>(null);
   const hasAutoScrolledRef = useRef(false);
@@ -64,7 +71,10 @@ export function MessageList({
   return (
     <div
       ref={messageListRef}
-      className='flex-1 space-y-5 overflow-y-auto scroll-smooth p-6'
+      className={cn(
+        'min-h-0 flex-1 space-y-5 overflow-y-auto scroll-smooth p-6',
+        className
+      )}
       role='log'
       aria-label='Chat transcript'
       aria-live='polite'
