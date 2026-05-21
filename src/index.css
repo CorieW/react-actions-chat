@@ -63,6 +63,20 @@ body {
   --asc-motion-ease-settle: cubic-bezier(0.33, 1, 0.68, 1);
 }
 
+.asc-chat-container {
+  min-width: 0;
+  min-height: var(--asc-chat-min-height, 0px);
+  height: var(--asc-chat-height, 100vh);
+}
+
+.asc-chat-container[data-asc-layout='fill'] {
+  height: var(--asc-chat-height, 100%);
+}
+
+.asc-chat-container[data-asc-layout='viewport'] {
+  height: var(--asc-chat-height, 100vh);
+}
+
 .asc-message {
   animation-duration: var(--asc-motion-duration-message);
   animation-fill-mode: both;

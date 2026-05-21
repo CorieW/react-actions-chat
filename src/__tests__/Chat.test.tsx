@@ -92,6 +92,62 @@ describe('Chat Component Integration Tests', () => {
     expect(input).toHaveAttribute('placeholder', 'Input disabled.');
   });
 
+  it('should expose layout customization hooks without changing the default viewport layout', () => {
+    const { container } = render(
+      <Chat
+        className='custom-root'
+        containerClassName='custom-container'
+        contentClassName='custom-content'
+        height={520}
+        minHeight={240}
+      />
+    );
+    const root = container.querySelector<HTMLElement>(
+      '[data-asc-region="root"]'
+    );
+    const chatContainer = container.querySelector<HTMLElement>(
+      '[data-asc-region="container"]'
+    );
+    const transcript = container.querySelector<HTMLElement>(
+      '[data-asc-region="transcript"]'
+    );
+    const inputWrapper = container.querySelector<HTMLElement>(
+      '[data-asc-region="input"]'
+    );
+    const inputBar = container.querySelector<HTMLElement>(
+      '[data-asc-region="input-bar"]'
+    );
+
+    if (!root || !chatContainer || !transcript || !inputWrapper || !inputBar) {
+      throw new Error('Expected Chat layout regions to render.');
+    }
+
+    expect(root).toHaveClass('asc-chat-wrapper', 'custom-root');
+    expect(root.style.getPropertyValue('--asc-chat-height')).toBe('520px');
+    expect(root.style.getPropertyValue('--asc-chat-min-height')).toBe('240px');
+    expect(chatContainer).toHaveAttribute('data-asc-layout', 'viewport');
+    expect(chatContainer).toHaveClass('asc-chat-container', 'custom-container');
+    expect(chatContainer).not.toHaveClass('h-screen');
+    expect(transcript).toHaveClass('custom-content');
+    expect(inputWrapper).toHaveClass('shrink-0');
+    expect(inputBar).toHaveClass('shrink-0');
+  });
+
+  it('should support fill layout for embedded panels', () => {
+    const { container } = render(<Chat layout='fill' />);
+    const chatContainer = container.querySelector<HTMLElement>(
+      '[data-asc-region="container"]'
+    );
+
+    if (!chatContainer) {
+      throw new Error('Expected Chat container region to render.');
+    }
+
+    expect(chatContainer).toHaveAttribute('data-asc-layout', 'fill');
+    expect(chatContainer).toHaveClass('h-full', 'min-h-0');
+    expect(chatContainer).not.toHaveClass('h-screen');
+  });
+
   it('should render with initial messages', () => {
     const initialMessages: InputMessage[] = [
       createInputMessage('Hello!', {

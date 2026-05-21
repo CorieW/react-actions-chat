@@ -36,7 +36,7 @@ export function PersistentButtons({
 
   return (
     <div
-      className='flex flex-wrap justify-center gap-2 border-t px-4 py-3'
+      className='flex shrink-0 flex-wrap justify-center gap-2 border-t px-4 py-3'
       role='region'
       aria-label='Chat persistent actions'
       data-asc-region='persistent-actions'

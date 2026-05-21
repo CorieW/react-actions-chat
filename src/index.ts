@@ -27,6 +27,8 @@ import {
 import type {
   ChatProps,
   ChatPropsWithFlexibleTheme,
+  ChatLayout,
+  ChatStyleProperties,
   ChatTheme,
   FileMessagePart,
   ImageMessagePart,
@@ -71,7 +73,9 @@ export type {
   ChatProps,
   ChatPropsWithFlexibleTheme,
   ChatGlobals,
+  ChatLayout,
   ChatTheme,
+  ChatStyleProperties,
   CreatedButton,
   InputBarBehaviorConfig,
   InputBarModeConfig,

@@ -43,6 +43,29 @@ export function App() {
 
 By default, `Chat` keeps the shared input disabled until an input-request flow enables it. Set `allowFreeTextInput` when your assistant should accept open-ended typing at all times.
 
+## Embedded Layout
+
+`Chat` defaults to `layout='viewport'` so existing full-page demos keep the same viewport-height behavior. Use `layout='fill'` when the chat should fit an app panel that already controls its height.
+
+```tsx typecheck
+import { Chat } from 'react-actions-chat';
+
+export function SupportPanel() {
+  return (
+    <section style={{ height: 520, minHeight: 0 }}>
+      <Chat
+        layout='fill'
+        className='h-full min-h-0'
+        containerClassName='rounded-lg border'
+        contentClassName='px-5'
+      />
+    </section>
+  );
+}
+```
+
+The root wrapper exposes `data-asc-region='root'`, the themed container exposes `data-asc-region='container'`, the transcript keeps `data-asc-region='transcript'`, and the input area wrapper exposes `data-asc-region='input'`. You can also set `height`, `minHeight`, or the `--asc-chat-height` and `--asc-chat-min-height` CSS variables to tune sizing without reaching into child selectors.
+
 ## Conversation Model
 
 When the user submits text and/or files:
