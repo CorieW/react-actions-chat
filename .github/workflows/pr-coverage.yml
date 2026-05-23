@@ -5,6 +5,10 @@ on:
     workflows: [CI]
     types: [completed]
 
+concurrency:
+  group: pr-coverage-${{ github.workflow }}-${{ github.event.workflow_run.head_branch || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   coverage:
     name: Test Coverage Report
@@ -38,7 +42,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run tests with coverage
-        run: pnpm test:coverage
+        run: pnpm turbo:test -- -- --coverage
 
       - name: Report Coverage
         uses: davelosert/vitest-coverage-report-action@v2

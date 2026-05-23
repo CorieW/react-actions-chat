@@ -90,12 +90,12 @@ jobs:
               },
               'Linter Check': {
                 summary: 'Run ESLint locally and address the reported diagnostics.',
-                commands: ['pnpm lint'],
+                commands: ['pnpm turbo:lint'],
               },
               'Type Check': {
                 summary:
                   'Rerun typechecking locally; this also validates docs snippets and reference pages.',
-                commands: ['pnpm typecheck'],
+                commands: ['pnpm turbo:typecheck'],
               },
               'Knip Check': {
                 summary:
@@ -105,12 +105,12 @@ jobs:
               Build: {
                 summary:
                   'Reproduce the build locally and fix the first build error before rerunning CI.',
-                commands: ['pnpm build'],
+                commands: ['pnpm turbo:build'],
               },
               Test: {
                 summary:
                   'Run the Vitest suite locally and fix the failing test or implementation.',
-                commands: ['pnpm test -- --run'],
+                commands: ['pnpm turbo:test -- -- --run'],
               },
               E2E: {
                 summary:
@@ -120,7 +120,7 @@ jobs:
               Coverage: {
                 summary:
                   'Reproduce the coverage run locally and fix the failing test or instrumentation issue.',
-                commands: ['pnpm test:coverage'],
+                commands: ['pnpm turbo:test -- -- --coverage'],
               },
             };
 
