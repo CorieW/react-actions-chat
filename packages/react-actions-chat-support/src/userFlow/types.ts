@@ -49,6 +49,18 @@ export interface SupportUserFlowLabels {
    */
   readonly addDetail: string;
   /**
+   * Label text for the delete ticket action.
+   */
+  readonly deleteTicket: string;
+  /**
+   * Label text for confirming a ticket delete operation.
+   */
+  readonly deleteConfirm: string;
+  /**
+   * Label text for rejecting a ticket delete operation.
+   */
+  readonly deleteReject: string;
+  /**
    * Label text for the back to support options action or state.
    */
   readonly backToSupportOptions: string;

@@ -23,6 +23,7 @@ import {
 } from '../../supportFlowUtils';
 import {
   createUserAddDetailButton,
+  createUserDeleteTicketButton,
   createUserOpenTicketButton,
   createUserTicketPaginationButtons,
   createUserTicketButtons,
@@ -81,10 +82,6 @@ interface CreateUserTicketFlowOptions {
    */
   readonly ticketDetailValidation: SupportInputValidationSettings;
   /**
-   * Whether ticket creation is available.
-   */
-  readonly canCreateTicket: boolean;
-  /**
    * Whether ticket listing is available.
    */
   readonly canListTickets: boolean;
@@ -92,6 +89,10 @@ interface CreateUserTicketFlowOptions {
    * Whether ticket message append actions are available.
    */
   readonly canAppendTicketMessage: boolean;
+  /**
+   * Whether ticket deletion is available.
+   */
+  readonly canDeleteTicket: boolean;
   /**
    * Service used to create a support ticket.
    */
@@ -108,6 +109,10 @@ interface CreateUserTicketFlowOptions {
    * Service used to append a message to a support ticket.
    */
   readonly appendTicketMessage: SupportUserFlowServices['appendTicketMessage'];
+  /**
+   * Service used to delete a support ticket.
+   */
+  readonly deleteTicket: SupportUserFlowServices['deleteTicket'];
   /**
    * Formats user ticket summary.
    *
@@ -240,13 +245,14 @@ export function createUserTicketFlow({
   ticketListLimit,
   ticketSummaryValidation,
   ticketDetailValidation,
-  canCreateTicket,
   canListTickets,
   canAppendTicketMessage,
+  canDeleteTicket,
   createTicket,
   getTicket,
   listTickets,
   appendTicketMessage,
+  deleteTicket,
   formatUserTicketSummary,
   formatUserTicketFullActivity,
   formatUserTicketList,
@@ -323,6 +329,14 @@ export function createUserTicketFlow({
       return ticket;
     };
 
+  const deleteTicketWithOffsetReset: SupportUserFlowServices['deleteTicket'] =
+    async input => {
+      const didDelete = await deleteTicket(input);
+      resetTicketListPageOffsets();
+
+      return didDelete;
+    };
+
   const createTicketButtonEnvironment = () => {
     return {
       customer,
@@ -334,6 +348,7 @@ export function createUserTicketFlow({
       ticketDetailValidation,
       createTicket: createTicketWithOffsetReset,
       appendTicketMessage: appendTicketMessageWithOffsetReset,
+      deleteTicket: deleteTicketWithOffsetReset,
       addSupportMessage,
       addAbortRecoveryMessage,
       createTicketButtons,
@@ -348,9 +363,16 @@ export function createUserTicketFlow({
       ticket,
       labels,
       canAppendTicketMessage,
+      canDeleteTicket,
       canListTickets,
       createAddDetailButton: targetTicket => {
         return createUserAddDetailButton({
+          ...createTicketButtonEnvironment(),
+          ticket: targetTicket,
+        });
+      },
+      createDeleteTicketButton: targetTicket => {
+        return createUserDeleteTicketButton({
           ...createTicketButtonEnvironment(),
           ticket: targetTicket,
         });
@@ -437,7 +459,6 @@ export function createUserTicketFlow({
         void showMyTickets(pageIndex, activeFilter?.id);
       },
     });
-    const isFiltered = Boolean(activeFilter?.predicate);
     const filteredTicketPage = activeFilter?.predicate
       ? await collectFilteredSupportTicketListPage({
           pageIndex,
@@ -460,22 +481,6 @@ export function createUserTicketFlow({
         activeFilter,
         filterContext
       );
-
-    if (!tickets.length) {
-      addSupportMessage(
-        activeFilter && isFiltered
-          ? `No tickets match ${activeFilter.label}.`
-          : 'You do not have any tickets yet. Open one whenever you want a tracked follow-up.',
-        filterButtons.length
-          ? [
-              ...filterButtons,
-              ...(canCreateTicket ? [createOpenTicketButton()] : []),
-              createBackToSupportOptionsButton(),
-            ]
-          : createPrimaryButtons([], false)
-      );
-      return;
-    }
 
     const page =
       filteredTicketPage?.page ??
@@ -514,7 +519,6 @@ export function createUserTicketFlow({
           void showMyTickets(nextPageIndex, activeFilter?.id);
         },
       }),
-      ...(canCreateTicket ? [createOpenTicketButton()] : []),
       createBackToSupportOptionsButton(),
     ];
 

@@ -72,7 +72,7 @@ export function createUserPrimaryButtons({
   const defaultButtons = [
     ...(canCreateTicket ? [createOpenTicketButton()] : []),
     ...(canUseLiveChat ? [createLiveChatButton()] : []),
-    ...(canListTickets && (tickets.length > 0 || isTicketListPending)
+    ...(canListTickets || isTicketListPending
       ? [createViewTicketsButton()]
       : []),
   ];

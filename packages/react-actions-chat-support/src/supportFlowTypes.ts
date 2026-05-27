@@ -277,6 +277,20 @@ export interface CreateSupportTicketInput {
 }
 
 /**
+ * Input used to delete an existing support ticket for a customer.
+ */
+export interface DeleteSupportTicketInput {
+  /**
+   * Human-readable ticket reference.
+   */
+  readonly reference: string;
+  /**
+   * Customer identity requesting the delete operation.
+   */
+  readonly customer: SupportUserIdentity;
+}
+
+/**
  * Patch payload used to update an existing support ticket.
  */
 export interface UpdateSupportTicketInput {
@@ -521,6 +535,15 @@ export interface SupportFlowAdapter {
         request?: SupportTicketListRequest
       ) => SupportTicketListResponse);
   /**
+   * Deletes a customer's support ticket when the backend allows it.
+   *
+   * @param input - Input payload for the operation.
+   */
+  readonly deleteTicket?:
+    | ((input: DeleteSupportTicketInput) => Promise<boolean>)
+    | ((input: DeleteSupportTicketInput) => boolean)
+    | undefined;
+  /**
    * Lists tickets for an admin queue.
    *
    * @param filter - Filter to apply to the list.
@@ -706,6 +729,14 @@ export interface SupportUserFlowCallbacks {
         customer: SupportUserIdentity,
         request?: SupportTicketListRequest
       ) => MaybePromise<SupportTicketListResponse>)
+    | undefined;
+  /**
+   * Deletes a customer's support ticket.
+   *
+   * @param input - Input payload for the operation.
+   */
+  readonly deleteTicket?:
+    | ((input: DeleteSupportTicketInput) => MaybePromise<boolean>)
     | undefined;
   /**
    * Appends a message to a support ticket.

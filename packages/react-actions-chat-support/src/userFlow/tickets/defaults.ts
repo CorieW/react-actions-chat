@@ -12,6 +12,9 @@ type UserTicketLabels = Pick<
   | 'refreshStatus'
   | 'viewFullActivity'
   | 'addDetail'
+  | 'deleteTicket'
+  | 'deleteConfirm'
+  | 'deleteReject'
 >;
 
 /**
@@ -25,4 +28,7 @@ export const DEFAULT_USER_TICKET_LABELS: UserTicketLabels = {
   refreshStatus: 'Refresh status',
   viewFullActivity: 'View full activity',
   addDetail: 'Add detail',
+  deleteTicket: 'Delete ticket',
+  deleteConfirm: 'Delete',
+  deleteReject: 'Keep ticket',
 };

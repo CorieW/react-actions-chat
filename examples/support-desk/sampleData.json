@@ -12,49 +12,6 @@
     "team": "Revenue Ops"
   },
   "tickets": [
-    {
-      "reference": "SUP-0995",
-      "subject": "Invoice PDF export fails after SSO rollout",
-      "summary": "Finance cannot download the invoice PDF after switching the workspace to SSO.",
-      "status": "new",
-      "priority": "normal",
-      "updatedAt": "2026-04-30T20:00:00Z"
-    },
-    {
-      "reference": "SUP-0996",
-      "subject": "Renewal approval notification missing",
-      "summary": "The revenue team expected renewal approval emails but no notifications were delivered.",
-      "status": "open",
-      "priority": "normal",
-      "updatedAt": "2026-04-30T19:00:00Z"
-    },
-    {
-      "reference": "SUP-0997",
-      "subject": "Seat provisioning delayed for analysts",
-      "summary": "Three analysts were added to the workspace but still cannot access reporting.",
-      "status": "pending-internal",
-      "priority": "normal",
-      "updatedAt": "2026-04-30T18:00:00Z",
-      "assignedTo": "Morgan Admin"
-    },
-    {
-      "reference": "SUP-0998",
-      "subject": "Usage dashboard totals look stale",
-      "summary": "The admin dashboard has not reflected the last import of usage records.",
-      "status": "open",
-      "priority": "normal",
-      "updatedAt": "2026-04-30T17:00:00Z",
-      "assignedTo": "Morgan Admin"
-    },
-    {
-      "reference": "SUP-0999",
-      "subject": "Webhook retry settings need review",
-      "summary": "Ops needs help confirming whether failed billing webhooks are retrying.",
-      "status": "pending-customer",
-      "priority": "normal",
-      "updatedAt": "2026-04-30T16:00:00Z",
-      "assignedTo": "Morgan Admin"
-    }
   ],
   "liveChats": [
     {

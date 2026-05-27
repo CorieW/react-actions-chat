@@ -169,6 +169,7 @@ function createAsyncSupportFlowAdapter(
       adapter.getTicketByReference(reference),
     listCustomerTickets: async (customer, request) =>
       adapter.listCustomerTickets(customer, request),
+    deleteTicket: async input => adapter.deleteTicket?.(input) ?? false,
     listQueue: async (filter, request) => adapter.listQueue(filter, request),
     listLiveChatQueue: async filter => adapter.listLiveChatQueue(filter),
     getLiveChatById: async sessionId => adapter.getLiveChatById(sessionId),
@@ -427,8 +428,8 @@ describe('support flows package', () => {
     render(<Chat initialMessages={flow.initialMessages} />);
 
     expect(
-      screen.queryByRole('button', { name: 'View tickets' })
-    ).not.toBeInTheDocument();
+      screen.getByRole('button', { name: 'View tickets' })
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('button', {
         name: 'Start ticket',
@@ -476,6 +477,12 @@ describe('support flows package', () => {
     expect(
       screen.getByRole('button', { name: 'Back to support options' })
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Start ticket' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Start live chat' })
+    ).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'SUP-1000' }));
     expect(
       await screen.findByRole('heading', { name: /Ticket SUP-1000/i })
@@ -619,6 +626,79 @@ describe('support flows package', () => {
       screen.queryByRole('button', { name: 'End live chat' })
     ).not.toBeInTheDocument();
   }, 60_000);
+
+  it('lets customers delete their tickets', async () => {
+    const user = setupSupportUser();
+    const adapter = createInMemorySupportFlowAdapter();
+    const customer = {
+      id: 'customer-delete',
+      name: 'Delete Tester',
+      email: 'delete@example.com',
+    };
+    const flow = createSupportUserFlow({
+      adapter,
+      customer,
+    });
+
+    render(<Chat initialMessages={flow.initialMessages} />);
+
+    await user.click(screen.getByRole('button', { name: 'Start ticket' }));
+    await user.type(
+      screen.getByPlaceholderText(
+        'Our team cannot invite new users after enabling SSO.'
+      ),
+      'Please delete this ticket after we verify the confirmation flow.'
+    );
+    await user.keyboard('{Enter}');
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /SUP-1000 is open for Delete Tester/i,
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Delete ticket' })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Delete ticket' }));
+    expect(
+      await screen.findByText(/Delete SUP-1000 permanently\?/i)
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Keep ticket' }));
+    expect(
+      await screen.findByText(/Ticket SUP-1000 was not deleted\./i)
+    ).toBeInTheDocument();
+    expect(await adapter.getTicketByReference('SUP-1000')).not.toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Delete ticket' }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /Deleted ticket SUP-1000/i,
+      })
+    ).toBeInTheDocument();
+    expect(await adapter.getTicketByReference('SUP-1000')).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'View tickets' }));
+    expect(
+      await screen.findByRole('heading', {
+        name: /Here are your latest tickets:/i,
+      })
+    ).toBeInTheDocument();
+    expect(screen.getByText(/No tickets to show\./i)).toBeInTheDocument();
+    expect(screen.queryByText(/SUP-1000 \(normal\):/i)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Back to support options' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Start ticket' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Start live chat' })
+    ).not.toBeInTheDocument();
+  });
 
   it('restores customer guidance after an input flow is aborted', async () => {
     const user = setupSupportUser();

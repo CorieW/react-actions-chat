@@ -41,7 +41,8 @@ Important config fields:
 
 If neither `adapter` nor the matching `callbacks` provide an operation, the
 flow hides buttons for that capability. For example, `Start ticket` requires
-ticket creation, and `View tickets` requires customer ticket listing.
+ticket creation, `View tickets` requires customer ticket listing, and
+`Delete ticket` requires customer ticket deletion.
 
 ### `createSupportAdminFlow(config)`
 
@@ -141,6 +142,8 @@ value directly or a promise.
 - `getTicketByReference(reference)`: returns one ticket or `null`.
 - `listCustomerTickets(customer, request?)`: returns tickets owned by a
   customer.
+- `deleteTicket(input)`: deletes a ticket for the requesting customer and
+  returns whether it was removed.
 - `listQueue(filter?, request?)`: returns tickets for admin queues.
 - `listLiveChatQueue(filter?)`: returns live-chat sessions for admin queues.
 - `getLiveChatById(sessionId)`: returns one live-chat session or `null`.
@@ -209,6 +212,7 @@ a complete adapter.
 - `createTicket(input)`
 - `getTicket(reference)`
 - `listTickets(customer, request?)`
+- `deleteTicket(input)`
 - `appendTicketMessage(input)`
 - `startLiveChat(input)`
 - `getOpenLiveChat(customer)`
@@ -572,6 +576,7 @@ Live-chat transcript entry:
 Ticket inputs:
 
 - `CreateSupportTicketInput`
+- `DeleteSupportTicketInput`
 - `UpdateSupportTicketInput`
 - `AppendSupportTicketMessageInput`
 
