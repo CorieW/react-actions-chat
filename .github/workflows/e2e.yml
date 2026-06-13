@@ -25,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.13.0'
+          node-version-file: '.nvmrc'
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
 
@@ -80,7 +80,7 @@ jobs:
         if: ${{ steps.live-settings-api-key.outputs.available == 'true' }}
         uses: actions/setup-node@v4
         with:
-          node-version: '22.13.0'
+          node-version-file: '.nvmrc'
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
 
