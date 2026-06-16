@@ -1,4 +1,4 @@
-export { createQueryRecommendedActionsFlow } from './queryFlow';
+export { createQueryRecommendedActionsFlow } from './createQueryRecommendedActionsFlow';
 export type {
   QueryRecommendedAction,
   QueryRecommendedActionsContext,
@@ -6,4 +6,4 @@ export type {
   QueryRecommendedActionsFlowConfig,
   QueryRecommendedActionsResolver,
   QueryRecommendedActionsResult,
-} from './queryFlow';
+} from './types';

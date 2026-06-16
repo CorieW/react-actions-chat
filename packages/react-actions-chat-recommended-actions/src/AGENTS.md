@@ -6,13 +6,15 @@ Published source for the recommended-actions companion package, including query 
 
 - `__tests__/`: Automated tests for the companion package flows and embedder helpers.
 - `embedders/`: Provider-specific text embedder implementations and shared embedding utilities.
+- `queryFlow/`: Internal query recommendation flow contracts, defaults, message resolution, and chat-store orchestration.
+- `vectorSearch/`: Internal vector-search recommendation contracts, scoring, and resolver wiring.
 
 ## Files
 
 - `index.ts`: Public export barrel for the recommended-actions companion package.
-- `queryRecommendedActionsFlow.ts`: Builds query-driven flows that recommend action buttons from free-text user requests.
+- `queryRecommendedActionsFlow.ts`: Compatibility export for query-driven recommended action flows.
 - `vectorSearchButtonDefinition.ts`: Types and helpers for button definitions used in vector-search recommendation flows.
-- `vectorSearchQueryRecommendedActionsFlow.ts`: Builds recommended-action flows backed by vector search.
+- `vectorSearchQueryRecommendedActionsFlow.ts`: Compatibility export for vector-search-backed recommended action flows.
 
 ## Writing Rules
 
